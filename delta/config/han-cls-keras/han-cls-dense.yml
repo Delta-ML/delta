@@ -1,0 +1,117 @@
+---
+data:
+  train:
+    paths:
+      - "dense_data/train.dictid"
+    dense_npy: "dense_data/ds_train_scale.npy"
+  dev:
+    paths:
+      - "dense_data/test.dictid"
+    dense_npy: "dense_data/ds_test_scale.npy"
+  eval:
+    paths:
+      - "dense_data/test.dictid"
+    dense_npy: "dense_data/ds_test_scale.npy"
+  infer:
+    paths:
+      - "dense_data/test.dictid"
+    dense_npy: "dense_data/ds_test_scale.npy"
+    res: ckpt/han-cls/res/infer.txt
+  task:
+    name: TextClsDenseTask
+    use_dense: false
+    language: chinese
+    split_by_space: true
+    keyword: data/keyword_list
+    vocab_min_frequency: 20
+    text_vocab: data/text_vocab.pkl
+    label_vocab: data/label_vocab.pkl
+    dense_input_dim: 31
+    max_seq_len: 1024
+    batch_size: 32
+    epochs: 100
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 200000
+    need_shuffle: true
+    classes:
+      num_classes: 440
+      positive_id: 1
+
+model:
+  name: HierarchicalAttentionModel
+  type: keras
+  use_pre_train_emb: false
+  pre_train_emb_path: ""
+  embedding_path: ckpt/cnn-cls-dense/data/embeding.pkl
+  net:
+    structure:
+      dense_input:
+        use_dense_input: true
+        only_dense_input: false
+      embedding_size: 200
+      emb_trainable: true
+      cell_type: gru
+      cell_dim: 100
+      num_layers: 1
+      max_len: 1024
+      max_sen_len: 32
+      max_doc_len: 32
+      dropout_rate: 0.5
+      l2_reg_lambda: 0
+
+solver:
+  name: RawSolver
+  quantization:
+    enable: false # whether to quantization model
+    quant_delay: 0 # Number of steps after which weights and activations are quantized during training
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: adam
+    loss: CrossEntropyLoss 
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.0001 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    batch_size: 32
+    epochs: 100
+    clip_global_norm: 3.0 # clip global norm
+    multitask: False # whether is multi-task
+  metrics:
+    pos_label: 1 # int, same to sklearn
+    cals:
+      - name: AccuracyCal
+        arguments: Null
+      - name: PrecisionCal
+        arguments:
+          average: 'macro'
+      - name: RecallCal
+        arguments:
+          average: 'macro'
+      - name: F1ScoreCal
+        arguments:
+          average: 'weighted'
+  saver:
+    model_path: "ckpt/cnn-cls-dense"
+    max_to_keep: 30
+    save_checkpoint_steps: 300 # the step to save checkpoint
+    print_every: 10
+    resume_model_path: "mock/cnn-cls-dense/checkpoints/model/model.ckpt-10"
+  service:
+    model_path: "mock/cnn-cls-dense/service"
+    model_version: "1"
+  run_config:
+    tf_random_seed: null
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true

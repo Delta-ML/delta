@@ -1,0 +1,109 @@
+---
+data:
+  train:
+    paths: 
+      - "/nfs/project/dingning/seqlabel/nlu-ml/delta/data/seq_label_tmp/train_small.txt"
+  eval:
+    paths:
+      - "/nfs/project/dingning/seqlabel/nlu-ml/delta/data/seq_label_tmp/dev_small.txt"
+  infer:
+    paths: 
+      - "/nfs/project/dingning/seqlabel/data/test.txt"
+  res: ckpt/bilstm-seq/res/infer.txt
+  task:
+    name: TextSeqLabelTask
+    use_dense: false
+    language: chinese
+    split_by_space: true
+    keyword: ckpt/bilstm-seq/example/keyword_list
+    vocab_min_frequency: 0
+    text_vocab: ckpt/bilstm-seq/example/text_vocab.pkl
+    label_vocab: ckpt/bilstm-seq/example/label_vocab.pkl
+    max_seq_len: 1024
+    num_classes: 7
+    batch_size: 64
+    epochs: 10
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 200000
+    need_shuffle: true
+    classes:
+      num_classes: 7
+      positive_id: 1
+      vocab:
+        O: 0
+        B-PER: 1
+        I-PER: 2
+        B-LOC: 3
+        I-LOC: 4
+        B-ORG: 5
+        I-ORG: 6
+
+model:
+  name: BilstmCrfModel
+  type: keras # raw, keras or eager model
+  use_pre_train_emb: False
+  net:
+    structure:
+      embedding_size: 300
+      cell_type: lstm
+      cell_dim: 100
+      num_units: 300
+      num_layers: 1
+      batch_size: 64
+      max_len: 1024
+      dropout_rate: 0.5
+      l2_reg_lambda: 0
+      fc_dim: 100
+
+solver:
+  name: RawSeqLabelSolver
+  quantization:
+    enable: false # whether to quantization model
+    quant_delay: 0 # Number of steps after which weights and activations are quantized during training
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: adam
+    loss: CrfLoss 
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.001 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    batch_size: 64
+    epochs: 3
+    clip_global_norm: 5.0 # clip global norm
+    multitask: False # whether is multi-task
+  metrics:
+    pos_label: 1
+    cals:
+      - name: CrfCal
+        arguments: Null
+  saver:
+    model_path: "ckpt/bilstm-seq/1"
+    max_to_keep: 10
+    save_checkpoint_steps: 15
+    keep_checkpoint_every_n_hours: 10000
+    checkpoint_every: 10 # the step to save checkpoint
+    summary: false
+    save_summary_steps: 100
+    eval_on_dev_every_secs: 1
+    print_every: 10
+    resume_model_path: "mock/bilstm-seq/checkpoints/model/model.ckpt-10"
+  service:
+    model_path: "mock/bilstm-seq/service"
+    model_version: "1"
+  run_config:
+    tf_random_seed: null
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true

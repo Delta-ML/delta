@@ -1,0 +1,48 @@
+#include "base.h"
+#include "operator.h"
+
+namespace inference {
+
+namespace operators {
+
+namespace {
+//todo ...
+
+} //end namespace
+
+class TemplateOp : public Operator {
+public:
+    TemplateOp(const OperatorConfig& config) :
+        Operator(config) {
+        BLOG << "TemplateOp Construct, _threshold is " <<_threshold;
+
+        std::vector<std::size_t> shape;
+        _model_ins.push_back(make_tuple("input_name", make_unique<Buffer<float>>(), shape));
+        _model_outs.push_back(make_tuple("output_name", make_unique<Buffer<float>>(), shape));
+    }
+
+    ~TemplateOp() {  }
+
+private:
+    int pre_process(Input& in) override {
+        DBLOG << "TemplateOp pre_process, this is " << this;
+        //TODO ...
+
+        return 0;
+    }
+
+    int post_process(Output& out) override {
+        DBLOG << "TemplateOp post_process";
+        //TODO ...
+
+        return 0
+    }
+
+    std::unique_ptr<Buffer<float>> _pcm_buffer;
+};
+
+RESISTER_OPERATOR(template, TemplateOp);
+
+} //namespace process
+
+} //namespace inferenc

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+if [ $# != 1 ];then
+    echo "usage: $0 [delta|deltann]"
+    exit 1
+fi
+
+target=$1
+
+if [ -z $MAIN_ROOT ];then
+    pushd ../../../
+    source env.sh
+    popd
+    echo "source env.sh"
+fi
+
+# prepare dependency
+echo "prepare dependency"
+if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ];then
+    unlink $MAIN_ROOT/delta/layers/ops/cppjieba
+fi
+
+ln -s $MAIN_ROOT/tools/cppjieba  $MAIN_ROOT/delta/layers/ops/cppjieba || echo $MAIN_ROOT
+
+# clean 
+
+make clean &> /dev/null
+
+# compile custom ops under tensorflow/core/user_ops
+
+if [ $target == 'delta' ];then
+    make 
+
+elif [ $target == 'deltann' ];then
+    if [ -L $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops ];then
+        unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
+    fi
+    ln -s $MAIN_ROOT/delta/layers/ops  $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops 
+    
+    pushd $MAIN_ROOT/tools/tensorflow
+    
+    bazel --output_user_root=$MAIN_ROOT/tools/.cache/bazel \
+       build -c opt //tensorflow/core/user_ops/ops:x_ops.so || { echo "compile custom ops error"; exit 1; }
+    
+    cp bazel-bin/tensorflow/core/user_ops/ops/*.so $MAIN_ROOT/dpl/lib/custom_ops
+    cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/delta/layers/ops/ 
+
+    popd
+
+fi

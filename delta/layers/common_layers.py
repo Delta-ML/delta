@@ -1,0 +1,209 @@
+# Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+"""Common layers."""
+
+import tensorflow as tf
+import tensorflow.contrib.slim as slim  #pylint: disable=no-name-in-module
+
+#pylint: disable=invalid-name
+
+
+def depthwise_separable_conv(inputs,
+                             num_pwc_filters,
+                             width_multiplier,
+                             scope,
+                             downsample=False):
+  """Depth-wise separable convolution."""
+  num_pwc_filters = round(num_pwc_filters * width_multiplier)
+  _stride = 2 if downsample else 1
+
+  # skip pointwise by setting num_outputs=None
+  depthwise_conv = slim.separable_convolution2d(
+      inputs,
+      num_outputs=None,
+      stride=_stride,
+      depth_multiplier=1,
+      kernel_size=[3, 3],
+      scope=scope + '/depthwise_conv')
+
+  bn = slim.batch_norm(depthwise_conv, scope=scope + '/dw_batch_norm')
+  pointwise_conv = slim.convolution2d(
+      bn, num_pwc_filters, kernel_size=[1, 1], scope=scope + '/pointwise_conv')
+  bn = slim.batch_norm(pointwise_conv, scope=scope + '/pw_batch_norm')
+  return bn
+
+
+#pylint: disable=too-many-arguments
+def tdnn(x, name, in_dim, in_context, out_dim, has_bias=True):
+  ''' Implemented using conv1d which in turn is a conv2d. '''
+  with tf.variable_scope(name):
+    kernel = tf.get_variable(
+        name='DW',
+        shape=[in_context, in_dim, out_dim],
+        dtype=tf.float32,
+        initializer=tf.contrib.layers.xavier_initializer())
+    tdnn_op = tf.nn.conv1d(x, kernel, stride=1, padding='SAME')
+    if has_bias:
+      b = tf.get_variable(
+          name='bias',
+          shape=[out_dim],
+          dtype=tf.float32,
+          initializer=tf.constant_initializer(0.0))
+      return tf.nn.bias_add(tdnn_op, b)
+    return tdnn_op
+
+
+def conv2d(x, name, filter_size, in_channels, out_channels, strides):
+  """2D convolution."""
+  with tf.variable_scope(name):
+    kernel = tf.get_variable(
+        name='DW',
+        shape=[filter_size[0], filter_size[1], in_channels, out_channels],
+        dtype=tf.float32,
+        initializer=tf.contrib.layers.xavier_initializer())
+    b = tf.get_variable(
+        name='bais',
+        shape=[out_channels],
+        dtype=tf.float32,
+        initializer=tf.constant_initializer(0.0))
+    con2d_op = tf.nn.conv2d(
+        x, kernel, [1, strides[0], strides[1], 1], padding='SAME')
+    return tf.nn.bias_add(con2d_op, b)
+
+
+def max_pool(x, ksize, strides):
+  """Max Pooling."""
+  return tf.nn.max_pool(
+      x,
+      ksize=[1, ksize[0], ksize[1], 1],
+      strides=[1, strides[0], strides[1], 1],
+      padding='VALID',
+      name='max_pool')
+
+
+def linear(x, names, shapes):
+  """Linear Layer."""
+  with tf.variable_scope(names):
+    weights = tf.get_variable(
+        name='weights',
+        shape=shapes,
+        initializer=tf.truncated_normal_initializer(stddev=0.1))
+    bias = tf.get_variable(
+        name='bias', shape=shapes[1], initializer=tf.constant_initializer(0.0))
+    return tf.matmul(x, weights) + bias
+
+
+def attention(inputs, attention_size, time_major=False, return_alphas=False):
+  """Attention layer."""
+  if isinstance(inputs, tuple):
+    # In case of Bi-RNN, concatenate the forward and the backward RNN outputs.
+    inputs = tf.concat(inputs, 2)
+
+  if time_major:
+    # (T,B,D) => (B,T,D)
+    inputs = tf.transpose(inputs, [1, 0, 2])
+
+  time_size = inputs.shape[1].value  # T value - time size of the RNN layer
+  hidden_size = inputs.shape[2].value  # D value - hidden size of the RNN layer
+
+  # Trainable parameters
+  W_omega = tf.get_variable(
+      tf.random_normal([hidden_size, attention_size], stddev=0.1))
+  b_omega = tf.get_variable(tf.random_normal([attention_size], stddev=0.1))
+  u_omega = tf.get_variable(tf.random_normal([attention_size, 1], stddev=0.1))
+
+  # Applying fully connected layer with non-linear activation to each of the B*T timestamps;
+  #  the shape of `v` is (B,T,D)*(D,A)=(B,T,A), where A=attention_size
+  #v = tf.tanh(tf.tensordot(inputs, W_omega, axes=1) + b_omega)
+  #v = tf.sigmoid(tf.tensordot(inputs, W_omega, axes=1) + b_omega)
+  # (B, T, D) dot (D, Atten)
+
+  print('attention inputs', inputs.shape)
+  inputs_reshaped = tf.reshape(inputs, [-1, hidden_size])
+  dot = tf.matmul(inputs_reshaped, W_omega)
+  dot = tf.reshape(dot, [-1, time_size, attention_size])
+  v = tf.sigmoid(dot + b_omega)
+  print('attention vector', v.shape)
+  # For each of the timestamps its vector of size A from `v` is reduced with `u` vector
+  # (B, T, Atten) dot (Atten)
+  #vu = tf.tensordot(v, u_omega, axes=1)   # (B,T) shape
+  v = tf.reshape(v, [-1, attention_size])
+  vu = tf.matmul(v, u_omega)  # (B,T) shape
+  vu = tf.squeeze(vu, axis=-1)
+  vu = tf.reshape(vu, [-1, time_size])
+  print('attention energe', vu.shape)
+  alphas = tf.nn.softmax(vu)  # (B,T) shape also
+
+  # Output of (Bi-)RNN is reduced with attention vector; the result has (B,D) shape
+  # [batch, time] -> [batch, time, 1]
+  alphas = tf.expand_dims(alphas, -1)
+  # [batch, time, dim] -> [batch, dim]
+  output = tf.reduce_sum(inputs * alphas, 1)
+
+  if not return_alphas:
+    return output
+
+  return output, alphas
+
+
+def embedding_look_up(text_inputs, vocab_size, embedding_size):
+  """Embedding layer."""
+  with tf.variable_scope("embedding"):
+    W = tf.get_variable(
+        tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0), "W")
+    embedding_chars = tf.nn.embedding_lookup(W, text_inputs)
+    embedding_chars_expanded = tf.expand_dims(embedding_chars, -1)
+  return embedding_chars_expanded
+
+
+#pylint: disable=too-many-locals
+def conv_pool(embedded_chars_expanded, filter_sizes, embedding_size,
+              num_filters, sequence_length):
+  """
+    text conv and max pooling to get one-dimension vector to representation of text
+    :param filter_sizes:
+    :return:
+    """
+  pooled_outputs = []
+  for _, filter_size in enumerate(filter_sizes):
+    with tf.variable_scope("conv-maxpool-%s" % filter_size):
+      # Convolution Layer
+      filter_shape = [filter_size, embedding_size, 1, num_filters]
+      W = tf.get_variable(tf.truncated_normal(filter_shape, stddev=0.1), "W")
+      b = tf.get_variable(tf.constant(0.1, shape=[num_filters]), "b")
+      conv = tf.nn.conv2d(
+          embedded_chars_expanded,
+          W,
+          strides=[1, 1, 1, 1],
+          padding="VALID",
+          name="conv")
+      # Apply nonlinearity
+      h = tf.nn.relu(tf.nn.bias_add(conv, b), name="relu")
+      # Maxpooling over the outputs
+      pooled = tf.nn.max_pool(
+          h,
+          ksize=[1, sequence_length - filter_size + 1, 1, 1],
+          strides=[1, 1, 1, 1],
+          padding='VALID',
+          name="pool")
+      pooled_outputs.append(pooled)
+  # Combine all the pooled features
+  num_filters_total = num_filters * len(filter_sizes)
+
+  h_pool = tf.concat(pooled_outputs, 3)
+
+  h_pool_flat = tf.reshape(h_pool, [-1, num_filters_total])
+  return h_pool_flat

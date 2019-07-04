@@ -1,0 +1,36 @@
+
+model:
+    custom_ops_path: "/nlu-ml/delta/layers/ops/x_ops.so"
+    graphs:
+        -
+            id: 0
+            name: "default"
+
+            server_type: "local"
+            engine: "TF"
+
+            version: 1
+            local: 
+                path: "/nlu-ml/dpl/test/nlp"
+                model_type: "saved_model"
+            remote:
+                model_name: null
+                host: http://10.90.55.32
+                port: 8501
+
+
+            inputs:
+                -
+                    id: 0
+                    name: "input_sentence"
+                    shape: [1]
+                    dtype: "char"
+            outputs:
+                -
+                    id: 0
+                    name: "score"
+                    dtype: float
+
+
+runtime:
+    num_threads: 1

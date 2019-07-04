@@ -1,0 +1,86 @@
+# Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+''' Speech Emotion Solver based on EstimatorSolver'''
+from absl import logging
+import librosa
+import tensorflow as tf
+
+from delta.utils.solver.estimator_solver import EstimatorSolver
+from delta.utils.register import registers
+
+
+@registers.solver.register
+class EmotionSolver(EstimatorSolver):
+  ''' Speech Emotion Solver'''
+
+  #pylint: disable=useless-super-delegation
+  def __init__(self, config):
+    super().__init__(config)
+
+  def process_config(self, config):
+    ''' preprocess config '''
+    data_conf = config['data']
+    class_vocab = data_conf['task']['classes']['vocab']
+    assert len(class_vocab) == data_conf['task']['classes']['num']
+
+    # add revere_vocab, positive_id
+    reverse_vocab = {val: key for key, val in class_vocab.items()}
+    data_conf['task']['classes']['reverse_vocab'] = reverse_vocab
+
+    # binary class
+    pos_id = config['solver']['metrics']['pos_label']
+    data_conf['task']['classes']['positive_id'] = pos_id
+    data_conf['task']['classes']['positive'] = reverse_vocab[pos_id]
+
+    # add feature shape, withoud batch_size
+    if data_conf['task']['suffix'] == '.npy':
+      input_channels = 3 if data_conf['task']['audio']['add_delta_deltas'] else 1
+      nframe = librosa.time_to_frames(
+          data_conf['task']['audio']['clip_size'],
+          sr=data_conf['task']['audio']['sr'],
+          hop_length=data_conf['task']['audio']['winstep'] *
+          data_conf['task']['audio']['sr'])
+      feature_shape = [
+          nframe, data_conf['task']['audio']['feature_size'], input_channels
+      ]
+    else:
+      feature_shape = [
+          data_conf['task']['audio']['sr'] *
+          data_conf['task']['audio']['clip_size']
+      ]
+    data_conf['task']['audio']['feature_shape'] = feature_shape
+    return config
+
+  def create_serving_input_receiver_fn(self):
+    ''' infer input pipeline '''
+    # with batch_size
+    taskconf = self.config['data']['task']
+    shape = [None] + taskconf['audio']['feature_shape']
+    logging.debug('serving input shape:{}'.format(shape))
+
+    #pylint: disable=no-member
+    return tf.estimator.export.build_raw_serving_input_receiver_fn(
+        features={
+            'inputs':
+                tf.placeholder(name="inputs", shape=shape, dtype=tf.float32),
+            'texts':
+                tf.placeholder(
+                    name="texts",
+                    shape=(None, taskconf['text']['max_text_len']),
+                    dtype=tf.int32)
+        },
+        default_batch_size=None,
+    )

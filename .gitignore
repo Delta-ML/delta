@@ -1,0 +1,85 @@
+# common
+.idea
+.vscode
+*swp
+__pycache__
+*pyc
+.DS_Store
+private
+*.npy
+*.wav
+*.mp3
+tags
+gen
+*.cxx
+*.o
+*.a
+*.so
+*.txt
+*.list
+*.log
+*.raw
+*.ark
+*.scp
+.gen
+*.bin
+
+# tmp
+ckpt
+mock
+
+# docs
+docs/_build
+
+# layers
+delta/layers/ops/cppjieba
+delta/layers/ops/gen
+delta/layers/ops/*.so
+
+# tools related
+tools/test/gen
+tools/test/*.bin
+tools/*.done
+tools/espnet
+tools/kaldi
+tools/mecab
+tools/moses
+tools/nkf
+tools/cppjieba
+tools/abseil-cpp
+tools/jsoncpp/
+tools/googletest
+tools/sentencepiece
+tools/jsoncpp/
+tools/mbedtls/
+tools/yaml
+tools/tensorflow
+tools/.cache
+tools/protobuf
+tools/curl
+tools/openssl
+tools/jsoncpp
+tools/mbedtls
+tools/https_client
+
+# lint
+cpplint.log
+pylint.log
+
+# mock data
+delta/config/data/text_cls
+
+# data
+egs/*/*/data
+delta/config/data
+
+# exp
+exp
+egs/*/*/exp
+
+# dpl copys
+dpl/lib/tensorflow/*
+dpl/lib/tflite/*
+dpl/lib/custom_ops/*
+dpl/lib/deltann/*
+dpl/test/*

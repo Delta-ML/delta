@@ -1,0 +1,115 @@
+---
+data:
+  train:
+    paths: "/nfs/project/liuyang/tmp/tf_wakeup/train.lst"
+  eval:
+    paths: '/nfs/project/liuyang/tmp/tf_wakeup/xdnh_2000s.lst'
+  infer:
+    paths: '/nfs/project/liuyang/tmp/tf_wakeup/xdnh_2000s.lst'
+  task:
+    name: KwsClsTask
+    suffix: .feat # file suffix
+    audio:
+      window_len: 170     # the length of speech frame slice for classification
+      window_shift: 10    
+      add_delta_deltas: true
+      delta_order: 2
+      delta_wind: 2
+      cmvn_path: '/nfs/project/liuyang/tmp/tf_wakeup/xdnh_3600.cmvn'
+      splice_frame: False
+      left_context: 3
+      right_context: 4
+      feat_dim: 40
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 200000
+    need_shuffle: true
+    classes:
+      num: 2
+      positive: wakeup
+      vocab:
+        other:  0
+        wakeup: 1
+
+
+model:  # TDNN Wakeup Model. https://www.isca-speech.org/archive/Interspeech_2018/abstracts/1979.html
+  name: TdnnKwsModel
+  type: raw     # raw or keras
+  net:    
+    num_layers: 3
+    kernel_size: 5
+    strides: 2
+
+
+solver:
+  name: KwsSolver
+  quantization:
+    enable: false # whether to quantization model
+    quant_delay: 0 # Number of steps after which weights and activations are quantized during training
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: adam
+    epochs: 10 # maximum epochs
+    batch_size: 50 # number of elements in a training batch
+    loss: CrossEntropyLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.0001 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    clip_global_norm: 3.0 # clip global norm
+    multitask: False # whether is multi-task
+  metrics:
+    pos_label: 1 # int, same to sklearn
+    cals:
+    - name: AccuracyCal
+      arguments: Null
+    - name: ConfusionMatrixCal
+      arguments: null
+    - name: PrecisionCal
+      arguments:
+        average: 'binary'
+    - name: RecallCal
+      arguments:
+        average: 'binary'
+    - name: F1ScoreCal
+      arguments:
+        average: 'binary'
+  postproc:
+      name: EmoPostProc
+      log_verbose: false 
+      eval: true    # compute metrics
+      infer: false  # get predict results
+      pred_path: null # null for default 
+      thresholds:
+          - 0.5
+      smoothing:
+          enable: true
+          count: 2
+  saver:
+    model_path: "ckpt/kws-speech-cls/test"
+    max_to_keep: 10
+    save_checkpoints_steps: 100
+    keep_checkpoint_every_n_hours: 10000
+    checkpoint_every: 100 # the step to save checkpoint
+    summary: false
+    save_summary_steps: 100
+    eval_on_dev_every_secs: 1
+    print_every: 10
+    resume_model_path: ""
+  run_config:
+    debug: false # use tfdbug
+    tf_random_seed: null 
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true
+    log_step_count_steps: 100 #The frequency, in number of global steps, that the global step/sec and the loss will be logged during training.
