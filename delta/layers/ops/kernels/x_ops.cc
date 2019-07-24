@@ -79,17 +79,27 @@ Status PLPShapeFn(InferenceContext* c) {
 Status AnalyfiltbankShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
-  c->set_output(1, c->Vector(c->UnknownDim()));
+
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
+  c->set_output(0, c->Matrix(i_NumFrm, i_FrqNum));
+  c->set_output(1, c->Matrix(i_NumFrm, i_FrqNum));
 
   return Status::OK();
 }
 
 Status SynthfiltbankShapeFn(InferenceContext* c) {
   ShapeHandle input_data_1;
-  TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data_1));
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 2, &input_data_1));
   ShapeHandle input_data_2;
-  TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 1, &input_data_2));
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 2, &input_data_2));
   c->set_output(0, c->Vector(c->UnknownDim()));
 
   return Status::OK();
@@ -312,8 +322,8 @@ REGISTER_OP("Analyfiltbank")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second, support 30ms only for now.
     frame_length: float, frame length in second, support 10ms only for now.
-    output_1: float, power spectrum
-    output_2: float, phase spectrum
+    output_1: float, power spectrum [num_Frame, num_Subband]
+    output_2: float, phase spectrum [num_Frame, num_Subband]
     )doc");
 
 REGISTER_OP("Synthfiltbank")
@@ -326,8 +336,8 @@ REGISTER_OP("Synthfiltbank")
     .SetShapeFn(SynthfiltbankShapeFn)
     .Doc(R"doc(
     Create synthesis filter bank feature files.
-    input_data_1: float, power spectrum, a tensor of shape [1, num_freq * num_frm].
-    input_data_2: float, phase spectrum, a tensor of shape [1, num_freq * num_frm].
+    input_data_1: float, power spectrum, a tensor of shape [num_frm, num_freq].
+    input_data_2: float, phase spectrum, a tensor of shape [num_frm, num_freq].
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second, support 30ms only for now.
     frame_length: float, frame length in second, support 10ms only for now.
@@ -516,6 +526,7 @@ load_token_ids_from_vocab: Whether token ids are present in vocab (i.e. vocab
     are used.
 delimiter: The delimiter to split the labels to tokens by.
 pad_id: The padding id.
+check_tokens: If tokens like <unk> must be in vocab file.
 )doc");
 
 }  // namespace delta

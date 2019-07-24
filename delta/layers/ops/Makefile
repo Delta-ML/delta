@@ -10,7 +10,7 @@ endif
 
 CXX := g++ 
 NVCC := nvcc
-PYTHON_BIN_PATH= python
+PYTHON_BIN_PATH= python3
 CC :=
 AR :=
 CXXFLAGS :=

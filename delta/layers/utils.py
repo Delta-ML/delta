@@ -15,7 +15,19 @@
 # ==============================================================================
 """Utilities for building model layers."""
 
+import math
 import tensorflow as tf
+# pylint: disable=no-name-in-module
+from tensorflow.python.keras import backend as K
+
+
+# pylint: disable=invalid-name
+def gelu(x):
+  """An approximation of gelu.
+     See: https://arxiv.org/pdf/1606.08415.pdf
+  """
+  return 0.5 * x * (
+      1.0 + K.tanh(math.sqrt(2.0 / math.pi) * (x + 0.044715 * K.pow(x, 3))))
 
 
 def cut_or_padding(origin_t, new_length, padding_token=0):
@@ -114,5 +126,5 @@ def split_one_doc_to_true_len_sens(doc_t, split_token, padding_token,
         tf.ones_like(out_t, dtype=tf.int32), padding_token)
     out_t = tf.where(tf.equal(out_t, split_token), padding_tokens, out_t)
     return out_t
-  else:
-    raise ValueError("doc_t should be a tensor with rank 1.")
+
+  raise ValueError("doc_t should be a tensor with rank 1.")

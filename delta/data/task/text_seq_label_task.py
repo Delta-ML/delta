@@ -32,6 +32,7 @@ from delta.layers.utils import compute_sen_lens
 
 # pylint: disable=too-many-instance-attributes
 
+
 @registers.task.register
 class TextSeqLabelTask(TextTask):
   """Task class for sequence labeling."""
@@ -54,7 +55,7 @@ class TextSeqLabelTask(TextTask):
     self.text_vocab_file_path = task_config['text_vocab']
     self.label_vocab_file_path = task_config['label_vocab']
     self.max_seq_len = task_config['max_seq_len']
-    self.num_classes = task_config['num_classes']
+    self.num_classes = task_config["classes"]['num_classes']
     self.batch_size = task_config['batch_size']
     self.epochs = task_config['epochs']
     self.num_parallel_calls = task_config['num_parallel_calls']
@@ -67,16 +68,15 @@ class TextSeqLabelTask(TextTask):
     self.split_by_space = self.task_config.get("split_by_space", False)
     self.use_word = self.task_config.get("use_word", False)
     self.paths_after_pre_process = [
-      one_path + ".after" for one_path in self.paths
+        one_path + ".after" for one_path in self.paths
     ]
+    self.init_feed_dict = {}
     self.prepare()
 
   def pre_process_pipeline(self, input_sentences):
     """Data pipeline function for pre-processing."""
-    batch = pre_process_text(input_sentences,
-                             self.language,
-                             self.split_by_space,
-                             self.use_word)
+    batch = pre_process_text(input_sentences, self.language,
+                             self.split_by_space, self.use_word)
     return batch
 
   def common_process_pipeline(self, batch):
@@ -88,32 +88,40 @@ class TextSeqLabelTask(TextTask):
     token_ids = tokenize_sentence(batch, self.max_seq_len, vocab_path)
     return token_ids
 
-  def load_text_dataset(self, text):
+  def load_text_dataset(self, text_placeholder):
     """Load text data set."""
     logging.info("Loading text dataset...")
-    text_ds = tf.data.Dataset.from_tensor_slices(text)
+    text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
-    text_ds = text_ds.map(input_pipeline_func,
-                          num_parallel_calls=self.num_parallel_calls)
+    text_ds = text_ds.map(
+        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
     text_size_ds = text_ds.map(
-      lambda x: compute_sen_lens(x, padding_token=0), num_parallel_calls=self.num_parallel_calls)
+        lambda x: compute_sen_lens(x, padding_token=0),
+        num_parallel_calls=self.num_parallel_calls)
     text_ds = tf.data.Dataset.zip((text_ds, text_size_ds))
 
     return text_ds
 
   def generate_data(self):
     """Generate data for offline training."""
-    text, label = load_seq_label_raw_data(paths=self.paths, mode=self.mode,
-                                          infer_no_label=self.infer_no_label)
-    text_ds = self.load_text_dataset(text)
+    text, label = load_seq_label_raw_data(
+        paths=self.paths, mode=self.mode, infer_no_label=self.infer_no_label)
+
+    text_placeholder = tf.placeholder(tf.string, name="text")
+    label_placeholder = tf.placeholder(tf.string, name="label")
+    self.init_feed_dict[text_placeholder] = text
+    self.init_feed_dict[label_placeholder] = label
+
+    text_ds = self.load_text_dataset(text_placeholder)
 
     if self.infer_without_label:
       data_set = text_ds
     else:
-      label_ds = load_multi_label_dataset(label, self.config)
+      label_ds = load_multi_label_dataset(label_placeholder, self.config)
       data_set = tf.data.Dataset.zip((text_ds, label_ds))
 
-    self.config['data']['vocab_size'] = get_vocab_size(self.text_vocab_file_path)
+    self.config['data']['vocab_size'] = get_vocab_size(
+        self.text_vocab_file_path)
     self.config['data']['{}_data_size'.format(self.mode)] = len(text)
 
     return data_set
@@ -121,7 +129,7 @@ class TextSeqLabelTask(TextTask):
   def feature_spec(self):
     """Get shapes for feature."""
     feature_shapes = [(tf.TensorShape([self.max_seq_len]), tf.TensorShape([]))]
-    if self.mode != utils.INFER:
+    if not self.infer_without_label:
       feature_shapes.append(tf.TensorShape([self.max_seq_len]))
     if len(feature_shapes) == 1:
       return feature_shapes[0]
@@ -130,22 +138,23 @@ class TextSeqLabelTask(TextTask):
   def export_inputs(self):
     """Inputs for exported model."""
     self.config['data']['vocab_size'] = get_vocab_size(
-      self.text_vocab_file_path)
+        self.text_vocab_file_path)
     input_sentence = tf.placeholder(
-      shape=(None,), dtype=tf.string, name="input_sentence")
+        shape=(None,), dtype=tf.string, name="input_sentence")
 
     input_pipeline_func = self.get_input_pipeline(for_export=True)
     token_ids = input_pipeline_func(input_sentence)
-    token_ids_len = tf.map_fn(lambda x: compute_sen_lens(x, padding_token=0), token_ids)
+    token_ids_len = tf.map_fn(lambda x: compute_sen_lens(x, padding_token=0),
+                              token_ids)
 
     export_data = {
-      "export_inputs": {
-        "input_sentence": input_sentence
-      },
-      "model_inputs": {
-        "input_x": token_ids,
-        "input_x_len": token_ids_len
-      }
+        "export_inputs": {
+            "input_sentence": input_sentence
+        },
+        "model_inputs": {
+            "input_x": token_ids,
+            "input_x_len": token_ids_len
+        }
     }
 
     return export_data
@@ -154,12 +163,16 @@ class TextSeqLabelTask(TextTask):
     """Dataset function"""
     data_set = self.generate_data()
 
-    if self.need_shuffle and self.mode == 'train':
-      # shuffle batch size and repeat
-      logging.info("shuffle dataset ...")
-      data_set = data_set.apply(
+    if self.mode == 'train':
+      if self.need_shuffle:
+        # shuffle batch size and repeat
+        logging.debug("shuffle and repeat dataset ...")
+        data_set = data_set.apply(
           tf.data.experimental.shuffle_and_repeat(
-              buffer_size=self.shuffle_buffer_size, count=None))
+            buffer_size=self.shuffle_buffer_size, count=None))
+      else:
+        logging.debug("repeat dataset ...")
+        data_set = data_set.repeat(count=None)
 
     feature_shape = self.feature_spec()
     logging.debug("feature_shape: {}".format(feature_shape))
@@ -177,8 +190,12 @@ class TextSeqLabelTask(TextTask):
       (input_x, input_x_len), input_y = iterator.get_next()
 
     input_x_dict = collections.OrderedDict([("input_x", input_x)])
-    return_dict = {"input_x_dict": input_x_dict,
-                   "input_x_len": input_x_len, "iterator": iterator}
+    return_dict = {
+        "input_x_dict": input_x_dict,
+        "input_x_len": input_x_len,
+        "iterator": iterator,
+        "init_feed_dict": self.init_feed_dict
+    }
 
     if not self.infer_without_label:
       return_dict["input_y_dict"] = collections.OrderedDict([("input_y",

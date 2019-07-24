@@ -95,7 +95,7 @@ class SeqclassCNNModel(SeqclassModel):
 
     self.dense = tf.keras.layers.Dense(64, activation=tf.keras.activations.relu)
 
-    self.dropout = tf.keras.layers.Dropout(rate=0.4)
+    self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
 
     self.final_dense = tf.keras.layers.Dense(
         self.num_classes, activation=tf.keras.activations.linear)
@@ -129,7 +129,7 @@ class RnnAttentionModel(SeqclassModel):
   def __init__(self, config, **kwargs):
     super(RnnAttentionModel, self).__init__(config, **kwargs)
 
-    tf.logging.info("Initialize RnnAttentionModel...")
+    logging.info("Initialize RnnAttentionModel...")
 
     self.vocab_size = config['data']['vocab_size']
     self.num_classes = config['data']['task']['num_classes']
@@ -153,7 +153,7 @@ class RnnAttentionModel(SeqclassModel):
         self.num_classes,
         activation=tf.keras.activations.linear,
         name="final_dense")
-    tf.logging.info("Initialize RnnAttentionModel done.")
+    logging.info("Initialize RnnAttentionModel done.")
 
   @staticmethod
   def compute_lens(inputs, max_len):
@@ -204,7 +204,7 @@ class TransformerModel(SeqclassModel):
 
   def __init__(self, config, **kwargs):
     super(TransformerModel, self).__init__(config, **kwargs)
-    tf.logging.info("Initialize TransformerModel...")
+    logging.info("Initialize TransformerModel...")
 
     self.vocab_size = config['data']['vocab_size']
     self.num_classes = config['data']['task']['classes']['num_classes']
@@ -247,7 +247,7 @@ class TransformerModel(SeqclassModel):
         self.num_classes,
         activation=tf.keras.activations.linear,
         name="final_dense")
-    tf.logging.info("Initialize TransformerModel done.")
+    logging.info("Initialize TransformerModel done.")
 
   def call(self, inputs, training=None, mask=None):
     input_x = inputs["input_x"]

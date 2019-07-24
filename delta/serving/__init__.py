@@ -14,4 +14,3 @@
 # limitations under the License.
 # ==============================================================================
 ''' delta.serving '''
-from delta.serving import knowledge_distilling

@@ -21,7 +21,7 @@ from absl import logging
 import tensorflow as tf
 
 from delta import utils
-from delta.utils.solver import RawClassSolver
+from delta.utils.solver.raw_cls_solver import RawClassSolver
 from delta.utils.register import import_all_modules_for_register
 
 # pylint: disable=missing-docstring
@@ -32,7 +32,8 @@ class RawClassSolverTest(tf.test.TestCase):
   def setUp(self):
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
-    self.config_file = main_root.joinpath('egs/mock_text_cls_data/nlp1/config/han-cls.yml')
+    self.config_file = main_root.joinpath(
+        'egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml')
     import_all_modules_for_register()
 
   def test_all(self):

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+bash $MAIN_ROOT/tools/test/gen_mock_egs_data.sh
+
 tmpfile=`mktemp /tmp/python_test.XXXXXX`
 
 find $MAIN_ROOT/delta -name *_test.py  &> $tmpfile
@@ -16,6 +18,3 @@ do
 done < $tmpfile
 
 exit $retcode
-
-
-

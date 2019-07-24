@@ -33,13 +33,13 @@ class SfbOp : public OpKernel {
 
   void Compute(OpKernelContext* context) override {
     const Tensor& input_tensor_1 = context->input(0);
-    OP_REQUIRES(context, input_tensor_1.dims() == 1,
-                errors::InvalidArgument("input signal must be 1-dimensional",
+    OP_REQUIRES(context, input_tensor_1.dims() == 2,
+                errors::InvalidArgument("input signal must be 2-dimensional",
                                         input_tensor_1.shape().DebugString()));
 
     const Tensor& input_tensor_2 = context->input(1);
-    OP_REQUIRES(context, input_tensor_2.dims() == 1,
-                errors::InvalidArgument("input signal must be 1-dimensional",
+    OP_REQUIRES(context, input_tensor_2.dims() == 2,
+                errors::InvalidArgument("input signal must be 2-dimensional",
                                         input_tensor_2.shape().DebugString()));
 
     const Tensor& sample_rate_tensor = context->input(2);
@@ -50,11 +50,8 @@ class SfbOp : public OpKernel {
     const float sample_rate = sample_rate_tensor.scalar<float>()();
 
     // shape
-    const int Dim = input_tensor_1.dim_size(0);
-    const int i_NumFrq = 257;  // 512 FFT size
-    OP_REQUIRES(context, Dim % i_NumFrq == 0,
-                errors::InvalidArgument("only support FFT size 512"));
-    const int i_NumFrm = Dim / i_NumFrq;
+    const int i_NumFrm = input_tensor_1.dim_size(0);
+    const int i_NumFrq = input_tensor_1.dim_size(1);
     Synthfiltbank cls_sfb;
     cls_sfb.set_window_length_sec(window_length_);
     cls_sfb.set_frame_length_sec(frame_length_);

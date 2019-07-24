@@ -19,6 +19,8 @@ import os
 import tensorflow as tf
 from absl import logging
 
+from delta.utils import metrics
+
 
 def get_checkpoint_dir(config):
   """Get the directory of the checkpoint."""
@@ -76,3 +78,30 @@ def save_infer_res(config, logits, preds):
     for logit, pred in zip(logits, preds):
       in_f.write(" ".join(["{:.3f}".format(num) for num in logit]) +
                  "\t{}\n".format(pred))
+
+
+def run_metrics(config, y_preds, y_ground_truth, mode):
+  """Run metrics for one output"""
+  metcs = metrics.get_metrics(
+      config=config, y_pred=y_preds, y_true=y_ground_truth)
+  logging.info("Evaluation on %s:" % mode)
+  if isinstance(metcs, list):
+    for one_metcs in metcs:
+      for key in sorted(one_metcs.keys()):
+        logging.info(key + ":" + str(one_metcs[key]))
+  else:
+    for key in sorted(metcs.keys()):
+      logging.info(key + ":" + str(metcs[key]))
+
+
+class DatasetInitializerHook(tf.train.SessionRunHook):
+  def __init__(self, iterator, init_feed_dict):
+    self._iterator = iterator
+    self._init_feed_dict = init_feed_dict
+
+  def begin(self):
+    self._initializer = self._iterator.initializer
+
+  def after_create_session(self, session, coord):
+    del coord
+    session.run(self._initializer, self._init_feed_dict)

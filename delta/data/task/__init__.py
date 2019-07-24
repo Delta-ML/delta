@@ -13,10 +13,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-from delta.data.task.asr_seq_task import AsrSeqTask
-from delta.data.task.kws_cls_task import KwsClsTask
-from delta.data.task.speaker_cls_task import SpeakerClsTask
-from delta.data.task.speech_cls_task import SpeechClsTask
-from delta.data.task.text_cls_task import TextClsTask
-from delta.data.task.text_seq_label_task import TextSeqLabelTask
-from delta.data.task.text_match_task import TextMatchTask

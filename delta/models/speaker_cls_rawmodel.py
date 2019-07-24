@@ -159,7 +159,7 @@ class SpeakerCRNNRawModel(RawModel):
     logging.info("tdnn_channels : {}".format(channels))
 
     # NHWC -> NW'C, W' = H * W
-    input_n, input_h, input_w, input_c = inputs.shape.as_list()
+    _, input_h, input_w, input_c = inputs.shape.as_list()
     inputs = tf.reshape(inputs, [-1, input_h * input_w, input_c])
 
     downsample_input_len = self.input_len
@@ -233,7 +233,7 @@ class SpeakerCRNNRawModel(RawModel):
               self.netconf['dropout_rate'] if self.train else 1.0)
 
         # Now we feed `linear` into the LSTM BRNN cell and obtain the LSTM BRNN output.
-        outputs, output_states = tf.nn.bidirectional_dynamic_rnn(
+        outputs, _ = tf.nn.bidirectional_dynamic_rnn(
             cell_fw=cell_fw,
             cell_bw=cell_bw,
             inputs=x,
@@ -244,7 +244,7 @@ class SpeakerCRNNRawModel(RawModel):
       outputs = x
     return outputs
 
-  def stats_pooling_layer(self, x):
+  def stats_pooling_layer(self, x): # pylint: disable=no-self-use
     '''
       Statistics pooling layer.
       Input: [NHW]

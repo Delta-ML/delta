@@ -15,6 +15,7 @@
 # ==============================================================================
 ''' postprocess utils '''
 from absl import logging
+from delta.data.preprocess.utils import load_vocab_dict
 
 
 def ids_to_sentences(ids, vocab_file_path):
@@ -22,8 +23,6 @@ def ids_to_sentences(ids, vocab_file_path):
   transform array of numbers to array of tags/words
   ids:  [[1,2],[3,4]...]
   """
-  # TODO import error
-  from delta.data.preprocess.utils import load_vocab_dict
 
   vocab_dict = load_vocab_dict(vocab_file_path)
   id_to_vocab = {int(v): k for k, v in vocab_dict.items()}

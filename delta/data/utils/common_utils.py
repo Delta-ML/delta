@@ -22,7 +22,6 @@ import numpy as np
 from absl import logging
 import tensorflow as tf
 
-
 from delta import utils
 from delta.data.preprocess.text_ops import tokenize_label
 
@@ -88,58 +87,83 @@ def clean_english_str(string):
   string = re.sub(r"\s{2,}", " ", string)
   return string.strip().lower()
 
+
+def load_nlu_joint_raw_data(paths, mode, infer_no_label=False):
+  """Load raw data for sequence labeling"""
+  text = []
+  intent_label = []
+  slots_label = []
+  max_seq_len = 0
+  for path in paths:
+    success_count = 0
+    fail_count = 0
+    with open(path, 'r', encoding='utf-8') as file_input:
+      lines = file_input.readlines()
+      for i, line in enumerate(lines):
+        line = line.strip()
+        if mode == utils.INFER and infer_no_label:
+          text.append(line)
+        else:
+          sp = line.split('\t')
+          if len(sp) != 3:
+            logging.warning("Line no.{} not in standard format!".format(i))
+            fail_count += 1
+            continue
+          else:
+            success_count += 1
+          sent_len = len(sp[1].split(" "))
+          if sent_len > max_seq_len:
+            max_seq_len = sent_len
+          intent_label.append(sp[0])
+          slots_label.append(sp[1])
+          text.append(sp[2])
+
+      all_lines = len(lines)
+      del lines
+    logging.info("max_seq_len is {}".format(max_seq_len))
+    logging.info("Data loaded from {}. " \
+                 "Total {} lines, successfully load {} lines, " \
+                 "failed {} lines.".format(path, all_lines, success_count, fail_count))
+  if mode == utils.INFER and infer_no_label:
+    return text, ([], [])
+  return text, (intent_label, slots_label)
+
+
 # pylint: disable=too-many-branches
 def load_seq_label_raw_data(paths, mode, infer_no_label=False):
   """Load raw data for sequence labeling"""
   text = []
   label = []
-  sentence = []
-  char_label = []
-  counter = 0
-  actual_max_seq_len = 0
-
-  if mode == utils.INFER and infer_no_label:
-    for path in paths:
-      with open(path, 'r', encoding='utf8') as file_input:
-        for line in file_input.readlines():
-          line = list(line.strip())
-          if line:
-            text.append(" ".join(line))
-            counter += 1
-      logging.info("Load {} lines from {}.".format(str(counter), path))
-  else:
-    for path in paths:
-      with open(path, 'r', encoding='utf8') as file_input:
-        for line in file_input.readlines():
-          line = line.strip()
-          if not line:
-            if len(sentence) > actual_max_seq_len:
-              actual_max_seq_len = len(sentence)
-            text.append(" ".join(sentence))
-            sentence.clear()
-            label.append(" ".join(char_label))
-            char_label.clear()
-            counter += 1
+  max_seq_len = 0
+  for path in paths:
+    success_count = 0
+    fail_count = 0
+    with open(path, 'r', encoding='utf-8') as file_input:
+      logging.info("Loading raw file from {}".format(path))
+      lines = file_input.readlines()
+      for i, line in enumerate(lines):
+        line = line.strip()
+        if mode == utils.INFER and infer_no_label:
+          text.append(line)
+        else:
+          sp = line.split('\t')
+          if len(sp) != 2:
+            logging.warning("Line no.{} not in standard format!".format(i))
+            fail_count += 1
+            continue
           else:
-            l = line.split("\t")
-            if len(l) == 2:
-              sentence.append(l[0])
-              char_label.append(l[1])
-      if not sentence:
-        if len(sentence) > actual_max_seq_len:
-          actual_max_seq_len = len(sentence)
-        text.append(" ".join(sentence))
-        sentence.clear()
-        label.append(" ".join(char_label))
-        char_label.clear()
-
-      if len(text) == len(label):
-        counter = len(text)
-      else:
-        logging.info('Data Format Wrong')
-      logging.info("the actual max seq len {}".format(str(actual_max_seq_len)))
-      logging.info("Load {} lines from {}.".format(str(counter), path))
-
+            success_count += 1
+          sent_len = len(sp[1].split(" "))
+          if sent_len > max_seq_len:
+            max_seq_len = sent_len
+          text.append(sp[1])
+          label.append(sp[0])
+      all_lines = len(lines)
+      del lines
+    logging.info("max_seq_len is {}".format(max_seq_len))
+    logging.info("Data loaded from {}. " \
+                 "Total {} lines, successfully load {} lines, " \
+                 "failed {} lines.".format(path, all_lines, success_count, fail_count))
   if mode == utils.INFER and infer_no_label:
     return text, []
   return text, label
@@ -150,6 +174,7 @@ def load_cls_raw_data(paths, mode, infer_no_label=False):
   text = []
   label = []
   for path in paths:
+    logging.info("Loading raw file from {}".format(path))
     success_count = 0
     fail_count = 0
     with open(path, 'r', encoding='utf-8') as file_input:
@@ -176,6 +201,8 @@ def load_cls_raw_data(paths, mode, infer_no_label=False):
   if mode == utils.INFER and infer_no_label:
     return text, []
   return text, label
+
+
 # pylint: disable = too-many-locals
 def load_match_raw_data(paths, mode, infer_no_label=False):
   """Load raw data for text match."""
@@ -186,29 +213,30 @@ def load_match_raw_data(paths, mode, infer_no_label=False):
     success_count = 0
     fail_count = 0
     with open(path, 'r', encoding='utf-8') as file_input:
+      logging.info("Loading raw file from {}".format(path))
       lines = file_input.readlines()
       for i, line in enumerate(lines):
-          line = line.strip()
-          sp = line.split('\t')
-          if mode == utils.INFER and infer_no_label:
-            if len(sp) != 2:
-              fail_count += 1
-              logging.warning("Line no.{} not in standard format!".format(i))
-              continue
-            else:
-              success_count += 1
-              text_left.append(sp[0])  # [sentence1, sentence2]
-              text_right.append(sp[1])
+        line = line.strip()
+        sp = line.split('\t')
+        if mode == utils.INFER and infer_no_label:
+          if len(sp) != 2:
+            fail_count += 1
+            logging.warning("Line no.{} not in standard format!".format(i))
+            continue
           else:
-            if len(sp) != 3:
-              fail_count += 1
-              logging.warning("Line no.{} not in standard format!".format(i))
-              continue
-            else:
-              success_count += 1
-              text_left.append(sp[1])  # [label sentence1 sentence2]
-              text_right.append(sp[2])
-              label.append(sp[0])
+            success_count += 1
+            text_left.append(sp[0])  # [sentence1, sentence2]
+            text_right.append(sp[1])
+        else:
+          if len(sp) != 3:
+            fail_count += 1
+            logging.warning("Line no.{} not in standard format!".format(i))
+            continue
+          else:
+            success_count += 1
+            text_left.append(sp[1])  # [label sentence1 sentence2]
+            text_right.append(sp[2])
+            label.append(sp[0])
 
       all_lines = len(lines)
       del lines
@@ -220,6 +248,7 @@ def load_match_raw_data(paths, mode, infer_no_label=False):
     return (text_left, text_right), []
   return (text_left, text_right), label
 
+
 def save_a_text_cls_file(label, texts_after, new_path, no_label):
   """Save a text classification data to a file."""
   logging.info("Saving processed file to: {}".format(new_path))
@@ -229,6 +258,17 @@ def save_a_text_cls_file(label, texts_after, new_path, no_label):
         out_f.write(one_line + "\n")
       else:
         out_f.write(label[i] + "\t" + one_line + "\n")
+
+
+def save_a_text_match_file(label, texts_after, new_path, no_label):
+  """Save a text match data to a file."""
+  logging.info("Saving processed file to: {}".format(new_path))
+  with open(new_path, "w", encoding="utf-8") as out_f:
+    for i, (one_line_l, one_line_r) in enumerate(zip(*texts_after)):
+      if no_label:
+        out_f.write(one_line_l + '\t' + one_line_r + "\n")
+      else:
+        out_f.write(label[i] + "\t" + one_line_l + '\t' + one_line_r + "\n")
 
 
 def save_a_text_seq_label_file(label, texts_after, new_path, no_label):
@@ -242,19 +282,40 @@ def save_a_text_seq_label_file(label, texts_after, new_path, no_label):
         out_f.write(label[i] + "\t" + one_line + "\n")
 
 
-def load_npy(npy_name):
+def save_a_text_nlu_joint_file(label, texts_after, new_path, no_label):
+  """Save a text nlu joint data to a file."""
+  intent_label, slots_label = label
+  logging.info("Saving processed file to: {}".format(new_path))
+  with open(new_path, "w", encoding="utf-8") as out_f:
+    for i, one_line in enumerate(texts_after):
+      if no_label:
+        out_f.write(one_line + "\n")
+      else:
+        out_f.write(intent_label[i] + "\t" + slots_label[i] + "\t" + one_line +
+                    "\n")
+
+
+def load_npy(npy_path, dtype=np.float32):
   """Load a data in npy format."""
-  dense_feature = np.load(npy_name).astype(np.float32)
+  dense_feature = np.load(npy_path).astype(dtype)
   return dense_feature
 
 
-def load_one_label_dataset(label, config):
+def load_one_label_dataset(label_placeholder, config, output_index=None):
   """Load one-label data set."""
   logging.info("Loading one label dataset...")
-  label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  num_classes = config["data"]["task"]["classes"]["num_classes"]
   num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
-  label_ds = tf.data.Dataset.from_tensor_slices(label)
+  classes = config["data"]["task"]["classes"]
+  if isinstance(classes, list):
+    if output_index is None or output_index not in range(len(classes)):
+      raise IndexError("output_index:{} not in the range of classes length: "
+                       "{}!".format(output_index, len(classes)))
+    num_classes = classes[output_index]["num_classes"]
+    label_vocab_file_path = config["data"]["task"]["label_vocab"][output_index]
+  else:
+    num_classes = classes["num_classes"]
+    label_vocab_file_path = config["data"]["task"]["label_vocab"]
+  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
 
   label_ds = label_ds.map(
       lambda x: tokenize_label(
@@ -269,18 +330,33 @@ def load_one_label_dataset(label, config):
 
   return label_ds
 
-def load_multi_label_dataset(label, config):
+
+def load_multi_label_dataset(label_placeholder, config, output_index=None):
   """Load multi-label data set."""
   logging.info("Loading multi label dataset...")
   label_vocab_file_path = config["data"]["task"]["label_vocab"]
   num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
   max_seq_len = config["data"]["task"]["max_seq_len"]
-  label_ds = tf.data.Dataset.from_tensor_slices(label)
-  label_ds = label_ds.map(lambda x: tokenize_label(x,
-                                                   maxlen=max_seq_len,
-                                                   label_vocab_file_path=label_vocab_file_path,
-                                                   pad_id=0),
-                          num_parallel_calls=num_parallel_calls)
+
+  label_vocab_file_path = config["data"]["task"]["label_vocab"]
+  if isinstance(label_vocab_file_path, list):
+    if output_index is None or output_index not in range(
+        len(label_vocab_file_path)):
+      raise IndexError("output_index:{} not in the range of classes length: "
+                       "{}!".format(output_index, len(label_vocab_file_path)))
+    label_vocab_file_path = label_vocab_file_path[output_index]
+
+  else:
+    label_vocab_file_path = label_vocab_file_path
+
+  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
+  label_ds = label_ds.map(
+      lambda x: tokenize_label(
+          x,
+          maxlen=max_seq_len,
+          label_vocab_file_path=label_vocab_file_path,
+          pad_id=0),
+      num_parallel_calls=num_parallel_calls)
   label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
 
   return label_ds

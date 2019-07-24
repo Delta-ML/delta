@@ -23,6 +23,12 @@ KALDI :=
 # Both Miniconda2/3 can install any Python versions
 GCC_VERSION := $(shell gcc -dumpversion)
 
+ifeq ($(shell id -u),0)
+	SUDO :=
+else
+	SUDO := sudo
+endif
+
 .PHONY: all clean
 
 all: detla deltann
@@ -38,7 +44,9 @@ nlp_zh: cppjieba.done
 
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
-PIP_INSTALL=pip install -i https://pypi.tuna.tsinghua.edu.cn/simple
+PIP_INSTALL=pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+PYTHON=python3
 
 ci.done:
 	pushd ci && /bin/bash build.sh && popd
@@ -46,14 +54,14 @@ ci.done:
 
 PROTOC_ZIP := protoc-3.7.1-linux-x86_64.zip
 protoc:
-	sudo apt-get update && sudo apt-get install curl unzip -y 
+	$(SUDO) apt-get update && $(SUDO) apt-get install curl unzip -y
 	curl -OL --retry 100 https://github.com/google/protobuf/releases/download/v3.7.1/$(PROTOC_ZIP) &&\
-	sudo unzip -o $(PROTOC_ZIP) -d /usr/local bin/protoc &&\
+	$(SUDO) unzip -o $(PROTOC_ZIP) -d /usr/local bin/protoc &&\
 	rm -f $(PROTOC_ZIP)
 
 # only for test cpp
 test.deps:
-	test -d tensorflow || git clone --depth=1 --branch=master https://github.com/tensorflow/tensorflow.git
+#	test -d tensorflow || git clone --depth=1 --branch=master https://github.com/tensorflow/tensorflow.git
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
 	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git 
 
@@ -63,7 +71,7 @@ test: protoc test.deps
 # install python packages
 python.done:
 	$(PIP_INSTALL) --user -r requirements.txt
-	if [ -f /etc/lsb-release ]; then sudo apt-get install -y libsndfile1; else sudo yum install -y libsndfile-devel; fi;
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get install -y libsndfile1; else $(SUDO) yum install -y libsndfile-devel; fi;
 	touch python.done
 
 # compile custom ops on your environment
@@ -88,7 +96,7 @@ endif
 espnet.done:
 	test -d espnet || git clone --depth=1 https://github.com/espnet/espnet.git
 	cd espnet && git fetch -t && git checkout v.0.4.0
-	if [ -s kaldi ]; then ln -s `readlink -f kaldi` espnet/tools/kaldi; else ln -s kaldi espnet/tools/kaldi; fi
+	if [ -f kaldi.done ] && [ -s kaldi ]; then ln -s `readlink -f kaldi` espnet/tools/kaldi; elif [ -f kaldi.done ] && [ ! -s kaldi ]; then ln -s kaldi espnet/tools/kaldi; fi
 	touch espnet.done
 
 nkf.done:
@@ -117,7 +125,7 @@ mecab.done: espnet.done
 	cd mecab && git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
 	cd mecab/mecab-ipadic-neologd && export PATH=$(PWD)/mecab/bin:$(PATH) && ./bin/install-mecab-ipadic-neologd -n -y -p $(PWD)/mecab/mecab-ipadic-neologd
 	$(PIP_INSTALL) mojimoji pykakasi
-	if [ `python --version | cut -c 8` -eq 3 ]; then \
+	if [ `$(PYTHON) --version | cut -c 8` -eq 3 ]; then \
 		if [ ! -e swig.done ]; then \
 			rm -rf swig; \
 			mkdir -p swig; \
@@ -142,7 +150,7 @@ cppjieba.done:
 	touch cppjieba.done
 
 check_install:
-	python check_install.py
+	$(PYTHON) install/check_install.py
 
 clean: clean_extra clean_espnet deltann-clean
 	rm -rf kaldi 
@@ -167,8 +175,8 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
-	sudo apt-get install -y autoconf libtool
-	cmake --version || if ! [ -f /etc/centos-release ]; then sudo apt-get install -y cmake; else sudo yum install -y cmake; fi
+	$(SUDO) apt-get install -y autoconf libtool
+	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) apt-get install -y cmake; else $(SUDO) yum install -y cmake; fi
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
@@ -176,7 +184,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	if ! [ -d tensorflow ]; then sudo cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
+	# if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:
@@ -199,13 +207,13 @@ jsoncpp.done:
 
 mbedtls.done:
 	if ! [ -d mbedtls ]; then git clone --depth=1 --recursive https://github.com/ARMmbed/mbedtls.git; fi
-	cd mbedtls && make clean && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && sudo make install
+	cd mbedtls && make clean && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	touch mbedtls.done
 
 curl.done: mbedtls.done
 	# https://github.com/curl/curl/blob/master/docs/INSTALL.md#select-tls-backend
 	if ! [ -d curl ]; then git clone --depth=1 https://github.com/curl/curl.git; fi
-	cd curl && ./buildconf && ./configure --without-ssl --with-mbedtls && make -j && sudo make install
+	cd curl && ./buildconf && ./configure --without-ssl --with-mbedtls && make -j && $(SUDO) make install
 	touch curl.done
 
 https_client.done:

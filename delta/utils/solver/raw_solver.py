@@ -23,12 +23,13 @@ from absl import logging
 from delta.utils.solver.base_solver import Solver
 
 from delta import utils
-from delta.utils import metrics
 from delta.utils.register import registers
 from delta.utils.solver.solver_utils import get_checkpoint_dir
 from delta.utils.solver.solver_utils import get_ckpt_state
 from delta.utils.solver.solver_utils import get_session_conf
 from delta.utils.solver.solver_utils import to_saved_model
+from delta.utils.solver.solver_utils import run_metrics
+from delta.utils.solver.solver_utils import DatasetInitializerHook
 
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation
 
@@ -39,11 +40,14 @@ class RawSolver(Solver):
 
   def __init__(self, config):
     super().__init__(config)
-    self.session_conf, self.smax_to_keep, self.batch_size, self.num_epochs, \
+    self.session_conf, self.smax_to_keep, \
+    self.batch_size, self.num_epochs, \
     self.save_checkpoint_steps, \
     self.resume_model_path, self.print_every = self.set_experimental_environment()
     self.first_eval = True
     self.do_eval = False
+    self.is_multi_output = False
+    self.output_num = 1
     self.infer_no_label = self.config['data'][utils.INFER].get(
         'infer_no_label', False)
 
@@ -80,16 +84,19 @@ class RawSolver(Solver):
         save_checkpoint_steps, \
         resume_model_path, print_every
 
-  def get_scaffold(self, global_step=None, iter_initializer=None):  #pylint: disable=arguments-differ
+  def get_scaffold(self, global_step=None,
+                   iter_initializer=None,
+                   iter_init_feed_dict=None):
     """Get training scaffold."""
+
     init_op = tf.global_variables_initializer()
-    if iter_initializer is None:
-      local_init_op = tf.tables_initializer()
-    else:
-      local_init_op = tf.group(tf.tables_initializer(), iter_initializer)
+    local_init_op = tf.tables_initializer()
     saver = self.get_saver(global_step)
     scaffold = tf.train.Scaffold(
-        saver=saver, init_op=init_op, local_init_op=local_init_op)
+      saver=saver,
+      init_op=init_op,
+      local_init_op=local_init_op
+    )
     return scaffold
 
   def get_generated_model_path(self):
@@ -121,11 +128,29 @@ class RawSolver(Solver):
     model.iterator = inputs["iterator"]
     model.input_x_dict = inputs["input_x_dict"]
     model.input_x_len = inputs["input_x_len"]
+    model.temp_init_feed_dict = inputs["init_feed_dict"]
     model.loss_fn = self.get_loss_fn()
     if mode != utils.INFER or not self.infer_no_label:
       input_y = inputs["input_y_dict"]["input_y"]
-      model.loss = model.loss_fn(labels=input_y, logits=model.logits,
-                           input_length=model.input_x_len, name="loss")
+      if isinstance(model.loss_fn, list):
+        model.loss = []
+        for i, one_loss_fn in enumerate(model.loss_fn):
+          one_loss = one_loss_fn(
+              labels=input_y[i],
+              logits=model.logits[i],
+              input_length=model.input_x_len,
+              model=model,
+              name="loss_{}".format(i))
+          model.loss.append(one_loss)
+        model.loss_op = tf.add_n(model.loss, name="loss_sum")
+      else:
+        model.loss = model.loss_fn(
+            labels=input_y,
+            logits=model.logits,
+            input_length=model.input_x_len,
+            model=model,
+            name="loss")
+        model.loss_op = model.loss
       logging.info("model.loss done")
       model.input_y = input_y
 
@@ -143,11 +168,10 @@ class RawSolver(Solver):
     model.logits = model(export_inputs["model_inputs"], training=training)
     model.model_inputs = export_inputs["model_inputs"]
     model.export_inputs = export_inputs["export_inputs"]
-    model.loss_fn = self.get_loss_fn()
     model.input_x_len = export_inputs["model_inputs"]["input_x_len"]
 
     # output related
-    self.build_output(model)
+    self.build_export_output(model)
     return model
 
   def build_output(self, model):  # pylint: disable=no-self-use
@@ -156,7 +180,14 @@ class RawSolver(Solver):
     `score` and `input_y` are for loss calculation.
     `preds` and `y_ground_truth` are for metric calculation.
     """
+    raise NotImplementedError
 
+  def build_export_output(self, model):  # pylint: disable=no-self-use
+    """
+    Build the output of the model for export.
+    `score` and `input_y` are for loss calculation.
+    `preds` and `y_ground_truth` are for metric calculation.
+    """
     raise NotImplementedError
 
   def eval(self):
@@ -175,9 +206,15 @@ class RawSolver(Solver):
 
   def postproc_fn(self):
     """Post-process function, called after inference."""
-    postproc_name = self.config['solver']['postproc']["name"]
-    postproc = registers.postprocess[postproc_name](self.config)
-    return postproc
+    postproc = self.config['solver']['postproc']
+    if isinstance(postproc, list):
+      postproc_fn = []
+      for one_postproc in postproc:
+        postproc_fn.append(registers.postprocess[one_postproc["name"]](
+            self.config))
+    else:
+      postproc_fn = registers.postprocess[postproc["name"]](self.config)
+    return postproc_fn
 
   def eval_or_infer_once(self, mode):
     """Do evaluation or inference once."""
@@ -190,10 +227,10 @@ class RawSolver(Solver):
   def eval_or_infer_core(self, model, mode):  # pylint: disable=too-many-locals, too-many-branches
     """The core part of evaluation."""
 
-    if mode == utils.EVAL or not self.infer_no_label:
-      self.do_eval = True
-    else:
-      self.do_eval = False
+    self.do_eval = bool(mode == utils.EVAL or not self.infer_no_label)
+    self.is_multi_output = bool(isinstance(model.preds, (tuple, list)))
+    if self.is_multi_output:
+      self.output_num = len(model.preds)
     model_path = self.get_model_path(mode)
     if model_path is None:
       logging.warning("model_path is None!")
@@ -204,68 +241,106 @@ class RawSolver(Solver):
       if self.first_eval:
         model.sess.run(tf.tables_initializer())
         self.first_eval = False
-      model.sess.run(model.iterator.initializer)
+      model.sess.run(model.iterator.initializer,
+                     feed_dict=model.temp_init_feed_dict)
 
       # Evaluating loop.
-      total_loss = 0.0
       data_size = self.config["data"]['{}_data_size'.format(mode)]
       num_batch_every_epoch = int(math.ceil(data_size / self.batch_size))
 
-      y_ground_truth = []
-      y_logits = []
-      y_preds = []
+      all_fetch_vals = []
 
       logging.info("Total eval data size: {},"
-                   "batch num per epoch: {}".format(data_size, num_batch_every_epoch))
+                   "batch num per epoch: {}".format(data_size,
+                                                    num_batch_every_epoch))
 
       for i in range(num_batch_every_epoch):
-
         if self.do_eval:
-          loss_val, \
-          batch_logits, \
-          batch_preds, \
-          batch_y_ground_truth = model.sess.run(
-              [model.loss, model.logits,
-               model.preds, model.y_ground_truth])
+          if self.is_multi_output:
+            fetch_ops = model.loss + list(model.logits) + list(
+                model.preds) + list(model.y_ground_truth)
+          else:
+            fetch_ops = [
+                model.loss, model.logits, model.preds, model.y_ground_truth
+            ]
         else:
-          batch_logits, batch_preds = model.sess.run(
-              [model.logits, model.preds])
+          fetch_ops = [model.logits, model.preds]
+        logging.debug("fetch_ops: {}".format(fetch_ops))
+        fetch_vals = model.sess.run(fetch_ops)
 
         end_id = (i + 1) * self.batch_size
 
         if data_size < end_id:
+          logging.debug("data_size: {}, end_id: {}".format(data_size, end_id))
           act_end_id = self.batch_size - end_id + data_size
-          batch_logits = batch_logits[:act_end_id]
-          batch_preds = batch_preds[:act_end_id]
-          if self.do_eval:
-            batch_y_ground_truth = batch_y_ground_truth[:act_end_id]
+          new_fetch_vals = []
+          for fetch_val in fetch_vals:
+            if np.isscalar(fetch_val):
+              new_fetch_vals.append(fetch_val)
+            else:
+              new_fetch_vals.append(fetch_val[:act_end_id])
+        else:
+          new_fetch_vals = fetch_vals
 
-        y_logits.append(batch_logits)
-        y_preds.append(batch_preds)
+        all_fetch_vals.append(new_fetch_vals)
 
-        if self.do_eval:
-          y_ground_truth.append(batch_y_ground_truth)
-          total_loss += loss_val
-
-        if i % 10 == 0 or i == num_batch_every_epoch - 1:
+        if i % self.print_every == 0 or i == num_batch_every_epoch - 1:
           logging.info("Evaluation rate of "
                        "progress: [ {:.2%} ]".format(
                            i / (num_batch_every_epoch - 1)))
 
-      y_logits = np.concatenate(y_logits, axis=0)
-      y_preds = np.concatenate(y_preds, axis=0)
-      if self.do_eval:
-        y_ground_truth = np.concatenate(y_ground_truth, axis=0)
+      all_fetch_nps = []
+      for one_fetch_vals in zip(*all_fetch_vals):
+        if len(np.shape(one_fetch_vals[0])) <= 0:
+          one_fetch_np = one_fetch_vals
+        else:
+          one_fetch_np = np.concatenate(one_fetch_vals, axis=0)
+        all_fetch_nps.append(one_fetch_np)
 
-        metcs = metrics.get_metrics(
-            config=self.config, y_pred=y_preds, y_true=y_ground_truth)
-        logging.info("Evaluation on %s:" % mode)
-        # add sort function to make sequence of metrics identical.
-        for key in sorted(metcs.keys()):
-          logging.info(key + ":" + str(metcs[key]))
+      # reshape for multi-output
+      if self.is_multi_output:
+        logging.debug("all_fetch_nps before reshape: {}".format(
+            len(all_fetch_nps)))
+        new_all_fetch_nps = []
+        sub_fetch_nps = []
+        for one_fetch_np in all_fetch_nps:
+          sub_fetch_nps.append(one_fetch_np)
+          if len(sub_fetch_nps) == self.output_num:
+            new_all_fetch_nps.append(sub_fetch_nps)
+            sub_fetch_nps = []
+
+        logging.debug("new_all_fetch_nps after reshape: {}".format(
+            len(new_all_fetch_nps)))
+      else:
+        new_all_fetch_nps = all_fetch_nps
+
+      if self.do_eval:
+        _, _, preds_val, y_ground_truth_val = new_all_fetch_nps
+        run_metrics(self.config, preds_val, y_ground_truth_val, mode)
+
       if mode == utils.INFER:
-        predictions = {"logits": y_logits, "preds": y_preds}
-        self.postproc_fn()(predictions, log_verbose=False)
+        if self.do_eval:
+          _, logits_val, preds_val, _ = new_all_fetch_nps
+        else:
+          logits_val, preds_val = new_all_fetch_nps
+
+        postproc_fn = self.postproc_fn()
+        logging.info(postproc_fn)
+        if isinstance(postproc_fn, list):
+          for i, one_postproc_fn in enumerate(postproc_fn):
+            predictions = {
+                "logits": logits_val[i],
+                "preds": preds_val[i],
+                "output_index": i
+            }
+            one_postproc_fn(predictions, log_verbose=False)
+        else:
+          predictions = {
+              "logits": logits_val,
+              "preds": preds_val,
+              "output_index": None
+          }
+          postproc_fn(predictions, log_verbose=False)
 
   def export_model(self):
     """Export a model to tensorflow SavedModel."""
@@ -292,19 +367,21 @@ class RawSolver(Solver):
     # Supervisor
     with tf.name_scope("train"):
       global_step = tf.train.get_or_create_global_step()
-      train_op = self.get_train_op(train_model.loss, multitask, global_step)
+      train_op = self.get_train_op(train_model.loss_op, multitask, global_step)
 
       checkpoint_dir = get_checkpoint_dir(self.config)
 
       # scaffold
-
       scaffold = self.get_scaffold(global_step,
-                                   train_model.iterator.initializer)
+                                   train_model.iterator.initializer,
+                                   train_model.temp_init_feed_dict)
 
-
-      with tf.train.MonitoredTrainingSession(
+    ds_init_hook = DatasetInitializerHook(train_model.iterator,
+                                          train_model.temp_init_feed_dict)
+    with tf.train.MonitoredTrainingSession(
           checkpoint_dir=checkpoint_dir,
           scaffold=scaffold,
+          hooks=[ds_init_hook],
           save_checkpoint_steps=self.save_checkpoint_steps,
           config=self.session_conf) as sess:
 
@@ -315,7 +392,8 @@ class RawSolver(Solver):
         num_batch_per_epoch = int(data_size / self.batch_size)
 
         for i in range(num_batch):
-          _, _, out_loss = sess.run([train_op, global_step, train_model.loss])
+          _, _, out_loss = sess.run(
+              [train_op, global_step, train_model.loss_op])
           if i % self.print_every == 0 or i == num_batch - 1:
             logging.info(
                 "Training for epoch {}: [ {:.2%} ] loss is {:g}".format(
@@ -345,17 +423,22 @@ class RawSolver(Solver):
       with tf.name_scope("train"):
         global_step = tf.train.get_or_create_global_step()
 
-        train_op = self.get_train_op(train_model.loss, multitask, global_step)
+        train_op = self.get_train_op(train_model.loss_op, multitask,
+                                     global_step)
 
         checkpoint_dir = get_checkpoint_dir(self.config)
 
         # scaffold
         scaffold = self.get_scaffold(global_step,
-                                     train_model.iterator.initializer)
+                                     train_model.iterator.initializer,
+                                     train_model.temp_init_feed_dict)
 
+        ds_init_hook = DatasetInitializerHook(train_model.iterator,
+                                              train_model.temp_init_feed_dict)
         with tf.train.MonitoredTrainingSession(
             checkpoint_dir=checkpoint_dir,
             scaffold=scaffold,
+            hooks=[ds_init_hook],
             save_checkpoint_steps=self.save_checkpoint_steps,
             config=self.session_conf) as sess:
 
@@ -368,10 +451,12 @@ class RawSolver(Solver):
                                                         num_batch,
                                                         num_batch_per_epoch))
           for i in range(0, num_batch):
+
             if i % self.save_checkpoint_steps == 0 and i != 0:
               self.eval_or_infer_core(eval_model, utils.EVAL)
-            _, _, out_loss = sess.run([train_op, global_step, train_model.loss])
-            if i % 10 == 0 or i == num_batch - 1 or (
+            _, _, out_loss = sess.run(
+                [train_op, global_step, train_model.loss_op])
+            if i % self.print_every == 0 or i == num_batch - 1 or (
                 i +
                 1) % num_batch_per_epoch == 0 or i % num_batch_per_epoch == 0:
               logging.info(

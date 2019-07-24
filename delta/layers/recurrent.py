@@ -15,25 +15,25 @@
 # ==============================================================================
 """Recurrent neural network layers."""
 
+from absl import logging
 import tensorflow as tf
 
 import delta
 from delta.layers.base_layer import Layer
 
 
-class RnnAttentionEncoder(Layer):  # pylint: disable=too-many-instance-attributes
+class BiRnn(Layer):
   """
-  RNN + Attention
+  Bidirectional RNN
   Input Shape: [batch_size, steps, features]
   Output Shape: [batch_size, units]
   """
 
   def __init__(self, config, **kwargs):
-    super(RnnAttentionEncoder, self).__init__(**kwargs)
-    tf.logging.info("Initialize RnnAttentionEncoder {}...".format(self.name))
+    super().__init__(**kwargs)
+    logging.info("Initialize Rnn {}...".format(self.name))
 
     model_config = config['model']['net']['structure']
-    self.dropout_rate = model_config['dropout_rate']
     self.cell_dim = model_config['cell_dim']
     self.cell_type = model_config['cell_type']
     if self.cell_type.lower() == 'gru':
@@ -47,16 +47,45 @@ class RnnAttentionEncoder(Layer):  # pylint: disable=too-many-instance-attribute
     else:
       error_info = "Cell type: {} not supported now! Please check!".format(
           self.cell_type)
-      tf.logging.error(error_info)
+      logging.error(error_info)
       raise ValueError(error_info)
 
-    self.sen_encoder = tf.keras.layers.Bidirectional(
+    self.bi_rnn = tf.keras.layers.Bidirectional(
         rnn_class(self.cell_dim, return_sequences=True))
+    logging.info("Initialize Rnn {} Done.".format(self.name))
+
+  def build(self, input_shape):
+    self.built = True
+
+  def compute_output_shape(self, input_shape):
+    return tf.TensorShape([input_shape[0], self.cell_dim * 2])
+
+  def call(self, inputs, training=None, mask=None):
+    out = self.bi_rnn(inputs)
+    return out
+
+
+class RnnAttentionEncoder(Layer):  # pylint: disable=too-many-instance-attributes
+  """
+  RNN + Attention
+  Input Shape: [batch_size, steps, features]
+  Output Shape: [batch_size, units]
+  """
+
+  def __init__(self, config, **kwargs):
+    super().__init__(**kwargs)
+    logging.info("Initialize RnnAttentionEncoder {}...".format(self.name))
+
+    model_config = config['model']['net']['structure']
+    self.dropout_rate = model_config['dropout_rate']
+    self.cell_dim = model_config['cell_dim']
+
+    self.sen_encoder = BiRnn(config)
     # self.sen_all_dense = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(200))
     self.sen_att = delta.layers.HanAttention(name="{}_att".format(self.name))
     self.sen_att_d = tf.keras.layers.Dropout(self.dropout_rate)
     # self.sen_att_d_bn = tf.keras.layers.BatchNormalization()
-    tf.logging.info("Initialize RnnAttentionEncoder {} Done.".format(self.name))
+    logging.info("Initialize RnnAttentionEncoder {} Done.".format(self.name))
 
   def build(self, input_shape):
     self.built = True

@@ -19,6 +19,7 @@ import pickle
 from absl import logging
 import tensorflow as tf
 
+import delta.utils as utils
 import delta.layers
 from delta.layers.utils import cut_or_padding
 from delta.layers.utils import compute_sen_lens
@@ -42,7 +43,7 @@ class HierarchicalModel(TextClassModel):
     self.use_pretrained_embedding = config['model']['use_pre_train_emb']
     if self.use_pretrained_embedding:
       self.embedding_path = config['model']['embedding_path']
-      tf.logging.info("Loading embedding file from: {}".format(
+      logging.info("Loading embedding file from: {}".format(
           self.embedding_path))
       self._word_embedding_init = pickle.load(open(self.embedding_path, 'rb'))
       self.embed_initializer = tf.constant_initializer(
@@ -92,7 +93,7 @@ class HierarchicalAttentionModel(HierarchicalModel):
     if self.use_true_length:
       self.split_token = config['data']['split_token']
     # self.padding_token = config['data']["padding_token"]
-    self.padding_token = 0
+    self.padding_token = utils.PAD_IDX
 
     model_config = config['model']['net']['structure']
     self.dropout_rate = model_config['dropout_rate']
@@ -121,7 +122,7 @@ class HierarchicalAttentionModel(HierarchicalModel):
         self.num_classes,
         activation=tf.keras.activations.linear,
         name="final_dense")
-    tf.logging.info("Initialize HierarchicalAttentionModel done.")
+    logging.info("Initialize HierarchicalAttentionModel done.")
 
   def call(self, inputs, training=None, mask=None):  # pylint: disable=too-many-locals
     input_x = inputs["input_x"]

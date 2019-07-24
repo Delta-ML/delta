@@ -1,8 +1,0 @@
-#!/usr/bin/env python3
-import os
-import sys
-import post_process as post_lib
-
-post_lib.post_grid_search()
-
-

@@ -33,10 +33,11 @@ namespace debug {
 
 static Vocab* vocab = nullptr;
 
-void SetUpVocab(const string& vocab_filename) {
+void SetUpVocab(const string& vocab_filename, bool load_token_ids,
+                bool check_tokens) {
   if (vocab == nullptr) {
     vocab = new Vocab();
-    TF_CHECK_OK(vocab->Load(vocab_filename));
+    TF_CHECK_OK(vocab->Load(vocab_filename, load_token_ids, check_tokens));
   }
 }
 
@@ -59,12 +60,13 @@ Status Vocab::Load(const string& vocab_glob, bool load_token_ids,
       << "Did not match exactly one file with pattern: " << vocab_glob;
   const string& vocab_filename = vocab_filenames[0];
 
-  debug::SetUpVocab(vocab_filename);
+  //  debug::SetUpVocab(vocab_filename, load_token_ids, check_tokens);
 
   string content;
   TF_RETURN_IF_ERROR(
       ReadFileToString(Env::Default(), vocab_filename, &content));
 
+  //  LOG(INFO) << "vocab after setup vocab: " << check_tokens;
   return Load(str_util::Split(content, '\n'), load_token_ids, check_tokens);
 }
 
@@ -94,6 +96,7 @@ Status Vocab::Load(const std::vector<string>& lines, bool load_token_ids,
   std::vector<string> expected_tokens = {kUnkToken, kEosToken};
   std::vector<string> unexpected_tokens = {kUnkTokenUpper, kEosTokenUpper};
 
+  //  LOG(INFO) << "check_tokens: " << check_tokens;
   if (check_tokens) {
     // if (token_to_id_.find(sos_token()) == token_to_id_.end()) {
     //    use_upper_token_symbols_ = true;

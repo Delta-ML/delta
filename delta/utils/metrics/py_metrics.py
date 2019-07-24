@@ -20,7 +20,8 @@ from seqeval.metrics import classification_report as seq_classification_report
 from delta.utils.register import registers
 from delta.utils.postprocess.postprocess_utils import ids_to_sentences
 
-#pylint: disable=too-few-public-methods
+
+# pylint: disable=too-few-public-methods
 class ABCMetric(metaclass=abc.ABCMeta):
   ''' abstract class of metric '''
 
@@ -30,13 +31,13 @@ class ABCMetric(metaclass=abc.ABCMeta):
     raise NotImplementedError("Calling an abstract method.")
 
 
-#pylint: disable=abstract-method
+# pylint: disable=abstract-method
 class Metric(ABCMetric):
   ''' wapper of metric '''
 
   def __init__(self, config):
     self.config = config
-    self.pos_label = config['solver']['metrics']['pos_label']
+    self.pos_label = config['pos_label']
 
   def __call__(self, *args, **kwargs):
     return self.call(*args, **kwargs)
@@ -46,7 +47,7 @@ class Metric(ABCMetric):
 class AccuracyCal(Metric):
   ''' accuracy metric '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
@@ -59,7 +60,7 @@ class AccuracyCal(Metric):
 class F1ScoreCal(Metric):
   ''' F1 score '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
@@ -73,7 +74,7 @@ class F1ScoreCal(Metric):
 class PrecisionCal(Metric):
   ''' precision metric '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
@@ -87,11 +88,11 @@ class PrecisionCal(Metric):
 class RecallCal(Metric):
   ''' recall metric '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
-  #pylint: disable=too-many-locals
+  # pylint: disable=too-many-locals
   def call(self, y_true=None, y_pred=None, arguments=None):
     ''' compute metric '''
     average = arguments['average'].lower()
@@ -102,7 +103,7 @@ class RecallCal(Metric):
 class ConfusionMatrixCal(Metric):
   ''' confusion matrix '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
@@ -116,7 +117,7 @@ class ConfusionMatrixCal(Metric):
 class ClassReportCal(Metric):
   ''' accuracy metric '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
@@ -129,15 +130,29 @@ class ClassReportCal(Metric):
 class CrfCal(Metric):
   ''' crf(ner) metric '''
 
-  #pylint: disable=useless-super-delegation
+  # pylint: disable=useless-super-delegation
   def __init__(self, config):
     super().__init__(config)
 
   def call(self, y_true=None, y_pred=None, arguments=None):
     ''' compute metric '''
-    label_path_file = self.config["data"]["task"]["label_vocab"]
-    return seq_classification_report(ids_to_sentences(y_true, label_path_file),
-                                 ids_to_sentences(y_pred, label_path_file))
+
+    label_path_file = arguments["label_vocab_path"]
+    return "\n" + seq_classification_report(
+        ids_to_sentences(y_true, label_path_file),
+        ids_to_sentences(y_pred, label_path_file), digits=4)
+
+
+def run_metrics_for_one_output(metric_config, y_true=None, y_pred=None):
+  metrics_list_config = metric_config['cals']
+  score = dict()
+  for one_metric in metrics_list_config:
+    metric_name = one_metric['name']
+    calculator = registers.metric[metric_name](metric_config)
+    arguments = one_metric['arguments']
+    metric_score = calculator(y_true=y_true, y_pred=y_pred, arguments=arguments)
+    score[metric_name] = metric_score
+  return score
 
 
 def get_metrics(config, y_true=None, y_pred=None):
@@ -145,12 +160,14 @@ def get_metrics(config, y_true=None, y_pred=None):
       calc metrics through `y_true` and `y_pred` or
       `confusion` will be deprecated
   '''
-  metrics_list_config = config['solver']['metrics']['cals']
-  score = dict()
-  for metric in metrics_list_config:
-    metric_name = metric['name']
-    calculator = registers.metric[metric_name](config)
-    arguments = metric['arguments']
-    metric_score = calculator(y_true=y_true, y_pred=y_pred, arguments=arguments)
-    score[metric_name] = metric_score
+  metrics = config['solver']['metrics']
+  if isinstance(metrics, list):  # metrics for multi-outputs
+    if len(y_true) != len(y_pred) or len(metrics) != len(y_true):
+      raise ValueError("Length of y_true, y_pred and metrics must be equal!")
+    score = []
+    for i, metrics_one_output in enumerate(metrics):
+      score.append(
+          run_metrics_for_one_output(metrics_one_output, y_true[i], y_pred[i]))
+  else:
+    score = run_metrics_for_one_output(metrics, y_true, y_pred)
   return score

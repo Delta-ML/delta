@@ -24,6 +24,7 @@ from delta.utils.register import registers
 
 # pylint: disable=too-many-ancestors, too-many-instance-attributes, abstract-method
 
+
 class SeqclassModel(TextClassModel):
   """class for sequence labeling."""
 
@@ -36,10 +37,10 @@ class SeqclassModel(TextClassModel):
     if self.use_pretrained_embedding:
       self.embedding_path = config['model']['embedding_path']
       logging.info("Loading embedding file from: {}".format(
-        self.embedding_path))
+          self.embedding_path))
       self._word_embedding_init = pickle.load(open(self.embedding_path, 'rb'))
       self.embed_initializer = tf.constant_initializer(
-        self._word_embedding_init)
+          self._word_embedding_init)
     else:
       self.embed_initializer = tf.random_uniform_initializer(-0.1, 0.1)
 
@@ -54,7 +55,8 @@ class BilstmCrfModel(SeqclassModel):
     logging.info("Initialize BilstmModel...")
 
     self.vocab_size = config['data']['vocab_size']
-    self.num_classes = config['data']['task']['num_classes']
+    self.num_classes = config['data']['task']['classes']['num_classes']
+    self.seq_num_classes = self.num_classes
 
     model_config = config['model']['net']['structure']
     self.dropout_rate = model_config['dropout_rate']
@@ -67,29 +69,33 @@ class BilstmCrfModel(SeqclassModel):
     self.fc_dim = model_config['fc_dim']  # output fully-connected layer size
 
     self.embed = tf.keras.layers.Embedding(
-      input_dim=self.vocab_size,
-      output_dim=self.embedding_size,
-      mask_zero=True,
-      input_length=self.max_len,
-      embeddings_initializer=self.embed_initializer,
-      trainable=True)
+        input_dim=self.vocab_size,
+        output_dim=self.embedding_size,
+        mask_zero=True,
+        input_length=self.max_len,
+        embeddings_initializer=self.embed_initializer,
+        trainable=True)
 
-    self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
+    self.embed_dropout = tf.keras.layers.Dropout(self.dropout_rate)
     self.bilstm = tf.keras.layers.Bidirectional(
-      tf.keras.layers.LSTM(units=self.num_units, return_sequences=True, recurrent_dropout=0.1),
-      merge_mode='concat', name='BiLSTM')
+        tf.keras.layers.LSTM(
+            units=self.num_units, return_sequences=True, recurrent_dropout=0.1),
+        merge_mode='concat',
+        name='BiLSTM')
     self.dropout = tf.keras.layers.Dropout(self.dropout_rate)
     self.dense = tf.keras.layers.Dense(self.num_classes, name='fc_layer')
 
-    logging.info("Initialize BilstmCrfModel done.")
+    self.transitions = self.add_weight(
+        name='transitions', shape=(self.seq_num_classes, self.seq_num_classes))
 
+    logging.info("Initialize BilstmCrfModel done.")
 
   def call(self, inputs, training=None, mask=None):
     input_x = inputs["input_x"]
     # [batch_size, max_len, embed_len]
     out = self.embed(input_x)
     # [batch_size, features]
-    out = self.embed_d(out, training=training)
+    out = self.embed_dropout(out, training=training)
     out = self.bilstm(out)
     out = self.dropout(out)
     output = self.dense(out)

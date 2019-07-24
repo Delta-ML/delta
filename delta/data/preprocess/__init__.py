@@ -14,7 +14,3 @@
 # limitations under the License.
 # ==============================================================================
 """Init of preprocess"""
-from delta.data.preprocess.text_cls_preparer import TextClsPreparer
-from delta.data.preprocess.text_match_preparer import TextMatchPreparer
-from delta.data.preprocess.text_seq_label_preparer import TextSeqLabelPreparer
-

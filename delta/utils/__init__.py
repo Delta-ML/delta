@@ -19,3 +19,4 @@ from delta.utils.misc import *
 from delta.utils.plot import *
 from delta.utils.model import *
 from delta.utils.config import *
+from delta.utils.logger import *

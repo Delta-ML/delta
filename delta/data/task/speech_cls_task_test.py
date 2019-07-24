@@ -171,7 +171,6 @@ class SpeechClsTaskTest(tf.test.TestCase):
     task_name = self.config['data']['task']['name']
     self.task_class = registers.task[task_name]
 
-
   def tearDown(self):
     ''' tear down'''
 

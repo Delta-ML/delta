@@ -21,14 +21,14 @@ from delta import utils
 from delta.utils.postprocess.postprocess_utils import ids_to_sentences
 
 
-
 class PostprocessUtilsTest(tf.test.TestCase):
   ''' metrics utils unittest'''
 
   def setUp(self):
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
-    self.config_file = main_root.joinpath('egs/mock_text_seq_label_data/config/seq-label-mock.yml')
+    self.config_file = main_root.joinpath(
+        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
 
   def tearDown(self):
     ''' tear down '''

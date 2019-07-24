@@ -16,6 +16,7 @@
 ''' metrics utils of numpy '''
 import numpy as np
 
+
 #pylint: disable=invalid-name
 def f1_score(tn, fp, fn, tp):
   '''  f1 score from confusion matrix '''

@@ -41,6 +41,7 @@ class SentenceToIdsOp : public OpKernel {
     OP_REQUIRES_OK(ctx, ctx->GetAttr("check_tokens", &check_tokens));
     OP_REQUIRES_OK(ctx, ctx->GetAttr("delimiter", &delimiter_));
     CHECK_GT(maxlen_, 0);
+    //    LOG(INFO) << "check_tokens: " << check_tokens;
     OP_REQUIRES_OK(ctx, vocab_.Load(vocab_filepath_, load_token_ids_from_vocab,
                                     check_tokens));
   }
@@ -72,11 +73,14 @@ class SentenceToIdsOp : public OpKernel {
         const int token_id = vocab_.TokenToId(token);
         // If the number of tokens is longer than the max length - truncate.
         if (cur_char >= maxlen_) {
-//          cur_char++;
-//          LOG(INFO) << "Sentence: \"" << sentence << "\" contained "
-//                    << tokens.size()
-//                    << " tokens, and was truncated to size: " << maxlen_ << " ("
-//                    << tokens.size() - maxlen_ << " tokens were ignored).";
+          //          cur_char++;
+          //          LOG(DEBUG) << "Sentence: \"" << sentence << "\" contained
+          //          "
+          //                    << tokens.size()
+          //                    << " tokens, and was truncated to size: " <<
+          //                    maxlen_ << " ("
+          //                    << tokens.size() - maxlen_ << " tokens were
+          //                    ignored).";
           break;
         }
         t_token_ids(cur_char) = token_id;
@@ -93,7 +97,8 @@ class SentenceToIdsOp : public OpKernel {
       Tensor out_paddings(DT_FLOAT, TensorShape({actual_maxlen}));
 
       typedef const Eigen::DSizes<Eigen::DenseIndex, 1> DSize1;
-//      LOG(INFO) << "actual_maxlen: " << actual_maxlen << ", maxlen_: " << maxlen_;
+      //      LOG(INFO) << "actual_maxlen: " << actual_maxlen << ", maxlen_: "
+      //      << maxlen_;
       out_token_ids.vec<int32>() =
           t_token_ids.slice(DSize1{0}, DSize1{actual_maxlen});
       out_paddings.vec<float>() =
@@ -127,12 +132,14 @@ class SentenceToIdsOp : public OpKernel {
           const int token_id = vocab_.TokenToId(token);
           // If the number of tokens is longer than the max length - truncate.
           if (cur_char >= maxlen_) {
-//            cur_char++;
-//            LOG(INFO) << "Sentence: \"" << sentence << "\" contained "
-//                      << tokens.size()
-//                      << " tokens, and was truncated to size: " << maxlen_
-//                      << " (" << tokens.size() - maxlen_
-//                      << " tokens were ignored).";
+            //            cur_char++;
+            //            LOG(INFO) << "Sentence: \"" << sentence << "\"
+            //            contained "
+            //                      << tokens.size()
+            //                      << " tokens, and was truncated to size: " <<
+            //                      maxlen_
+            //                      << " (" << tokens.size() - maxlen_
+            //                      << " tokens were ignored).";
             break;
           }
           t_token_ids(i, cur_char) = token_id;

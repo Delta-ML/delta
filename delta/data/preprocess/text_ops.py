@@ -42,7 +42,8 @@ def tokenize_sentence(texts, max_seq_len, vocab_path):
       maxlen=max_seq_len,
       vocab_filepath=vocab_path,
       load_token_ids_from_vocab=True,
-      pad_id=utils.PAD_IDX)
+      pad_id=utils.PAD_IDX,
+      check_tokens=True)
   return token_ids
 
 

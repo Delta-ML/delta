@@ -55,13 +55,12 @@ def main(argv):
   """
   # pylint: disable=unused-argument
 
-  if FLAGS.log_debug:
-    logging.set_verbosity(logging.DEBUG)
-  else:
-    logging.set_verbosity(logging.INFO)
-
   # load config
   config = utils.load_config(FLAGS.config)
+
+  utils.set_logging(FLAGS.log_debug, config)
+
+  utils.copy_config(FLAGS.config, config)
   set_seed(config)
 
   import_all_modules_for_register()

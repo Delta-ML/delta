@@ -31,12 +31,12 @@ class Vocabulary:
     self._s_token = "<s>"
     self._slash_s_token = "</s>"
     self._default_dict = {
-      self._padding_token: 0,
-      self._unknown_token: 1,
-      self._start_of_sentence: 2,
-      self._end_of_sentence: 3,
-      self._s_token: 4,
-      self._slash_s_token: 5
+        self._padding_token: 0,
+        self._unknown_token: 1,
+        self._start_of_sentence: 2,
+        self._end_of_sentence: 3,
+        self._s_token: 4,
+        self._slash_s_token: 5
     }
     self.use_default_dict = use_default_dict
     if self.use_default_dict:
@@ -51,7 +51,7 @@ class Vocabulary:
   def add(self, word):
     ''' update vocab statis'''
     if word not in self._mapping:
-      self._mapping[word] = max(self._mapping.values()) + 1
+      self._mapping[word] = len(self._mapping)
     self._freq[word] += 1
 
   def trim(self, min_frequency):

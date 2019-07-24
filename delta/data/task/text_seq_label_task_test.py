@@ -22,6 +22,7 @@ import tensorflow as tf
 from absl import logging
 from delta import utils
 from delta.data.task.text_seq_label_task import TextSeqLabelTask
+from delta.utils.register import import_all_modules_for_register
 
 
 class TextSeqLabelTaskTest(tf.test.TestCase):
@@ -29,16 +30,25 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up'''
+    import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
-    self.config_file = main_root.joinpath('egs/mock_text_seq_label_data/config/seq-label-mock.yml')
+    self.config_file = main_root.joinpath(
+        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+
+  def tearDown(self):
+    ''' tear down '''
 
   def test_english(self):
     """ test seq label task of english data """
     config = utils.load_config(self.config_file)
     max_len = config["model"]["net"]["structure"]["max_len"]
     config["data"]["task"]["language"] = "english"
-    # generate_mock_files(config)
+    task_config = config["data"]["task"]
+    task_config[
+        "text_vocab"] = "egs/mock_text_seq_label_data/seq-label/v1/data/text_vocab.txt"
+    task_config["need_shuffle"] = False
+
     task = TextSeqLabelTask(config, utils.TRAIN)
 
     # test offline data
@@ -48,11 +58,12 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
     with self.session() as sess:
-      sess.run(data["iterator"].initializer)
-      res = sess.run([data["input_x_dict"]["input_x"],
-                      data["input_y_dict"]["input_y"]])
-      logging.debug(res[0][0])
+      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      res = sess.run(
+          [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
+      logging.debug(res[0][0][:5])
       logging.debug(res[1][0])
+      self.assertAllEqual(res[0][0][:5], [2, 3, 4, 0, 0])
       self.assertEqual(np.shape(res[0]), (10, max_len))
       self.assertEqual(np.shape(res[1]), (10, max_len))
 
@@ -63,57 +74,10 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
     with self.session() as sess:
-      sess.run(data["iterator"].initializer)
-      res = sess.run(input_x, feed_dict={input_sentence: ["All is well."]})
-      logging.debug(res[0])
-      self.assertEqual(np.shape(res[0]), (max_len,))
-
-  def test_chinese_split_by_space(self):
-    """ test seq label task of chiniese data, split sentences by space"""
-
-    config = utils.load_config(self.config_file)
-    max_len = config["model"]["net"]["structure"]["max_len"]
-    data_config = config["data"]
-    task_config = data_config["task"]
-    task_config["language"] = "chinese"
-    task_config["split_by_space"] = True
-    task_config["use_word"] = False
-
-    # generate_mock_files(config)
-    task = TextSeqLabelTask(config, utils.TRAIN)
-
-    # test offline data
-    data = task.dataset()
-    self.assertTrue("input_x_dict" in data and
-                    "input_x" in data["input_x_dict"])
-    self.assertTrue("input_y_dict" in data and
-                    "input_y" in data["input_y_dict"])
-    with self.session() as sess:
-      sess.run(data["iterator"].initializer)
-      res = sess.run([data["input_x_dict"]["input_x"],
-                      data["input_y_dict"]["input_y"],
-                      data["input_x_len"]])
-
-      logging.debug(res[0][0])
-      logging.debug(res[1][0])
-      logging.debug(res[2])
-
-      self.assertEqual(np.shape(res[0]), (10, max_len))
-      self.assertEqual(np.shape(res[1]), (10, max_len))
-      self.assertEqual(np.shape(res[2]), (10, ))
-
-    # test online data
-    export_inputs = task.export_inputs()
-    self.assertTrue("export_inputs" in export_inputs and
-                    "input_sentence" in export_inputs["export_inputs"])
-    input_sentence = export_inputs["export_inputs"]["input_sentence"]
-    input_x = export_inputs["model_inputs"]["input_x"]
-
-    with self.session() as sess:
-      sess.run(data["iterator"].initializer)
-      res = sess.run(input_x, feed_dict={input_sentence: ["北 京 文 物"]})
+      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      res = sess.run(input_x, feed_dict={input_sentence: ["I feel good ."]})
       logging.debug(res[0][:5])
-      logging.debug(np.shape(res[0]))
+      self.assertAllEqual(res[0][:5], [0, 3, 4, 0, 0])
       self.assertEqual(np.shape(res[0]), (max_len,))
 
 

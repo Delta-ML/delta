@@ -23,7 +23,7 @@ TARGET=$1 #delta or deltann
 DEVICE=$2 # cpu or gpu
 SAVE_DOCKERFILE=false
 TYPE=devel
-TAG=latest-${TYPE}-${TARGET}-${DEVICE}-py3
+TAG=1.14.0-${TYPE}-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
 
 cp ../sources.list.ubuntu18.04 .
@@ -42,18 +42,25 @@ $DOCKER pull $IMAGE
 
 cat > dockerfile <<EOF
 FROM ${IMAGE}
-
-# ubuntu source
 COPY sources.list.ubuntu18.04 /etc/apt/sources.list
+
+# install tools 
 COPY install.sh /install.sh
-RUN chmod +x /install.sh && /install.sh
+RUN /bin/bash /install.sh
 
 #add user
 ENV ROLE delta
 RUN adduser --disabled-password --gecos '' --shell '/bin/bash' \$ROLE \
   && adduser \$ROLE sudo \
   && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
 USER \$ROLE 
+
+# install gcc
+COPY install_user.sh /ci/install_user.sh
+RUN /bin/bash /ci/install_user.sh
+
+CMD ["/bin/bash", "-c"]
 EOF
 
 

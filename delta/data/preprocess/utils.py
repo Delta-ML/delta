@@ -22,46 +22,25 @@ import numpy as np
 from absl import logging
 import tensorflow as tf
 
-
 from delta.data.utils.vocabulary import Vocabulary
 
 
-def get_pre_process_text_ds(text, pipeline_func, num_parallel_calls, batch_size,):
+def get_pre_process_text_ds_iter(
+    text_placeholder,
+    pipeline_func,
+    num_parallel_calls,
+    batch_size,
+):
   """Get pre-process oprators."""
-  text_ds = tf.data.Dataset.from_tensor_slices(text)
+  text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
   text_ds = text_ds.map(pipeline_func, num_parallel_calls=num_parallel_calls)
 
   text_ds = text_ds.batch(batch_size)
 
-  iterator = text_ds.make_one_shot_iterator()
+  iterator = text_ds.make_initializable_iterator()
 
-  text_t = iterator.get_next()
-  return text_t
+  return iterator
 
-def run_one_sentence(text_t, batch_num, session_conf):
-  """concatenate one sentence."""
-  text_after = []
-  with tf.Session(config=session_conf) as sess:
-    for _ in range(batch_num):
-      text_after.append(sess.run(text_t))
-
-  text_after_arr = np.concatenate(text_after, axis=0)
-  return text_after_arr
-
-
-
-def run_two_sentence(text_t, batch_num, session_conf):
-  """concatenate two sentence."""
-  text_after_left_right = []
-  text_t_left, text_t_right = text_t
-  with tf.Session(config=session_conf) as sess:
-    for _ in range(batch_num):
-      list_l, list_r = sess.run([text_t_left, text_t_right])
-      list_l_r = np.c_[list_l, list_r]
-      text_after_left_right.append(list_l_r)
-
-  text_after_arr_l_r = np.concatenate(text_after_left_right, axis=0)
-  return text_after_arr_l_r
 
 def process_vocab(vocab_file_path, data, vocab, min_frequency=0):
   """Process vocab"""
@@ -101,7 +80,7 @@ def load_vocab_dict(vocab_file_path):
       if len(parts) < 2:
         continue
       vocabs[parts[0]] = parts[1]
-  logging.info("Loded {} lines for {}".format(len(vocabs), vocab_file_path))
+  logging.info("Loded {} vocabs from {}".format(len(vocabs), vocab_file_path))
   return vocabs
 
 
@@ -118,9 +97,12 @@ def prepare_vocab(vocab_file_path, text, min_frequency=1,
   process_vocab(vocab_file_path, text, text_vocab, min_frequency=min_frequency)
 
 
-def prepare_vocab_from_config(vocab_file_path, config):
+def prepare_vocab_from_config(vocab_file_path, config, output_index=None):
   """Prepare vocab from config."""
-  label_config = config["data"]["task"]["classes"]["vocab"]
+  if output_index is None:
+    label_config = config["data"]["task"]["classes"]["vocab"]
+  else:
+    label_config = config["data"]["task"]["classes"][output_index]["vocab"]
 
   save_vocabs(label_config, vocab_file_path)
 

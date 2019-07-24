@@ -15,17 +15,4 @@
 # ==============================================================================
 """Custom models."""
 
-from delta.models.speech_cls_rawmodel import EmoCRNNRawModel
-from delta.models.speech_cls_rawmodel import EmoDCRNNRawModel
-from delta.models.speech_cls_rawmodel import EmoNDCRNNRawModel
-from delta.models.speaker_cls_rawmodel import SpeakerCRNNRawModel
-from delta.models.speech_cls_model import EmoCFNNModel
-from delta.models.speech_cls_model import EmoCRNNModel
-from delta.models.kws_model import TdnnKwsModel
-from delta.models.asr_model import CTCAsrModel
-from delta.models.text_seq_model import SeqclassCNNModel
-from delta.models.text_seq_model import RnnAttentionModel
-from delta.models.text_seq_model import TransformerModel
-from delta.models.text_hierarchical_model import HierarchicalAttentionModel
-from delta.models.text_match_model import MatchRnnTextClassModel
-from delta.models.text_seq_label_model import BilstmCrfModel
+

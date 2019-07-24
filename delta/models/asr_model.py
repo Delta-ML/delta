@@ -53,7 +53,7 @@ class CTCAsrModel(RawModel):
     return self._config
 
   def get_loss_fn(self):
-    return utils.loss(self._config)
+    return utils.losses(self._config)
 
   def ctc_lambda_func(self, args):
     y_pred, input_length, labels, label_length = args

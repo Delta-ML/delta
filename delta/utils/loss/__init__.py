@@ -14,6 +14,3 @@
 # limitations under the License.
 # ==============================================================================
 ''' loss module '''
-from delta.utils.loss.loss_impl import CrossEntropyLoss
-from delta.utils.loss.loss_impl import DistillationLoss
-from delta.utils.loss.loss_impl import CrfLoss

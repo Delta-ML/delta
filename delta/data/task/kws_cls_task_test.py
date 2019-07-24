@@ -21,6 +21,7 @@ from absl import logging
 
 from delta import utils
 from delta.utils.register import registers
+from delta.utils.register import import_all_modules_for_register
 
 
 class KwsClsTaskTest(tf.test.TestCase):
@@ -28,6 +29,7 @@ class KwsClsTaskTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up '''
+    import_all_modules_for_register()
     '''
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)

@@ -26,6 +26,7 @@ from delta.utils.solver.raw_solver import RawSolver
 @registers.solver.register
 class RawMatchSolver(RawSolver):
   """Solver for raw tensorflow model."""
+
   def __init__(self, config):
     super().__init__(config)
     self.tasktype = config['data']['task']['type']
@@ -39,9 +40,23 @@ class RawMatchSolver(RawSolver):
     if self.tasktype == "Classification":
       model.score = tf.nn.softmax(model.logits, name="score")
       model.preds = tf.argmax(model.logits, axis=-1)
-      if hasattr(model, "input_y"):
-        model.y_ground_truth = tf.argmax(model.input_y, axis=-1)
+      model.y_ground_truth = tf.argmax(model.input_y, axis=-1)
+    else:
+      raise ValueError("%s is not a valid task type."
+                       "Must be in `Ranking` and `Classification`." %
+                       (self.tasktype))
+
+  def build_export_output(self, model):  # pylint: disable=no-self-use
+    """
+    Build the output of the model.
+    `score` and `input_y` are for loss calculation.
+    `preds` and `y_ground_truth` are for metric calculation.
+    """
+    if self.tasktype == "Classification":
+      model.score = tf.nn.softmax(model.logits, name="score")
+      model.preds = tf.argmax(model.logits, axis=-1)
       model.output_dict = {"score": model.score, "preds": model.preds}
     else:
       raise ValueError("%s is not a valid task type."
-                       "Must be in `Ranking` and `Classification`." % (self.tasktype))
+                       "Must be in `Ranking` and `Classification`." %
+                       (self.tasktype))

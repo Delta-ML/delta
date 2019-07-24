@@ -32,12 +32,9 @@ class MetricTest(tf.test.TestCase):
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file_crf = \
-      main_root.joinpath('egs/mock_text_seq_label_data/config/seq-label-mock.yml')
+      main_root.joinpath('egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
 
     self.conf_str = '''
-      data:
-        task:
-          label_vocab: "egs/msra_ner/exp/label_vocab.txt"
       solver:
         metrics:
           pos_label: 1 # int, same to sklearn
@@ -64,7 +61,6 @@ class MetricTest(tf.test.TestCase):
     self.true_label = np.array([1, 1, 2, 3, 4, 6, 5])
     self.pred1 = np.array([1, 1, 2, 3, 4, 6, 5])
     self.pred2 = np.array([2, 2, 1, 1, 1, 1, 1])
-
 
   def tearDown(self):
     ''' tear down '''
@@ -93,17 +89,17 @@ class MetricTest(tf.test.TestCase):
     ''' test crf metrics '''
     config = utils.load_config(self.config_file_crf)
     metrics3 = metrics.get_metrics(
-      config, y_true=[self.true_label], y_pred=[self.pred1])
+        config, y_true=[self.true_label], y_pred=[self.pred1])
     # metrics3: one string. Text summary of the precision, recall, F1 score for each class.
     # res3 = metrics3['CrfCal']
     # print(res3)
     # for i, s in enumerate(res3):
     #   print(i, s)
-    self.assertEqual('1.00', metrics3['CrfCal'][68:72])
+    self.assertEqual('1.0000', metrics3['CrfCal'][67:73])
 
     metrics4 = metrics.get_metrics(
-      config, y_true=[self.true_label], y_pred=[self.pred2])
-    self.assertEqual('0.00', metrics4['CrfCal'][68:72])
+        config, y_true=[self.true_label], y_pred=[self.pred2])
+    self.assertEqual('0.0000', metrics4['CrfCal'][67:73])
 
 
 if __name__ == "__main__":

@@ -26,6 +26,13 @@ class Model(tf.keras.Model):
   def __init__(self, **kwargs):  # pylint: disable=useless-super-delegation
     super().__init__(**kwargs)
 
+  def __setattr__(self, key, value):
+    if key.startswith("temp_"):
+      # this is for temporary attributes avoiding keras check
+      self.__dict__[key] = value
+    else:
+      super().__setattr__(key, value)
+
   def call(self, inputs, training=None, mask=None):
     raise NotImplementedError()
 

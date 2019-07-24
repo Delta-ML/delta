@@ -14,12 +14,3 @@
 # limitations under the License.
 # ==============================================================================
 """Solvers."""
-
-from delta.utils.solver.raw_cls_solver import RawClassSolver
-from delta.utils.solver.raw_match_solver import RawMatchSolver
-from delta.utils.solver.keras_solver import KerasSolver
-from delta.utils.solver.emotion_solver import EmotionSolver
-from delta.utils.solver.kws_solver import KwsSolver
-from delta.utils.solver.asr_solver import AsrSolver
-from delta.utils.solver.speaker_solver import SpeakerSolver
-from delta.utils.solver.raw_seq_label_solver import RawSeqLabelSolver

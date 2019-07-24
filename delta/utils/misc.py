@@ -68,15 +68,21 @@ def log_vars(prefix, variables):
 
 
 #pylint: disable=bad-continuation
-def loss(config):
+def losses(config):
   ''' get loss object from register '''
   if 'distilling' in config['solver'] and config['solver']['distilling'][
       'enable']:
     loss_name = config['solver']['distilling']['loss']
   else:
     loss_name = config['solver']['optimizer']['loss']
-  logging.info('loss == {}'.format(loss_name))
-  _loss_fn = registers.loss[loss_name](config)
+  if isinstance(loss_name, list):
+    _loss_fn = []
+    for one_loss_name in loss_name:
+      logging.info('loss == {}'.format(one_loss_name))
+      _loss_fn.append(registers.loss[one_loss_name](config))
+  else:
+    logging.info('loss == {}'.format(loss_name))
+    _loss_fn = registers.loss[loss_name](config)
   return _loss_fn
 
 
@@ -108,6 +114,23 @@ def gpu_device_names():
   return devices, len(devices)
 
 
+def tf_version_satisfy(target_version_str):
+  '''
+  A convenient function to check TF version.
+
+  Args:
+    target_version_str: a string, e.g. '1.14', '1.12.0'
+
+  Returns:
+    True if TF version is greater or equal than target version.
+  '''
+  current_version_str = tf.__version__
+  current_version = [int(num) for num in current_version_str.split('.')]
+  target_version = [int(num) for num in target_version_str.split('.')]
+  satisfied = current_version >= target_version
+  return satisfied
+
+
 def get_distribution_strategy(num_gpus, all_reduce_alg='nccl'):
   """Return a DistributionStrategy for running the model.
 
@@ -125,11 +148,15 @@ def get_distribution_strategy(num_gpus, all_reduce_alg='nccl'):
   elif num_gpus == 1:
     return tf.contrib.distribute.OneDeviceStrategy("device:GPU:0")
   else:
+    if tf_version_satisfy('1.14'):
+      _cross_tower_ops = tf.contrib.distribute.AllReduceCrossDeviceOps
+    else:
+      _cross_tower_ops = tf.contrib.distribute.AllReduceCrossTowerOps
+
     if all_reduce_alg:  #pylint: disable=no-else-return
       return tf.contrib.distribute.MirroredStrategy(
           num_gpus=num_gpus,
-          cross_tower_ops=tf.contrib.distribute.AllReduceCrossTowerOps(
-              all_reduce_alg, num_packs=num_gpus))
+          cross_tower_ops=_cross_tower_ops(all_reduce_alg, num_packs=num_gpus))
     else:
       return tf.contrib.distribute.MirroredStrategy(num_gpus=num_gpus)
 

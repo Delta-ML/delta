@@ -67,7 +67,7 @@ class MultiHeadAttention(Layer):
     if feature_dim % self.head_num != 0:
       error_info = 'Invalid head number {} with the given input dim {}'.format(
           self.head_num, feature_dim)
-      tf.logging.error(error_info)
+      logging.error(error_info)
       raise ValueError(error_info)
 
     self.kernel_query = self.add_weight(

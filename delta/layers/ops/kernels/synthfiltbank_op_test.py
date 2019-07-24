@@ -44,15 +44,13 @@ class SfbOpTest(tf.test.TestCase):
 
       power_spc, phase_spc = py_x_ops.analyfiltbank(input_data, sample_rate)
 
-      logging.info('power_spc: {}'.format(power_spc.eval().flatten()[:50]))
-      logging.info('phase_spc: {}'.format(phase_spc.eval().flatten()[:50]))
+      logging.info('power_spc: {}'.format(power_spc.eval().shape))
+      logging.info('phase_spc: {}'.format(phase_spc.eval().shape))
 
-      output = py_x_ops.synthfiltbank(power_spc.eval().flatten(),
-                                      phase_spc.eval().flatten(), sample_rate)
+      output = py_x_ops.synthfiltbank(power_spc.eval(),
+                                      phase_spc.eval(), sample_rate)
 
       self.assertEqual(tf.rank(output).eval(), 1)
-      logging.info('output: {}'.format(output.eval().flatten()[500:550]))
-      logging.info('output: {}'.format(input_data[500:550]))
 
       # beginning 400 samples are different, due to the overlap and add
       self.assertAllClose(
@@ -63,5 +61,5 @@ class SfbOpTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
-  logging.set_verbosity(-1)
+  logging.set_verbosity(logging.INFO)
   tf.test.main()

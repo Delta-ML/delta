@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cpplint --version &> /dev/null || sudo pip install cpplint
+export PATH=$PATH:$HOME/.local/bin
+
+cpplint --version &> /dev/null || sudo pip install --user cpplint
 
 CPPTMPFILE=`mktemp`
 
@@ -16,7 +18,7 @@ do
     cpplint $file 
 done < $CPPTMPFILE
 
-pylint --version &> /dev/null || sudo pip install pylint
+pylint --version &> /dev/null || sudo pip install --user pylint
 
 PYTMPFILE=`mktemp`
 

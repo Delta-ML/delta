@@ -114,7 +114,6 @@ class Vocab {
   int32 sow_id_ = -1;
   int32 eow_id_ = -1;
   bool use_upper_token_symbols_ = false;
-  bool check_tokens = true;
   std::unordered_map<int32, string> id_to_token_;
   std::unordered_map<string, int32> token_to_id_;
 

@@ -76,14 +76,50 @@ class registers():  # pylint: disable=invalid-name, too-few-public-methods
   serving = Register('serving')
 
 
-module_names = ["delta.data.task",
-                "delta.models",
-                "delta.utils.loss",
-                "delta.utils.metrics",
-                "delta.utils.solver",
-                "delta.utils.postprocess",
-                "delta.serving",
-                "delta.data.preprocess"]
+TASK_MODULES = [
+    "asr_seq_task", "kws_cls_task", "speech_cls_task", "speech_cls_task",
+    "text_cls_task", "text_seq_label_task", "text_match_task",
+    "text_nlu_joint_task", "speaker_cls_task"
+]
+
+MODLE_MODULES = [
+    "speech_cls_rawmodel", "speech_cls_rawmodel", "speech_cls_rawmodel",
+    "speaker_cls_rawmodel", "speech_cls_model", "speech_cls_model", "kws_model",
+    "asr_model", "text_seq_model", "text_seq_model", "text_seq_model",
+    "text_hierarchical_model", "text_match_model", "text_seq_label_model",
+    "text_nlu_joint_model"
+]
+
+LOSS_MODULES = ["loss_impl"]
+
+METRICS_MODULES = ["py_metrics"]
+
+SOLVER_MODULES = [
+    "raw_cls_solver", "raw_match_solver", "keras_solver", "emotion_solver",
+    "kws_solver", "asr_solver", "speaker_solver", "raw_seq_label_solver",
+    "raw_nlu_joint_solver"
+]
+
+POSTPROCESS_MODULES = [
+    "speech_cls_proc", "speaker_cls_proc", "text_cls_proc",
+    "text_seq_label_proc"
+]
+
+SERVING_MODULES = ["knowledge_distilling"]
+
+PREPROCESS_MODULES = [
+    "text_cls_preparer", "text_match_preparer", "text_seq_label_preparer",
+    "text_nlu_joint_preparer"
+]
+
+ALL_MODULES = [("delta.data.task", TASK_MODULES),
+               ("delta.models", MODLE_MODULES),
+               ("delta.utils.loss", LOSS_MODULES),
+               ("delta.utils.metrics", METRICS_MODULES),
+               ("delta.utils.solver", SOLVER_MODULES),
+               ("delta.utils.postprocess", POSTPROCESS_MODULES),
+               ("delta.serving", SERVING_MODULES),
+               ("delta.data.preprocess", PREPROCESS_MODULES)]
 
 
 def _handle_errors(errors):
@@ -95,10 +131,13 @@ def _handle_errors(errors):
 
 
 def import_all_modules_for_register():
+  """Import all modules for register."""
   errors = []
-  for name in module_names:
-    try:
-      importlib.import_module(name)
-    except ImportError as error:
-      errors.append((name, error))
+  for base_dir, modules in ALL_MODULES:
+    for name in modules:
+      try:
+        full_name = base_dir + "." + name
+        importlib.import_module(full_name)
+      except ImportError as error:
+        errors.append((name, error))
   _handle_errors(errors)

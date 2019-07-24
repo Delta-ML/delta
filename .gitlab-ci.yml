@@ -5,9 +5,7 @@ before_script:
   - echo "CI_PROJECT_DIR is ${CI_PROJECT_DIR}"
   - whoami
   - cat /etc/lsb-release
-  - cd ${CI_PROJECT_DIR} && source env.sh 
   - env
-  - pushd ${CI_PROJECT_DIR}/tools && make basic check_install test && popd
 
 stages:
   - build
@@ -24,8 +22,8 @@ lint_and_unit_test:
 
   script:
     - env
-    - cd ${CI_PROJECT_DIR}
-    - bash tools/test/gen_mock_egs_data.sh
+    - cd ${CI_PROJECT_DIR} && source env.sh
+    - pushd ${CI_PROJECT_DIR}/tools && make basic check_install test && popd
     - bash tools/test/python_test.sh
     - bash tools/test/cpp_test.sh
     - bash tools/test/lint.sh

@@ -29,7 +29,8 @@ class ABCLoss(metaclass=abc.ABCMeta):  #pylint: disable=too-few-public-methods
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None):
+           soft_labels=None,
+           **kwargs):
     '''
     param: logits, (B, T, D)
     param: labels, (B, T)

@@ -38,7 +38,8 @@ class CrossEntropyLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None):
+           soft_labels=None,
+           **kwargs):
 
     del soft_labels
     loss = cross_entropy(
@@ -71,7 +72,8 @@ class DistillationLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None):
+           soft_labels=None,
+           **kwargs):
 
     loss_standard = cross_entropy(
         logits=logits,
@@ -107,7 +109,8 @@ class CTCLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None):
+           soft_labels=None,
+           **kwargs):
 
     del soft_labels
     return ctc_lambda_loss(
@@ -123,9 +126,6 @@ class CrfLoss(Loss):
 
   def __init__(self, config):
     super().__init__(config)
-    self.max_seq_len = self.config['data']['task']['max_seq_len']
-    self.num_classes = self.config['data']['task']['num_classes']
-    self.transitions = tf.get_variable("transitions", [self.num_classes, self.num_classes])
 
   # pylint: disable=too-many-arguments
   def call(self,
@@ -133,9 +133,13 @@ class CrfLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None):
-
-    tags_scores = tf.reshape(logits, [-1, self.max_seq_len, self.num_classes], name="scores")
-    loss, _ = crf_log_likelihood(tags_scores, labels, input_length, self.transitions)
+           soft_labels=None,
+           **kwargs):
+    assert "model" in kwargs
+    model = kwargs["model"]
+    tags_scores = tf.reshape(
+        logits, [-1, model.max_len, model.seq_num_classes], name="scores")
+    loss, _ = crf_log_likelihood(tags_scores, labels, input_length,
+                                 model.transitions)
 
     return loss

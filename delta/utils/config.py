@@ -17,6 +17,7 @@
 import os
 import json
 import time
+from shutil import copyfile
 from pathlib import Path
 import yaml
 from absl import logging
@@ -40,6 +41,19 @@ def load_config(config_path):
       config = json.load(f)
   # check config
   valid_config(config)
+  return config
+
+
+def copy_config(config_path, config):
+  ''' copy config file to ckpt dirctory '''
+  if isinstance(config_path, Path):
+    config_path = str(config_path)
+  config_name = os.path.basename(config_path)
+  save_config_path = os.path.join(config["solver"]["saver"]["model_path"],
+                                  config_name)
+  logging.info("Saving config file to {}".format(save_config_path))
+  copyfile(config_path, save_config_path)
+
   return config
 
 

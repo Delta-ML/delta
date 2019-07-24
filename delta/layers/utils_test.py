@@ -15,12 +15,10 @@
 # ==============================================================================
 """Test for layer utilities."""
 
-import os
-import tempfile
-from pathlib import Path
 from absl import logging
 import tensorflow as tf
 
+from delta.layers import utils
 from delta.layers.utils import cut_or_padding
 from delta.layers.utils import compute_sen_lens
 from delta.layers.utils import compute_doc_lens
@@ -31,6 +29,23 @@ from delta.layers.utils import split_one_doc_to_true_len_sens
 
 class LayerUtilsTest(tf.test.TestCase):
 
+  def setUp(self):
+    ''' set up '''
+
+  def tearDown(self):
+    ''' tear down'''
+
+  def test_gelu(self):
+    ''' test gelue activation '''
+
+    # pylint: disable=invalid-name
+    y = utils.gelu(tf.constant([0.5, 0.2], dtype=tf.float32))
+    y_true = [0.345714, 0.11585142]
+
+    with self.session() as sess:
+      y_pred = sess.run(y)
+      self.assertAllClose(y_pred, y_true)
+
   def test_cut_or_padding(self):
     # test for 1d
     origin_1_t = tf.placeholder(dtype=tf.int32, shape=[None])
@@ -39,12 +54,10 @@ class LayerUtilsTest(tf.test.TestCase):
     with self.session() as sess:
       # test for padding
       res = sess.run(after_1_t, feed_dict={origin_1_t: [1, 2]})
-      logging.info(res)
       self.assertAllEqual(res, [1, 2, 0])
 
       # test for cut
       res = sess.run(after_1_t, feed_dict={origin_1_t: [1, 2, 3, 4, 5]})
-      logging.info(res)
       self.assertAllEqual(res, [1, 2, 3])
 
     # test for 2d
@@ -53,13 +66,11 @@ class LayerUtilsTest(tf.test.TestCase):
     with self.session() as sess:
       # test for padding
       res = sess.run(after_2_t, feed_dict={origin_2_t: [[1, 2], [1, 2]]})
-      logging.info(res)
       self.assertAllEqual(res, [[1, 2, 0], [1, 2, 0]])
 
       # test for cut
       res = sess.run(
           after_2_t, feed_dict={origin_2_t: [[1, 2, 3, 4], [1, 2, 3, 4]]})
-      logging.info(res)
       self.assertAllEqual(res, [[1, 2, 3], [1, 2, 3]])
 
   def test_compute_sen_lens(self):
@@ -69,12 +80,10 @@ class LayerUtilsTest(tf.test.TestCase):
     with self.session() as sess:
       # test for 1d
       res = sess.run(lens, feed_dict={sentences: [1, 2, 0, 0]})
-      logging.info(res)
       self.assertEqual(res, 2)
 
       # test for 2d
       res = sess.run(lens, feed_dict={sentences: [[1, 2, 0, 0], [1, 2, 3, 4]]})
-      logging.info(res)
       self.assertAllEqual(res, [2, 4])
 
       # test for 3d
@@ -83,22 +92,20 @@ class LayerUtilsTest(tf.test.TestCase):
           feed_dict={
               sentences: [[[1, 2, 0, 0]], [[1, 2, 3, 4]], [[1, 0, 0, 0]]]
           })
-      logging.info(res)
       self.assertAllEqual(res, [[2], [4], [1]])
 
   def test_compute_doc_lens(self):
+    ''' compute document length'''
     docs = tf.placeholder(dtype=tf.int32)
     lens = compute_doc_lens(docs)
 
     with self.session() as sess:
       # test for 1d
       res = sess.run(lens, feed_dict={docs: [1, 2, 0, 0]})
-      logging.info(res)
       self.assertEqual(res, 2)
 
       # test for 2d
       res = sess.run(lens, feed_dict={docs: [[1, 2, 0, 0], [1, 2, 3, 4]]})
-      logging.info(res)
       self.assertAllEqual(res, [2, 4])
 
   def test_split_one_doc_to_true_len_sens(self):
@@ -112,18 +119,15 @@ class LayerUtilsTest(tf.test.TestCase):
 
     with self.session() as sess:
       res = sess.run(lens, feed_dict={doc: [2, 3, 1, 2, 1, 2, 3, 4, 5, 6, 1]})
-      logging.info(res)
       self.assertAllEqual(
           res,
           [[2, 3, 0, 0, 0], [2, 0, 0, 0, 0], [2, 3, 4, 5, 6], [0, 0, 0, 0, 0]])
 
       all_empty = [[0 for _ in range(max_sen_len)] for _ in range(max_doc_len)]
       res = sess.run(lens, feed_dict={doc: []})
-      logging.info(res)
       self.assertAllEqual(res, all_empty)
 
       res = sess.run(lens, feed_dict={doc: [1, 1, 1, 1, 1]})
-      logging.info(res)
       self.assertAllEqual(res, all_empty)
 
 

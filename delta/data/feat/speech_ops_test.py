@@ -16,7 +16,6 @@
 ''' speech feat ops unittest'''
 import os
 from pathlib import Path
-
 import numpy as np
 import tensorflow as tf
 from absl import logging

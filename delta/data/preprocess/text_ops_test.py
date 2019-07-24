@@ -13,23 +13,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' data common utils unittest'''
+''' text ops utils unittest'''
 
 # pylint: disable=missing-docstring
 
 import tensorflow as tf
 from absl import logging
+import tempfile
+
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
+from delta.data.preprocess.text_ops import tokenize_label
+from delta.data.preprocess.text_ops import tokenize_sentence
 
 
-class CommonUtilsTest(tf.test.TestCase):
+class TextOpsTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up '''
+    vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']
+    vocab_label = [
+        'B\t0', "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4", "B-ORG5\t5",
+        "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"
+    ]
+    self.vocab_text_filepath = tempfile.mktemp(suffix='text_vocab.txt')
+    self.vocab_label_filepath = tempfile.mktemp(suffix='label_vocab.txt')
+    with open(self.vocab_text_filepath, mode='w', encoding='utf-8') as fobj:
+      for token in vocab_text:
+        fobj.write(token)
+        fobj.write('\n')
+    with open(self.vocab_label_filepath, mode='w', encoding='utf-8') as fobj:
+      for token in vocab_label:
+        fobj.write(token)
+        fobj.write('\n')
 
   def tearDown(self):
     ''' tear down '''
+
+  def test_label_and_text(self):
+    text = ["O O"]
+    maxlen = 2
+    text_tokenize_t = tokenize_sentence(text, maxlen, self.vocab_text_filepath)
+    label = ["B B"]
+    maxlen = 2
+    label_tokenize_t = tokenize_label(label, maxlen, self.vocab_label_filepath,
+                                      -1)
+
+    with self.session() as sess:
+      res = sess.run([text_tokenize_t, label_tokenize_t])
+      logging.debug(res)
+      self.assertAllEqual(res[0],
+                          [[3, 3]]), self.assertAllEqual(res[1], [[0, 0]])
 
   def test_clean_english_str_tf(self):
     t_sentence_in = tf.placeholder(dtype=tf.string)
@@ -65,5 +99,5 @@ class CommonUtilsTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
-  logging.set_verbosity(logging.INFO)
+  logging.set_verbosity(logging.DEBUG)
   tf.test.main()

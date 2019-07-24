@@ -36,6 +36,15 @@ class RawClassSolver(RawSolver):
 
     model.score = tf.nn.softmax(model.logits, name="score")
     model.preds = tf.argmax(model.logits, axis=-1)
-    if hasattr(model, "input_y"):
-      model.y_ground_truth = tf.argmax(model.input_y, axis=-1)
+    model.y_ground_truth = tf.argmax(model.input_y, axis=-1)
+
+  def build_export_output(self, model):  # pylint: disable=no-self-use
+    """
+    Build the output of the model.
+    `score` and `input_y` are for loss calculation.
+    `preds` and `y_ground_truth` are for metric calculation.
+    """
+
+    model.score = tf.nn.softmax(model.logits, name="score")
+    model.preds = tf.argmax(model.logits, axis=-1)
     model.output_dict = {"score": model.score, "preds": model.preds}

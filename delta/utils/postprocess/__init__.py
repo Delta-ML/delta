@@ -14,7 +14,3 @@
 # limitations under the License.
 # ==============================================================================
 ''' init of postprocess'''
-from delta.utils.postprocess.speech_cls_proc import EmoPostProc
-from delta.utils.postprocess.speaker_cls_proc import SpeakerPostProc
-from delta.utils.postprocess.text_cls_proc import SavePredPostProc
-from delta.utils.postprocess.text_seq_label_proc import SavePredEntityPostProc

@@ -25,7 +25,7 @@ You can refer to directory: `egs` for data preparing. In our example, `egs/yahoo
 First:
 
 ```
-cd egs/yahoo_answer/nlp1
+cd egs/yahoo_answer/text_cls/v1
 ```
 Then run the script: 
 
@@ -39,7 +39,7 @@ The generated data for text classification should be in the standard format for 
 
 ## Set the Config File
 
-The config file of this example is `egs/yahoo_answer/nlp1/config/cnn-cls.yml`
+The config file of this example is `egs/yahoo_answer/text_cls/v1/config/cnn-cls.yml`
 
 In the config file, we set the task to be `TextClsTask` and the model to be `HierarchicalAttentionModel`.
 
@@ -58,7 +58,7 @@ The configs under `solver` are used by solver class, including training optimize
 After setting the config file, you are ready to train a model.
 
 ```
-python delta/main.py --cmd train_and_eval --config egs/yahoo_answer/nlp1/config/cnn-cls.yml
+python delta/main.py --cmd train_and_eval --config egs/yahoo_answer/text_cls/v1/config/cnn-cls.yml
 ```
 
 The argument `cmd` tells the platform to train a model and also evaluate the dev set during the training process.
@@ -70,7 +70,7 @@ After enough steps of training, you would find the model checkpoints have been s
 If you would like to export a specific checkpoint to be exported, please set `infer_model_path` in config file. Otherwise, platform will simply find the newest checkpoint under the directory set by `saver->model_path`.
 
 ```
-python delta/main.py --cmd export_model --config egs/yahoo_answer/nlp1/config/cnn-cls.yml
+python delta/main.py --cmd export_model --config egs/yahoo_answer/text_cls/v1/config/cnn-cls.yml
 ```
 
 The exported models are in the directory set by config `service->model_path`, which is `exp/yahoo_answer/cnn-cls/service` here.

@@ -28,7 +28,6 @@ COPY sources.list.ubuntu18.04 /etc/apt/sources.list
 
 # install tools
 COPY install.sh /ci/install.sh
-#RUN /bin/bash chmod +x /ci/install.sh && /bin/bash /ci/install.sh
 RUN /bin/bash /ci/install.sh
 
 # add users

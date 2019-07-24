@@ -34,10 +34,20 @@ class RawSeqLabelSolver(RawSolver):
     `preds` and `y_ground_truth` are for metric calculation.
     """
     model.preds, score = crf_decode(model.logits,
-                                          model.loss_fn.transitions, model.input_x_len)
+                                    model.transitions,
+                                    model.input_x_len)
 
     model.score = tf.identity(score, name="score")
+    model.y_ground_truth = model.input_y
 
-    if hasattr(model, "input_y"):
-      model.y_ground_truth = model.input_y
+  def build_export_output(self, model):  # pylint: disable=no-self-use
+    """
+    Build the output of the model.
+    `score` and `input_y` are for loss calculation.
+    `preds` and `y_ground_truth` are for metric calculation.
+    """
+    model.preds, score = crf_decode(model.logits, model.transitions,
+                                    model.input_x_len)
+
+    model.score = tf.identity(score, name="score")
     model.output_dict = {"score": model.score, "preds": model.preds}

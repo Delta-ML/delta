@@ -17,6 +17,7 @@
 
 import tensorflow as tf
 import tensorflow.contrib.slim as slim  #pylint: disable=no-name-in-module
+from absl import logging
 
 #pylint: disable=invalid-name
 
@@ -131,12 +132,12 @@ def attention(inputs, attention_size, time_major=False, return_alphas=False):
   #v = tf.sigmoid(tf.tensordot(inputs, W_omega, axes=1) + b_omega)
   # (B, T, D) dot (D, Atten)
 
-  print('attention inputs', inputs.shape)
+  logging.info('attention inputs: {}'.format(inputs.shape))
   inputs_reshaped = tf.reshape(inputs, [-1, hidden_size])
   dot = tf.matmul(inputs_reshaped, W_omega)
   dot = tf.reshape(dot, [-1, time_size, attention_size])
   v = tf.sigmoid(dot + b_omega)
-  print('attention vector', v.shape)
+  logging.info(f'attention vector: {v.shape}')
   # For each of the timestamps its vector of size A from `v` is reduced with `u` vector
   # (B, T, Atten) dot (Atten)
   #vu = tf.tensordot(v, u_omega, axes=1)   # (B,T) shape
@@ -144,7 +145,7 @@ def attention(inputs, attention_size, time_major=False, return_alphas=False):
   vu = tf.matmul(v, u_omega)  # (B,T) shape
   vu = tf.squeeze(vu, axis=-1)
   vu = tf.reshape(vu, [-1, time_size])
-  print('attention energe', vu.shape)
+  logging.info(f'attention energe: {vu.shape}')
   alphas = tf.nn.softmax(vu)  # (B,T) shape also
 
   # Output of (Bi-)RNN is reduced with attention vector; the result has (B,D) shape

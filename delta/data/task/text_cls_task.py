@@ -77,6 +77,7 @@ class TextClsTask(TextTask):
     self.paths_after_pre_process = [
         one_path + ".after" for one_path in self.paths
     ]
+    self.init_feed_dict = {}
     self.prepare()
 
   def pre_process_pipeline(self, input_sentences):
@@ -100,7 +101,13 @@ class TextClsTask(TextTask):
     text, label = load_cls_raw_data(
         paths=self.paths_after_pre_process, mode=self.mode)
 
-    text_ds = tf.data.Dataset.from_tensor_slices(text)
+    text_placeholder = tf.placeholder(tf.string, shape=(None,), name="text")
+    label_placeholder = tf.placeholder(tf.string, name="label")
+    self.init_feed_dict[text_placeholder] = text
+    self.init_feed_dict[label_placeholder] = label
+    # logging.debug("init_feed_dict: {}".format(self.init_feed_dict))
+
+    text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
 
     text_ds = text_ds.map(
@@ -122,7 +129,7 @@ class TextClsTask(TextTask):
       else:
         data_set = text_ds
     else:
-      label_ds = load_one_label_dataset(label, self.config)
+      label_ds = load_one_label_dataset(label_placeholder, self.config)
       if self.use_dense:
         data_set = tf.data.Dataset.zip((text_ds, dense_ds, label_ds))
       else:
@@ -171,7 +178,8 @@ class TextClsTask(TextTask):
     input_pipeline_func = self.get_input_pipeline(for_export=True)
 
     token_ids = input_pipeline_func(input_sentence)
-    token_ids_len = tf.map_fn(lambda x: compute_sen_lens(x, padding_token=0), token_ids)
+    token_ids_len = tf.map_fn(lambda x: compute_sen_lens(x, padding_token=0),
+                              token_ids)
 
     export_data = {
         "export_inputs": {
@@ -195,12 +203,16 @@ class TextClsTask(TextTask):
 
     data_set = self.generate_data()
     logging.debug("data_set: {}".format(data_set))
-    if self.need_shuffle and self.mode == 'train':
-      # shuffle batch size and repeat
-      logging.debug("shuffle dataset ...")
-      data_set = data_set.apply(
-          tf.data.experimental.shuffle_and_repeat(
-              buffer_size=self.shuffle_buffer_size, count=None))
+    if self.mode == 'train':
+      if self.need_shuffle:
+        # shuffle batch size and repeat
+        logging.debug("shuffle and repeat dataset ...")
+        data_set = data_set.apply(
+            tf.data.experimental.shuffle_and_repeat(
+                buffer_size=self.shuffle_buffer_size, count=None))
+      else:
+        logging.debug("repeat dataset ...")
+        data_set = data_set.repeat(count=None)
 
     feature_shape = self.feature_spec()
     logging.debug("feature_shape: {}".format(feature_shape))
@@ -227,7 +239,8 @@ class TextClsTask(TextTask):
     return_dict = {
         "input_x_dict": input_x_dict,
         "input_x_len": input_x_len,
-        "iterator": iterator
+        "iterator": iterator,
+        "init_feed_dict": self.init_feed_dict
     }
 
     if self.use_dense:

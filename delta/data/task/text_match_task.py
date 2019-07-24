@@ -20,7 +20,6 @@ import collections
 from absl import logging
 import tensorflow as tf
 
-
 from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_match_raw_data
 from delta.data.utils.common_utils import load_one_label_dataset
@@ -72,8 +71,9 @@ class TextMatchTask(TextTask):
     self.use_word = self.task_config.get("use_word", False)
     self.split_token = config["model"].get("split_token", "")
     self.paths_after_pre_process = [
-        one_path + ".after" for one_path in self.paths
+      one_path + ".after" for one_path in self.paths
     ]
+    self.init_feed_dict = {}
     self.prepare()
 
   def pre_process_pipeline(self, input_sentences):
@@ -81,7 +81,6 @@ class TextMatchTask(TextTask):
     batch = pre_process_text(input_sentences, self.language,
                              self.split_by_space, self.use_word)
     return batch
-
 
   def common_process_pipeline(self, batch):
     """
@@ -92,18 +91,26 @@ class TextMatchTask(TextTask):
     token_ids = tokenize_sentence(batch, self.max_seq_len, vocab_path)
     return token_ids
 
-  #pylint: disable=too-many-locals
+  # pylint: disable=too-many-locals
   def generate_data(self):
     """Generate data for offline training."""
-    (text_left, text_right), label = load_match_raw_data(paths=self.paths_after_pre_process,
-                                                         mode=self.mode)
-    text_ds_left = tf.data.Dataset.from_tensor_slices(text_left)
-    text_ds_right = tf.data.Dataset.from_tensor_slices(text_right)
+    (text_left, text_right), label = load_match_raw_data(
+      paths=self.paths_after_pre_process, mode=self.mode)
+
+    text_left_placeholder = tf.placeholder(tf.string, name="text_left")
+    text_right_placeholder = tf.placeholder(tf.string, name="text_right")
+    label_placeholder = tf.placeholder(tf.string, name="label")
+    self.init_feed_dict[text_left_placeholder] = text_left
+    self.init_feed_dict[text_right_placeholder] = text_right
+    self.init_feed_dict[label_placeholder] = label
+
+    text_ds_left = tf.data.Dataset.from_tensor_slices(text_left_placeholder)
+    text_ds_right = tf.data.Dataset.from_tensor_slices(text_right_placeholder)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
-    text_ds_left = text_ds_left.map(input_pipeline_func,
-                          num_parallel_calls=self.num_parallel_calls)
-    text_ds_right = text_ds_right.map(input_pipeline_func,
-                               num_parallel_calls=self.num_parallel_calls)
+    text_ds_left = text_ds_left.map(
+      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+    text_ds_right = text_ds_right.map(
+      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
     text_size_ds_left = text_ds_left.map(
       lambda x: compute_sen_lens(x, padding_token=0),
       num_parallel_calls=self.num_parallel_calls)
@@ -111,20 +118,21 @@ class TextMatchTask(TextTask):
       lambda x: compute_sen_lens(x, padding_token=0),
       num_parallel_calls=self.num_parallel_calls)
     text_ds_left_right = tf.data.Dataset.zip((text_ds_left, text_ds_right))
-    text_len_left_right = tf.data.Dataset.zip((text_size_ds_left, text_size_ds_right))
+    text_len_left_right = tf.data.Dataset.zip(
+      (text_size_ds_left, text_size_ds_right))
     if self.infer_without_label:
-        data_set_left_right = text_ds_left_right
+      data_set_left_right = text_ds_left_right
     else:
-        label_ds = load_one_label_dataset(label, self.config)
-        data_set_left_right = tf.data.Dataset.zip((text_ds_left_right, label_ds))
+      label_ds = load_one_label_dataset(label_placeholder, self.config)
+      data_set_left_right = tf.data.Dataset.zip((text_ds_left_right, label_ds))
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
     data_size = len(text_left)
     if self.split_token != "":
       if self.split_token not in vocab_dict:
         raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
+          "The Model uses split token: {}, not in corpus.".format(
+            self.split_token))
       self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
     self.config['data']['{}_data_size'.format(self.mode)] = data_size
@@ -147,36 +155,34 @@ class TextMatchTask(TextTask):
     if self.split_token != "":
       if self.split_token not in vocab_dict:
         raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
+          "The Model uses split token: {}, not in corpus.".format(
+            self.split_token))
       self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
 
     input_sent_left = tf.placeholder(
-        shape=(None,), dtype=tf.string, name="input_sent_left")
+      shape=(None,), dtype=tf.string, name="input_sent_left")
     input_sent_right = tf.placeholder(
       shape=(None,), dtype=tf.string, name="input_sent_right")
     input_pipeline_func = self.get_input_pipeline(for_export=True)
 
     token_ids_left = input_pipeline_func(input_sent_left)
     token_ids_right = input_pipeline_func(input_sent_right)
-    token_ids_len_left = tf.map_fn(lambda x: compute_sen_lens(x, padding_token=0), token_ids_left)
-    token_ids_len_right = tf.map_fn(lambda x: compute_sen_lens(x, padding_token=0), token_ids_right)
+    token_ids_len_left = tf.map_fn(
+      lambda x: compute_sen_lens(x, padding_token=0), token_ids_left)
+    token_ids_len_right = tf.map_fn(
+      lambda x: compute_sen_lens(x, padding_token=0), token_ids_right)
     export_data = {
-        "export_inputs": {
-            "input_sent_left": input_sent_left,
-            "input_sent_right": input_sent_right,
-
-        },
-        "model_inputs": {
-            "input_x_left": token_ids_left,
-            "input_x_right": token_ids_right,
-            "input_x_len": [token_ids_len_left, token_ids_len_right]
-        }
-
+      "export_inputs": {
+        "input_sent_left": input_sent_left,
+        "input_sent_right": input_sent_right,
+      },
+      "model_inputs": {
+        "input_x_left": token_ids_left,
+        "input_x_right": token_ids_right,
+        "input_x_len": [token_ids_len_left, token_ids_len_right]
+      }
     }
-
-
     return export_data
 
   def dataset(self):
@@ -184,13 +190,16 @@ class TextMatchTask(TextTask):
     data_set_left_right, text_len_left_right = self.generate_data()
 
     logging.debug("data_set_left_right: {}".format(data_set_left_right))
-    if self.need_shuffle and self.mode == 'train':
-      # shuffle batch size and repeat
-      logging.debug("shuffle dataset ...")
-      data_set_left_right = data_set_left_right.apply(
-        tf.data.experimental.shuffle_and_repeat(
-          buffer_size=self.shuffle_buffer_size, count=None))
-
+    if self.mode == 'train':
+      if self.need_shuffle:
+        # shuffle batch size and repeat
+        logging.debug("shuffle and repeat dataset ...")
+        data_set_left_right = data_set_left_right.apply(
+          tf.data.experimental.shuffle_and_repeat(
+            buffer_size=self.shuffle_buffer_size, count=None))
+      else:
+        logging.debug("repeat dataset ...")
+        data_set_left_right = data_set_left_right.repeat(count=None)
     feature_shape = self.feature_spec()
     logging.debug("feature_shape: {}".format(feature_shape))
 
@@ -205,25 +214,27 @@ class TextMatchTask(TextTask):
     iterator_len = text_len_left_right.make_initializable_iterator()
     # pylint: disable=unused-variable
     if self.infer_without_label:
-        input_x_left, input_x_right = iterator.get_next()
+      input_x_left, input_x_right = iterator.get_next()
     else:
 
-        (input_x_left, input_x_right), input_y = iterator.get_next()
+      (input_x_left, input_x_right), input_y = iterator.get_next()
 
     input_x_left_len, input_x_right_len = iterator_len.get_next()
-    input_x_dict = collections.OrderedDict(
-      [("input_x_left", input_x_left), ("input_x_right", input_x_right)])
-    input_x_len = collections.OrderedDict(
-        [("input_x_left_len", input_x_left_len), ("input_x_right_len", input_x_right_len)])
+    input_x_dict = collections.OrderedDict([("input_x_left", input_x_left),
+                                            ("input_x_right", input_x_right)])
+    input_x_len = collections.OrderedDict([
+      ("input_x_left_len", input_x_left_len),
+      ("input_x_right_len", input_x_right_len)
+    ])
     return_dict = {
-        "input_x_dict": input_x_dict,
-        "input_x_len": input_x_len,
-        "iterator": iterator,
-        "iterator_len": iterator_len
+      "input_x_dict": input_x_dict,
+      "input_x_len": input_x_len,
+      "iterator": iterator,
+      "iterator_len": iterator_len,
+      "init_feed_dict": self.init_feed_dict
     }
 
-
-
     if not self.infer_without_label:
-      return_dict["input_y_dict"] = collections.OrderedDict([("input_y", input_y)])
+      return_dict["input_y_dict"] = collections.OrderedDict([("input_y",
+                                                              input_y)])
     return return_dict

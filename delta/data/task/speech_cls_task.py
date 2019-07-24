@@ -511,12 +511,11 @@ class SpeechClsTask(SpeechTask):
       return segs, seg_flag
 
     #pylint: disable=too-many-locals,invalid-name
-    def segment_indexes(
-        filename,
-        segments_file,
-        clip_size=3,
-        stride=0.5,
-        sr=8000):
+    def segment_indexes(filename,
+                        segments_file,
+                        clip_size=3,
+                        stride=0.5,
+                        sr=8000):
       ''' generate clip index in samples '''
       duration = self.get_duration(filename=filename, sr=self._sample_rate)
       clip_samples, stride_samples, total_samples = librosa.time_to_samples(

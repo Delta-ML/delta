@@ -136,7 +136,6 @@ class HanAttention(Layer):
     return input_shape[0], input_shape[-1]
 
 
-
 class MatchAttention(Layer):
   """
   Refer to [Learning Natural Language Inference with LSTM]
@@ -145,17 +144,20 @@ class MatchAttention(Layer):
   Input shape: (Batch size, steps, features)
   Output shape: (Batch size, steps, features)
   """
+
   def __init__(self, config, **kwargs):
     super().__init__(**kwargs)
     logging.info("Initialize MatchAttention {}...".format(self.name))
     self.fc_num_units = config['model']['net']['structure']['fc_num_units']
-    self.middle_layer = tf.keras.layers.Dense(self.fc_num_units, activation='tanh')
+    self.middle_layer = tf.keras.layers.Dense(
+        self.fc_num_units, activation='tanh')
     self.attn = tf.keras.layers.Dense(1)
 
   # pylint: disable=arguments-differ
   def call(self, tensors):
     """Attention layer."""
     left, right = tensors
+
     len_left = left.shape[1]
     len_right = right.shape[1]
     tensor_left = tf.expand_dims(left, axis=2)
@@ -166,8 +168,8 @@ class MatchAttention(Layer):
     middle_output = self.middle_layer(tensor_merged)
     attn_scores = self.attn(middle_output)
     attn_scores = tf.squeeze(attn_scores, axis=3)
-    exp_attn_scores = tf.exp(
-      attn_scores - tf.reduce_max(attn_scores, axis=-1, keepdims=True))
+    exp_attn_scores = tf.exp(attn_scores -
+                             tf.reduce_max(attn_scores, axis=-1, keepdims=True))
     exp_sum = tf.reduce_sum(exp_attn_scores, axis=-1, keepdims=True)
     attention_weights = exp_attn_scores / exp_sum
     return tf.matmul(attention_weights, right)

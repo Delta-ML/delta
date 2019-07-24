@@ -31,7 +31,12 @@ class SavePredPostProc(PostProc):
     ''' main func entrypoint'''
     logits = predictions["logits"]
     preds = predictions["preds"]
-    res_file = self.config["solver"]["postproc"].get("res_file", "")
+    output_index = predictions["output_index"]
+    if output_index is None:
+      res_file = self.config["solver"]["postproc"].get("res_file", "")
+    else:
+      res_file = self.config["solver"]["postproc"][output_index].get(
+          "res_file", "")
     if res_file == "":
       logging.info(
           "Infer res not saved. You can check 'res_file' in your config.")

@@ -87,6 +87,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, smoothing=0.0):
 
   return loss
 
+
 def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   '''
   :param tags_scores:  [batch_size, max_seq_len, num_tags]
@@ -96,10 +97,10 @@ def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   :return: loss, transition_params
   '''
   log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(
-    inputs=tags_scores,
-    tag_indices=labels,
-    sequence_lengths=input_length,
-    transition_params=transitions)
+      inputs=tags_scores,
+      tag_indices=labels,
+      sequence_lengths=input_length,
+      transition_params=transitions)
 
   loss = tf.reduce_mean(-log_likelihood)
 

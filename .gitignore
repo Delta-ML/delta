@@ -72,10 +72,15 @@ delta/config/data/text_cls
 # data
 egs/*/*/data
 delta/config/data
+egs/compare_atis
 
-# exp
-exp
+# egs
+egs/*/*/origin_data
+egs/*/*/*/origin_data
+egs/*/*/data
+egs/*/*/*/data
 egs/*/*/exp
+egs/*/*/*/exp
 
 # dpl copys
 dpl/lib/tensorflow/*

@@ -16,32 +16,29 @@
 ''' Stub post processing for speaker tasks. '''
 import os
 import collections
-import pickle
 from absl import logging
 import numpy as np
-from sklearn.metrics import confusion_matrix
 
-from delta import utils
 from delta.utils.postprocess.base_postproc import PostProc
 from delta.utils.register import registers
 
 #pylint: disable=too-many-instance-attributes
 #pylint: disable=too-many-locals
+#pylint: disable=too-many-nested-blocks
+#pylint: disable=too-many-branches
+#pylint: disable=too-few-public-methods
 
+
+def format_kaldi_vector(vector):
+  ''' Print a vector in Kaldi format. '''
+  return '[ ' + ' '.join([str(val) for val in vector]) + ' ]'
 
 @registers.postprocess.register
 class SpeakerPostProc(PostProc):
   ''' Apply speaker embedding extraction on hidden layer outputs. '''
 
-  #FIXME: Work in progress. Just copied from emotion postproc.
-
   def __init__(self, config):
     super().__init__(config)
-
-    taskconf = self.config['data']['task']
-    self.positive_id = self.config['solver']['metrics']['pos_label']
-    self.class_vocab = taskconf['classes']['vocab']
-    self.num_class = taskconf['classes']['num']
 
     postconf = self.config['solver']['postproc']
     output_dir = postconf['pred_path']
@@ -55,157 +52,100 @@ class SpeakerPostProc(PostProc):
     self.eval = postconf['eval']
     self.infer = postconf['infer']
 
-    self.thresholds = postconf['thresholds']
-    self.smoothing = postconf['smoothing']['enable']
-    self.smoothing_cnt = postconf['smoothing']['count']
-
     self.stats = None
     self.confusion = None
-    self.pred_results = None
 
-    if self.infer:
-      self.pred_score_path = os.path.join(self.output_dir, 'predict_scores.txt')
-      self.pred_result_path = os.path.join(self.output_dir,
-                                           'predict_results.pkl')
-    if self.eval:
-      self.pred_metrics_path = os.path.join(self.output_dir, 'metrics.txt')
-
-  #pylint: disable=no-self-use
-  def update_stats(self, prediction, stats):
-    ''' update true label and pred label'''
-    y_true = prediction['labels']
-    y_pred = np.argmax(prediction['softmax'], -1)
-    stats[0] = np.append(stats[0], y_true)
-    stats[1] = np.append(stats[1], y_pred)
-    return stats
-
-  def update_metrics(self, prediction, confusion):
-    ''' update confusion'''
-    conf = confusion_matrix(
-        y_true=prediction['labels'],
-        y_pred=np.argmax(prediction['softmax'], -1),
-        labels=list(range(self.num_class)))
-    if conf.shape != (self.num_class, self.num_class):
-      raise ValueError('Warning: confusion matrix shape error, shape {}'.format(
-          conf.shape))
-    confusion += conf
-    return confusion
-
-  def log_metrics(self, stats):
-    ''' compute metrics'''
-    socres = utils.metrics.get_metrics(
-        self.config, y_true=stats[0], y_pred=stats[1])
-    with open(self.pred_metrics_path, 'w') as fp_out:
-      for key, val in socres.items():
-        logging.info("{}: {}".format(key, val))
-        fp_out.write("{}: {}\n".format(key, val))
-
-  def collect_results(self, prediction, result, scorefile):
-    ''' collect scores and meta of results'''
-    for filepath, clipid, label, score in zip(prediction['filepath'],
-                                              prediction['clipid'],
-                                              prediction['labels'],
-                                              prediction['softmax']):
-
-      # record predict score for ROC curve
-      scorefile.write("{}, {}, {}, {}\n".format(filepath, clipid, label,
-                                                score[self.positive_id]))
-      result[filepath].append({
-          "clipid": clipid,
-          'label': label,
-          'softmax': score
-      })
-
-  def post_proc_results(self, results, thresholds=None):
-    ''' smoothing score and predict label '''
-    thresholds = thresholds or np.linspace(0, 1, num=10, endpoint=False)
-    for threshold in thresholds:
-      output_path = os.path.join(self.output_dir,
-                                 'predict_ths_%3f.txt' % (threshold))
-      with open(output_path, 'w') as predfile:
-        # history len `maxlen`
-        smoothing = self.smoothing
-        maxlen = self.smoothing_cnt
-        history = collections.deque(maxlen=maxlen)
-        vote_all = collections.deque(maxlen=maxlen)
-
-        for path in results:  # filepath
-          # sort file clips by `clipid`
-          clips = results[path]
-          clips.sort(key=lambda e: e['clipid'])
-          pos_cnt = 0
-
-          for clip in clips:  # clipid
-            clipid = clip['clipid']
-            label = clip['label']
-            score = clip['softmax']
-
-            # append history deque
-            y_pos = score[self.positive_id]
-            history.append(y_pos)
-
-            hist = list(history)
-            if smoothing:
-              # smoothing
-              y_pos = np.mean(hist)
-            else:
-              pass
-
-            # predict result for file
-            if y_pos > threshold:
-              y_pred = self.positive_id
-            else:
-              y_pred = 1 - self.positive_id
-
-            if y_pred == self.positive_id:
-              pos_cnt += 1
-              vote_all.append(True)
-            logging.info('file {}, clipid {}, label {}, pred {}'.format(
-                path, clipid, label, y_pred))
-
-          #sentence_pred = pos_cnt >= FLAGS.threshold
-          sentence_pred = all(list(vote_all))
-          sentence_label = self.positive_id if 'conflict' in str(path) else (
-              1 - self.positive_id)
-
-          logging.info("file ths_{}: {} {} {}".format(threshold, path, pos_cnt,
-                                                      sentence_pred))
-
-          predfile.write("{} {} {}\n".format(path, sentence_label, pos_cnt))
+    self.outputs = ['embeddings', 'softmax']
+    self.output_files = collections.defaultdict(dict)
+    for output_level in ['utt', 'chunk']:
+      for output_key in self.outputs:
+        output_file_name = '%s_%s.txt' % (output_level, output_key)
+        self.output_files[output_level][output_key] = \
+            os.path.join(self.output_dir, output_file_name)
+    self.pred_metrics_path = os.path.join(self.output_dir, 'metrics.txt')
 
   # pylint: disable=arguments-differ
   def call(self, predictions, log_verbose=False):
     ''' Implementation of postprocessing. '''
-    # [true_label, pred_label]
-    self.stats = [np.array([]), np.array([])]
-    self.confusion = np.zeros((self.num_class, self.num_class), dtype=np.int32)
 
-    self.pred_results = collections.defaultdict(list)
+    num_clips_processed = 0
+    last_utt_key = None
+    last_utt_chunk_outputs = {}
+    for output_key in self.outputs:
+      last_utt_chunk_outputs[output_key] = []
+    if self.infer:
+      file_pointers = collections.defaultdict(dict)
+      for output_level in ['utt', 'chunk']:
+        for output_key in self.outputs:
+          file_pointers[output_level][output_key] = \
+              open(self.output_files[output_level][output_key], 'w')
 
-    self.pred_score_path = os.path.join(self.output_dir, 'predict_scores.txt')
-    self.pred_result_path = os.path.join(self.output_dir, 'predict_results.pkl')
+    for batch_index, batch in enumerate(predictions):
+      # batch = {'inputs': [clip_0, clip_1, ...],
+      #          'labels': [clip_0, clip_1, ...],
+      #          'embeddings': [clip_0, clip_1, ...],
+      #          ...}
+      # Now we extract each clip from the minibatch.
+      clips = collections.defaultdict(dict)
+      for key, batch_values in batch.items():
+        for clip_index, clip_data in enumerate(batch_values):
+          clips[clip_index][key] = clip_data
 
-    with open(self.pred_score_path,
-              'w') as score_file, open(self.pred_result_path,
-                                       'wb') as result_file:
-      for sample_index, sample in enumerate(predictions):
+      for clip_index, clip in sorted(clips.items()):
         if log_verbose or self.log_verbose:
-          logging.info('index: {} pred: {}'.format(sample_index, sample))
-          for key, val in sample.items():
-            logging.info("{}: val: {} type: {}".format(key, val, type(val)))
+          logging.debug(clip)
+        chunk_key = clip['filepath'].decode()
+        utt_key, utt_chunk_index_str = chunk_key.rsplit('_', 1)
+        utt_chunk_index = int(utt_chunk_index_str[-2:])
+        utt_chunk_index_from_clip_id = clip['clipid']
+        assert utt_chunk_index == utt_chunk_index_from_clip_id
 
-        if self.eval:
-          self.confusion = self.update_metrics(sample, self.confusion)
-          self.stats = self.update_stats(sample, self.stats)
+        for output_key in self.outputs:
+          chunk_output = clip[output_key]
+          if self.infer:
+            formatted_output = format_kaldi_vector(chunk_output)
+            file_pointers['chunk'][output_key].write('%s %s\n' %
+                (chunk_key, formatted_output))
 
-        if self.infer:
-          self.collect_results(sample, self.pred_results, score_file)
+          embeddings = last_utt_chunk_outputs[output_key]
+          # Check if an utterance is over.
+          if utt_key != last_utt_key:
+            if last_utt_key is not None:
+              # Average over all chunks.
+              logging.debug('Utt %s: averaging "%s" over %d chunks' %
+                            (last_utt_key, output_key, len(embeddings)))
+              utt_embedding = np.average(embeddings, axis=0)
+              if self.infer:
+                formatted_output = format_kaldi_vector(utt_embedding)
+                file_pointers['utt'][output_key].write('%s %s\n' %
+                    (last_utt_key, formatted_output))
 
+            # Start a new utterance.
+            embeddings.clear()
+          embeddings.append(chunk_output)
+        last_utt_key = utt_key
+
+      num_clips_processed += len(clips)
+      if (batch_index + 1) % 10 == 0:
+        logging.info('Processed %d batches, %d clips.' %
+                     (batch_index + 1, num_clips_processed))
+
+    # Average over all chunks for the last utterance.
+    # TODO: reusability
+    for output_key in self.outputs:
+      embeddings = last_utt_chunk_outputs[output_key]
+      # Average over all chunks.
+      logging.debug('Utt %s: averaging "%s" over %d chunks' %
+                    (last_utt_key, output_key, len(embeddings)))
+      utt_embedding = np.average(embeddings, axis=0)
       if self.infer:
-        pickle.dump(self.pred_results, result_file)
-
-    if self.eval:
-      self.log_metrics(self.stats)
+        formatted_output = format_kaldi_vector(utt_embedding)
+        file_pointers['utt'][output_key].write('%s %s\n' %
+            (last_utt_key, formatted_output))
 
     if self.infer:
-      self.post_proc_results(self.pred_results, self.thresholds)
+      for output_level in ['utt', 'chunk']:
+        for output_key in self.outputs:
+          file_pointers[output_level][output_key].close()
+
+    logging.info('Postprocessing completed.')

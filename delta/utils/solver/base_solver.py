@@ -142,7 +142,7 @@ class Solver(ABCSolver):
 
   def get_loss_fn(self):
     """Get the loss function."""
-    return utils.misc.loss(self.config)
+    return utils.misc.losses(self.config)
 
   def get_learning_rate(self):
     """Get the learning rate."""

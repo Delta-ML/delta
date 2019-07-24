@@ -36,13 +36,14 @@ class MatchRnn(Model):
     self.use_pretrained_embedding = config['model']['use_pre_train_emb']
     if self.use_pretrained_embedding:
       self.embedding_path = config['model']['embedding_path']
-      tf.logging.info("Loading embedding file from: {}".format(
+      logging.info("Loading embedding file from: {}".format(
           self.embedding_path))
       self._word_embedding_init = pickle.load(open(self.embedding_path, 'rb'))
       self.embed_initializer = tf.constant_initializer(
           self._word_embedding_init)
     else:
       self.embed_initializer = tf.random_uniform_initializer(-0.1, 0.1)
+
 
 # pylint: disable=too-many-instance-attributes
 @registers.model.register
@@ -73,29 +74,25 @@ class MatchRnnTextClassModel(MatchRnn):
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
     '''attention in layers.attention'''
-    self.attn_layer = delta.layers.MatchAttention(
-      config, name="attn_layer")
+    self.attn_layer = delta.layers.MatchAttention(config, name="attn_layer")
 
-    self.lstm_left = tf.keras.layers.LSTM(self.lstm_num_units,
-                                  return_sequences=True,
-                                  name='lstm_left')
-    self.lstm_right = tf.keras.layers.LSTM(self.lstm_num_units,
-                                   return_sequences=True,
-                                   name='lstm_right')
+    self.lstm_left = tf.keras.layers.LSTM(
+        self.lstm_num_units, return_sequences=True, name='lstm_left')
+    self.lstm_right = tf.keras.layers.LSTM(
+        self.lstm_num_units, return_sequences=True, name='lstm_right')
     self.concat = tf.keras.layers.Concatenate(axis=1)
-    self.lstm_merge = tf.keras.layers.LSTM(self.lstm_num_units * 2,
-                                   return_sequences=False,
-                                   name='lstm_merge')
+    self.lstm_merge = tf.keras.layers.LSTM(
+        self.lstm_num_units * 2, return_sequences=False, name='lstm_merge')
     self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
     self.outlayer = tf.keras.layers.Dense(self.fc_num_units, activation='tanh')
     self.tasktype = config['data']['task']['type']
     #if self.tasktype == "Classification":
     self.final_dense = tf.keras.layers.Dense(
-      self.num_classes,
-      activation=tf.keras.activations.linear,
-      name="final_dense")
+        self.num_classes,
+        activation=tf.keras.activations.linear,
+        name="final_dense")
 
-    tf.logging.info("Initialize MatchRnnTextClassModel done.")
+    logging.info("Initialize MatchRnnTextClassModel done.")
 
   def call(self, inputs, training=None, mask=None):  # pylint: disable=too-many-locals
 

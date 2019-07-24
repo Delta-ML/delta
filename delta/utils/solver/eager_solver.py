@@ -47,7 +47,7 @@ def train_one_epoch(model,
         10, global_step=step_counter):
       with tf.GradientTape() as tape:
         logits = model(feats, training=True)
-        loss_value = utils.loss(logits, labels, smoothing=0.0, is_train=True)
+        loss_value = utils.losses(logits, labels, smoothing=0.0, is_train=True)
         tf.contrib.summary.scalar('loss', loss_value)
         tf.contrib.summary.scalar('accuracy', utils.accuracy(logits, labels))
 
@@ -73,7 +73,7 @@ def eval(model, dataset, cmvn):
     feats = utils.apply_cmvn(feats, cmvn[0], cmvn[1])
 
     logits = model(feats, training=False)
-    avg_loss(utils.loss(logits, labels, is_train=False))
+    avg_loss(utils.losses(logits, labels, is_train=False))
     accuracy(
         tf.argmax(logits, axis=-1, output_type=tf.int64),
         tf.cast(labels, tf.int64))

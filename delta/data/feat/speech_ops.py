@@ -16,6 +16,7 @@
 ''' speech feat ops interface '''
 import numpy as np
 import tensorflow as tf
+from absl import logging
 #pylint: disable=no-name-in-module
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
@@ -245,7 +246,7 @@ def extract_feature(waveforms, params):
     # shape: [nframes, nbins, nchannels]
     fbank_size = utils.shape_list(mel_fbanks)
     #assert fbank_size[0] == 1
-    tf.logging.info("fbank size : {}".format(fbank_size))
+    logging.info("fbank size : {}".format(fbank_size))
 
     # This replaces CMVN estimation on data
     if not p.audio_global_cmvn:

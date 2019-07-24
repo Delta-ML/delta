@@ -57,7 +57,7 @@ int Synthfiltbank::init_sfb(int num_frq, int num_frm, float sample_rate) {
   i_FFTSiz = (i_NumFrq - 1) * 2;
 
   pf_WINDOW = static_cast<float*>(malloc(sizeof(float) * i_WinLen));
-  pf_wav = static_cast<float*>(malloc(sizeof(float) * i_WavLen));
+  pf_wav = static_cast<float*>(calloc(i_WavLen, sizeof(float)));
 
   return 1;
 }
