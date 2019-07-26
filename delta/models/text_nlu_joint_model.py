@@ -101,7 +101,7 @@ class JointBilstmCrfModel(NLUJointModel):
     input_x_lens = compute_sen_lens(input_x, padding_token=self.padding_token)
     # [batch_size, max_len, 1]
     mask = tf.expand_dims(
-      tf.sequence_mask(input_x_lens, self.max_len, dtype=tf.float32), axis=-1)
+        tf.sequence_mask(input_x_lens, self.max_len, dtype=tf.float32), axis=-1)
     # [batch_size, max_len, embed_len]
     out = self.embed(input_x)
     # [batch_size, features]

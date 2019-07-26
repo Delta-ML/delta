@@ -7,7 +7,7 @@ trap 'unlink $PYTEMPFILE' EXIT INT QUIT ABRT
 yapf -version &> /dev/null || sudo pip install yapf 
 
 # yapf
-for dir in delta deltann dpl docker utils third_party;
+for dir in delta deltann dpl docker utils;
 do
   find $dir -name *.py >> $PYTEMPFILE
 done
@@ -39,7 +39,7 @@ CPPTEMPFILE=`mktemp`
 trap 'unlink $CPPTEMPFILE' EXIT INT QUIT ABRT
 
 # clang-format
-for dir in delta deltann dpl docker utils third_party;
+for dir in delta deltann dpl docker utils;
 do
   find $dir -name '*.h' -o -name '*.c' -o -name '*.cpp' -o -name '*.cc' >> $CPPTEMPFILE
 done

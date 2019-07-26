@@ -24,6 +24,7 @@ from delta import utils
 from delta.utils import metrics
 
 
+#pylint: disable=too-many-instance-attributes
 class MetricTest(tf.test.TestCase):
   ''' python metrix unittest '''
 
@@ -62,6 +63,25 @@ class MetricTest(tf.test.TestCase):
     self.pred1 = np.array([1, 1, 2, 3, 4, 6, 5])
     self.pred2 = np.array([2, 2, 1, 1, 1, 1, 1])
 
+    # config for test token error metircs
+    self.token_conf_str = '''
+      solver:
+        metrics:
+          pos_label: 1 # int, same to sklearn
+          cals:
+          - name: TokenErrCal
+            arguments:
+              eos_id: 0
+    '''
+
+    self.token_conf_file = tempfile.mktemp(suffix='token.yaml')
+    with open(self.token_conf_file, 'w', encoding='utf-8') as f:  #pylint: disable=invalid-name
+      f.write(self.token_conf_str)
+
+    self.token_true_label = [[1, 1, 1, 1], [1, 3, 4, 5]]
+    self.token_pred1 = [[1, 1, 1, 1], [1, 3, 4, 5]]
+    self.token_pred2 = [[1, 2, 2, 2], [1, 0, 0, 0]]
+
   def tearDown(self):
     ''' tear down '''
     if os.path.exists(self.conf_file):
@@ -84,6 +104,18 @@ class MetricTest(tf.test.TestCase):
     self.assertEqual(0.0, metrics2['PrecisionCal'])
     self.assertEqual(0.0, metrics2['RecallCal'])
     self.assertEqual(0.0, metrics2['F1ScoreCal'])
+
+  def test_token_err(self):
+    ''' test tooken error rate '''
+    config = utils.load_config(self.token_conf_file)
+
+    metrics1 = metrics.get_metrics(
+        config, y_true=self.token_true_label, y_pred=self.token_pred1)
+    self.assertEqual(0.0, metrics1['TokenErrCal'])
+
+    metrics2 = metrics.get_metrics(
+        config, y_true=self.token_true_label, y_pred=self.token_pred2)
+    self.assertEqual(0.75, metrics2['TokenErrCal'])
 
   def test_crf_metrics(self):
     ''' test crf metrics '''

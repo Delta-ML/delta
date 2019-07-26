@@ -14,7 +14,12 @@
 # limitations under the License.
 # ==============================================================================
 ''' emotion keras model'''
+import numpy as np
+from absl import logging
+
+#pylint: disable=no-name-in-module
 import tensorflow as tf
+from tensorflow.python.keras import backend as K
 
 from delta.models.base_model import Model
 from delta.layers.base_layer import Layer
@@ -22,7 +27,100 @@ from delta.layers.base_layer import Layer
 from delta import utils
 from delta.utils.register import registers
 
-#pylint: disable=invalid-name,attribute-defined-outside-init,missing-docstring
+#pylint: disable=invalid-name
+#pylint: disable=attribute-defined-outside-init
+#pylint: disable=missing-docstring
+#pylint: disable=too-many-instance-attributes
+#pylint: disable=attribute-defined-outside-init
+#pylint: disable=too-many-ancestors
+
+layers = tf.keras.layers
+
+@registers.model.register
+class EmoLstmModel(Model):
+
+  def __init__(self, config, **kwargs):
+    super().__init__(**kwargs)
+    self.config = config
+
+  def build(self, input_shape):
+    logging.info(f"{self.__class__.__name__} input_shape : {input_shape}")
+    _, time, feat, channels = input_shape['inputs'].as_list()
+
+    self.reshape = layers.Reshape((time, feat * channels),
+                                  input_shape=(time, feat, channels))
+    self.lstm1 = layers.LSTM(512, return_sequences=True)
+    self.lstm2 = layers.LSTM(256, return_sequences=False)
+    self.dense1 = layers.Dense(512, activation='relu')
+    self.drop1 = layers.Dropout(rate=0.2)
+    self.dense2 = layers.Dense(4)
+
+    # https://stackoverflow.com/questions/55684949/subclass-of-tf-keras-model-can-not-get-summay-result
+    # https://stackoverflow.com/questions/52826134/keras-model-subclassing-examples
+    x = {}
+    for key, shape in input_shape.items():
+      x[key] = tf.convert_to_tensor(
+          np.random.normal(size=[1] + shape.as_list()[1:]),
+          dtype=tf.keras.backend.floatx())
+    _ = self.call(x)
+    #super().build(input_shape=[input_shape['inputs'].as_list(), input_shape['labels'].as_list()])
+    self.built = True
+
+  def call(self, inputs, training=None, mask=None):
+    logging.info(f"xxxx input: {inputs}, training: {training}")
+    if isinstance(inputs, dict):
+      x = inputs['inputs']
+    elif isinstance(inputs, list):
+      x = inputs[0]
+    else:
+      x = inputs
+    x = self.reshape(x)
+    x = self.lstm1(x)
+    x = self.lstm2(x)
+    x = self.dense1(x)
+    #x = self.drop1(x, training=training)
+    logits = self.dense2(x)
+    return logits
+
+
+@registers.model.register
+class EmoBLstmModel(Model):
+
+  def __init__(self, config, **kwargs):
+    super().__init__(**kwargs)
+    self.config = config
+
+  def build(self, input_shape):
+    logging.info(f"{self.__class__.__name__} input_shape : {input_shape}")
+    _, time, feat, channels = input_shape['inputs'].as_list()
+
+    self.reshape = layers.Reshape((time, feat * channels),
+                                  input_shape=(time, feat, channels))
+    self.lstm1 = layers.Bidirectional(layers.LSTM(512, return_sequences=True))
+    self.lstm2 = layers.Bidirectional(layers.LSTM(256, return_sequences=False))
+    self.dense1 = layers.Dense(512, activation='relu')
+    self.dense2 = layers.Dense(4)
+    self.drop1 = layers.Dropout(rate=0.2)
+
+    #x = {}
+    #for key, shape in input_shape.items():
+    #  x[key] = tf.convert_to_tensor(
+    #    np.random.normal(size=[1] + shape.as_list()[1:]),
+    #    dtype=tf.keras.backend.floatx())
+    #_ = self.call(x)
+    #super().build(input_shape=[input_shape['inputs'].as_list(), input_shape['labels'].as_list()])
+    self.built = True
+
+  def call(self, inputs, training=None, mask=None):
+    logging.info(f"xxxx input: {inputs}, training: {training}")
+    x = inputs['inputs']
+    x = self.reshape(x)
+    x = self.lstm1(x)
+    x = self.lstm2(x)
+    x = self.dense1(x)
+    x = self.drop1(x, training=training)
+    logits = self.dense2(x)
+    return logits
 
 
 #pylint: disable=too-many-instance-attributes
@@ -200,7 +298,7 @@ class Feat(Layer):
     return x
 
 
-#pylint: disable=too-many-instance-attributes
+#pylint: disable=too-many-instance-attributes,too-many-ancestors
 @registers.model.register
 class EmoCRNNModel(Model):
   ''' main model '''
@@ -229,7 +327,7 @@ class EmoCRNNModel(Model):
     return x
 
 
-#pylint: disable=too-many-instance-attributes
+#pylint: disable=too-many-instance-attributes,too-many-ancestors
 @registers.model.register
 class EmoCFNNModel(Model):
   ''' main model '''

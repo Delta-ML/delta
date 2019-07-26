@@ -17,7 +17,7 @@ data:
       done_sign: "egs/mock_text_nlu_joint_data/nlu-joint/v1/exp/prepare.done"
       reuse: true
     use_dense: false
-    language: chinese
+    language: english
     split_by_space: true
     vocab_min_frequency: 0
     use_custom_vocab: True
@@ -99,7 +99,7 @@ solver:
     - name: SavePredEntityPostProc
       res_file: "egs/mock_text_nlu_joint_data/nlu-joint/v1/res/slots_infer_res.txt"
   saver:
-    model_path: "egs/mock_text_nlu_joint_data/nlu-joint/v1/ckpt/bilstmcrf/"
+    model_path: "egs/mock_text_nlu_joint_data/nlu-joint/v1/exp/ckpt/bilstmcrf/"
     max_to_keep: 10
     save_checkpoint_steps: 30
     print_every: 10

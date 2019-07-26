@@ -14,10 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 ''' Speaker Classification. '''
-import os
 import random
 import multiprocessing as mp
-from pathlib import Path
 from absl import logging
 import numpy as np
 import tensorflow as tf
@@ -33,6 +31,7 @@ from delta.data.task.base_speech_task import SpeechTask
 #pylint: disable=too-many-locals
 #pylint: disable=too-few-public-methods
 #pylint: disable=arguments-differ
+
 
 class ChunkSampler():
   ''' Produce samples from utterance. '''
@@ -81,7 +80,8 @@ class ChunkSampler():
                       (num_frames_feat, num_frames_vad))
         return None
       voiced_frames_index = np.where(vad_mat == 1)[0]
-      logging.debug('voiced_frames_index: %s' % (str(voiced_frames_index.shape)))
+      logging.debug('voiced_frames_index: %s' %
+                    (str(voiced_frames_index.shape)))
       feat_mat_voiced = feat_mat[voiced_frames_index, :]
     else:
       # If no VAD info was found, the entire utt will be used.
@@ -316,6 +316,7 @@ class SpeakerClsTask(SpeechTask):
     logging.info(mean)
     logging.info(var)
 
+  #pylint: disable=stop-iteration-return
   def generate_data(self):
     '''
     Yields samples.
@@ -388,10 +389,10 @@ class SpeakerClsTask(SpeechTask):
   def preprocess_batch(self, batch):
     return batch
 
-  def dataset(self, mode, batch_size, num_epoch): # pylint: disable=unused-argument
+  def dataset(self, mode, batch_size, num_epoch):  # pylint: disable=unused-argument
     shapes, types = self.feature_spec()
     data = tf.data.Dataset.from_generator(
-        generator=lambda: self.generate_data(),   # pylint: disable=unnecessary-lambda
+        generator=lambda: self.generate_data(),  # pylint: disable=unnecessary-lambda
         output_types=types,
         output_shapes=shapes,
     )
@@ -400,9 +401,8 @@ class SpeakerClsTask(SpeechTask):
       buffer_size = self.solverconf['optimizer']['tf_shuffle_buffer_size']
     else:
       buffer_size = 100000
-    logging.info(
-        'Using buffer size of %d samples in shuffle_and_repeat().' %
-        (buffer_size))
+    logging.info('Using buffer size of %d samples in shuffle_and_repeat().' %
+                 (buffer_size))
     if mode == utils.TRAIN:
       data = data.apply(
           tf.data.experimental.shuffle_and_repeat(

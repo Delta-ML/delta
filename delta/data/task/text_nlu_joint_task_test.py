@@ -39,15 +39,21 @@ class NLUJointTaskTest(tf.test.TestCase):
   def tearDown(self):
     ''' tear down '''
 
-  def test_chinese_split_by_space(self):
+  def test_english(self):
     """ test NLU joint task of chiniese data, split sentences by space"""
 
     config = utils.load_config(self.config_file)
     max_len = config["model"]["net"]["structure"]["max_len"]
-    task_config = config["data"]["task"]
+    batch_size = config["data"]["task"]["batch_size"]
+    data_config = config["data"]
+    task_config = data_config["task"]
+    task_config["language"] = "english"
+    task_config["split_by_space"] = False
+    task_config["use_word"] = True
     task_config[
-        "text_vocab"] = "egs/mock_text_nlu_joint_data/nlu-joint/v1/data/text_vocab.txt"
+      "text_vocab"] = "egs/mock_text_nlu_joint_data/nlu-joint/v1/data/text_vocab.txt"
     task_config["need_shuffle"] = False
+
 
     # generate_mock_files(config)
     task = TextNLUJointTask(config, utils.TRAIN)
@@ -71,11 +77,11 @@ class NLUJointTaskTest(tf.test.TestCase):
       logging.debug(res[2])
       logging.debug(res[3])
 
-      self.assertAllEqual(res[0][0][:5], [2, 0, 0, 0, 0])
-      self.assertEqual(np.shape(res[0]), (10, max_len))
-      self.assertEqual(np.shape(res[1]), (10,))
-      self.assertEqual(np.shape(res[2]), (10, 2))
-      self.assertEqual(np.shape(res[3]), (10, max_len))
+      self.assertAllEqual(res[0][0][:5], [5, 6, 8, 9, 0])
+      self.assertEqual(np.shape(res[0]), (batch_size, max_len))
+      self.assertEqual(np.shape(res[1]), (batch_size,))
+      self.assertEqual(np.shape(res[2]), (batch_size, 2))
+      self.assertEqual(np.shape(res[3]), (batch_size, max_len))
 
     # test online data
     export_inputs = task.export_inputs()
@@ -86,10 +92,10 @@ class NLUJointTaskTest(tf.test.TestCase):
 
     with self.session() as sess:
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
-      res = sess.run(input_x, feed_dict={input_sentence: ["我 很 开心"]})
+      res = sess.run(input_x, feed_dict={input_sentence: ["I am happy"]})
       logging.debug(res[0][:5])
       logging.debug(np.shape(res[0]))
-      self.assertAllEqual(res[0][:5], [2, 6, 7, 0, 0])
+      self.assertAllEqual(res[0][:5], [2, 3, 7, 0, 0])
       self.assertEqual(np.shape(res[0]), (max_len,))
 
 

@@ -95,7 +95,7 @@ solver:
     name: SavePredEntityPostProc
     res_file: "egs/mock_text_seq_label_data/seq-label/v1/res/infer_res.txt"
   saver:
-    model_path: "egs/mock_text_seq_label_data/seq-label/v1/ckpt/bilstmcrf/"
+    model_path: "egs/mock_text_seq_label_data/seq-label/v1/exp/ckpt/bilstmcrf/"
     max_to_keep: 10
     save_checkpoint_steps: 30
     print_every: 10

@@ -15,7 +15,7 @@
 # ==============================================================================
 
 #pylint: disable=bad-indentation
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys

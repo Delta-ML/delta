@@ -76,8 +76,8 @@ class RawMatchSolverTest(tf.test.TestCase):
         score = sess.run(
             score_tensor,
             feed_dict={
-                input_sentence_tensor_left: ["我爱中国"],
-                input_sentence_tensor_right: ["我很可爱"]
+                input_sentence_tensor_left: ["I love china"],
+                input_sentence_tensor_right: ["I am lovely"]
             })
         logging.info("score: {}".format(score))
 

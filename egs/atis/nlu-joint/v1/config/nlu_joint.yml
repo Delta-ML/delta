@@ -26,10 +26,10 @@ data:
       - "egs/atis/nlu-joint/v1/exp/slots_label_vocab.txt"
     max_seq_len: 1024
     batch_size: 64
-    epochs: 10
+    epochs: 50
     num_parallel_calls: 12
     num_prefetch_batch: 2
-    shuffle_buffer_size: 4500
+    shuffle_buffer_size: 5000
     need_shuffle: true
     classes:
       - positive_id: 1

@@ -29,8 +29,8 @@ data:
     num_prefetch_batch: 2
     shuffle_buffer_size: 15000
     need_shuffle: true
-    batch_size: 30
-    epochs: 2
+    batch_size: 64
+    epochs: 10
     classes:
       positive_id: 1
       num_classes: 3

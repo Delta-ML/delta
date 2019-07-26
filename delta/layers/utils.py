@@ -20,6 +20,8 @@ import tensorflow as tf
 # pylint: disable=no-name-in-module
 from tensorflow.python.keras import backend as K
 
+import delta.utils as utils
+
 
 # pylint: disable=invalid-name
 def gelu(x):
@@ -83,9 +85,10 @@ def compute_sen_lens(inputs, padding_token=0):
   inputs: [..., time_steps]
   sen_lens: [...]
   """
-
   x_binary = tf.cast(tf.not_equal(inputs, padding_token), tf.int32)
   sen_lens = tf.reduce_sum(x_binary, axis=-1)
+  ones = tf.ones_like(sen_lens)
+  sen_lens = tf.where(tf.equal(sen_lens, utils.PAD_IDX), x=ones, y=sen_lens)
   return sen_lens
 
 

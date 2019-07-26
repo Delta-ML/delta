@@ -47,8 +47,8 @@ class SfbOpTest(tf.test.TestCase):
       logging.info('power_spc: {}'.format(power_spc.eval().shape))
       logging.info('phase_spc: {}'.format(phase_spc.eval().shape))
 
-      output = py_x_ops.synthfiltbank(power_spc.eval(),
-                                      phase_spc.eval(), sample_rate)
+      output = py_x_ops.synthfiltbank(power_spc.eval(), phase_spc.eval(),
+                                      sample_rate)
 
       self.assertEqual(tf.rank(output).eval(), 1)
 

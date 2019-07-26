@@ -94,6 +94,6 @@ class TextTask(Task):
     if self.preparer.skip_prepare():
       logging.info("Skip the Preparing process.")
       return
-    else:
-      self.preparer.do_prepare(self.pre_process_pipeline)
-      self.preparer.done_prepare()
+
+    self.preparer.do_prepare(self.pre_process_pipeline)
+    self.preparer.done_prepare()

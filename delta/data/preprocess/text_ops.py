@@ -50,7 +50,7 @@ def tokenize_sentence(texts, max_seq_len, vocab_path):
 def clean_english_str_tf(input_str):
   """Clean English string with tensorflow oprations."""
   # pylint: disable=anomalous-backslash-in-string
-  string = tf.regex_replace(input_str, r"[^A-Za-z0-9(),!?\'\`]", " ")
+  string = tf.regex_replace(input_str, r"[^A-Za-z0-9(),!?\'\`<>/]", " ")
   string = tf.regex_replace(string, "\'s", " \'s")
   string = tf.regex_replace(string, "\'ve", " \'ve")
   string = tf.regex_replace(string, "n\'t", " n\'t")

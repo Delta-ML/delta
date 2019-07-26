@@ -14,8 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 ''' metrics utils unittest '''
-import os
-from pathlib import Path
 import numpy as np
 import tensorflow as tf
 
@@ -53,6 +51,30 @@ class MetricUtilsTest(tf.test.TestCase):
 
     f1 = metric_utils.f1_score(tn, fp, fn, tp)
     self.assertAllClose(f1, [0.83333333, 0.90909091, 0.8, 0.8])
+
+  def test_token_error(self):
+    ''' test token_error '''
+    seq_list_one = [[5, 1, 1, 1, 1], [5, 2, 6, 10, 2]]
+    seq_list_two = [[5, 2, 3, 1, 2], [5, 2, 6, 10, 2]]
+
+    token_errors = metric_utils.token_error(
+        seq_list_one, seq_list_two, eos_id=0)
+    self.assertAllClose(token_errors, 0.3)
+
+  def test_levenshtein(self):
+    ''' test levenshtein distance '''
+    seq_one = [5, 1, 1, 1, 0]
+    seq_two = [5, 2, 3, 0, 2]
+
+    levenshtein_distance = metric_utils.levenshtein(seq_one, seq_two)
+    self.assertAllClose(levenshtein_distance, 4)
+
+    #another case
+    seq_one = [5, 1, 1, 1, 0]
+    seq_two = [5, 1, 1, 1, 0]
+
+    levenshtein_distance = metric_utils.levenshtein(seq_one, seq_two)
+    self.assertAllClose(levenshtein_distance, 0)
 
 
 if __name__ == "__main__":

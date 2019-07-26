@@ -24,6 +24,7 @@ from absl import logging
 
 #delta
 from delta import utils
+from delta.utils.loss.loss_impl import CTCLoss as ctc_loss
 from delta.models.base_model import RawModel
 from delta.utils.register import registers
 
@@ -32,6 +33,10 @@ from delta.utils.register import registers
 
 @registers.model.register
 class CTCAsrModel(RawModel):
+  '''
+  CTC ASR Model
+  reference: https://github.com/holm-aune-bachelor2018/ctc
+  '''
 
   def __init__(self, config, name=None):
     super().__init__(name=name)
@@ -53,7 +58,8 @@ class CTCAsrModel(RawModel):
     return self._config
 
   def get_loss_fn(self):
-    return utils.losses(self._config)
+    return ctc_loss(self._config)
+    #return utils.loss(self._config)
 
   def ctc_lambda_func(self, args):
     y_pred, input_length, labels, label_length = args
@@ -86,10 +92,10 @@ class CTCAsrModel(RawModel):
     x = TimeDistributed(Dropout(0.5))(x)
 
     # Output layer with softmax
-    x = TimeDistributed(Dense(self._vocab_size, activation='softmax'))(x)
+    x = TimeDistributed(Dense(self._vocab_size))(x)
 
     input_length = Input(name='input_length', shape=[1], dtype='int64')
-    labels = Input(name='targets', shape=[None], dtype='float32')
+    labels = Input(name='targets', shape=[None], dtype='int32')
     label_length = Input(name='target_length', shape=[1], dtype='int64')
     loss_out = Lambda(
         self.ctc_lambda_func, output_shape=(1,),

@@ -14,17 +14,22 @@
 # limitations under the License.
 # ==============================================================================
 ''' Speech Emotion Solver based on EstimatorSolver'''
-from absl import logging
 import librosa
-import tensorflow as tf
+from absl import logging
 
+#pylint: disable=no-name-in-module
+import tensorflow as tf
+from tensorflow.python.keras.utils import losses_utils
+
+from delta import utils
 from delta.utils.solver.estimator_solver import EstimatorSolver
+from delta.utils.solver.asr_solver import AsrSolver
 from delta.utils.register import registers
 
 
 @registers.solver.register
 class EmotionSolver(EstimatorSolver):
-  ''' Speech Emotion Solver'''
+  ''' Speech Emotion Solver base on Estimator'''
 
   #pylint: disable=useless-super-delegation
   def __init__(self, config):
@@ -84,3 +89,66 @@ class EmotionSolver(EstimatorSolver):
         },
         default_batch_size=None,
     )
+
+
+@registers.solver.register
+class EmoKerasSolver(AsrSolver):
+  ''' emotion keras solver '''
+
+  def __init__(self, config):
+    super().__init__(config)
+    self.batch_input_shape = None
+    self._label_smoothing = config['solver']['optimizer']['label_smoothing']
+
+  @property
+  def model(self):
+    ''' keras Model '''
+    return self.raw_model
+
+  def input_fn(self, mode):
+    ''' input function for tf.data.Dataset'''
+    super().input_fn(mode)
+    assert self.task
+    self.batch_input_shape = self.task.batch_input_shape()
+    return None, self.task
+
+  def input_data(self, mode):
+    ''' get input data '''
+    _, task = self.input_fn(mode)
+    assert self.task
+    return None, task
+
+  def get_loss(self):
+    ''' keras losses  '''
+    return tf.keras.losses.CategoricalCrossentropy(
+      from_logits=True,
+      label_smoothing=self._label_smoothing,
+      reduction=losses_utils.ReductionV2.AUTO)
+
+  def eval(self):
+    ''' evaluation '''
+    # must first construct input data, then build model
+    eval_ds, eval_task = self.input_data(mode=utils.EVAL)
+    self.model_fn(mode=utils.EVAL)
+    assert self._built
+
+    callbacks = self.get_callbacks(
+        eval_ds, eval_task, monitor_used=self._monitor_used)
+
+    self.active_model.evaluate_generator(
+        eval_task,
+        steps=len(eval_task),
+        verbose=1,
+        callbacks=callbacks,
+        max_queue_size=20,
+        workers=1,
+        use_multiprocessing=False)
+
+    logging.info("Eval End.")
+
+  def infer(self, yield_single_examples=False):
+    ''' inference '''
+    logging.fatal("Not Implemented")
+
+  def export_model(self):
+    logging.fatal("Not Implemented")

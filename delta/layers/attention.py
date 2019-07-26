@@ -136,6 +136,7 @@ class HanAttention(Layer):
     return input_shape[0], input_shape[-1]
 
 
+
 class MatchAttention(Layer):
   """
   Refer to [Learning Natural Language Inference with LSTM]

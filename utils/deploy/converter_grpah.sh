@@ -9,4 +9,4 @@ fi
 file=$1
 binary=$2
 
-python tools/converter_grpah.py --graph_file=$file --binary=$binary
+python3 tools/converter_grpah.py --graph_file=$file --binary=$binary

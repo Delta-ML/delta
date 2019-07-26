@@ -54,6 +54,9 @@ def copy_config(config_path, config):
   logging.info("Saving config file to {}".format(save_config_path))
   copyfile(config_path, save_config_path)
 
+  with open(config_path, 'r') as f:
+    logging.info("Config:")
+    logging.info(f.read())
   return config
 
 

@@ -78,12 +78,13 @@ def gen_dummy_data_dir(data_dir,
   loaded_meta.load(data_dir)
   return loaded_meta
 
+
 def subset_data_dir_tr_cv(meta,
-                         num_spk_cv=0,
-                         num_utt_cv=0,
-                         fair_choice=True,
-                         keep_spk_id=True,
-                         seed=123):
+                          num_spk_cv=0,
+                          num_utt_cv=0,
+                          fair_choice=True,
+                          keep_spk_id=True,
+                          seed=123):
   '''
   Randomly split a data directory into training and validation set.
   This function acts like Kaldi's subset_data_dir_tr_cv.sh .
@@ -157,7 +158,7 @@ def subset_data_dir_tr_cv(meta,
           if len(utts_cv) >= num_utt_cv:
             break
       for utts in spk_utts:
-          utts_tr.extend(utts)
+        utts_tr.extend(utts)
     else:
       utts_shuffled = list(meta.utts.keys())
       rand.shuffle(utts_shuffled)

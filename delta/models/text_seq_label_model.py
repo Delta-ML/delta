@@ -97,6 +97,6 @@ class BilstmCrfModel(SeqclassModel):
     # [batch_size, features]
     out = self.embed_dropout(out, training=training)
     out = self.bilstm(out)
-    out = self.dropout(out)
+    out = self.dropout(out, training=training)
     output = self.dense(out)
     return output

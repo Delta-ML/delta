@@ -28,16 +28,26 @@ To quickly install DELTA, simply use the following commands:
 
 ```shell
 # Run the installation script, with NLP-only version or full version and CPU or GPU
+# `full` will install `kaldi`, which is usefull for `speech` user
 cd tools
-install/install_delta.sh [nlp|full] [cpu|gpu]
+./install/install-delta.sh [nlp|full] [cpu|gpu]
 
 # Activate conda environment
 conda activate delta-py3.6-tf1.14
+
+# Or
+# source activate delta-py3.6-tf1.14
 ```
 
 This command will create a conda environment with Tensorflow and other required packages.
 
-To verify the installtion, run:
+The full version of delta depends on [Kaldi](https://github.com/kaldi-asr/kaldi). We recommend our users to install Kaldi by following the documents of its official website. With a pre-installed Kaldi, you can install the full version of DELTA by:
+
+```
+KALDI=/your/path/to/Kaldi ./install/install-delta.sh full [cpu|gpu]
+``` 
+
+To verify the installation, run:
 
 ```shell
 # Add DELTA enviornment
@@ -47,11 +57,10 @@ source env.sh
 cd egs/mock_text_cls_data/text_cls/v1
 ./run.sh
 cd -
-python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls/data/text_cls/v1/config/han-cls.yml
+python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml
 ```
 
-
-For advanced installation, please refer to [manual installation](docs/installation/manual_setup.md).
+For advanced installation, `Kaldi` user, or more details, please refer to [manual installation](docs/installation/manual_setup.md).
 
 For Docker users, we provide images with DELTA installed. Please refer to [docker installation](docs/installation/using_docker.md).
 
@@ -126,16 +135,22 @@ NLP tasks
 | Document Classification | HAN | Yahoo Answer | Acc | 75.1 | 75.8 | Yang et al. (2016) |
 | Named Entity Recognition | BiLSTM-CRF | CoNLL 2003 | F1 | 84.6 | 84.7 | Huang et al. (2015) |
 | Intent Detection (joint) | BiLSTM-CRF-Attention | ATIS | Acc | 97.4 | 98.2| Liu and Lane (2016) |
-| Slots Filling (joint) | BiLSTM-CRF-Attention | ATIS  | F1 | 95.2 | 95.9 | | Liu and Lane (2016)
+| Slots Filling (joint) | BiLSTM-CRF-Attention | ATIS  | F1 | 95.2 | 95.9 | Liu and Lane (2016) |
 | Natural Language Inference | LSTM | SNLI | Acc | 80.7 | 80.6 | Bowman et al. (2016) | 
-| Summarization | Seq2seq-LSTM | xxx | xxx | xxx | xxx |
-| Translation | Seq2seq-transformer | xxx | xxx | xxx | xxx |
-| Pretrain-NER | ELMO | xxx | xxx | xxx | xxx |
-| Pretrain-NER | BERT | xxx | xxx | xxx | xxx |
+| Summarization | Seq2seq-LSTM |  |  |  |  |
+| Translation | Seq2seq-transformer |  |  |  |  |
+| Pretrain-NER | ELMO | CoNLL 2003 | F1 | 92.19 | 92.22 | Matthew et al. (2018) |
+| Pretrain-NER | BERT |  |  |  |  |
 
 Speech tasks
+
 | Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
 |---|---|---|---|---|---|---|
+| Speech recognition | CTC | HKUST | CER |  |  | Mial et al. (2016) |
+| Speech recognition | Seq2seq | HKUST | CER |  |  |  |
+| Speaker verfication | X-Vector | VoxCeleb | EER |  |  |  |
+| Emotion recogniation | ResNet50 | IEMOCAP | Acc | 54.33 | 55.38 | Neumann and Vu (2017) |
+
 
 ## TODO
 

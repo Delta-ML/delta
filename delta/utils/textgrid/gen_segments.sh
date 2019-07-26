@@ -11,6 +11,6 @@ data_path=$1
 find $data_path -name '*.TextGrid' > textgrid.list
 
 
-python generate_segment_from_textgrid.py textgrid.list textgrid.segments
+python3 generate_segment_from_textgrid.py textgrid.list textgrid.segments
 
 cp textgrid.segments $data_path 

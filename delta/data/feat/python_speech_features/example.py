@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ''' Example for sigproc.py '''
 
 # pylint: skip-file

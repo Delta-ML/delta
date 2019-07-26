@@ -24,7 +24,7 @@ import numpy as np
 
 from delta import utils
 from delta.data.preprocess.utils import prepare_embedding
-from delta.utils.solver.solver_utils import get_session_conf
+from delta.utils.solver.utils.solver_utils import get_session_conf
 from delta.data.preprocess.utils import prepare_vocab
 from delta.data.preprocess.utils import prepare_vocab_from_config
 from delta.data.preprocess.utils import get_pre_process_text_ds_iter
@@ -117,23 +117,25 @@ class TextPreparer(Preparer):
     if self.multi_text:
       one_text_after = []
       for i, one_text in enumerate(text):
-        text_placeholder = tf.placeholder(dtype=tf.string, shape=(None,),
-                                          name="text_{}".format(i))
+        text_placeholder = tf.placeholder(
+            dtype=tf.string, shape=(None,), name="text_{}".format(i))
         self.init_feed_dict[text_placeholder] = one_text
-        one_text_iterator = get_pre_process_text_ds_iter(text_placeholder, pre_process_pipeline,
-                                                         self.num_parallel_calls,
-                                                         self.batch_size)
+        one_text_iterator = get_pre_process_text_ds_iter(
+            text_placeholder, pre_process_pipeline, self.num_parallel_calls,
+            self.batch_size)
         batch_num = int(math.ceil(len(one_text) / float(self.batch_size)))
         text_after_arr = self.run_text_pipeline(one_text_iterator, batch_num)
         text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
         all_texts += text_after
         one_text_after.append(text_after)
     else:
-      text_placeholder = tf.placeholder(dtype=tf.string, shape=(None,),
-                                        name="text")
+      text_placeholder = tf.placeholder(
+          dtype=tf.string, shape=(None,), name="text")
       self.init_feed_dict[text_placeholder] = text
-      text_iterator = get_pre_process_text_ds_iter(text_placeholder, pre_process_pipeline,
-                                                   self.num_parallel_calls, self.batch_size)
+      text_iterator = get_pre_process_text_ds_iter(text_placeholder,
+                                                   pre_process_pipeline,
+                                                   self.num_parallel_calls,
+                                                   self.batch_size)
       batch_num = int(math.ceil(len(text) / float(self.batch_size)))
       text_after_arr = self.run_text_pipeline(text_iterator, batch_num)
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
@@ -188,14 +190,14 @@ class TextPreparer(Preparer):
     if os.path.exists(self.text_vocab_file_path) and \
       self.use_custom_vocab:
       logging.info("Reuse text vocab file: {}".format(
-        self.text_vocab_file_path))
+          self.text_vocab_file_path))
     else:
       prepare_vocab(
-        self.text_vocab_file_path,
-        all_texts,
-        min_frequency=self.vocab_min_frequency)
+          self.text_vocab_file_path,
+          all_texts,
+          min_frequency=self.vocab_min_frequency)
       logging.info("Generate text vocab file: {}".format(
-        self.text_vocab_file_path))
+          self.text_vocab_file_path))
 
   def prepare_label_vocab(self, all_labels):
     """Prepare label vocab"""
@@ -203,22 +205,22 @@ class TextPreparer(Preparer):
       if os.path.exists(self.label_vocab_file_paths[i]) and \
         self.use_custom_vocab:
         logging.info("Reuse label vocab file: {}".format(
-          self.label_vocab_file_paths[i]))
+            self.label_vocab_file_paths[i]))
       else:
         if "vocab" in self.config["data"]["task"]["classes"]:
           output_index = i if self.multi_output else None
           prepare_vocab_from_config(
-            self.label_vocab_file_paths[i],
-            self.config,
-            output_index=output_index)
+              self.label_vocab_file_paths[i],
+              self.config,
+              output_index=output_index)
         else:
           prepare_vocab(
-            self.label_vocab_file_paths[i],
-            all_labels[i],
-            min_frequency=1,
-            use_default_dict=False)
+              self.label_vocab_file_paths[i],
+              all_labels[i],
+              min_frequency=1,
+              use_default_dict=False)
         logging.info("Generate label vocab file: {}".format(
-          self.label_vocab_file_paths[i]))
+            self.label_vocab_file_paths[i]))
 
   def prepare_vocabs(self, all_texts, all_labels):
     """Preparing vocab for x."""

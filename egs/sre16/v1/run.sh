@@ -130,7 +130,7 @@ if [ ${stage} -le 2 ]; then
 
   # Make a reverberated version of the SWBD+SRE list.  Note that we don't add any
   # additive noise here.
-  python steps/data/reverberate_data_dir.py \
+  python3 steps/data/reverberate_data_dir.py \
     "${rvb_opts[@]}" \
     --speech-rvb-probability 1 \
     --pointsource-noise-addition-probability 0 \
@@ -155,13 +155,13 @@ if [ ${stage} -le 2 ]; then
   done
 
   # Augment with musan_noise
-  python steps/data/augment_data_dir.py --utt-suffix "noise" --fg-interval 1 --fg-snrs "10:5" --fg-noise-dir \
+  python3 steps/data/augment_data_dir.py --utt-suffix "noise" --fg-interval 1 --fg-snrs "10:5" --fg-noise-dir \
     "data/musan_noise" data/swbd_sre data/swbd_sre_noise
   # Augment with musan_music
-  python steps/data/augment_data_dir.py --utt-suffix "music" --bg-snrs "10:7:5" --num-bg-noises "1" \
+  python3 steps/data/augment_data_dir.py --utt-suffix "music" --bg-snrs "10:7:5" --num-bg-noises "1" \
     --bg-noise-dir "data/musan_music" data/swbd_sre data/swbd_sre_music
   # Augment with musan_speech
-  python steps/data/augment_data_dir.py --utt-suffix "babble" --bg-snrs "19:17:15:13" --num-bg-noises "3:4:5:6:7" \
+  python3 steps/data/augment_data_dir.py --utt-suffix "babble" --bg-snrs "19:17:15:13" --num-bg-noises "3:4:5:6:7" \
     --bg-noise-dir "data/musan_speech" data/swbd_sre data/swbd_sre_babble
 
   # Combine comp, reverb, noise, music, and babble into one directory.

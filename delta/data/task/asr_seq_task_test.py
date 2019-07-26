@@ -233,7 +233,8 @@ class AsrSeqTaskTest(tf.test.TestCase):
       task = registers.task[task_name](self.config, self.mode)
 
       with self.session():
-        for feats, src_lens, targets, tgt_lens in task.generate_data():
+        for uttid, feats, src_lens, targets, tgt_lens in task.generate_data():
+          logging.debug('uttid : {}'.format(uttid))
           logging.debug("feats : {}, shape : {}".format(feats, feats.shape))
           logging.debug("targets : {}, shape : {}".format(
               targets, targets.shape))
@@ -245,11 +246,13 @@ class AsrSeqTaskTest(tf.test.TestCase):
           self.assertDTypeEqual(tgt_lens, np.int64)
 
           if batch_mode:
+            self.assertEqual(len(uttid.shape), 1)
             self.assertEqual(len(feats.shape), 3)
             self.assertEqual(len(targets.shape), 2)
             self.assertEqual(len(src_lens.shape), 1)
             self.assertEqual(len(tgt_lens.shape), 1)
           else:
+            self.assertEqual(tf.rank(uttid).numpy(), 0)
             self.assertEqual(len(feats.shape), 2)
             self.assertEqual(len(targets.shape), 1)
             self.assertEqual(tf.rank(src_lens).numpy(), 0)

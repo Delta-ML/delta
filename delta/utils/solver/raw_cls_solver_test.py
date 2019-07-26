@@ -34,10 +34,10 @@ class RawClassSolverTest(tf.test.TestCase):
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(
         'egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml')
+    self.config = utils.load_config(self.config_file)
     import_all_modules_for_register()
 
   def test_all(self):
-    self.config = utils.load_config(self.config_file)
     # train and eval
     solver = RawClassSolver(self.config)
     solver.train_and_eval()
@@ -73,7 +73,7 @@ class RawClassSolverTest(tf.test.TestCase):
         score_tensor = graph.get_operation_by_name("score").outputs[0]
 
         score = sess.run(
-            score_tensor, feed_dict={input_sentence_tensor: ["我 很 愤怒"]})
+            score_tensor, feed_dict={input_sentence_tensor: ["I am very angry"]})
         logging.info("score: {}".format(score))
 
 

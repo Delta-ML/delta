@@ -31,12 +31,12 @@ endif
 
 .PHONY: all clean
 
-all: detla deltann
+all: delta deltann
 
 # delta
-delta: basic speech nlp_zh check_install
+delta: basic speech check_install
 
-basic: python.done espnet.done nlp_zh compile_ops.done
+basic: linux.done python.done espnet.done nlp_zh compile_ops.done
 
 speech: kaldi.done
 
@@ -44,7 +44,7 @@ nlp_zh: cppjieba.done
 
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
-PIP_INSTALL=pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple
+PIP_INSTALL=pip3 install
 
 PYTHON=python3
 
@@ -71,8 +71,12 @@ test: protoc test.deps
 # install python packages
 python.done:
 	$(PIP_INSTALL) --user -r requirements.txt
-	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get install -y libsndfile1; else $(SUDO) yum install -y libsndfile-devel; fi;
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get install -y libsndfile1; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install libsndfile; else $(SUDO) yum install -y libsndfile-devel; fi;
 	touch python.done
+
+linux.done:
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) apt-get install -y libsndfile1 bc sox; else $(SUDO) yum install -y libsndfile-devel bc sox; fi;
+	touch linux.done
 
 # compile custom ops on your environment
 compile_ops.done:

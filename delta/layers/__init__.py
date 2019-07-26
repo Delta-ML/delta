@@ -17,8 +17,11 @@
 
 from delta.layers.attention import HanAttention
 from delta.layers.recurrent import RnnAttentionEncoder
-
 from delta.layers.attention import MatchAttention
+from delta.layers.recurrent import RnnEncoder
+from delta.layers.recurrent import RnnDecoder
 from delta.layers.transformer import PositionEmbedding
 from delta.layers.transformer import TransformerEncoder
+from delta.layers.transformer import TransformerDecoder
+
 from delta.layers.common_layers import *

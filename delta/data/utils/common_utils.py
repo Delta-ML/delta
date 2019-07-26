@@ -248,6 +248,21 @@ def load_match_raw_data(paths, mode, infer_no_label=False):
     return (text_left, text_right), []
   return (text_left, text_right), label
 
+def load_seq2seq_raw_data(paths):
+  """Load raw data for sequence to sequence to sequence."""
+  text = []
+  for path in paths:
+    with open(path, 'r', encoding='utf-8') as file_input:
+      lines = file_input.readlines()
+      for i, line in enumerate(lines):
+        line = line.strip()
+        text.append(line)
+      all_lines = len(lines)
+      del lines
+    logging.info("Data loaded from {}. " \
+                 "Total {} lines".format(path, all_lines))
+  return text
+
 
 def save_a_text_cls_file(label, texts_after, new_path, no_label):
   """Save a text classification data to a file."""
@@ -280,6 +295,14 @@ def save_a_text_seq_label_file(label, texts_after, new_path, no_label):
         out_f.write(one_line + "\n")
       else:
         out_f.write(label[i] + "\t" + one_line + "\n")
+
+
+def save_a_text_seq2seq_file(texts_after, new_path):
+  """Save a text sequence data to a file"""
+  logging.info("Saving processed file to: {}".format(new_path))
+  with open(new_path, "w", encoding="utf-8") as out_f:
+    for i, one_line in enumerate(texts_after):
+      out_f.write(one_line + "\n")
 
 
 def save_a_text_nlu_joint_file(label, texts_after, new_path, no_label):

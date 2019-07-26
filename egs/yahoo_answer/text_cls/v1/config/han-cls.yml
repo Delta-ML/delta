@@ -2,13 +2,13 @@
 data:
   train:
     paths:
-      - "egs/yahoo_answer/text_cls/v1/data/train.small.txt"
+      - "egs/yahoo_answer/text_cls/v1/data/train.txt"
   eval:
     paths:
-      - "egs/yahoo_answer/text_cls/v1/data/dev.small.txt"
+      - "egs/yahoo_answer/text_cls/v1/data/dev.txt"
   infer:
     paths:
-      - "egs/yahoo_answer/text_cls/v1/data/test.small.txt"
+      - "egs/yahoo_answer/text_cls/v1/data/test.txt"
   task:
     name: TextClsTask
     preparer:
@@ -18,15 +18,15 @@ data:
       reuse: true
     use_dense: false
     language: english
-    vocab_min_frequency: 20
+    vocab_min_frequency: 5
     text_vocab: "egs/yahoo_answer/text_cls/v1/exp/text_vocab.txt"
     label_vocab: "egs/yahoo_answer/text_cls/v1/exp/label_vocab.txt"
-    max_seq_len: 1024
+    max_seq_len: 500
     num_parallel_calls: 12
     num_prefetch_batch: 2
     shuffle_buffer_size: 15000
     need_shuffle: true
-    batch_size: 32
+    batch_size: 64
     epochs: 100
     classes:
       positive_id: 1
@@ -57,9 +57,9 @@ model:
       cell_type: gru
       cell_dim: 100
       num_layers: 1
-      max_len: 1024
-      max_sen_len: 32
-      max_doc_len: 32
+      max_len: 500
+      max_sen_len: 20
+      max_doc_len: 25
       dropout_rate: 0.5
       l2_reg_lambda: 0
 
@@ -76,12 +76,12 @@ solver:
     enable: false # use average model
     var_avg_decay: 0.99 # the decay rate of varaibles
   optimizer:
-    name: adam
+    name: rmsprop
     loss: CrossEntropyLoss 
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
-      rate: 0.0001 # learning rate of Adam optimizer
-      type:  exp_decay # learning rate type
+      rate: 0.001 # learning rate of Adam optimizer
+      type:  const # learning rate type
       decay_rate: 0.99  # the lr decay rate
       decay_steps: 100  # the lr decay_step for optimizer
     clip_global_norm: 3.0 # clip global norm
@@ -105,7 +105,7 @@ solver:
     res_file: ""
   saver:
     model_path: "egs/yahoo_answer/text_cls/v1/exp/han-cls/ckpt"
-    max_to_keep: 30
+    max_to_keep: 1
     save_checkpoint_steps: 100
     print_every: 10
   service:

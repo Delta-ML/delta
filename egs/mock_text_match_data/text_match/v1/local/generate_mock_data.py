@@ -20,13 +20,13 @@ from delta.data.utils.test_utils import mock_a_text_file
 from delta.data.utils.test_utils import save_a_vocab_file
 
 # samples with label
-samples = ["0\t这是一部不错的电影。\t讲真的，这部电影不好看。",
-           "1\t我爱中国。\t我非常热爱祖国。"]
-text_vocab_list = ["<unk>\t0", "</s>\t1", "这是\t2", "一部\t3",
-                   "不错\t4", "的\t5", "电影\t6", "讲真\t7",
-                   "部\t8", "不\t9", "好看\t10",
-                   "我\t11", "爱\t12", "中国\t13",
-                   "非常\t14", "热爱\t15", "祖国\t16"]
+samples = ["0\tHow should I approach forgiveness?\tI got chickenpox as a child.",
+           "1\tI love china。\tI love china very much。"]
+text_vocab_list = ["<unk>\t0", "</s>\t1", "how\t2", "should\t3",
+                   "i\t4", "approach\t5", "forgiveness\t6", "got\t7",
+                   "chickenpox\t8", "as\t9", "a\t10",
+                   "child\t11", "love\t12", "china\t13",
+                   "very\t14", "much\t15"]
 
 
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file):

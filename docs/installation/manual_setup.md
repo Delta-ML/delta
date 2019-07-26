@@ -54,3 +54,49 @@ pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple tensorflow-gpu==1.14.0
 ### Install dependences
 
 Same to [conda install](#conda-package-install).
+
+
+
+## DELTA install
+
+### NLP User
+
+Install DELTA without `speech` dependences:
+
+```shell
+cd tools && make basic check_install
+
+```
+
+
+### Speech User
+
+By default we will install DELTA with `Kaldi` toolkit:
+
+```shell
+cd tools && make delta
+```
+
+If user has installed `Kaldi`, please DELTA as below:
+
+```shell
+cd tools && make delta KALDI=<kaldi-path>
+```
+
+it is simply link the `<kaldi-path>` to `tools/kaldi`.
+
+### Advanced User
+
+Please see `delta` target of `tools/Makefile`.
+
+
+## DELTANN install
+
+Install DELTANN as below:
+
+```
+cd tools && make deltann
+```
+
+For more details, please see `deltann` target of `tools/Makefile`
+

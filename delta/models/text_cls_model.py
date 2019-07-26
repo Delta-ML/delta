@@ -19,8 +19,8 @@ import tensorflow as tf
 
 from delta.models.base_model import Model
 
-
-class TextClassModel(Model):  # pylint: disable=abstract-method
+# pylint: disable=abstract-method,too-many-ancestors
+class TextClassModel(Model):
   """Base class for text classification."""
 
   def __init__(self, config, **kwargs):

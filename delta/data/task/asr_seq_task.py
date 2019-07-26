@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 ''' A sequential ASR task. '''
-
 import numpy as np
 import tensorflow as tf
 from absl import logging
@@ -29,8 +28,24 @@ from delta.data.task.base_speech_task import SpeechTask
 # pylint: disable=invalid-name
 
 
+def _make_example(uttids, feats, ilens, targets, olens):
+  features = {
+      'uttids': uttids,
+      'inputs': feats,
+      'input_length': ilens,
+      'targets': targets,
+      'target_length': olens
+  }
+  labels = {
+      'ctc':
+          tf.ones(tf.shape(feats)[0])
+          if not isinstance(feats, np.ndarray) else np.ones(feats.shape[0])
+  }  # dummy data for dummy loss function
+  return features, labels
+
+
 @registers.task.register  #pylint: disable=too-many-instance-attributes
-class AsrSeqTask(SpeechTask):
+class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
   ''' ASR Task '''
 
   def __init__(self, config, mode):
@@ -38,6 +53,8 @@ class AsrSeqTask(SpeechTask):
     self.dummy = config['data']['task']['dummy']
     self.batch_mode = config['data']['task']['batch_mode']
     self.batch_size = config['solver']['optimizer']['batch_size']
+    self._shuffle_buffer_size = config['data']['task']['shuffle_buffer_size']
+    self._need_shuffle = config['data']['task']['need_shuffle']
     # get batches form data path
     if self.dummy:
       self._feat_shape = [40]
@@ -95,52 +112,74 @@ class AsrSeqTask(SpeechTask):
   def generate_cmvn(self, paths):
     pass
 
+  def __len__(self):
+    ''' Denotes the number of batches per epoch'''
+    return self.steps_per_epoch
+
+  def __getitem__(self, batch_index):
+    ''' Generates a batch of correctly shaped X and Y data
+    :param batch_index: index of the batch to generate
+    :return: batch of (x, y)
+    '''
+
+    assert self.batch_mode
+    batch = self.batches[batch_index]
+
+    logging.info("get item {}".format(batch_index))
+    uttids, feats, ilens, targets, olens = self._process_batch(batch)
+    return _make_example(uttids, feats, ilens, targets, olens)
+
+  #pylint: disable=too-many-locals
+  def _process_batch(self, batch):
+    srcs, ilens, tgts, olens, uttid_list = self.converter(batch)
+
+    imax = max(ilens)
+    omax = max(olens)
+    batch_feat = []
+    batch_target = []
+    for i in range(len(srcs)):
+      #pad feat
+      ipad_len = imax - srcs[i].shape[0]
+      feat = np.pad(
+          srcs[i],
+          pad_width=((0, ipad_len), (0, 0)),
+          mode='constant',
+          constant_values=0)
+
+      #pad target
+      opad_len = omax - tgts[i].shape[0]
+      target = np.pad(
+          tgts[i], pad_width=(0, opad_len), mode='constant', constant_values=0)
+
+      batch_feat.append(feat)
+      batch_target.append(target)
+
+    batch_uttid = np.array(uttid_list)
+    batch_feat = np.stack(batch_feat).astype(np.float32)
+    batch_target = np.stack(batch_target).astype(np.int64)
+    ilens = np.array(ilens).astype(np.int64)
+    olens = np.array(ilens).astype(np.int64)
+
+    return batch_uttid, batch_feat, ilens, batch_target, olens
+
   def generate_data(self):  #pylint: disable=too-many-locals
     '''
         :return: feat, feat_len, target, terget_len
         '''
     if self.batch_mode:
       for batch in self.batches:
-        srcs, ilens, tgts, olens = self.converter(batch)
-
-        imax = max(ilens)
-        omax = max(olens)
-        batch_feat = []
-        batch_target = []
-        for i in range(len(srcs)):
-          #pad feat
-          ipad_len = imax - srcs[i].shape[0]
-          feat = np.pad(
-              srcs[i],
-              pad_width=((0, ipad_len), (0, 0)),
-              mode='constant',
-              constant_values=0)
-
-          #pad target
-          opad_len = omax - tgts[i].shape[0]
-          target = np.pad(
-              tgts[i],
-              pad_width=(0, opad_len),
-              mode='constant',
-              constant_values=0)
-
-          batch_feat.append(feat)
-          batch_target.append(target)
-
-        batch_feat = np.stack(batch_feat).astype(np.float32)
-        batch_target = np.stack(batch_target).astype(np.int64)
-        ilens = np.array(ilens).astype(np.int64)
-        olens = np.array(ilens).astype(np.int64)
-
-        yield batch_feat, ilens, batch_target, olens
+        batch_uttid, batch_feat, ilens, batch_target, olens = self._process_batch(
+            batch)
+        yield batch_uttid, batch_feat, ilens, batch_target, olens
     else:
       for batch in self.batches:
-        srcs, ilens, tgts, olens = self.converter(batch)
+        srcs, ilens, tgts, olens, uttid_list = self.converter(batch)
         for i in range(len(srcs)):
-          yield srcs[i], ilens[i], tgts[i], olens[i]
+          yield uttid_list[i], srcs[i], ilens[i], tgts[i], olens[i]
 
   def feature_spec(self, batch_size_):  # pylint: disable=arguments-differ
     '''
+        uttid: []
         feat: [feat_shape]
         src_len: []
         label: [None]
@@ -154,10 +193,12 @@ class AsrSeqTask(SpeechTask):
       time = 10
       logging.info("Dummy data: batch size {} time {}".format(batch_size, time))
 
-    types = (tf.float32, tf.int32, tf.int32, tf.int32)
+    types = (tf.string, tf.float32, tf.int32, tf.int32, tf.int32)
     if self.batch_mode or self.dummy:
       # batch of examples
       shapes = (
+          #uttid
+          tf.TensorShape([batch_size]),
           # input
           tf.TensorShape([batch_size, time, *self.feat_shape]),
           # input len
@@ -170,6 +211,8 @@ class AsrSeqTask(SpeechTask):
     else:
       # one example
       shapes = (
+          #uttid
+          tf.TensorShape([]),
           # input
           tf.TensorShape([time, *self.feat_shape]),
           # input len
@@ -180,7 +223,7 @@ class AsrSeqTask(SpeechTask):
           tf.TensorShape([]),
       )
     if self.dummy:
-      values = (1, 2, 3, 4)
+      values = ("uttid_1", 1, 2, 3, 4)
       logging.info("Dummy data: shapes {}".format(shapes))
       logging.info("Dummy data: types {}".format(types))
       logging.info("Dummy data: values {}".format(values))
@@ -197,18 +240,6 @@ class AsrSeqTask(SpeechTask):
     types, shapes, values = self.feature_spec(batch_size)
     logging.debug('dtypes: {} shapes: {} values: {}'.format(
         types, shapes, values))
-
-    def make_example(feats, ilens, targets, olens):
-      features = {
-          'inputs': feats,
-          'input_length': ilens,
-          'targets': targets,
-          'target_length': olens
-      }
-      labels = {
-          'ctc': tf.ones(tf.shape(feats)[0])
-      }  # dummy data for dummy loss function
-      return features, labels
 
     if self.dummy:
       logging.info("Dummy data: dataset")
@@ -229,9 +260,9 @@ class AsrSeqTask(SpeechTask):
           output_shapes=shapes)
 
       if mode == utils.TRAIN:
-        ds = ds.apply(
-            tf.data.experimental.shuffle_and_repeat(
-                buffer_size=100 * batch_size, count=epoch, seed=None))
+        if self._need_shuffle:
+          ds = ds.shuffle(self._shuffle_buffer_size, seed=None)
+        ds = ds.repeat(count=epoch)
 
       if not self.batch_mode:
         ds = ds.padded_batch(
@@ -240,6 +271,6 @@ class AsrSeqTask(SpeechTask):
             padding_values=None,
             drop_remainder=True if mode == utils.TRAIN else False)  #pylint: disable=simplifiable-if-expression
 
-    ds = ds.map(make_example)
+    ds = ds.map(_make_example)
     ds = ds.prefetch(tf.contrib.data.AUTOTUNE)
     return ds

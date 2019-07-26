@@ -168,8 +168,8 @@ class TextSeqLabelTask(TextTask):
         # shuffle batch size and repeat
         logging.debug("shuffle and repeat dataset ...")
         data_set = data_set.apply(
-          tf.data.experimental.shuffle_and_repeat(
-            buffer_size=self.shuffle_buffer_size, count=None))
+            tf.data.experimental.shuffle_and_repeat(
+                buffer_size=self.shuffle_buffer_size, count=None))
       else:
         logging.debug("repeat dataset ...")
         data_set = data_set.repeat(count=None)

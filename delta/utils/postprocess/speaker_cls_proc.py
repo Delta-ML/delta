@@ -33,6 +33,7 @@ def format_kaldi_vector(vector):
   ''' Print a vector in Kaldi format. '''
   return '[ ' + ' '.join([str(val) for val in vector]) + ' ]'
 
+
 @registers.postprocess.register
 class SpeakerPostProc(PostProc):
   ''' Apply speaker embedding extraction on hidden layer outputs. '''
@@ -104,8 +105,8 @@ class SpeakerPostProc(PostProc):
           chunk_output = clip[output_key]
           if self.infer:
             formatted_output = format_kaldi_vector(chunk_output)
-            file_pointers['chunk'][output_key].write('%s %s\n' %
-                (chunk_key, formatted_output))
+            file_pointers['chunk'][output_key].write(
+                '%s %s\n' % (chunk_key, formatted_output))
 
           embeddings = last_utt_chunk_outputs[output_key]
           # Check if an utterance is over.
@@ -117,8 +118,8 @@ class SpeakerPostProc(PostProc):
               utt_embedding = np.average(embeddings, axis=0)
               if self.infer:
                 formatted_output = format_kaldi_vector(utt_embedding)
-                file_pointers['utt'][output_key].write('%s %s\n' %
-                    (last_utt_key, formatted_output))
+                file_pointers['utt'][output_key].write(
+                    '%s %s\n' % (last_utt_key, formatted_output))
 
             # Start a new utterance.
             embeddings.clear()
@@ -141,7 +142,7 @@ class SpeakerPostProc(PostProc):
       if self.infer:
         formatted_output = format_kaldi_vector(utt_embedding)
         file_pointers['utt'][output_key].write('%s %s\n' %
-            (last_utt_key, formatted_output))
+                                               (last_utt_key, formatted_output))
 
     if self.infer:
       for output_level in ['utt', 'chunk']:

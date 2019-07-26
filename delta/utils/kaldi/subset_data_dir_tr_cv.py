@@ -53,17 +53,17 @@ def main():
 
   meta = kaldi_dir.KaldiMetaData()
   meta.load(args.data_dir)
-  meta_tr, meta_cv = kaldi_dir_utils.subset_data_dir_tr_cv(meta,
-                     num_spk_cv=num_spk_cv,
-                     num_utt_cv=num_utt_cv,
-                     fair_choice=args.fair_choice
-                     )
-  logging.info('#spks tr: %d, cv: %d; #utts tr: %d, cv: %d' %
-               (len(meta_tr.spks), len(meta_cv.spks),
-                len(meta_tr.utts), len(meta_cv.utts)))
+  meta_tr, meta_cv = kaldi_dir_utils.subset_data_dir_tr_cv(
+      meta,
+      num_spk_cv=num_spk_cv,
+      num_utt_cv=num_utt_cv,
+      fair_choice=args.fair_choice)
+  logging.info('#spks tr: %d, cv: %d; #utts tr: %d, cv: %d' % (len(
+      meta_tr.spks), len(meta_cv.spks), len(meta_tr.utts), len(meta_cv.utts)))
 
   meta_tr.dump(args.data_dir_tr, overwrite=True)
   meta_cv.dump(args.data_dir_cv, overwrite=True)
+
 
 if __name__ == '__main__':
   main()

@@ -24,6 +24,24 @@ from absl import logging
 from delta.data.feat import speech_ops
 from delta.data.feat import python_speech_features as psf
 
+_global_sess = {}
+
+
+def _get_session(feat_name, graph=None):
+  global _global_sess
+  sess = None
+  if feat_name not in _global_sess:
+    assert graph is not None
+    sess = tf.Session(graph=graph)
+    _global_sess[feat_name] = sess
+  else:
+    sess = _global_sess[feat_name]
+  return sess
+
+
+def _get_out_tensor_name(tensor_name, output_index):
+  return tensor_name + ":" + str(output_index)
+
 
 #pylint: disable=too-many-locals
 def extract_filterbank(*args, **kwargs):
@@ -36,29 +54,35 @@ def extract_filterbank(*args, **kwargs):
   dry_run = kwargs.get('dry_run')
   del nfft
 
-  graph = tf.Graph()
-  #pylint: disable=not-context-manager
-  with graph.as_default():
-    # fbank
-    params = speech_ops.speech_params(
-        sr=sr,
-        bins=feature_size,
-        add_delta_deltas=False,
-        audio_frame_length=winlen,
-        audio_frame_step=winstep)
+  feat_name = 'fbank'
+  graph = None
+  op = None
+  # get session
+  if feat_name not in _global_sess:
+    graph = tf.Graph()
+    #pylint: disable=not-context-manager
+    with graph.as_default():
+      # fbank
+      params = speech_ops.speech_params(
+          sr=sr,
+          bins=feature_size,
+          add_delta_deltas=False,
+          audio_frame_length=winlen,
+          audio_frame_step=winstep)
 
-    filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
-    waveforms, sample_rate = speech_ops.read_wav(filepath, params)
-    del sample_rate
-    fbank = speech_ops.extract_feature(waveforms, params)
+      filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
+      waveforms, sample_rate = speech_ops.read_wav(filepath, params)
+      del sample_rate
+      fbank = speech_ops.extract_feature(waveforms, params)
+      fbank = tf.identity(fbank, name=feat_name)
 
-  sess = tf.Session(graph=graph)
+  sess = _get_session(_get_out_tensor_name(feat_name, 0), graph)
 
   for wavpath in args:
     savepath = os.path.splitext(wavpath)[0] + '.npy'
     logging.debug('input: {}, output: {}'.format(wavpath, savepath))
 
-    feat = sess.run(fbank, feed_dict={'wavpath:0': wavpath})
+    feat = sess.run(feat_name + ":0", feed_dict={'wavpath:0': wavpath})
 
     # save feat
     if dry_run:
@@ -67,21 +91,24 @@ def extract_filterbank(*args, **kwargs):
     else:
       np.save(savepath, feat)
 
-  sess.close()
-
 
 def add_delta_delta(feat, feat_size, order=2):
   ''' add delta detla '''
-  graph = tf.Graph()
-  #pylint: disable=not-context-manager
-  with graph.as_default():
-    fbank = tf.placeholder(
-        dtype=tf.float32, shape=[None, feat_size, 1], name='fbank')
-    feat_with_delta_delta = speech_ops.delta_delta(fbank, order=order)
+  feat_name = 'delta_delta'
+  graph = None
+  # get session
+  if feat_name not in _global_sess:
+    graph = tf.Graph()
+    #pylint: disable=not-context-manager
+    with graph.as_default():
+      fbank = tf.placeholder(
+          dtype=tf.float32, shape=[None, feat_size, 1], name='fbank')
+      feat_with_delta_delta = speech_ops.delta_delta(fbank, order=order)
+      feat_with_delta_delta = tf.identity(feat_with_delta_delta, name=feat_name)
 
-  sess = tf.Session(graph=graph)
-  feat = sess.run(feat_with_delta_delta, feed_dict={'fbank:0': feat})
-  sess.close()
+  sess = _get_session(feat_name, graph)
+  feat = sess.run(
+      _get_out_tensor_name(feat_name, 0), feed_dict={'fbank:0': feat})
   return feat
 
 
@@ -102,14 +129,25 @@ def load_wav(wavpath, sr=8000):
 
   #samples, sample_rate = librosa.load(wavpath, sr=sr)
 
-  with tf.Session() as sess:
-    params = speech_ops.speech_params(sr=sr, audio_desired_samples=-1)
-    t_wavpath = tf.placeholder(dtype=tf.string)
-    t_audio, t_sample_rate = speech_ops.read_wav(t_wavpath, params)
+  feat_name = 'load_wav'
+  graph = None
+  # get session
+  if feat_name not in _global_sess:
+    graph = tf.Graph()
+    with graph.as_default():
+      params = speech_ops.speech_params(sr=sr, audio_desired_samples=-1)
+      t_wavpath = tf.placeholder(dtype=tf.string, name="wavpath")
+      t_audio, t_sample_rate = speech_ops.read_wav(t_wavpath, params)
+      t_audio = tf.identity(t_audio, name="audio")
+      t_sample_rate = tf.identity(t_sample_rate, name="sample_rate")
 
-    audio, sample_rate = sess.run([t_audio, t_sample_rate],
-                                  feed_dict={t_wavpath: wavpath})
-    audio = audio[:, 0]
+  sess = _get_session(feat_name, graph)
+  audio, sample_rate = sess.run([
+      _get_out_tensor_name('audio', 0),
+      _get_out_tensor_name('sample_rate', 0)
+  ],
+                                feed_dict={"wavpath:0": wavpath})
+  audio = audio[:, 0]
 
   assert sample_rate == sr, 'sampling rate must be {}Hz, get {}Hz'.format(
       sr, sample_rate)

@@ -24,12 +24,12 @@ from delta.utils.solver.base_solver import Solver
 
 from delta import utils
 from delta.utils.register import registers
-from delta.utils.solver.solver_utils import get_checkpoint_dir
-from delta.utils.solver.solver_utils import get_ckpt_state
-from delta.utils.solver.solver_utils import get_session_conf
-from delta.utils.solver.solver_utils import to_saved_model
-from delta.utils.solver.solver_utils import run_metrics
-from delta.utils.solver.solver_utils import DatasetInitializerHook
+from delta.utils.solver.utils.solver_utils import get_checkpoint_dir
+from delta.utils.solver.utils.solver_utils import get_ckpt_state
+from delta.utils.solver.utils.solver_utils import get_session_conf
+from delta.utils.solver.utils.solver_utils import to_saved_model
+from delta.utils.solver.utils.solver_utils import run_metrics
+from delta.utils.solver.utils.hooks import DatasetInitializerHook
 
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation
 
@@ -84,19 +84,14 @@ class RawSolver(Solver):
         save_checkpoint_steps, \
         resume_model_path, print_every
 
-  def get_scaffold(self, global_step=None,
-                   iter_initializer=None,
-                   iter_init_feed_dict=None):
+  def get_scaffold(self, mode, global_step=None):
     """Get training scaffold."""
 
     init_op = tf.global_variables_initializer()
     local_init_op = tf.tables_initializer()
     saver = self.get_saver(global_step)
     scaffold = tf.train.Scaffold(
-      saver=saver,
-      init_op=init_op,
-      local_init_op=local_init_op
-    )
+        saver=saver, init_op=init_op, local_init_op=local_init_op)
     return scaffold
 
   def get_generated_model_path(self):
@@ -224,7 +219,7 @@ class RawSolver(Solver):
     self.eval_or_infer_core(model, mode)
     model.sess.close()
 
-  def eval_or_infer_core(self, model, mode):  # pylint: disable=too-many-locals, too-many-branches
+  def eval_or_infer_core(self, model, mode):  # pylint: disable=too-many-locals, too-many-branches, too-many-statements
     """The core part of evaluation."""
 
     self.do_eval = bool(mode == utils.EVAL or not self.infer_no_label)
@@ -241,8 +236,8 @@ class RawSolver(Solver):
       if self.first_eval:
         model.sess.run(tf.tables_initializer())
         self.first_eval = False
-      model.sess.run(model.iterator.initializer,
-                     feed_dict=model.temp_init_feed_dict)
+      model.sess.run(
+          model.iterator.initializer, feed_dict=model.temp_init_feed_dict)
 
       # Evaluating loop.
       data_size = self.config["data"]['{}_data_size'.format(mode)]
@@ -291,7 +286,7 @@ class RawSolver(Solver):
 
       all_fetch_nps = []
       for one_fetch_vals in zip(*all_fetch_vals):
-        if len(np.shape(one_fetch_vals[0])) <= 0:
+        if len(np.shape(one_fetch_vals[0])) <= 0:  # pylint: disable=len-as-condition
           one_fetch_np = one_fetch_vals
         else:
           one_fetch_np = np.concatenate(one_fetch_vals, axis=0)
@@ -372,9 +367,7 @@ class RawSolver(Solver):
       checkpoint_dir = get_checkpoint_dir(self.config)
 
       # scaffold
-      scaffold = self.get_scaffold(global_step,
-                                   train_model.iterator.initializer,
-                                   train_model.temp_init_feed_dict)
+      scaffold = self.get_scaffold(mode, global_step)
 
     ds_init_hook = DatasetInitializerHook(train_model.iterator,
                                           train_model.temp_init_feed_dict)
@@ -390,7 +383,8 @@ class RawSolver(Solver):
         num_epochs = self.config["data"]["task"]['epochs']
         num_batch = int(math.ceil(data_size * num_epochs / self.batch_size))
         num_batch_per_epoch = int(data_size / self.batch_size)
-
+        logging.info("num_batch: {}, num_batch_per_epoch: {}, num_epochs: {}".format(
+              num_batch, num_batch_per_epoch, num_epochs))
         for i in range(num_batch):
           _, _, out_loss = sess.run(
               [train_op, global_step, train_model.loss_op])
@@ -429,9 +423,7 @@ class RawSolver(Solver):
         checkpoint_dir = get_checkpoint_dir(self.config)
 
         # scaffold
-        scaffold = self.get_scaffold(global_step,
-                                     train_model.iterator.initializer,
-                                     train_model.temp_init_feed_dict)
+        scaffold = self.get_scaffold(utils.TRAIN, global_step)
 
         ds_init_hook = DatasetInitializerHook(train_model.iterator,
                                               train_model.temp_init_feed_dict)

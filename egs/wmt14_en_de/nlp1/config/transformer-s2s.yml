@@ -1,0 +1,120 @@
+---
+data:
+  train:
+    paths:
+      source:
+        - "egs/wmt14_en_de/nlp1/data/train.en"
+      target:
+        - "egs/wmt14_en_de/nlp1/data/train.de"
+  eval:
+    paths:
+      source:
+        - "egs/wmt14_en_de/nlp1/data/val.en"
+      target:
+        - "egs/wmt14_en_de/nlp1/data/val.de"
+  infer:
+    paths:
+      source:
+        - "egs/wmt14_en_de/nlp1/data/test.en"
+      target:
+        - "egs/wmt14_en_de/nlp1/data/test.de"
+    infer_no_label: false
+  task:
+    name: TextS2STask
+    preparer:
+      enable: true
+      name: TextS2SPreparer
+      done_sign: "egs/wmt14_en_de/nlp1/exp/prepare.done"
+      reuse: true
+    language: english
+    split_by_space: true
+    vocab_min_frequency: 20
+    use_custom_vocab: True
+    text_vocab: "egs/wmt14_en_de/nlp1/exp/en.vocab"
+    label_vocab: "egs/wmt14_en_de/nlp1/exp/de.vocab"
+    use_label_vocab: True
+    max_enc_len: 100
+    max_dec_len: 100
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 4468840
+    need_shuffle: true
+    batch_size: 256
+    epochs: 15
+
+model:
+  name: TransformerSeq2SeqModel
+  type: keras
+  use_pre_train_emb: false
+  pre_train_emb_path: ""
+  embedding_path: ""
+  net:
+    structure:
+      embedding_size: 200
+      emb_trainable: true
+      num_layers: 6
+      max_enc_len: 100
+      max_dec_len: 100
+      dropout_rate: 0.1
+      l2_reg_lambda: 0
+      transformer_dropout: 0.1
+      head_num: 8
+      hidden_dim: 512
+      share_embedding: false
+      beam_size: 4
+      length_penalty: 5
+
+solver:
+  name: RawS2SSolver
+  quantization:
+    enable: false # whether to quantization model
+    quant_delay: 0 # Number of steps after which weights and activations are quantized during training
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: lazyadam
+    loss: CrossEntropyLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 2.0 # learning rate of Adam optimizer
+      type: warmup # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+      num_warmup_steps: 8000
+    clip_global_norm: 3.0 # clip global norm
+    multitask: False # whether is multi-task
+    batch_size: 256
+    epochs: 15
+  metrics:
+    pos_label: 1
+    res_file: "egs/wmt14_en_de/res/infer_res.txt"
+    target_file:
+      - "egs/wmt14_en_de/nlp1/data/test.de"
+    text_vocab: "egs/wmt14_en_de/nlp1/exp/en.vocab"
+    label_vocab: "egs/wmt14_en_de/nlp1/exp/de.vocab"
+    cals:
+      - name: BleuCal
+        arguments: Null
+  postproc:
+    name: SavePredSeqPostProc
+    res_file: "egs/wmt14_en_de/res/infer_res.txt"
+  saver:
+    model_path: "egs/wmt14_en_de/nlp1/exp/transformer-sum/ckpt"
+    max_to_keep: 30
+    save_checkpoint_steps: 1000
+    print_every: 10
+  service:
+    model_path: "egs/wmt14_en_de/nlp1/exp/transformer-sum/service"
+    model_version: "1"
+  run_config:
+    tf_random_seed: null
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true

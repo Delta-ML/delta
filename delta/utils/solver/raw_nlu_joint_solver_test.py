@@ -78,7 +78,7 @@ class RawNLUJointSolverTest(tf.test.TestCase):
             "slots_score").outputs[0]
 
         score = sess.run([intent_score_tensor, slots_score_tensor],
-                         feed_dict={input_sentence_tensor: ["我 在 肯德基 玩的 很 开心"]})
+                         feed_dict={input_sentence_tensor: ["I am happy in the KFC"]})
         logging.info("score: {}".format(score))
 
 

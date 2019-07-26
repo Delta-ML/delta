@@ -54,10 +54,8 @@ def main(argv):
     main function
   """
   # pylint: disable=unused-argument
-
   # load config
   config = utils.load_config(FLAGS.config)
-
   utils.set_logging(FLAGS.log_debug, config)
 
   utils.copy_config(FLAGS.config, config)
@@ -104,7 +102,7 @@ def main(argv):
     task = task_class(config, utils.INFER)
     task.generate_cmvn(dry_run=FLAGS.dry_run)
   else:
-    raise ValueError("Not support mode: {}".format(FLAGS.cmd))
+    raise ValueError("Not support command: {}.".format(FLAGS.cmd))
 
 
 if __name__ == '__main__':

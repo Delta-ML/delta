@@ -60,12 +60,12 @@ class AfbOp : public OpKernel {
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
     int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
-    OP_REQUIRES_OK(context, context->allocate_output(
-                                0, TensorShape({i_NumFrm, i_FrqNum}),
-                                &output_tensor_1));
-    OP_REQUIRES_OK(context, context->allocate_output(
-                                1, TensorShape({i_NumFrm, i_FrqNum}),
-                                &output_tensor_2));
+    OP_REQUIRES_OK(
+        context, context->allocate_output(0, TensorShape({i_NumFrm, i_FrqNum}),
+                                          &output_tensor_1));
+    OP_REQUIRES_OK(
+        context, context->allocate_output(1, TensorShape({i_NumFrm, i_FrqNum}),
+                                          &output_tensor_2));
 
     const float* input_flat = input_tensor.flat<float>().data();
     float* output_flat_1 = output_tensor_1->flat<float>().data();

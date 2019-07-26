@@ -15,26 +15,34 @@
 # ==============================================================================
 ''' logger utils'''
 
-
 import os
 from absl import flags
 from absl import logging
+import logging as _logging
 
 FLAGS = flags.FLAGS
 
 
 def set_logging(is_debug, config):
-  if is_debug:
-    logging.set_verbosity(logging.DEBUG)
-  else:
-    logging.set_verbosity(logging.INFO)
+  absl_logger = logging.get_absl_logger()
+  # create formatter and add it to the handlers
+  formatter = _logging.Formatter("[ %(asctime)-15s %(levelname)s %(filename)15s:%(lineno)-4d " \
+              " %(process)-5d ]  %(message)s")
 
-  if FLAGS.log_dir:
-    log_dir = FLAGS.log_dir
-  else:
-    log_dir = config["solver"]["saver"]["model_path"]
+  log_dir = config["solver"]["saver"]["model_path"]
   if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
-  logging.get_absl_handler().use_absl_log_file(log_dir=log_dir)
+  logging.get_absl_handler().use_absl_log_file(program_name='delta', log_dir=log_dir)
+
+  fh = _logging.StreamHandler()
+  fh.setLevel(_logging.NOTSET)
+  fh.setFormatter(formatter)
+  absl_logger.addHandler(fh)
+
+  if is_debug:
+    logging.set_verbosity(_logging.DEBUG)
+  else:
+    logging.set_verbosity(_logging.NOTSET)
+
   logging.info("Also save log file to directory: {}".format(log_dir))

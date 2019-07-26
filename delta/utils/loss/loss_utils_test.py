@@ -16,6 +16,7 @@
 ''' loss implementation function unittest '''
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 from delta.utils.loss import loss_utils
 
@@ -78,7 +79,7 @@ class LossUtilTest(tf.test.TestCase):
     with self.cached_session():
       label_lens = np.expand_dims(np.asarray([5, 4]), 1)
       input_lens = np.expand_dims(np.asarray([5, 5]), 1)  # number of timesteps
-      loss_log_probs = [3.34211, 5.42262]
+      loss_log_probs = [7.2771974, 710.25275]
 
       # dimensions are batch x time x categories
       labels = np.asarray([[0, 1, 2, 1, 0], [0, 1, 1, 0, -1]])
@@ -99,13 +100,17 @@ class LossUtilTest(tf.test.TestCase):
           labels=tf.constant(labels),
           logits=tf.constant(inputs),
           input_length=tf.constant(input_lens),
-          label_length=tf.constant(label_lens))
-      self.assertAllClose(loss.eval(), np.mean(loss_log_probs), atol=1e-05)
+          label_length=tf.constant(label_lens),
+          blank_index=0)
+      self.assertEqual(loss.eval().shape[0], inputs.shape[0])
+      self.assertAllClose(loss.eval(), loss_log_probs, atol=1e-05)
+      self.assertAllClose(
+          np.mean(loss.eval()), np.mean(loss_log_probs), atol=1e-05)
 
       # test when batch_size = 1, that is, one sample only
-      ref = [3.34211]
-      input_lens = np.expand_dims(np.asarray([5]), 1)
-      label_lens = np.expand_dims(np.asarray([5]), 1)
+      ref = [7.277198]
+      input_lens = np.asarray([5])
+      label_lens = np.asarray([5])
 
       labels = np.asarray([[0, 1, 2, 1, 0]])
       inputs = np.asarray(
@@ -120,8 +125,10 @@ class LossUtilTest(tf.test.TestCase):
           labels=tf.constant(labels),
           logits=tf.constant(inputs),
           input_length=tf.constant(input_lens),
-          label_length=tf.constant(label_lens))
-      self.assertAllClose(loss.eval(), np.mean(ref), atol=1e-05)
+          label_length=tf.constant(label_lens),
+          blank_index=0)
+      self.assertAllClose(loss.eval(), ref, atol=1e-05)
+      self.assertAllClose(np.mean(loss.eval()), np.mean(ref), atol=1e-05)
 
   def test_crf_loss(self):
     ''' test crf loss '''
@@ -141,4 +148,5 @@ class LossUtilTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
+  logging.set_verbosity(logging.INFO)
   tf.test.main()

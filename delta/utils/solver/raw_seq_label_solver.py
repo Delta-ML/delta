@@ -33,8 +33,7 @@ class RawSeqLabelSolver(RawSolver):
     `score` and `input_y` are for loss calculation.
     `preds` and `y_ground_truth` are for metric calculation.
     """
-    model.preds, score = crf_decode(model.logits,
-                                    model.transitions,
+    model.preds, score = crf_decode(model.logits, model.transitions,
                                     model.input_x_len)
 
     model.score = tf.identity(score, name="score")

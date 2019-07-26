@@ -18,7 +18,7 @@ import tensorflow as tf
 import sys
 import os
 '''
-python tflite_convert.py saved_model_dir
+python3 tflite_convert.py saved_model_dir
 '''
 
 os.environ['CUDA_VISIBLE_DEVICES'] = ''

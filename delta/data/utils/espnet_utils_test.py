@@ -424,18 +424,20 @@ class KaldiJsonReaderTest(tf.test.TestCase):
         n_utts = data_metas['n_utts']
         self.assertEqual(n_utts, nexamples)
 
+        o_uttids = []
         o_xs = []
         o_ilens = []
         o_ys = []
         o_olens = []
         for _, batch in enumerate(batches):
           batch_data = converter(batch)
-          self.assertEqual(len(batch_data), 4)
+          self.assertEqual(len(batch_data), 5)
 
-          xs, ilens, ys, olens = batch_data
-          for x, ilen, y, olen in zip(xs, ilens, ys, olens):
+          xs, ilens, ys, olens, uttids = batch_data
+          for x, ilen, y, olen, uttid in zip(xs, ilens, ys, olens, uttids):
             self.assertDTypeEqual(x, np.float32)
             self.assertDTypeEqual(y, np.int64)
+            o_uttids.append(uttid)
             o_xs.append(x)
             o_ilens.append(ilen)
             o_ys.append(y)

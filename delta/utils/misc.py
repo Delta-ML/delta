@@ -17,6 +17,7 @@
 import os
 from absl import logging
 
+import numpy as np
 import tensorflow as tf
 #pylint: disable=no-name-in-module,no-member
 from tensorflow.python.client import device_lib

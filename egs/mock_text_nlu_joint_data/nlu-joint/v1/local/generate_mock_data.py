@@ -20,11 +20,11 @@ from delta.data.utils.test_utils import mock_a_text_file
 from delta.data.utils.test_utils import save_a_vocab_file
 
 # samples with label
-samples = ["0\tO O O\t 我 心情 低落",
-           "1\tO O B-ORG O O O\t我 在 肯德基 玩的 很 开心"]
+samples = ["0\tO O O O\t my feeling is low",
+           "1\tO O O O B-ORG\tI am happy in the KFC"]
 
-text_vocab_list = ["<unk>\t0", "</s>\t1", "我\t2", "在\t3",
-                   "肯德基\t4", "玩的\t5", "很\t6", "开心\t7"]
+text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "am\t3", "kfc\t4", "my\t5",
+                   "feeling\t6", "happy\t7", "is\t8", "low\t9", "in\t10", "the\t11"]
 
 
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file):

@@ -76,7 +76,7 @@ def conv2d(x, name, filter_size, in_channels, out_channels, strides):
         dtype=tf.float32,
         initializer=tf.contrib.layers.xavier_initializer())
     b = tf.get_variable(
-        name='bais',
+        name='bias',
         shape=[out_channels],
         dtype=tf.float32,
         initializer=tf.constant_initializer(0.0))

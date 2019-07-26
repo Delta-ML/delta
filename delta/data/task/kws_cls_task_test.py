@@ -63,7 +63,7 @@ class KwsClsTaskTest(tf.test.TestCase):
       for _ in range(2):
         output = sess.run(self.one_element)
         logging.info(output)
-        logging.info("output: {} {}".format(output.shape, output.dtype)) 
+        logging.info("output: {} {}".format(output.shape, output.dtype))
     '''
 
 

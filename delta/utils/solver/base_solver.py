@@ -169,6 +169,19 @@ class Solver(ABCSolver):
           tf.train.get_or_create_global_step(),
           boundaries=boundaries,
           values=values)
+    elif learning_type == 'warmup':
+      global_steps_int = tf.cast(tf.train.get_or_create_global_step(), tf.int32)
+      warmup_steps_int = tf.constant(lrconf['num_warmup_steps'], dtype=tf.int32)
+
+      global_steps_float = tf.cast(global_steps_int, tf.float32)
+      warmup_steps_float = tf.cast(warmup_steps_int, tf.float32)
+
+      warmup_percent_done = global_steps_float / warmup_steps_float
+      warmup_learning_rate = learning_rate * warmup_percent_done
+
+      is_warmup = tf.cast(global_steps_int < warmup_steps_int, tf.float32)
+      lr = (
+        (1.0 - is_warmup) * learning_rate + is_warmup * warmup_learning_rate)
     elif learning_type == 'const':
       lr = learning_rate
     else:
@@ -196,6 +209,8 @@ class Solver(ABCSolver):
       opt = tf.train.RMSPropOptimizer(learning_rate)
     elif method == 'gradientdecent':
       opt = tf.train.GradientDescentOptimizer(learning_rate)
+    elif method == 'lazyadam':
+      opt = tf.contrib.opt.LazyAdamOptimizer(learning_rate)
     elif method == 'yellowfin':
       opt = optimizer.YFOptimizer(learning_rate)
     else:

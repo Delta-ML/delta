@@ -19,11 +19,10 @@ import pickle
 from absl import logging
 import tensorflow as tf
 from delta.models.base_model import Model
-import delta.layers
 from delta.utils.register import registers
 
 
-# pylint: disable=too-few-public-methods, abstract-method
+# pylint: disable=too-few-public-methods, abstract-method,too-many-ancestors
 @registers.model.register
 class MatchRnn(Model):
   """Match texts with Rnn models."""
@@ -45,7 +44,7 @@ class MatchRnn(Model):
       self.embed_initializer = tf.random_uniform_initializer(-0.1, 0.1)
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-ancestors
 @registers.model.register
 class MatchRnnTextClassModel(MatchRnn):
   """Match texts model with Rnn and Attention."""
@@ -73,16 +72,13 @@ class MatchRnnTextClassModel(MatchRnn):
         embeddings_initializer=self.embed_initializer)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
-    '''attention in layers.attention'''
-    self.attn_layer = delta.layers.MatchAttention(config, name="attn_layer")
 
     self.lstm_left = tf.keras.layers.LSTM(
         self.lstm_num_units, return_sequences=True, name='lstm_left')
     self.lstm_right = tf.keras.layers.LSTM(
         self.lstm_num_units, return_sequences=True, name='lstm_right')
     self.concat = tf.keras.layers.Concatenate(axis=1)
-    self.lstm_merge = tf.keras.layers.LSTM(
-        self.lstm_num_units * 2, return_sequences=False, name='lstm_merge')
+
     self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
     self.outlayer = tf.keras.layers.Dense(self.fc_num_units, activation='tanh')
     self.tasktype = config['data']['task']['type']
@@ -102,14 +98,19 @@ class MatchRnnTextClassModel(MatchRnn):
     embedding = self.embed
     embed_left = embedding(input_left)
     embed_right = embedding(input_right)
+
     encoded_left = self.lstm_left(embed_left)
     encoded_right = self.lstm_right(embed_right)
-    #Attention layer
-    left_attn_vec = self.attn_layer((encoded_left, encoded_right))
-    concat = self.concat([left_attn_vec, encoded_right])
-    merged = self.lstm_merge(concat)
-    dropout = self.dropout(merged)
+
+    encoded_right = tf.transpose(encoded_right, [0, 2, 1])
+    left_right_sim = tf.matmul(encoded_left, encoded_right)
+    shape_list = left_right_sim.get_shape()
+    newdim = shape_list[1] * shape_list[2]
+    sim_matrix = tf.reshape(left_right_sim, [-1, newdim], name="sim_matrix")
+
+    dropout = self.dropout(sim_matrix)
     out = self.outlayer(dropout)
+
     scores = self.final_dense(out)
 
     return scores

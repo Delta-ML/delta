@@ -79,15 +79,16 @@ class registers():  # pylint: disable=invalid-name, too-few-public-methods
 TASK_MODULES = [
     "asr_seq_task", "kws_cls_task", "speech_cls_task", "speech_cls_task",
     "text_cls_task", "text_seq_label_task", "text_match_task",
-    "text_nlu_joint_task", "speaker_cls_task"
+    "text_nlu_joint_task", "speaker_cls_task", "text_seq2seq_task"
 ]
 
 MODLE_MODULES = [
     "speech_cls_rawmodel", "speech_cls_rawmodel", "speech_cls_rawmodel",
     "speaker_cls_rawmodel", "speech_cls_model", "speech_cls_model", "kws_model",
     "asr_model", "text_seq_model", "text_seq_model", "text_seq_model",
-    "text_hierarchical_model", "text_match_model", "text_seq_label_model",
-    "text_nlu_joint_model"
+    "text_hierarchical_model", "text_seq_label_model",
+    "resnet_model", "text_nlu_joint_model", "text_match_model", "text_seq_label_model",
+    "text_seq2seq_model",
 ]
 
 LOSS_MODULES = ["loss_impl"]
@@ -97,19 +98,19 @@ METRICS_MODULES = ["py_metrics"]
 SOLVER_MODULES = [
     "raw_cls_solver", "raw_match_solver", "keras_solver", "emotion_solver",
     "kws_solver", "asr_solver", "speaker_solver", "raw_seq_label_solver",
-    "raw_nlu_joint_solver"
+    "raw_nlu_joint_solver", "raw_seq2seq_solver"
 ]
 
 POSTPROCESS_MODULES = [
     "speech_cls_proc", "speaker_cls_proc", "text_cls_proc",
-    "text_seq_label_proc"
+    "text_seq_label_proc", "text_seq2seq_proc"
 ]
 
 SERVING_MODULES = ["knowledge_distilling"]
 
 PREPROCESS_MODULES = [
     "text_cls_preparer", "text_match_preparer", "text_seq_label_preparer",
-    "text_nlu_joint_preparer"
+    "text_nlu_joint_preparer", "text_seq2seq_preparer"
 ]
 
 ALL_MODULES = [("delta.data.task", TASK_MODULES),

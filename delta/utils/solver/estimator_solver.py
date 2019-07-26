@@ -321,7 +321,8 @@ class EstimatorSolver(ABCEstimatorSolver):
       })
     predictions.update(features)
     predictions.pop('audio', None)
-    predictions.update(extra_outputs)
+    if extra_outputs is not None:
+      predictions.update(extra_outputs)
 
     logging.info('predictions: {}'.format(predictions))
     return predictions

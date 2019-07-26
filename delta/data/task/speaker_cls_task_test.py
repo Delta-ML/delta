@@ -79,7 +79,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
           vocab_size: 5004 # vocab size
           max_text_len: 100 # max length for text
         classes:
-          num: 10
+          num: 2 
           vocab:
             normal: 0
             conflict: 1
@@ -235,8 +235,8 @@ class SpeakerClsTaskTest(tf.test.TestCase):
 
     # generate dummy data
     feat_dim = config['data']['task']['audio']['feature_size']
-    kaldi_dir_utils.gen_dummy_data_dir(dataset_path_str, 2, 2,
-                                       feat_dim=feat_dim)
+    kaldi_dir_utils.gen_dummy_data_dir(
+        dataset_path_str, 2, 2, feat_dim=feat_dim)
 
     solver_name = config['solver']['name']
     self.solver = registers.solver[solver_name](config)

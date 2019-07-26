@@ -14,14 +14,21 @@
 # limitations under the License.
 # ==============================================================================
 ''' sklearn metrics '''
+import os
 import abc
+from absl import logging
+import numpy as np
 from sklearn import metrics
 from seqeval.metrics import classification_report as seq_classification_report
 from delta.utils.register import registers
 from delta.utils.postprocess.postprocess_utils import ids_to_sentences
+from rouge import FilesRouge
+from sacrebleu import corpus_bleu
+from delta.utils.metrics import metric_utils
 
 
-# pylint: disable=too-few-public-methods
+
+#pylint: disable=too-few-public-methods
 class ABCMetric(metaclass=abc.ABCMeta):
   ''' abstract class of metric '''
 
@@ -127,6 +134,21 @@ class ClassReportCal(Metric):
 
 
 @registers.metric.register
+class TokenErrCal(Metric):
+  ''' token error '''
+
+  #pylint: disable=useless-super-delegation
+  def __init__(self, config):
+    super().__init__(config)
+
+  def call(self, y_true=None, y_pred=None, arguments=None):
+    ''' compute metric '''
+    eos_id = arguments['eos_id']
+    return metric_utils.token_error(
+        predict_seq_list=y_pred, target_seq_list=y_true, eos_id=eos_id)
+
+
+@registers.metric.register
 class CrfCal(Metric):
   ''' crf(ner) metric '''
 
@@ -140,7 +162,8 @@ class CrfCal(Metric):
     label_path_file = arguments["label_vocab_path"]
     return "\n" + seq_classification_report(
         ids_to_sentences(y_true, label_path_file),
-        ids_to_sentences(y_pred, label_path_file), digits=4)
+        ids_to_sentences(y_pred, label_path_file),
+        digits=4)
 
 
 def run_metrics_for_one_output(metric_config, y_true=None, y_pred=None):
@@ -153,6 +176,64 @@ def run_metrics_for_one_output(metric_config, y_true=None, y_pred=None):
     metric_score = calculator(y_true=y_true, y_pred=y_pred, arguments=arguments)
     score[metric_name] = metric_score
   return score
+
+@registers.metric.register
+class BleuCal(Metric):
+  ''' rouge metric'''
+
+  def __init__(self, config):
+    super().__init__(config)
+    print(config.keys())
+    self.hyp_path = self.config["res_file"]
+    self.tgt_paths = self.config['target_file']
+
+  def call(self, y_true=None, y_pred=None, arguments=None):
+    with open(self.tgt_paths[0]) as ref, open(self.hyp_path) as hyp:
+      bleu = corpus_bleu(hyp, [ref])
+      return "\n bleu:" + str(bleu.score)
+
+
+@registers.metric.register
+class RougeCal(Metric):
+  ''' rouge metric'''
+
+  def __init__(self, config):
+    super().__init__(config)
+    print(config.keys())
+    self.hyp_path = self.config["res_file"]
+    self.ref_path = self.hyp_path + '.gt'
+    self.tgt_paths = self.config['target_file']
+    self.label_path_file = self.config["text_vocab"]
+    self.tgt_paths_after_pre_process = [
+      one_path + ".after" for one_path in self.tgt_paths
+    ]
+
+  def call(self, y_true=None, y_pred=None, arguments=None):
+    ref_sents = []
+    for tgt_path in self.tgt_paths_after_pre_process:
+      with open(tgt_path, "r", encoding='utf8') as tgt_f:
+        ref_sents.extend(tgt_f.readlines())
+    ref_sents = [sent.strip() for sent in ref_sents]
+
+    with open(self.ref_path, "w", encoding="utf-8") as in_f:
+        for ref_sent in ref_sents:
+          in_f.write(ref_sent)
+          in_f.write("\n")
+
+    files_rouge = FilesRouge(self.hyp_path, self.ref_path)
+    scores = files_rouge.get_scores(avg=True)
+    return self.get_scores_output(scores)
+
+  @staticmethod
+  def get_scores_output(score_dict):
+    res = '\n'
+    for rouge_mode in ['rouge-1', 'rouge-2', 'rouge-l']:
+      res += '-' * 30 + '\n'
+      for metric in ['f', 'p', 'r']:
+        res += '{}\tAverage_{}:\t{:.5f}\n'.format(rouge_mode.upper(),
+                                               metric.upper(),
+                                               score_dict[rouge_mode][metric])
+    return res
 
 
 def get_metrics(config, y_true=None, y_pred=None):

@@ -20,6 +20,7 @@ import copy
 import threading
 import itertools
 import functools
+import random
 from collections import defaultdict
 
 import librosa
@@ -60,8 +61,11 @@ class SpeechClsTask(SpeechTask):
 
     self._data_path = self.dataconf[mode]['paths']
     logging.info("data_path : {}".format(self._data_path))
-    self._textgrid_path = self.dataconf[mode]['segments'] if self.dataconf[
-        mode]['segments'] else []
+    if 'segments' in self.dataconf[
+        mode] and self.dataconf[mode]['segments'] is not None:
+      self._textgrid_path = self.dataconf[mode]['segments']
+    else:
+      self._textgrid_path = []
 
     self._file_suffix = self.taskconf['suffix']
     assert self._file_suffix in ['.wav', '.npy'], "Only support wav and npy"
@@ -155,7 +159,7 @@ class SpeechClsTask(SpeechTask):
     samples_per_clip = self._sample_rate * self._clip_size
     return samples_per_clip
 
-  def _sample_to_frame(self, samples):
+  def sample_to_frame(self, samples):
     ''' sample num to frame num'''
     nframe = librosa.core.samples_to_frames(
         samples,
@@ -165,7 +169,7 @@ class SpeechClsTask(SpeechTask):
   @property
   def nframe(self):
     ''' num frames'''
-    return self._sample_to_frame(self.example_len)
+    return self.sample_to_frame(self.example_len)
 
   @staticmethod
   def feat_output_shape(config):
@@ -189,7 +193,6 @@ class SpeechClsTask(SpeechTask):
           config['task']['audio']['sr'] * config['task']['audio']['clip_size']
       ]
     config['task']['audio']['feature_shape'] = feature_shape
-
     return feature_shape
 
   @property
@@ -285,7 +288,6 @@ class SpeechClsTask(SpeechTask):
     sums, square, count = utils.create_cmvn_statis(
         self.taskconf['audio']['feature_size'],
         self.taskconf['audio']['add_delta_deltas'])
-
     try:
       with tf.Session() as sess:
         while True:
@@ -323,6 +325,7 @@ class SpeechClsTask(SpeechTask):
     for root, dirnames, filenames in os.walk(self._data_path[0]):
       classes = dirnames
       break
+
     assert classes, 'can not acsess {}'.format(self._data_path[0])
     assert set(classes) == set(self._classes.keys()), '{} {}'.format(
         classes, self._classes.keys())
@@ -336,7 +339,6 @@ class SpeechClsTask(SpeechTask):
 
     # to exclude some data under some dir
     excludes = []
-
     #pylint: disable=too-many-nested-blocks
     for data_path in self._data_path:
       logging.debug("data path: {}".format(data_path))
@@ -360,9 +362,10 @@ class SpeechClsTask(SpeechTask):
           else:
             pass
 
-    logging.info("class file: {}".format(self._class_file))
-    assert self._class_file, "maybe the suffix {} file not exits".format(
-        self._file_suffix)
+    if not self._class_file:
+      logging.debug("class file: {}".format(self._class_file))
+      logging.warn("maybe the suffix {} file not exits".format(
+          self._file_suffix))
 
   def save_csv_files_duration(self, save_file='./filelist.csv', force=False):
     ''' save meta data to csv '''
@@ -555,9 +558,6 @@ class SpeechClsTask(SpeechTask):
                                                                sub_segs))
       return seg_index
 
-    self._train_meta = []
-    self._train_label_example = defaultdict(list)
-
     def _generate_online():
       ''' generate clips of file '''
       class_file = self._class_file_train
@@ -577,13 +577,15 @@ class SpeechClsTask(SpeechTask):
           self._train_meta.append(example)
           self._train_label_example[label].append(example)
 
+    self._train_meta = []
+    self._train_label_example = defaultdict(list)
+
     _generate_online()
 
-  def over_sampling(self, datatype='train', ratio=(1.0, 1.0)):
+  def over_sampling(self, datatype='train', ratio=1.0):
     ''' over sampling
-        Args:
-          ratio: list, first for negtive, second for positive
-        '''
+    prams: ratio: float, adjust of positive example by ratio when do two classes task
+    '''
     assert datatype == 'train'
 
     def _balance(raw_labels):
@@ -591,14 +593,19 @@ class SpeechClsTask(SpeechTask):
       labels_len = {k: len(v) for k, v in raw_labels.items()}
       logging.info('label_len: {}'.format(labels_len))
       logging.info('ratio: {}'.format(ratio))
+
       maxlen = max(labels_len.values())
-      pos_len = int(maxlen * (ratio[-1] - ratio[0]))
       gaps = {k: maxlen - v for k, v in labels_len.items()}
       logging.info('gaps need: {}'.format(gaps))
-      for k in gaps:
-        if k == self.taskconf['classes']['positive']:
-          gaps[k] += pos_len
-      logging.info('gaps by ratio: {}'.format(gaps))
+
+      if self.taskconf['classes']['num'] == 2:
+        #for two classes, adjust postive example weight by ratio
+        pos_len = int(maxlen * abs(ratio - 1))
+        maxlen = maxlen + pos_len
+        for k in gaps:
+          if k == self.taskconf['classes']['positive']:
+            gaps[k] += pos_len
+        logging.info('gaps by ratio: {}'.format(gaps))
 
       for k in raw_labels:
         raw_len = int(len(raw_labels[k]))
@@ -615,7 +622,7 @@ class SpeechClsTask(SpeechTask):
       return maxlen, labels
 
     maxlen, labels = _balance(self._train_label_example)
-    assert all([len(v) == maxlen for _, v in labels.items()])
+    assert all([len(v) <= maxlen for _, v in labels.items()])
     self._train_meta = list(itertools.chain(*labels.values()))
 
   def collect_by_filename(self):
@@ -648,7 +655,6 @@ class SpeechClsTask(SpeechTask):
 
     logging.info("Cut clips and extract features ")
     self.class_features(segments_path=self._textgrid_path)
-
     if utils.TRAIN in mode:
       logging.info("Blance classes exmales of train dataset ")
       self.over_sampling()
@@ -685,7 +691,7 @@ class SpeechClsTask(SpeechTask):
     ''' generate one example'''
     use_text = self.taskconf['text']['enable']
 
-    #logging.info("generate data")
+    # total files
     total = len(self._train_by_filename.values())
     self._epoch += 1  # epcoh from 1
 
@@ -705,6 +711,7 @@ class SpeechClsTask(SpeechTask):
       if self._file_suffix == '.wav':
         sr, raw_samples = feat_lib.load_wav(filename)  #pylint: disable=invalid-name
         for label, seg, clip_id in examples:
+          # examples of one file
           samples = raw_samples
           if seg[2]:
             samples = np.pad(samples, [0, seg[2]], mode='constant')
@@ -734,22 +741,25 @@ class SpeechClsTask(SpeechTask):
         # shape : [nframe, feat_size, 3]
         if self._feature_type:
           fbank = feat_lib.add_delta_delta(feat, self._feature_size, order=2)
+          if self._input_channels == 1:
+            fbank = fbank[:, :, 0:1]
         else:
           fbank = feat_lib.delta_delta(feat)
 
         for label, seg, clip_id in examples:
           feat = fbank
-          logging.info("feat shape: {}".format(feat.shape))
+          #logging.info("feat shape: {}".format(feat.shape))
 
-          seg = list(map(self._sample_to_frame, seg))
+          seg = list(map(self.sample_to_frame, seg))
           if seg[2]:
             # need padding
             feat = np.pad(feat, [(0, seg[2]), (0, 0), (0, 0)], mode='constant')
+
           feat = feat[seg[0]:seg[1], :, :]
-          assert len(feat) == self._sample_to_frame(
-              self.example_len), "{} {} {} {} {}".format(
+          assert len(feat) == self.sample_to_frame(
+              self.example_len), "{} {} {} {} {} {}".format(
                   filename, seg, len(feat), self.example_len,
-                  self._sample_to_frame(self.example_len))
+                  self.sample_to_frame(self.example_len), seg[2])
 
           if self.use_distilling:
             soft_label = self.teacher(feat)
@@ -769,8 +779,8 @@ class SpeechClsTask(SpeechTask):
             batch.append(
                 (feat, text2id, labelid, filename, clip_id, soft_label))
 
-      #if i % 10000:
-      #  sys.stderr.write('\r epoch:{} iter:{} total:{}:{:.2f}%'.format(
+      #if i % 100000:
+      #  logging.info('epoch:{} iter exmaple:{} total:{} : {:.2f}%'.format(
       #     self._epoch, i, total, i * 100 / total))
 
       for inputs, texts, label, filepath, clip_id, soft_label in batch:
@@ -784,6 +794,7 @@ class SpeechClsTask(SpeechTask):
   def feature_spec(self):
     class_num = self.taskconf['classes']['num']
     if self.input_type == 'samples':
+      # wavforms
       output_shapes = (
           tf.TensorShape([self.example_len]),
           tf.TensorShape([self.max_text_len]),
@@ -793,6 +804,7 @@ class SpeechClsTask(SpeechTask):
           tf.TensorShape([class_num]),  # soft_label
       )
     else:
+      # features
       output_shapes = (
           tf.TensorShape(self.feature_shape),  # audio_feat (3000, 40, 3)
           tf.TensorShape([self.max_text_len]),  # text
@@ -844,3 +856,103 @@ class SpeechClsTask(SpeechTask):
         tf.data.experimental.map_and_batch(
             make_example, batch_size,
             drop_remainder=False)).prefetch(tf.contrib.data.AUTOTUNE)
+
+
+@registers.task.register
+class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
+  ''' iemocap dataset '''
+
+  def __init__(self, config, mode):
+    super().__init__(config, mode)
+    self.shuffle = True
+    self.batch_size = self.config['solver']['optimizer']['batch_size']
+
+    self.examples_meta = []
+    for _, (filename, examples) in enumerate(self.data_items):
+      for label, seg, clip_id in examples:
+        if clip_id == 0:
+          self.examples_meta.append((filename, label, seg))
+
+    self.num_examples = len(self.examples_meta)
+
+    self.on_epoch_end()
+
+  def __len__(self):
+    ''' the number of examples '''
+    steps_per_epoch = (len(self.examples_meta) -
+                       self.batch_size) / self.batch_size + 1
+    return int(steps_per_epoch)
+
+  def on_epoch_end(self):
+    ''' update indexes after each epoch'''
+    self.indexes = np.arange(len(self.examples_meta))
+    if self.shuffle:
+      np.random.shuffle(self.indexes)
+
+  #pylint: disable=too-many-locals
+  def __getitem__(self, batch_index):
+    ''' get batch_index's batch data '''
+    assert self._file_suffix == '.npy'
+
+    logging.debug(f'''
+        batch_index: {batch_index},
+        num_batches: {len(self)},
+        num exapmples: {self.num_examples},
+        label dict: {self.classes}''')
+    indexes = self.indexes[batch_index * self.batch_size:(batch_index + 1) *
+                           self.batch_size]
+    #logging.info(f"examples meta: {self.examples_meta}")
+    batch_meta = [self.examples_meta[i] for i in indexes]
+
+    if self.shuffle:
+      random.shuffle(batch_meta)
+
+    logging.debug(f"batch metah: {batch_meta}")
+    feats = []
+    labels = []
+    filenames = []
+    for _, (filename, label, seg) in enumerate(batch_meta):
+      feat = np.load(filename)
+
+      # shape : [nframe, feat_size, 3]
+      feat = feat_lib.add_delta_delta(feat, self._feature_size, order=2)
+      if self.feature_shape[-1] == 1:
+        feat = feat[:, :, 0:1]
+
+      seg = list(map(self.sample_to_frame, seg))
+      if seg[2]:
+        # need padding
+        feat = np.pad(feat, [(0, seg[2]), (0, 0), (0, 0)], mode='constant')
+
+      feat = feat[seg[0]:seg[1], :, :]
+      assert len(feat) == self.sample_to_frame(
+          self.example_len), "{} {} {} {} {} {}".format(
+              filename, seg, len(feat), self.example_len,
+              self.sample_to_frame(self.example_len), seg[2])
+
+      # convert string label to int label
+      labelid = self.class_id(label)
+
+      feats.append(feat)
+      filenames.append(filename)
+      labels.append(labelid)
+
+    features = {
+        'inputs': np.array(feats, dtype=np.float64),
+        'labels': np.array(labels, dtype=np.int32),
+    }
+
+    one_hot_label = np.array(labels, dtype=np.int32)
+    one_hot_label = tf.keras.utils.to_categorical(
+        one_hot_label, num_classes=len(self.classes))
+    return features, one_hot_label
+
+  def batch_input_shape(self):
+    ''' batch input TensorShape'''
+    feat, label = self.__getitem__(0)
+    feat_shape = {}
+    for key, val in feat.items():
+      feat_shape[key] = tf.TensorShape((None,) + val.shape[1:])
+
+    label_shape = tf.TensorShape((None,) + label.shape[1:])
+    return feat_shape, label_shape

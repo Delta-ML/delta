@@ -20,8 +20,8 @@ data:
       done_sign: "egs/mock_text_match_data/text_match/v1/exp/prepare.done"
       reuse: true
     use_dense: false
-    language: chinese
-    vocab_min_frequency: 5
+    language: english
+    vocab_min_frequency: 0
     split_by_space: false
     use_word: true
     use_custom_vocab: true
@@ -32,7 +32,7 @@ data:
     num_prefetch_batch: 2
     shuffle_buffer_size: 15000
     need_shuffle: true
-    batch_size: 32
+    batch_size: 30
     epochs: 1
     classes:
       positive_id: 1

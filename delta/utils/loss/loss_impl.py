@@ -18,6 +18,7 @@ import tensorflow as tf
 
 from delta.utils.loss.base_loss import Loss
 from delta.utils.loss.loss_utils import cross_entropy
+from delta.utils.loss.loss_utils import mask_sequence_loss
 from delta.utils.loss.loss_utils import ctc_lambda_loss
 from delta.utils.loss.loss_utils import crf_log_likelihood
 
@@ -113,11 +114,13 @@ class CTCLoss(Loss):
            **kwargs):
 
     del soft_labels
+    blank_index = kwwargs.get('blank_index', 0)
     return ctc_lambda_loss(
         logits=logits,
         input_length=input_length,
         labels=labels,
-        label_length=label_length)
+        label_length=label_length,
+        blank_index=blank_index)
 
 
 @registers.loss.register
@@ -142,4 +145,24 @@ class CrfLoss(Loss):
     loss, _ = crf_log_likelihood(tags_scores, labels, input_length,
                                  model.transitions)
 
+    return loss
+
+
+@registers.loss.register
+class SequenceCrossEntropyLoss(Loss):
+  ''' cross entropy loss for sequence to sequence '''
+
+  def __init__(self, config):
+    super().__init__(config)
+
+  #pylint: disable=too-many-arguments
+  def call(self,
+           logits=None,
+           input_length=None,
+           labels=None,
+           label_length=None,
+           soft_labels=None):
+
+    del soft_labels
+    loss = mask_sequence_loss(logits, labels, input_length, label_length)
     return loss

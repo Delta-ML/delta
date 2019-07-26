@@ -43,23 +43,23 @@ class TextMatchTaskTest(tf.test.TestCase):
 
   # pylint: disable=too-many-locals
 
-  def test_chinese_split_by_space(self):
-    """ test match task of chiniese data, split sentences by space"""
-
+  def test_english(self):
+    """ test text match task of english data """
     config = utils.load_config(self.config_file)
     max_seq_len = config["data"]["task"]["max_seq_len"]
     class_num = config["data"]["task"]["classes"]["num_classes"]
     batch_size = config["data"]["task"]["batch_size"]
     data_config = config["data"]
     task_config = data_config["task"]
-    task_config["language"] = "chinese"
+    task_config["language"] = "english"
     task_config["split_by_space"] = False
     task_config["use_word"] = True
     task_config[
-        "text_vocab"] = "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt"
+      "text_vocab"] = "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt"
     task_config["need_shuffle"] = False
 
     # generate_mock_files(config)
+
     task = TextMatchTask(config, utils.TRAIN)
 
     # test offline data
@@ -69,32 +69,29 @@ class TextMatchTaskTest(tf.test.TestCase):
                     "input_x_right" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
+   # with self.session() as sess:
+    #  sess.run(data["iterator"].initializer)
     with self.session() as sess:
       sess.run([data["iterator"].initializer, data["iterator_len"].initializer],
                feed_dict=data["init_feed_dict"])
-      res = sess.run([
-          data["input_x_dict"]["input_x_left"],
-          data["input_x_dict"]["input_x_right"],
-          data["input_y_dict"]["input_y"],
-          data["input_x_len"]["input_x_left_len"],
-          data["input_x_len"]["input_x_right_len"],
-      ])
-
+      res = sess.run([data["input_x_dict"]["input_x_left"],
+                      data["input_x_dict"]["input_x_right"],
+                      data["input_y_dict"]["input_y"],
+                      data["input_x_len"]["input_x_left_len"],
+                      data["input_x_len"]["input_x_right_len"],])
       logging.debug(res[0][0][:10])
       logging.debug(res[1][0])
       logging.debug(res[2][0])
       logging.debug(res[3])
       logging.debug(res[4])
 
-      self.assertAllEqual(res[0][0][:10], [11, 12, 13, 0, 0, 0, 0, 0, 0, 0])
+      self.assertAllEqual(res[0][0][:10], [4, 12, 13, 0, 0, 0, 0, 0, 0, 0])
       self.assertEqual(np.shape(res[0]), (batch_size, max_seq_len))
       self.assertEqual(np.shape(res[1]), (batch_size, max_seq_len))
       self.assertEqual(np.shape(res[2]), (batch_size, class_num))
       self.assertEqual(np.shape(res[3]), (batch_size,))
       self.assertEqual(np.shape(res[4]), (batch_size,))
-
     # test online data
-
     export_inputs = task.export_inputs()
     self.assertTrue("export_inputs" in export_inputs and
                     "input_sent_left" in export_inputs["export_inputs"] and
@@ -105,16 +102,15 @@ class TextMatchTaskTest(tf.test.TestCase):
     input_x_left = export_inputs["model_inputs"]["input_x_left"]
     input_x_right = export_inputs["model_inputs"]["input_x_right"]
     with self.session() as sess:
+     # sess.run(data["iterator"].initializer)
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
       res1, res2 = sess.run([input_x_left, input_x_right],
-                            feed_dict={
-                                input_sent_left: ["这是一部不错的电影。"],
-                                input_sent_right: ["我爱中国。"]
-                            })
+                            feed_dict={input_sent_left: ["How should I approach forgiveness?"],
+                                       input_sent_right: ["I got chickenpox as a child."]})
       logging.debug(res1[0][:10])
       logging.debug(res2[0][:10])
       self.assertAllEqual(res1[0][:10], [2, 3, 4, 5, 6, 0, 0, 0, 0, 0])
-      self.assertAllEqual(res2[0][:10], [11, 12, 13, 0, 0, 0, 0, 0, 0, 0])
+      self.assertAllEqual(res2[0][:10], [4, 7, 8, 9, 10, 11, 0, 0, 0, 0])
       self.assertEqual(np.shape(res1[0]), (max_seq_len,))
       self.assertEqual(np.shape(res2[0]), (max_seq_len,))
 

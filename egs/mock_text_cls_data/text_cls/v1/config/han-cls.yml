@@ -17,7 +17,7 @@ data:
       done_sign: "egs/mock_text_cls_data/text_cls/v1/exp/prepare.done"
       reuse: true
     use_dense: false
-    language: chinese
+    language: english
     use_word: true
     vocab_min_frequency: 20
     use_custom_vocab: True

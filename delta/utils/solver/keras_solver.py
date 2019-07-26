@@ -27,10 +27,10 @@ from delta.utils.solver.base_solver import Solver
 
 from delta import utils
 from delta.utils.register import registers
-from delta.utils.solver.solver_utils import get_checkpoint_dir
-from delta.utils.solver.solver_utils import get_session_conf
-from delta.utils.solver.solver_utils import to_saved_model
-from delta.utils.solver.solver_utils import save_infer_res
+from delta.utils.solver.utils.solver_utils import get_checkpoint_dir
+from delta.utils.solver.utils.solver_utils import get_session_conf
+from delta.utils.solver.utils.solver_utils import to_saved_model
+from delta.utils.solver.utils.solver_utils import save_infer_res
 
 
 @registers.solver.register

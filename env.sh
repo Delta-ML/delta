@@ -17,9 +17,12 @@ fi
 export KALDI_ROOT=$MAIN_ROOT/tools/kaldi
 export ESPNET_ROOT=$MAIN_ROOT/tools/espnet
 
+# using env python, not kaldi tools python
+OLD_PATH=$PATH
+
 # Kaldi
 [ -f $KALDI_ROOT/tools/env.sh  ] && . $KALDI_ROOT/tools/env.sh
-export PATH=$MAIN_ROOT/utils/:$KALDI_ROOT/tools/openfst/bin:$KALDI_ROOT/tools/sctk/bin:$MAIN_ROOT:$PATH
+export PATH=$PATH:$MAIN_ROOT/utils/:$KALDI_ROOT/tools/openfst/bin:$KALDI_ROOT/tools/sctk/bin:$MAIN_ROOT
 if [ ! -f $KALDI_ROOT/tools/config/common_path.sh ]; then 
   echo >&2 "Warning: Kaldi: The standard file $KALDI_ROOT/tools/config/common_path.sh is not present" 
 else
@@ -27,8 +30,9 @@ else
 fi
 
 # espnet
-export PATH=$PATH:$ESPNET_ROOT/utils:$ESPNET_ROOT/bin:$MAIN_ROOT/utils
+export PATH=$OLD_PATH:$PATH:$ESPNET_ROOT/utils:$ESPNET_ROOT/bin:$MAIN_ROOT/utils
 export OMP_NUM_THREADS=1
 
+
 # delta
-export PYTHONPATH=$MAIN_ROOT:$MAIN_ROOT/tools/espnet
+export PYTHONPATH=${PYTHONPATH}:$MAIN_ROOT:$MAIN_ROOT/tools/espnet

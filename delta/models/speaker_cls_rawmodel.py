@@ -244,7 +244,7 @@ class SpeakerCRNNRawModel(RawModel):
       outputs = x
     return outputs
 
-  def stats_pooling_layer(self, x): # pylint: disable=no-self-use
+  def stats_pooling_layer(self, x):  # pylint: disable=no-self-use
     '''
       Statistics pooling layer.
       Input: [NHW]

@@ -42,7 +42,6 @@ class TextClsTaskTest(tf.test.TestCase):
 
   def test_english(self):
     config = utils.load_config(self.config_file)
-    max_len = config["model"]["net"]["structure"]["max_len"]
     class_num = config["data"]["task"]["classes"]["num_classes"]
     task_config = config["data"]["task"]
     task_config["language"] = "english"
@@ -146,7 +145,6 @@ class TextClsTaskTest(tf.test.TestCase):
 
   def test_chinese_split_by_space(self):
     config = utils.load_config(self.config_file)
-    max_len = config["model"]["net"]["structure"]["max_len"]
     class_num = config["data"]["task"]["classes"]["num_classes"]
     data_config = config["data"]
     task_config = data_config["task"]
@@ -201,7 +199,6 @@ class TextClsTaskTest(tf.test.TestCase):
 
   def test_chinese_word(self):
     config = utils.load_config(self.config_file)
-    max_len = config["model"]["net"]["structure"]["max_len"]
     class_num = config["data"]["task"]["classes"]["num_classes"]
     data_config = config["data"]
     task_config = data_config["task"]

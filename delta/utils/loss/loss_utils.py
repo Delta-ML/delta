@@ -15,7 +15,6 @@
 # ==============================================================================
 ''' loss implementation function '''
 import tensorflow as tf
-from tensorflow.keras import backend as K  #pylint: disable=import-error
 
 from delta import utils
 
@@ -53,7 +52,7 @@ def cross_entropy(logits,
   return loss
 
 
-def ctc_lambda_loss(logits, labels, input_length, label_length, smoothing=0.0):
+def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
   '''
   ctc loss function
   psram: logits, (B, T, D)
@@ -62,30 +61,34 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, smoothing=0.0):
   psram: label_length,  (B, 1), label length for convert dense label to sparse
   returns: loss, scalar
   '''
-  del smoothing
-
   ilen = tf.cond(
       pred=tf.equal(tf.rank(input_length), 1),
-      true_fn=lambda: tf.expand_dims(input_length, axis=-1),
-      false_fn=lambda: input_length,
+      true_fn=lambda: input_length,
+      false_fn=lambda: tf.squeeze(input_length),
   )
   olen = tf.cond(
       pred=tf.equal(tf.rank(label_length), 1),
-      true_fn=lambda: tf.expand_dims(label_length, axis=-1),
-      false_fn=lambda: label_length,
-  )
+      true_fn=lambda: label_length,
+      false_fn=lambda: tf.squeeze(label_length))
   deps = [
       tf.assert_rank(labels, 2),
       tf.assert_rank(logits, 3),
-      tf.assert_rank(ilen, 2),  # input_length
-      tf.assert_rank(olen, 2),  # output_length
+      tf.assert_rank(ilen, 1),  # input_length
+      tf.assert_rank(olen, 1),  # output_length
   ]
+
   with tf.control_dependencies(deps):
     # (B, 1)
-    batch_loss = K.ctc_batch_cost(labels, logits, ilen, olen)
-    loss = tf.reduce_mean(batch_loss)
-
-  return loss
+    # blank index is consistent with Espnet, zero
+    batch_loss = tf.nn.ctc_loss_v2(
+        labels,
+        logits,
+        ilen,
+        olen,
+        logits_time_major=False,
+        blank_index=blank_index)
+    batch_loss.set_shape([None])
+  return batch_loss
 
 
 def crf_log_likelihood(tags_scores, labels, input_length, transitions):
@@ -105,3 +108,23 @@ def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   loss = tf.reduce_mean(-log_likelihood)
 
   return loss, transition_params
+
+
+def mask_sequence_loss(logits, labels, input_length, label_length, smoothing=0.0):
+  '''
+  softmax cross entropy loss for sequence to sequence
+  :param logits: [batch_size, max_seq_len, vocab_size]
+  :param labels: [batch_size, max_seq_len]
+  :param input_length: [batch_size]
+  :param label_length: [batch_size]
+  :return: loss, scalar
+  '''
+  del smoothing
+  del input_length
+
+  if label_length is not None:
+    weights = tf.cast(utils.len_to_mask(label_length), tf.float32)
+  else:
+    weights = tf.ones_like(labels)
+  loss = tf.contrib.seq2seq.sequence_loss(logits, labels, weights)
+  return loss

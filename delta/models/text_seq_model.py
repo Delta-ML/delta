@@ -203,7 +203,7 @@ class TransformerModel(SeqclassModel):
   """Transformer model for text classification"""
 
   def __init__(self, config, **kwargs):
-    super(TransformerModel, self).__init__(config, **kwargs)
+    super().__init__(config, **kwargs)
     logging.info("Initialize TransformerModel...")
 
     self.vocab_size = config['data']['vocab_size']
@@ -232,14 +232,7 @@ class TransformerModel(SeqclassModel):
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
-    self.transformers = [
-        layers.TransformerEncoder(
-            self.head_num,
-            self.hidden_dim,
-            self.embedding_size,
-            dropout_rate=self.transformer_dropout,
-            residual_conn=self.residual_conn) for _ in range(self.num_layers)
-    ]
+    self.transformer_encoder = layers.TransformerEncoder(config)
 
     self.pool = tf.keras.layers.GlobalMaxPooling1D()
 
@@ -254,16 +247,15 @@ class TransformerModel(SeqclassModel):
     if self.use_dense_task:
       dense_input = inputs["input_dense"]
 
-    mask = self.mask_layer(input_x)
+    enc_mask = self.mask_layer(input_x)
     emb = self.embed(input_x)
     pos_emb = self.pos_embed(emb)
     emb = tf.keras.layers.add([emb, pos_emb])
-    out = self.embed_d(emb, training=training)
+    enc_emb = self.embed_d(emb, training=training)
 
-    for transformer_layer in self.transformers:
-      out = transformer_layer(out, training=training, mask=mask)
+    enc_out = self.encoder(enc_emb, training=training, mask=enc_mask)
 
-    out = self.pool(out)
+    out = self.pool(enc_out)
 
     if self.use_dense_input:
       dense_out = self.dense_input_linear(dense_input)

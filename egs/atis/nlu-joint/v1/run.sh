@@ -13,5 +13,5 @@ fi
 
 if [ ${start_stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     # generate data with standard format
-    python local/summary_data.py $data/train.txt $data/test.txt || exit 1
+    python3 local/summary_data.py $data/train.txt $data/test.txt || exit 1
 fi
