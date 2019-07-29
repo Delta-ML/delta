@@ -6,6 +6,8 @@ services:
 before_install:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"
+  - pwd
+  - whoami
   - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
   - docker run -it -d --name travis_con zh794390558/delta:1.14.0-ci-cpu-py3 bash
   - docker exec travis_con bash -c "cd /home/gitlab-runner; git clone --depth=1 https://github.com/didi/delta.git; git checkout $BRANCH"
