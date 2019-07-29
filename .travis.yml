@@ -4,17 +4,14 @@ services:
   - docker
 
 before_install:
-  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"
-  - pwd
-  - whoami
+  - export DELTA_PATH=`pwd`; echo $DELTA_PATH
+  - export DOCKER_DELTA="/home/gatlab-runner/delta"; echo $DOCKER_DELTA
   - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
-  - docker run -it -d --name travis_con zh794390558/delta:1.14.0-ci-cpu-py3 bash
-  - docker exec travis_con bash -c "cd /home/gitlab-runner; git clone --depth=1 https://github.com/didi/delta.git; git checkout $BRANCH"
+  - docker run -it -d --name travis_con -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
 
 script:
-  - docker exec travis_con bash -c "cd /home/gitlab-runner/delta; source env.sh"
-  - docker exec travis_con bash -c "cd /home/gitlab-runner/delta/tools; make basic check_install test"
-  - docker exec travis_con bash -c "cd /home/gitlab-runner/delta; bash tools/test/python_test.sh"
-  - docker exec travis_con bash -c "cd /home/gitlab-runner/delta; bash tools/test/cpp_test.sh"
-  - docker exec travis_con bash -c "cd /home/gitlab-runner/delta; bash tools/test/lint.sh"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/python_test.sh"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/lint.sh"
