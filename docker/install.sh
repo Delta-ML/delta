@@ -1,10 +1,13 @@
-#!/bin/bash
 apt-get update && apt-get install -y \
-        sudo \
-        git \
         autoconf\
         automake \
-        libtool \
+        clang-format \
         curl \
+        git \
+        libtool \
+        sudo \
+        sox \
+        tig \
         make \
+        vim \
         unzip
