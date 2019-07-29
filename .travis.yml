@@ -7,9 +7,8 @@ before_install:
   - export DELTA_PATH=`pwd`; echo $DELTA_PATH
   - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
   - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
-  - docker run -it -d --name travis_con -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
+  - docker run -it -d --name travis_con --privileged=true -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
-  - pwd; cd tools; touch test.done
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; touch test.done"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
 
