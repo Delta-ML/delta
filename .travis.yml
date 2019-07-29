@@ -6,11 +6,10 @@ services:
 before_install:
   - export DELTA_PATH=`pwd`; echo $DELTA_PATH
   - export DOCKER_DELTA="/home/gatlab-runner/delta"; echo $DOCKER_DELTA
+  - touch test.done
   - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
   - docker run -it -d --name travis_con -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
-  - ls -l
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
-  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; ls -l"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
 
 script:
