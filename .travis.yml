@@ -9,6 +9,7 @@ before_install:
   - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
   - docker run -it -d --name travis_con -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; touch test.done"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
 
 script:
