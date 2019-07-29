@@ -27,10 +27,9 @@ fi
 
 TAG=1.14.0-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
-PIP_INSTALL="pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
+PIP_INSTALL="sudo pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
 
 on_exit() {
-  rm requirements.txt
   if [ $SAVE_DOCKERFILE == false ];then
     rm $DOCKERFILE 
   fi
@@ -42,7 +41,7 @@ if [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'deltann' ];then
   IMAGE=tensorflow/tensorflow:devel-py3
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'deltann' ];then
   IMAGE=tensorflow/tensorflow:devel-gpu-py3
-elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci'];then
+elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
   IMAGE=tensorflow/tensorflow:1.14.0-py3
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
   IMAGE=tensorflow/tensorflow:1.14.0-gpu-py3
@@ -52,7 +51,6 @@ else
 fi
 
 # generate dockerfile
-cp ../sources.list.ubuntu18.04 .
 cp $MAIN_ROOT/tools/requirements.txt .
 
 
