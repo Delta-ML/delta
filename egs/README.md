@@ -12,7 +12,7 @@ All examples are under directory `egs` and named by its name of dataset. All dat
 | [SNIL](egs/snil) | Sentence Matching | Stanford Natural Language Inference corpus is a new, freely available collection of labeled sentence pairs, written by humans doing a novel grounded task based on image captioning.  |
 | [Quora_QP](egs/quora_qp) | Sentence Matching | Data collected from the quara platform. Quora is a place to gain and share knowledge—about anything. |
 | [Yahoo_Answer](egs/yahoo_answer) | Document Classification | Yahoo answers are obtained from (Zhang et al., 2015). This is a topic classification task with 10 classes. The document we use includes question titles, question contexts and best answers. |
-
+| [Trec](egs/tres) | Document Classification | This data collection contains all the data used in our learning question classification experiments,which has question class definitions.
 
 ## Examples for Speech
 
