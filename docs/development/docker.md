@@ -1,8 +1,8 @@
 # Docker 
 
-## [Install Docker](https://docs.docker.com/install/)
+## Install Docker
 
-Make sure `docker` has installed.
+Make sure `docker` has installed. You can refer to the [official tutorial](https://docs.docker.com/install/).
 
 ## Development with Docker
 
