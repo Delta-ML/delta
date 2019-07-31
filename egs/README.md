@@ -10,7 +10,7 @@ All examples are under directory `egs` and named by its name of dataset. All dat
 | [CoNLL2003](egs/conll2003) | Sequence labeling | The CoNLL 2003 NER task consists of newswire text from the Reuters RCV1 corpus tagged with four different entity types (PER, LOC, ORG, MISC).  |
 | [MSRA_NER](egs/msra_ner) | Sequence labeling | MSRA datasets are in the news domain about NER. |
 | [SNIL](egs/snil) | Sentence Matching | Stanford Natural Language Inference corpus is a new, freely available collection of labeled sentence pairs, written by humans doing a novel grounded task based on image captioning.  |
-| [Quora_QP](egs/quora_qp) | Sentence Matching | Data collected from the quara platform，Quora is a place to gain and share knowledge—about anything. |
+| [Quora_QP](egs/quora_qp) | Sentence Matching | Data collected from the quara platform. Quora is a place to gain and share knowledge—about anything. |
 | [Yahoo_Answer](egs/yahoo_answer) | Document Classification | Yahoo answers are obtained from (Zhang et al., 2015). This is a topic classification task with 10 classes. The document we use includes question titles, question contexts and best answers. |
 
 
