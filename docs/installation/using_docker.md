@@ -1,6 +1,12 @@
 # Using Docker
 
-## Pull or build docker image
+* Make sure `docker` has installed, else please see `development/docker.md` for docker install guide.
 
-## Using the image
+* See `development/docker.md` to pull DELTA images.
+
+* See `development/docker.md` to create contianer.
+
+* Install DELTA as `installation/manual_setup.md`.
+
+* Training as your are using `Ubuntu` os.
 

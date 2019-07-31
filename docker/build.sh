@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 if [ $# != 3 ];then
-  echo "usage: $0 [ci|delta|deltann] [cpu|gpu] [push|dockerfile]"
+  echo "usage: $0 [ci|delta|deltann] [cpu|gpu] [build|push|dockerfile]"
   exit 1
 fi
 
@@ -100,7 +100,7 @@ CMD ["/bin/bash", "-c"]
 EOF
 
 
-if [ $SAVE_DOCKERFILE == false ];then
+if [ $MODE == 'push' ] || [ $MODE == 'build' ];then
   # pull latest image
   $DOCKER pull $IMAGE
   
@@ -108,23 +108,23 @@ if [ $SAVE_DOCKERFILE == false ];then
   $DOCKER build --no-cache=false -t delta:$TAG -f $DOCKERFILE . || { echo "build ${TARGET} ${DEVICE} error"; exit 1; }
   
   #push image
-  $DOCKER tag delta:${TAG} zh794390558/delta:${TAG}
-  $DOCKER push zh794390558/delta:$TAG
+  if [ $MODE == 'push' ];then
+    $DOCKER tag delta:${TAG} zh794390558/delta:${TAG}
+    $DOCKER push zh794390558/delta:$TAG
 
-  if [ $? == 0  ]; then
-      echo "push successful";
-      exit 0
-  else
-      echo "push error";
-      echo "make sure you have login docker"
-      echo "plaese run 'docker login'"
-      exit 10
+    if [ $? == 0  ]; then
+        echo "push successful";
+        exit 0
+    else
+        echo "push error";
+        echo "make sure you have login docker"
+        echo "plaese run 'docker login'"
+        exit 10
+    fi
   fi
 fi
 
 if [ -f $DOCKERFILE ] && [ ${SAVE_DOCKERFILE} == false ];then
   unlink $DOCKERFILE 
 fi
-
-
 
