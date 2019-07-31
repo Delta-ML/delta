@@ -8,10 +8,11 @@ We provide the sequence classification models using CNN, LSTM, HAN (hierarchical
 
 ## Sequence labeling
 
-We provid the LSTM based sequence labeling and an LSTM with CRF based method.
+We provide the LSTM based sequence labeling and an LSTM with CRF based method.
 
 ## Pairwise modeling
 
+We implement the match of text pairwise models computing similarity across sentence representation encoded with two LSTM.
 
 
 ## Sequence-to-sequence (seq2seq) modeling
