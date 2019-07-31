@@ -138,15 +138,14 @@ When the training is done, you can export a model `checkpoint` to `SavedModel`:
 python3 delta/main.py --cmd export_model --config <your configuration file>.yml 
 ```
 
-
 ### Deployment
 For model deployment, we provide many tools in the DELTA-NN package.
 We organize the model deployment scripts under `./dpl` directory.
 
-* Putting `SavedModel` and configure `model.yaml` into `dpl/model`.
-* Using script under `dpl/gadapter` to convert model to other deployment model.  
-* All compiled `tensorflow` lib and `delta-nn` lib are in `dpl/lib`.
-* Testing, benchmarking or serving under docker.
+* Put `SavedModel` and configure `model.yaml` into `dpl/model`.
+* Use scripts under `dpl/gadapter` to convert model to other deployment model.  
+* All compiled `tensorflow` libs and `delta-nn` libs are in `dpl/lib`.
+* Test, benchmark or serve under docker.
 
 ## Benchmarks
 In DELTA, we provide experimental results for each task on public datasets as benchmarks. 
@@ -196,5 +195,5 @@ See [LICENSE](LICENSE) for more information.
 ## Acknowlegement
 
 The DELTA platform depends on many open source repos.
-See [References](docs/references.rst) for more information.
+See [References](docs/references.md) for more information.
 
