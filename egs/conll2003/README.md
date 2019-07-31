@@ -1,6 +1,6 @@
 ## References
  
-GDathttps://www.aclweb.org/anthology/W03-0419
+https://www.aclweb.org/anthology/W03-0419
 
 ## links for download data
 
@@ -22,11 +22,11 @@ of the learning methods
 | Test set | 231 | 3,684 | 46,435 |
 
 
-| English DataSet |  Articles | Sentences | Tokens |
-|---|---|---|---|
-| Training set |  553 | 201 | 155 |
-| Development set | 12,705 | 3,068 | 3,160 |
-| Test set | 206,931 |51,444| 51,943|
+| English DataSet |  LOC | MISC | ORG |PER|
+|---|---|---|---|---|
+| Training set |  7140 | 3438 | 6321 | 6600|
+| Development set |1837 | 922 | 1341 |1842|
+| Test set | 1668 |702| 1661|1617|
  
  The more details about Germanl Dataset is shown in paper. 
 
