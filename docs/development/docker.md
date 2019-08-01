@@ -7,23 +7,23 @@
 You can build DETLA or DETLANN locally as [Build Images](#build-images),
 or using pre-build images as belows:
 
-All aviable image tags list in [here](https://cloud.docker.com/repository/docker/zh794390558/delta/tags),
+All avaible image tags list in [here](https://cloud.docker.com/repository/docker/zh794390558/delta/tags),
 please choose one as needed.
 
-If we choice `latest-devl-delta-cpu-py3`, then download the image as below:
+If we choose `1.14.0-devel-delta-cpu-py3`, then download the image as below:
 ```bash
-docker pull zh794390558/delta:latest-devel-delta-cpu-py3
+docker pull zh794390558/delta:1.14.0-devel-delta-cpu-py3
 ```
 
-After image has beed downloaded, creating a contianer:
+After image has been downloaded, create a container:
 
 ```bash
-cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:latest-devel-delta-cpu-py3 /bin/bash
+cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:1.14.0-devel-delta-cpu-py3 /bin/bash
 ```
 
 then develop as usual. 
 
-We recommend using a power machine to devleop DELTANN, since it needs to compile
+We recommend using a power machine to develop DELTANN, since it needs to compile
 `Tensorflow` which is time-consuming.
 
 
