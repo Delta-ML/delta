@@ -89,12 +89,14 @@ For Docker users, we provide images with DELTA installed. Please refer to [docke
 ## Quick Start
 
 ### Existing Examples
-DELTA organizes many commonly-used tasks as examples in under `./egs` directory. 
-Each example is an NLP or speech task using a public dataset.
-We provide the while pipeline including data processing, model training, evaluation, and deployment.
+
+DELTA organizes many commonly-used tasks as examples in [egs](egs/) directory. 
+Each example is a NLP or speech task using a public dataset.
+We provide the whole pipeline including data processing, model training, evaluation, and deployment.
 
 You can simply use the `run.sh` under each directory to prepare the dataset, and then train or evaluate a model. 
-For example, you use the following command to download the CONLL2003 dataset and train and evaluate a BLSTM-CRF model for NER: 
+For example, you can use the following command to download the CONLL2003 dataset and train and evaluate a BLSTM-CRF model for NER: 
+
 ```shell
 ./egs/conll2003/seq_label/v1/run.sh
 python3 delta/main.py --cmd train --config egs/conll2003/seq_label/v1/config/seq-label.yml
@@ -102,6 +104,7 @@ python3 delta/main.py --cmd eval --config egs/conll2003/seq_label/v1/config/seq-
 ```
 
 ### Modeling
+
 There are several modes to start a DELTA pipeline:
 
 - train_and_eval
@@ -139,6 +142,7 @@ python3 delta/main.py --cmd export_model --config <your configuration file>.yml
 ```
 
 ### Deployment
+
 For model deployment, we provide many tools in the DELTA-NN package.
 We organize the model deployment scripts under `./dpl` directory.
 
