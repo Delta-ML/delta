@@ -19,6 +19,7 @@ gen
 *.so
 *.txt
 !tools/requirements.txt
+!docker/requirements.txt
 *.list
 *.log
 *.raw
