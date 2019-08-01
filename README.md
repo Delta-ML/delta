@@ -4,7 +4,7 @@
 
 **DELTA** is a deep learning based end-to-end natural language and speech processing platform. 
 DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models 
-for both academia and industry use cases. DELTA is mainly implemented using TensorFlow.
+for both academia and industry use cases. DELTA is mainly implemented using TensorFlow and Python 3.
 
 For details of DELTA, please refer to this [paper](docs/DELTA.pdf).
 
@@ -30,7 +30,6 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Benchmarks](#benchmarks)
-- [ToDo](#todo)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowlegement](#acknowlegement)
@@ -167,28 +166,25 @@ For more details, please refer to [released models](docs/released_models.md).
 | Intent Detection (joint) | BiLSTM-CRF-Attention | ATIS | Acc | 97.4 | 98.2| Liu and Lane (2016) |
 | Slots Filling (joint) | BiLSTM-CRF-Attention | ATIS  | F1 | 95.2 | 95.9 | Liu and Lane (2016) |
 | Natural Language Inference | LSTM | SNLI | Acc | 80.7 | 80.6 | Bowman et al. (2016) | 
-| Summarization | Seq2seq-LSTM |  |  |  |  |
-| Translation | Seq2seq-transformer |  |  |  |  |
-| Pretrain-NER | ELMO | CoNLL 2003 | F1 | 92.19 | 92.22 | Matthew et al. (2018) |
-| Pretrain-NER | BERT |  |  |  |  |
+| Summarization | Seq2seq-LSTM | CNN/Daily Mail | RougeL | 27.3 | 28.1 | See et al. (2017) |
+| Pretrain-NER | ELMO | CoNLL 2003 | F1 | 92.2 | 92.2 | Peters et al. (2018) |
+| Pretrain-NER | BERT | CoNLL2003 | F1 | 94.2 | 94.9 | Devlin et al. (2019) |
 
 ### Speech tasks
 
+TBA
+
 | Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
 |---|---|---|---|---|---|---|
-| Speech recognition | CTC | HKUST | CER |  |  | Mial et al. (2016) |
-| Speech recognition | Seq2seq | HKUST | CER |  |  |  |
-| Speaker verfication | X-Vector | VoxCeleb | EER |  |  |  |
-| Emotion recogniation | ResNet50 | IEMOCAP | Acc |  |  |  |
+| Speech recognition | CTC |  |  |  |  |  |
+| Speech recognition | Seq2seq |  |  |  |  |  |
+| Speaker verfication |  |  |  |  |  |  |
+| Emotion recognition |  |  |  |  |  |  |
 
-
-## TODO
-
-For more details, please refer to [TODO list](docs/todo.md).
 
 ## Contributing
 
-Any kind of contribution is welcome. Please just open an issue without any hesitation.
+Any contribution is welcome. All issues and pull requests are highly appreciated!
 For more details, please refer to [the contribution guide](CONTRIBUTING.md).
 
 ## License
