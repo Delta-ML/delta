@@ -1,6 +1,8 @@
 # Docker 
 
-## [Install Docker](https://docs.docker.com/docker-for-mac/install/)
+## Install Docker
+
+Make sure `docker` has been installed. You can refer to the [official tutorial](https://docs.docker.com/install/).
 
 ## Development with Docker
 
@@ -11,11 +13,12 @@ All avaible image tags list in [here](https://cloud.docker.com/repository/docker
 please choose one as needed.
 
 If we choose `1.14.0-devel-delta-cpu-py3`, then download the image as below:
+
 ```bash
 docker pull zh794390558/delta:1.14.0-devel-delta-cpu-py3
 ```
 
-After image has been downloaded, create a container:
+After the image downloaded, create a container:
 
 ```bash
 cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:1.14.0-devel-delta-cpu-py3 /bin/bash
@@ -26,37 +29,38 @@ then develop as usual.
 We recommend using a power machine to develop DELTANN, since it needs to compile
 `Tensorflow` which is time-consuming.
 
-
 ## Build Images
 
 ### Build CI Image
 
 ```bash
-pushd docker/ci/ && bash build.sh && popd
+pushd docker && bash build.sh ci cpu build && popd
 ```
 
 ### Build DELTA Image
 
 For building devel cpu image:
+
 ```bash
-pushd docker/devel/ && bash build.sh delta cpu && popd
+pushd docker && bash build.sh delta cpu build && popd
 ```
+
 for building devel gpu image
 
 ```bash
-pushd docker/devel/ && bash build.sh delta gpu && popd
+pushd docker && bash build.sh delta gpu build && popd
 ```
 
 ### Build DELTANN Image
 
 For building devel cpu image:
+
 ```bash
-pushd docker/devel/ && bash build.sh deltann cpu && popd
+pushd docker && bash build.sh deltann cpu build && popd
 ```
+
 for building devel gpu image
 
 ```bash
-pushd docker/devel/ && bash build.sh deltann gpu && popd
+pushd docker && bash build.sh deltann gpu build && popd
 ```
-
-
