@@ -6,7 +6,7 @@
 DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models 
 for both academia and industry use cases. DELTA is mainly implemented using TensorFlow.
 
-For details of DELTA, please refer to this [paper(TBA)](https://arxiv.org/).
+For details of DELTA, please refer to this [paper](docs/DELTA.pdf).
 
 ## What can DELTA do?
 
