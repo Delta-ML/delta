@@ -14,7 +14,7 @@ https://github.com/thtrieu/qclass_dl/tree/master/data
 
 ## Data scale introduction
 
-- Training dataset：5452
-- Development pairs：-
-- Test pairs：500
+- Training size：5452
+- Development size：-
+- Test size：500
 
