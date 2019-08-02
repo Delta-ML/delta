@@ -42,6 +42,9 @@ class TextClsTask(TextTask):
     self.vocab_min_frequency = self.task_config['vocab_min_frequency']
     self.text_vocab_file_path = self.task_config['text_vocab']
     self.label_vocab_file_path = self.task_config['label_vocab']
+    self.max_seq_len = self.task_config['max_seq_len']
+    self.num_classes = self.task_config['classes']['num_classes']
+    self.split_token = self.model_config.get("split_token", "")
     self.use_dense = self.task_config["use_dense"]
     if self.use_dense:
       self.dense_input_dim = self.task_config["dense_input_dim"]

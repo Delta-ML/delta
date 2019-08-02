@@ -152,12 +152,6 @@ class TextS2STask(TextTask):
     label_vocab_dict = load_vocab_dict(self.label_vocab_file_paths[0])
     label_vocab_size = len(label_vocab_dict)
     data_size = len(src)
-    if self.split_token != "":
-      if self.split_token not in vocab_dict:
-        raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
-      self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
     self.config['data']['label_vocab_size'] = label_vocab_size
     self.config['data']['{}_data_size'.format(self.mode)] = data_size
@@ -178,12 +172,6 @@ class TextS2STask(TextTask):
     """Inputs for exported model."""
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
-    if self.split_token != "":
-      if self.split_token not in vocab_dict:
-        raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
-      self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
 
     input_sentence = tf.placeholder(

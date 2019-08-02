@@ -86,12 +86,7 @@ class TextMatchTask(TextTask):
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
     data_size = len(text_left)
-    if self.split_token != "":
-      if self.split_token not in vocab_dict:
-        raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
-      self.config['data']['split_token'] = int(vocab_dict[self.split_token])
+
     self.config['data']['vocab_size'] = vocab_size
     self.config['data']['{}_data_size'.format(self.mode)] = data_size
     return data_set_left_right, text_len_left_right
@@ -110,12 +105,6 @@ class TextMatchTask(TextTask):
     """Inputs for exported model."""
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
-    if self.split_token != "":
-      if self.split_token not in vocab_dict:
-        raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
-      self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
 
     input_sent_left = tf.placeholder(

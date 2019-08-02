@@ -20,11 +20,11 @@ from delta.data.utils.test_utils import mock_a_text_file
 from delta.data.utils.test_utils import save_a_vocab_file
 
 # samples with label
-samples = ["O O O O\tI feel good .",
-           "O O B-ORG O O O O O O\tBy stumps Kent had reached 108 for three ."]
-text_vocab_list = ["<unk>\t0", "</s>\t1", "I\t2", "feel\t3",
+samples = ["O O O O\ti feel good .",
+           "O O B-ORG O O O O O O\tby stumps kent had reached 108 for three ."]
+text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "feel\t3",
                    "good\t4"]
-label_vocab_list = ["O\t0","B-PER\t1","I-PER\t2","B-LOC\t3","I-LOC\t4",
+label_vocab_list = ["O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4",
                     "B-ORG\t5", "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"]
 
 
