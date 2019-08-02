@@ -9,7 +9,7 @@ data:
   infer:
     paths: 
       - "egs/atis/nlu-joint/v1/data/test.txt"
-    infer_no_label: true
+    infer_no_label: false
   task:
     name: TextNLUJointTask
     preparer:

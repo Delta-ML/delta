@@ -92,6 +92,23 @@ class RawS2SSolver(RawSolver):
     self.build_output(model)
     return model
 
+
+  def build_export_model(self):
+    """Build the model for export."""
+    mode = utils.INFER
+    self.config["model"]["is_infer"] = mode == utils.INFER
+    export_inputs = self.export_input(mode)
+
+    model = self.model_fn()
+    training = mode == utils.TRAIN
+    model.logits = model(export_inputs["model_inputs"], training=training)
+    model.model_inputs = export_inputs["model_inputs"]
+    model.export_inputs = export_inputs["export_inputs"]
+    model.input_x_len = export_inputs["model_inputs"]["input_x_len"]
+    # output related
+    self.build_export_output(model)
+    return model
+
   def eval_or_infer_core(self, model, mode):  # pylint: disable=too-many-locals, too-many-branches
     """The core part of evaluation."""
     model_path = self.get_model_path(mode)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-start_stage=1
+start_stage=0
 stop_stage=1
 data=./data
 

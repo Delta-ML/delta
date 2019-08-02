@@ -77,7 +77,7 @@ solver:
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.001 # learning rate of Adam optimizer
-      type:  exp_decay # learning rate type
+      type:  const # learning rate type
       decay_rate: 0.99  # the lr decay rate
       decay_steps: 100  # the lr decay_step for optimizer
     batch_size: 64
@@ -88,7 +88,8 @@ solver:
     pos_label: 1
     cals:
       - name: CrfCal
-        arguments: Null
+        arguments: 
+          label_vocab_path: "egs/msra_ner/seq_label/v1/exp/label_vocab.txt"
   postproc:
     name: SavePredEntityPostProc
     res_file: "egs/msra_ner/seq_label/v1/res/infer_res.txt"

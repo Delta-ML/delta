@@ -32,16 +32,16 @@ data:
       positive_id: 1
       num_classes: 10
       vocab:
-        0: 0
-        1: 1
-        2: 2
-        3: 3
-        4: 4
-        5: 5
-        6: 6
-        7: 7
-        8: 8
-        9: 9
+        1: 0
+        2: 1
+        3: 2
+        4: 3
+        5: 4
+        6: 5
+        7: 6
+        8: 7
+        9: 8
+        10: 9
 
 model:
   name: HierarchicalAttentionModel
@@ -106,7 +106,7 @@ solver:
   saver:
     model_path: "egs/yahoo_answer/text_cls/v1/exp/han-cls/ckpt"
     max_to_keep: 1
-    save_checkpoint_steps: 100
+    save_checkpoint_steps: 4000
     print_every: 10
   service:
     model_path: "egs/yahoo_answer/text_cls/v1/exp/han-cls/service"

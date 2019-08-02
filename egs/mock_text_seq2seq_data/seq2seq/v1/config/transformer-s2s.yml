@@ -3,36 +3,36 @@ data:
   train:
     paths:
       source:
-        - "egs/mock_text_seq2seq_data/nlp1/data/train.txt.src"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/train.txt.src"
       target:
-        - "egs/mock_text_seq2seq_data/nlp1/data/train.txt.tgt"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/train.txt.tgt"
   eval:
     paths:
       source:
-        - "egs/mock_text_seq2seq_data/nlp1/data/dev.txt.src"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/dev.txt.src"
       target:
-        - "egs/mock_text_seq2seq_data/nlp1/data/dev.txt.tgt"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/dev.txt.tgt"
   infer:
     paths:
       source:
-        - "egs/mock_text_seq2seq_data/nlp1/data/test.txt.src"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/test.txt.src"
       target:
-        - "egs/mock_text_seq2seq_data/nlp1/data/test.txt.tgt"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/test.txt.tgt"
     infer_no_label: false
   task:
     name: TextS2STask
     preparer:
       enable: true
       name: TextS2SPreparer
-      done_sign: "egs/mock_text_seq2seq_data/nlp1/exp/prepare.done"
+      done_sign: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/prepare.done"
       reuse: true
     language: q
     split_by_space: false
     use_label_vocab: false
     use_word: false
     vocab_min_frequency: 20
-    text_vocab: "egs/mock_text_seq2seq_data/nlp1/exp/text_vocab.txt"
-    label_vocab: "egs/mock_text_seq2seq_data/nlp1/exp/label_vocab.txt"
+    text_vocab: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/text_vocab.txt"
+    label_vocab: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/label_vocab.txt"
     max_enc_len: 400
     max_dec_len: 100
     num_parallel_calls: 12
@@ -94,23 +94,23 @@ solver:
     epochs: 1
   metrics:
     pos_label: 1
-    res_file: "egs/mock_text_seq2seq_data/res/infer_res.txt"
+    res_file: "egs/mock_text_seq2seq_data/seq2seq/v1/res/infer_res.txt"
     target_file:
-      - "egs/mock_text_seq2seq_data/nlp1/data/test.txt.tgt"
-    text_vocab: "egs/mock_text_seq2seq_data/nlp1/exp/text_vocab.txt"
+      - "egs/mock_text_seq2seq_data/seq2seq/v1/data/test.txt.tgt"
+    text_vocab: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/text_vocab.txt"
     cals:
       - name: RougeCal
         arguments: Null
   postproc:
     name: SavePredSeqPostProc
-    res_file: "egs/mock_text_seq2seq_data/res/infer_res.txt"
+    res_file: "egs/mock_text_seq2seq_data/seq2seq/v1/res/infer_res.txt"
   saver:
-    model_path: "egs/mock_text_seq2seq_data/nlp1/exp/transformer-sum/ckpt"
+    model_path: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/transformer-sum/ckpt"
     max_to_keep: 30
-    save_checkpoint_steps: 1000
+    save_checkpoint_steps: 30
     print_every: 10
   service:
-    model_path: "egs/mock_text_seq2seq_data/nlp1/exp/transformer-sum/service"
+    model_path: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/transformer-sum/service"
     model_version: "1"
   run_config:
     tf_random_seed: null

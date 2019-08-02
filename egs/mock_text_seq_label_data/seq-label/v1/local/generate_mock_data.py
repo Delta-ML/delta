@@ -22,9 +22,9 @@ from delta.data.utils.test_utils import save_a_vocab_file
 # samples with label
 samples = ["O O O O\tI feel good .",
            "O O B-ORG O O O O O O\tBy stumps Kent had reached 108 for three ."]
-text_vocab_list = ["<unk>\t0", "</s>\t1", "I\t2", "feel\t3",
-                   "good\t4"]
-label_vocab_list = ["O\t0","B-PER\t1","I-PER\t2","B-LOC\t3","I-LOC\t4",
+text_vocab_list = ["<unk>\t0", "</s>\t1", "I\t2", "feel\t3","good\t4", ".\t5", 
+                   "By\t6", "stumps\t7", "Kent\t8", "had\t9", "reached\t10", "108\t11", "for\t12", "three\t13"]
+label_vocab_list = ["O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4",
                     "B-ORG\t5", "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"]
 
 
