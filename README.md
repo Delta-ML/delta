@@ -175,7 +175,7 @@ For more details, please refer to [released models](docs/released_models.md).
 | Natural Language Inference | LSTM | SNLI | Acc | 80.7 | 80.6 | Bowman et al. (2016) | 
 | Summarization | Seq2seq-LSTM | CNN/Daily Mail | RougeL | 27.3 | 28.1 | See et al. (2017) |
 | Pretrain-NER | ELMO | CoNLL 2003 | F1 | 92.2 | 92.2 | Peters et al. (2018) |
-| Pretrain-NER | BERT | CoNLL2003 | F1 | 94.2 | 94.9 | Devlin et al. (2019) |
+| Pretrain-NER | BERT | CoNLL2003 | F1 | 94.6 | 94.9 | Devlin et al. (2019) |
 
 ### Speech tasks
 
