@@ -22,7 +22,6 @@ import tensorflow as tf
 from absl import logging
 
 from delta import utils
-from delta.data.preprocess.text_ops import pre_process_text
 from delta.data.preprocess.text_ops import tokenize_sentence
 from delta.data.preprocess.utils import load_vocab_dict
 from delta.data.task.base_text_task import TextTask
@@ -42,43 +41,19 @@ class TextS2STask(TextTask):
 
   def __init__(self, config, mode):
     super().__init__(config, mode)
-    data_config = config['data']
 
-    self.mode = mode
-    self.src_paths = data_config[mode]['paths']['source']
-    self.tgt_paths = data_config[mode]['paths']['target']
+    self.src_paths = self.data_config[mode]['paths']['source']
+    self.tgt_paths = self.data_config[mode]['paths']['target']
 
-    self.infer_no_label = data_config[utils.INFER].get('infer_no_label', False)
-    if self.mode == utils.INFER and self.infer_no_label:
-      self.infer_without_label = True
-    else:
-      self.infer_without_label = False
-    self.paths_after_pre_process = []
-
-    task_config = data_config['task']
-    self.task_config = task_config
-    self.model_config = config["model"]
-    self.batch_size = task_config['batch_size']
-    self.epochs = task_config['epochs']
-
-    self.vocab_min_frequency = task_config['vocab_min_frequency']
-    self.text_vocab_file_path = task_config['text_vocab']
+    self.vocab_min_frequency = self.task_config['vocab_min_frequency']
+    self.text_vocab_file_path = self.task_config['text_vocab']
     self.label_vocab_file_paths = self.task_config['label_vocab']
     if not isinstance(self.label_vocab_file_paths, list):
       self.label_vocab_file_paths = [self.label_vocab_file_paths]
     self.use_label_vocab = self.task_config['use_label_vocab']
 
-    self.max_enc_len = task_config['max_enc_len']
-    self.max_dec_len = task_config['max_dec_len']
-    self.num_parallel_calls = task_config['num_parallel_calls']
-    self.num_prefetch_batch = task_config['num_prefetch_batch']
-    self.shuffle_buffer_size = task_config['shuffle_buffer_size']
-    self.need_shuffle = task_config['need_shuffle']
-
-    self.language = self.task_config["language"]
-    self.split_by_space = self.task_config.get("split_by_space", False)
-    self.use_word = self.task_config.get("use_word", False)
-    self.split_token = config["model"].get("split_token", "")
+    self.max_enc_len = self.task_config['max_enc_len']
+    self.max_dec_len = self.task_config['max_dec_len']
 
     self.src_paths_after_pre_process = [
         one_path + ".after" for one_path in self.src_paths
@@ -86,14 +61,7 @@ class TextS2STask(TextTask):
     self.tgt_paths_after_pre_process = [
         one_path + ".after" for one_path in self.tgt_paths
     ]
-    self.init_feed_dict = {}
     self.prepare()
-
-  def pre_process_pipeline(self, input_sentences):
-    """Data pipeline function for pre-processing."""
-    batch = pre_process_text(input_sentences, self.language,
-                             self.split_by_space, self.use_word)
-    return batch
 
   def common_process_pipeline(self, batch):
     """
@@ -184,12 +152,6 @@ class TextS2STask(TextTask):
     label_vocab_dict = load_vocab_dict(self.label_vocab_file_paths[0])
     label_vocab_size = len(label_vocab_dict)
     data_size = len(src)
-    if self.split_token != "":
-      if self.split_token not in vocab_dict:
-        raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
-      self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
     self.config['data']['label_vocab_size'] = label_vocab_size
     self.config['data']['{}_data_size'.format(self.mode)] = data_size
@@ -210,12 +172,6 @@ class TextS2STask(TextTask):
     """Inputs for exported model."""
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
-    if self.split_token != "":
-      if self.split_token not in vocab_dict:
-        raise ValueError(
-            "The Model uses split token: {}, not in corpus.".format(
-                self.split_token))
-      self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
 
     input_sentence = tf.placeholder(

@@ -55,7 +55,7 @@ class CommonUtilsTest(tf.test.TestCase):
     mode = utils.TRAIN
     paths = self.config["data"]["train"]["paths"]
     text, label = load_seq_label_raw_data(paths, mode)
-    self.assertEqual(text[0], "I feel good .")
+    self.assertEqual(text[0], "i feel good .")
     self.assertEqual(label[0], "O O O O")
 
   def test_load_one_label_dataset(self):

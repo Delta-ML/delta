@@ -21,6 +21,7 @@ data:
       reuse: true
     use_dense: false
     language: english
+    clean_english: True
     vocab_min_frequency: 0
     split_by_space: false
     use_word: true
