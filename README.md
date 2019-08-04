@@ -1,12 +1,19 @@
 # DELTA - a DEep Language Technology plAtform 
 
+[![Build Status](https://travis-ci.org/didi/delta.svg?branch=master)](https://travis-ci.org/didi/delta)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![GitHub top language](https://img.shields.io/github/languages/top/didi/delta)](https://img.shields.io/github/languages/top/didi/delta)
+[![GitHub Issues](https://img.shields.io/github/issues/didi/delta.svg)](https://github.com/didi/delta/issues)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/didi/delta/blob/master/LICENSE)
+
+
 ## What is DELTA?
 
 **DELTA** is a deep learning based end-to-end natural language and speech processing platform. 
 DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models 
-for both academia and industry use cases. DELTA is mainly implemented using TensorFlow.
+for both academia and industry use cases. DELTA is mainly implemented using TensorFlow and Python 3.
 
-For details of DELTA, please refer to this [paper(TBA)](https://arxiv.org/).
+For details of DELTA, please refer to this [paper](docs/DELTA.pdf).
 
 ## What can DELTA do?
 
@@ -30,7 +37,6 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Benchmarks](#benchmarks)
-- [ToDo](#todo)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowlegement](#acknowlegement)
@@ -89,12 +95,14 @@ For Docker users, we provide images with DELTA installed. Please refer to [docke
 ## Quick Start
 
 ### Existing Examples
-DELTA organizes many commonly-used tasks as examples in under `./egs` directory. 
-Each example is an NLP or speech task using a public dataset.
-We provide the while pipeline including data processing, model training, evaluation, and deployment.
+
+DELTA organizes many commonly-used tasks as examples in [egs](egs/) directory. 
+Each example is a NLP or speech task using a public dataset.
+We provide the whole pipeline including data processing, model training, evaluation, and deployment.
 
 You can simply use the `run.sh` under each directory to prepare the dataset, and then train or evaluate a model. 
-For example, you use the following command to download the CONLL2003 dataset and train and evaluate a BLSTM-CRF model for NER: 
+For example, you can use the following command to download the CONLL2003 dataset and train and evaluate a BLSTM-CRF model for NER: 
+
 ```shell
 ./egs/conll2003/seq_label/v1/run.sh
 python3 delta/main.py --cmd train --config egs/conll2003/seq_label/v1/config/seq-label.yml
@@ -102,6 +110,7 @@ python3 delta/main.py --cmd eval --config egs/conll2003/seq_label/v1/config/seq-
 ```
 
 ### Modeling
+
 There are several modes to start a DELTA pipeline:
 
 - train_and_eval
@@ -138,15 +147,15 @@ When the training is done, you can export a model `checkpoint` to `SavedModel`:
 python3 delta/main.py --cmd export_model --config <your configuration file>.yml 
 ```
 
-
 ### Deployment
+
 For model deployment, we provide many tools in the DELTA-NN package.
 We organize the model deployment scripts under `./dpl` directory.
 
-* Putting `SavedModel` and configure `model.yaml` into `dpl/model`.
-* Using script under `dpl/gadapter` to convert model to other deployment model.  
-* All compiled `tensorflow` lib and `delta-nn` lib are in `dpl/lib`.
-* Testing, benchmarking or serving under docker.
+* Put `SavedModel` and configure `model.yaml` into `dpl/model`.
+* Use scripts under `dpl/gadapter` to convert model to other deployment model.  
+* All compiled `tensorflow` libs and `delta-nn` libs are in `dpl/lib`.
+* Test, benchmark or serve under docker.
 
 ## Benchmarks
 In DELTA, we provide experimental results for each task on public datasets as benchmarks. 
@@ -164,28 +173,25 @@ For more details, please refer to [released models](docs/released_models.md).
 | Intent Detection (joint) | BiLSTM-CRF-Attention | ATIS | Acc | 97.4 | 98.2| Liu and Lane (2016) |
 | Slots Filling (joint) | BiLSTM-CRF-Attention | ATIS  | F1 | 95.2 | 95.9 | Liu and Lane (2016) |
 | Natural Language Inference | LSTM | SNLI | Acc | 80.7 | 80.6 | Bowman et al. (2016) | 
-| Summarization | Seq2seq-LSTM |  |  |  |  |
-| Translation | Seq2seq-transformer |  |  |  |  |
-| Pretrain-NER | ELMO | CoNLL 2003 | F1 | 92.19 | 92.22 | Matthew et al. (2018) |
-| Pretrain-NER | BERT |  |  |  |  |
+| Summarization | Seq2seq-LSTM | CNN/Daily Mail | RougeL | 27.3 | 28.1 | See et al. (2017) |
+| Pretrain-NER | ELMO | CoNLL 2003 | F1 | 92.2 | 92.2 | Peters et al. (2018) |
+| Pretrain-NER | BERT | CoNLL2003 | F1 | 94.6 | 94.9 | Devlin et al. (2019) |
 
 ### Speech tasks
 
+TBA
+
 | Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
 |---|---|---|---|---|---|---|
-| Speech recognition | CTC | HKUST | CER |  |  | Mial et al. (2016) |
-| Speech recognition | Seq2seq | HKUST | CER |  |  |  |
-| Speaker verfication | X-Vector | VoxCeleb | EER |  |  |  |
-| Emotion recogniation | ResNet50 | IEMOCAP | Acc |  |  |  |
+| Speech recognition | CTC |  |  |  |  |  |
+| Speech recognition | Seq2seq |  |  |  |  |  |
+| Speaker verfication |  |  |  |  |  |  |
+| Emotion recognition |  |  |  |  |  |  |
 
-
-## TODO
-
-For more details, please refer to [TODO list](docs/todo.md).
 
 ## Contributing
 
-Any kind of contribution is welcome. Please just open an issue without any hesitation.
+Any contribution is welcome. All issues and pull requests are highly appreciated!
 For more details, please refer to [the contribution guide](CONTRIBUTING.md).
 
 ## License
@@ -196,5 +202,5 @@ See [LICENSE](LICENSE) for more information.
 ## Acknowlegement
 
 The DELTA platform depends on many open source repos.
-See [References](docs/references.rst) for more information.
+See [References](docs/references.md) for more information.
 

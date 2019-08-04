@@ -15,7 +15,6 @@
 # ==============================================================================
 ''' Text related pre-process in ops.'''
 
-import os
 import tensorflow as tf
 from absl import logging
 
@@ -85,33 +84,3 @@ def char_cut_tf(input_str):
   output_str = tf.strings.strip(output_str)
   return output_str
 
-
-def pre_process_text(input_texts, language, split_by_space, use_word):
-  """Text pre-processing before tokenize."""
-  if language == "english":
-    batch = clean_english_str_tf(input_texts)
-  else:
-    if split_by_space:
-      batch = input_texts
-    else:
-      if use_word:
-        main_root = os.environ["MAIN_ROOT"]
-        dict_path = os.path.join(main_root,
-                                 "tools/cppjieba/dict/jieba.dict.utf8")
-        hmm_path = os.path.join(main_root, "tools/cppjieba/dict/hmm_model.utf8")
-        user_dict_path = os.path.join(main_root,
-                                      "tools/cppjieba/dict/user.dict.utf8")
-        idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
-        stop_word_path = os.path.join(main_root,
-                                      "tools/cppjieba/dict/stop_words.utf8")
-        batch = py_x_ops.jieba_cut(
-            input_texts,
-            hmm=True,
-            dict_path=dict_path,
-            hmm_path=hmm_path,
-            user_dict_path=user_dict_path,
-            idf_path=idf_path,
-            stop_word_path=stop_word_path)
-      else:
-        batch = char_cut_tf(input_texts)
-  return batch

@@ -24,7 +24,7 @@ OLD_PATH=$PATH
 [ -f $KALDI_ROOT/tools/env.sh  ] && . $KALDI_ROOT/tools/env.sh
 export PATH=$PATH:$MAIN_ROOT/utils/:$KALDI_ROOT/tools/openfst/bin:$KALDI_ROOT/tools/sctk/bin:$MAIN_ROOT
 if [ ! -f $KALDI_ROOT/tools/config/common_path.sh ]; then 
-  echo >&2 "Warning: Kaldi: The standard file $KALDI_ROOT/tools/config/common_path.sh is not present" 
+  echo >&2 "Note: Kaldi path $KALDI_ROOT/tools/config/common_path.sh is not found. Please ignore this message if you are an NLP user." 
 else
   . $KALDI_ROOT/tools/config/common_path.sh
 fi

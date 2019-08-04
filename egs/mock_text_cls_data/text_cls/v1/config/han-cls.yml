@@ -18,6 +18,7 @@ data:
       reuse: true
     use_dense: false
     language: chinese
+    clean_english: True
     use_word: true
     vocab_min_frequency: 20
     use_custom_vocab: True

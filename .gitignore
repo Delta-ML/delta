@@ -8,6 +8,8 @@ __pycache__
 private
 *.npy
 *.wav
+!delta/layers/ops/data/sm1_cln.wav
+!delta/data/feat/python_speech_features/english.wav
 *.mp3
 tags
 gen
@@ -16,6 +18,8 @@ gen
 *.a
 *.so
 *.txt
+!tools/requirements.txt
+!docker/requirements.txt
 *.list
 *.log
 *.raw
@@ -81,6 +85,7 @@ egs/*/*/data
 egs/*/*/*/data
 egs/*/*/exp
 egs/*/*/*/exp
+egs/*/*/res
 egs/*/*/*/res
 
 # dpl copys
