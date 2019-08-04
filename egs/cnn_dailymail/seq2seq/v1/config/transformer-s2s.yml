@@ -3,21 +3,21 @@ data:
   train:
     paths:
       source:
-        - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/train.cnndm.src"
+        - "egs/cnn_dailymail/nlp1/data/train.cnndm.src"
       target:
-        - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/train.cnndm.tgt"
+        - "/egs/cnn_dailymail/nlp1/data/train.cnndm.tgt"
   eval:
     paths:
       source:
-        - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/val.cnndm.src"
+        - "egs/cnn_dailymail/nlp1/data/val.cnndm.src"
       target:
-        - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/val.cnndm.tgt"
+        - "egs/cnn_dailymail/nlp1/data/val.cnndm.tgt"
   infer:
     paths:
       source:
-        - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/test.cnndm.src"
+        - "egs/cnn_dailymail/nlp1/data/test.cnndm.src"
       target:
-        - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
+        - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
     infer_no_label: false
   task:
     name: TextS2STask
@@ -92,7 +92,7 @@ solver:
     pos_label: 1
     res_file: "egs/cnn_dailymail/seq2seq/v1/res/trans_infer_res.txt"
     target_file:
-      - "/nfs/cold_project/xuhaiyang/nlu-ml-new/nlu-ml/egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
+      - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
     text_vocab: "egs/cnn_dailymail/seq2seq/v1/exp/text_vocab.txt"
     cals:
       - name: RougeCal

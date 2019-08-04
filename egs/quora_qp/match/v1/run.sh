@@ -1,6 +1,6 @@
 #!/bin/bash
 
-start_stage=1
+start_stage=0
 stop_stage=100
 data=./data/
 _url ="https://firebasestorage.googleapis.com/v0/b/mtl-sentence" \
