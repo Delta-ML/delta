@@ -44,7 +44,8 @@ LIBDIR := $(TGTDIR)lib/
 
 
 TF_CFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))')
-TF_LFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))')
+# Fix TF LDFLAGS issue on macOS.
+TF_LFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))' | sed "s/-l:libtensorflow_framework.1.dylib/-ltensorflow_framework.1/")
 #TF_INCLUDES := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(tf.sysconfig.get_include())')
 TF_LIBS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(tf.sysconfig.get_lib())')
 CXXFLAGS += -fPIC -shared -O2 -std=c++11 -DFEATURE_VERSION=\"$(shell git rev-parse --short HEAD)\" $(TF_CFLAGS)
