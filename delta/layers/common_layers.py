@@ -19,6 +19,8 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim  #pylint: disable=no-name-in-module
 from absl import logging
 
+from delta.data.feat import speech_ops
+
 #pylint: disable=invalid-name
 
 
@@ -47,24 +49,100 @@ def depthwise_separable_conv(inputs,
   return bn
 
 
-#pylint: disable=too-many-arguments
-def tdnn(x, name, in_dim, in_context, out_dim, has_bias=True):
-  ''' Implemented using conv1d which in turn is a conv2d. '''
+def splice_layer(x, name, context):
+  '''
+  Splice a tensor along the last dimension with context.
+  e.g.:
+  t = [[[1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]]]
+  splice_tensor(t, [0, 1]) =
+      [[[1, 2, 3, 4, 5, 6],
+        [4, 5, 6, 7, 8, 9],
+        [7, 8, 9, 7, 8, 9]]]
+
+  Args:
+    tensor: a tf.Tensor with shape (B, T, D) a.k.a. (N, H, W)
+    context: a list of context offsets
+
+  Returns:
+    spliced tensor with shape (..., D * len(context))
+  '''
   with tf.variable_scope(name):
-    kernel = tf.get_variable(
+    input_shape = tf.shape(x)
+    B, T = input_shape[0], input_shape[1]
+    context_len = len(context)
+    array = tf.TensorArray(x.dtype, size=context_len)
+    for idx, offset in enumerate(context):
+      begin = offset
+      end = T + offset
+      if begin < 0:
+        begin = 0
+        sliced = x[:, begin:end, :]
+        tiled = tf.tile(x[:, 0:1, :], [1, abs(offset), 1])
+        final = tf.concat((tiled, sliced), axis=1)
+      else:
+        end = T
+        sliced = x[:, begin:end, :]
+        tiled = tf.tile(x[:, -1:, :], [1, abs(offset), 1])
+        final = tf.concat((sliced, tiled), axis=1)
+      array = array.write(idx, final)
+    spliced = array.stack()
+    spliced = tf.transpose(spliced, (1, 2, 0, 3))
+    spliced = tf.reshape(spliced, (B, T, -1))
+  return spliced
+
+
+#pylint: disable=too-many-arguments
+def tdnn(x, name, in_dim, context, out_dim, has_bias=True,
+                method='splice_layer'):
+  '''
+  TDNN implementation.
+
+  Args:
+    context:
+      a int of left and right context, or
+      a list of context indexes, e.g. (-2, 0, 2).
+    method:
+      splice_layer: use column-first patch-based copy.
+      splice_op: use row-first while_loop copy.
+      conv1d: use conv1d as TDNN equivalence.
+  '''
+  if hasattr(context, '__iter__'):
+    context_size = len(context)
+    if method in ('splice_op', 'conv1d'):
+      msg = 'Method splice_op and conv1d does not support context list.'
+      raise ValueError(msg)
+    context_list = context
+  else:
+    context_size = context * 2 + 1
+    context_list = range(-context, context + 1)
+  with tf.variable_scope(name):
+    if method == 'splice_layer':
+      x = splice_layer(x, 'splice', context_list)
+      x = linear(x, 'linear', [in_dim * context_size, out_dim],
+                 has_bias=has_bias)
+    elif method == 'splice_op':
+      x = speech_ops.splice(x, context, context)
+      x = linear(x, 'linear', [in_dim * context_size, out_dim],
+                 has_bias=has_bias)
+    elif method == 'conv1d':
+      kernel = tf.get_variable(
         name='DW',
-        shape=[in_context, in_dim, out_dim],
+        shape=[context, in_dim, out_dim],
         dtype=tf.float32,
         initializer=tf.contrib.layers.xavier_initializer())
-    tdnn_op = tf.nn.conv1d(x, kernel, stride=1, padding='SAME')
-    if has_bias:
-      b = tf.get_variable(
-          name='bias',
-          shape=[out_dim],
-          dtype=tf.float32,
-          initializer=tf.constant_initializer(0.0))
-      return tf.nn.bias_add(tdnn_op, b)
-    return tdnn_op
+      x = tf.nn.conv1d(x, kernel, stride=1, padding='SAME')
+      if has_bias:
+        b = tf.get_variable(
+            name='bias',
+            shape=[out_dim],
+            dtype=tf.float32,
+            initializer=tf.constant_initializer(0.0))
+        x = tf.nn.bias_add(x, b)
+    else:
+      raise ValueError('Unsupported method: %s.' % (method))
+    return x
 
 
 def conv2d(x, name, filter_size, in_channels, out_channels, strides):
@@ -95,16 +173,19 @@ def max_pool(x, ksize, strides):
       name='max_pool')
 
 
-def linear(x, names, shapes):
+def linear(x, names, shapes, has_bias=True):
   """Linear Layer."""
   with tf.variable_scope(names):
     weights = tf.get_variable(
         name='weights',
         shape=shapes,
         initializer=tf.truncated_normal_initializer(stddev=0.1))
-    bias = tf.get_variable(
-        name='bias', shape=shapes[1], initializer=tf.constant_initializer(0.0))
-    return tf.matmul(x, weights) + bias
+    if has_bias:
+      bias = tf.get_variable(
+          name='bias', shape=shapes[1], initializer=tf.constant_initializer(0.0))
+      return tf.matmul(x, weights) + bias
+    else:
+      return tf.matmul(x, weights)
 
 
 def attention(inputs, attention_size, time_major=False, return_alphas=False):

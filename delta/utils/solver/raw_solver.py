@@ -15,6 +15,7 @@
 # ==============================================================================
 """Solver for raw tensorflow model."""
 
+import re
 import math
 import numpy as np
 import tensorflow as tf
@@ -352,12 +353,15 @@ class RawSolver(Solver):
       to_saved_model(self.config, infer_model.sess, infer_model.export_inputs,
                      infer_model.output_dict)
 
+
+
   def train(self):  # pylint: disable=too-many-locals
     """Train the model."""
     mode = utils.TRAIN
     train_model = self.build(mode)
 
     multitask = self.config['solver']['optimizer']['multitask']
+    use_pretrained_model = self.config['model']['use_pre_train_model']
 
     # Supervisor
     with tf.name_scope("train"):
@@ -377,7 +381,6 @@ class RawSolver(Solver):
           hooks=[ds_init_hook],
           save_checkpoint_steps=self.save_checkpoint_steps,
           config=self.session_conf) as sess:
-
         # Training loop. For each batch...
         data_size = self.config['data']['train_data_size']
         num_epochs = self.config["data"]["task"]['epochs']
@@ -433,11 +436,10 @@ class RawSolver(Solver):
             hooks=[ds_init_hook],
             save_checkpoint_steps=self.save_checkpoint_steps,
             config=self.session_conf) as sess:
-
           # Training loop. For each batch...
           train_data_size = self.config['data']['train_data_size']
-          num_batch = int(train_data_size * self.num_epochs / self.batch_size)
-          num_batch_per_epoch = int(train_data_size / self.batch_size)
+          num_batch = math.ceil(train_data_size * self.num_epochs / self.batch_size)
+          num_batch_per_epoch = math.ceil(train_data_size / self.batch_size)
           logging.info("Total data size: {}, batch num: {}, "
                        "batch num per epoch: {}".format(train_data_size,
                                                         num_batch,

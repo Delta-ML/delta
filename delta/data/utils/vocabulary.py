@@ -32,11 +32,11 @@ class Vocabulary:
     self._slash_s_token = "</s>"
     self._default_dict = {
         self._padding_token: 0,
-        self._unknown_token: 1,
-        self._start_of_sentence: 2,
-        self._end_of_sentence: 3,
-        self._s_token: 4,
-        self._slash_s_token: 5
+        self._s_token: 1,
+        self._slash_s_token: 2,
+        self._unknown_token: 3,
+        self._start_of_sentence: 4,
+        self._end_of_sentence: 5
     }
     self.use_default_dict = use_default_dict
     if self.use_default_dict:
