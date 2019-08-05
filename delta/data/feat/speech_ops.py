@@ -15,9 +15,10 @@
 # ==============================================================================
 ''' speech feat ops interface '''
 import numpy as np
-import tensorflow as tf
 from absl import logging
+
 #pylint: disable=no-name-in-module
+import tensorflow as tf
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta import utils
@@ -268,6 +269,9 @@ def extract_feature(waveforms, params):
     ], 0)
   return feats  # shape [nframes, featue_size, chnanels]
 
+def _new_tensor_array(name, size, dtype=None):
+  ''' create empty TensorArray which can store size elements.'''
+  return tf.TensorArray(dtype, size, name=name)
 
 def batch_extract_feature(waveforms, params):
   ''' waveforms: [batch, samples, audio_channels]
@@ -280,10 +284,6 @@ def batch_extract_feature(waveforms, params):
         v.dtype, batch, name=name, clear_after_read=clear_after_read)
     ta = ta.unstack(v)
     return ta
-
-  def _new_tensor_array(name, size, dtype=None):
-    ''' create empty TensorArray which can store size elements.'''
-    return tf.TensorArray(dtype, size, name=name)
 
   def _loop_continue(time, inputs, unused_output_tas):
     del unused_output_tas
@@ -315,3 +315,62 @@ def batch_extract_feature(waveforms, params):
 
   batch_feats = output_tas.stack()
   return batch_feats
+
+
+def splice(feat, left_context, right_context):
+  '''
+  splice frame with context
+    param: feat, tf.float32, [batch, time, feat]
+    return: feat, tf.float32, [batch, time, feat*(left_context + 1 + right_context)]
+    reference:
+      https://github.com/kaldi-asr/kaldi/src/feat/feature-functions.cc#L205:6
+  '''
+
+  def _loop_continue(time, end_time, context, unused_left_context, right_context,
+                     unused_output_tas):
+    del unused_output_tas
+    del unused_left_context
+    return time < end_time
+
+  def _loop_body(time, end_time, context, left_context, right_context, output_tas):
+    shape = tf.shape(context)
+    B, _, D = shape[0], shape[1], shape[2]
+    N = (1 + left_context + right_context) * D
+
+    new_feat = context[:, time:time + left_context + 1 + right_context, :]
+    new_feat = tf.reshape(new_feat, [B, N])
+    new_output_tas = output_tas.write(time, new_feat)
+    return (time + 1, end_time, context, left_context, right_context, new_output_tas)
+
+  with tf.control_dependencies([
+      tf.assert_greater_equal(left_context, 0),
+      tf.assert_greater_equal(right_context, 0)
+  ]):
+    T = tf.shape(feat)[1]
+    output_tas = _new_tensor_array('splice_feat_ta', T, dtype=tf.float32)
+    time = tf.constant(0, tf.int32)
+    first = tf.tile(feat[:, 0:1, :], [1, left_context, 1])
+    last = tf.tile(feat[:, -1:, :], [1, right_context, 1])
+    context = tf.concat([first, feat], axis=1)
+    context = tf.concat([context, last], axis=1)
+
+    loop_vars = (time, T, context, left_context, right_context, output_tas)
+
+    parallel_iterations = 10
+    shape_invariants = tf.contrib.framework.nest.map_structure(
+        lambda t: tf.TensorShape(None), loop_vars)
+
+    (time, end_time, context, left_context, right_context, output_tas) = tf.while_loop(
+        _loop_continue,
+        _loop_body,
+        loop_vars=loop_vars,
+        shape_invariants=shape_invariants,
+        parallel_iterations=parallel_iterations,
+        swap_memory=False)
+    del context
+    del left_context
+    del right_context
+
+    batch_spliced_feats = output_tas.stack()
+    batch_spliced_feats = tf.transpose(batch_spliced_feats, [1, 0, 2])
+  return batch_spliced_feats

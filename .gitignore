@@ -85,6 +85,8 @@ egs/*/*/data
 egs/*/*/*/data
 egs/*/*/exp
 egs/*/*/*/exp
+egs/*/*/res
+egs/*/*/*/res
 
 # dpl copys
 dpl/lib/tensorflow/*

@@ -27,7 +27,7 @@ fi
 
 TAG=1.14.0-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
-PIP_INSTALL="sudo pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
+PIP_INSTALL="pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
 
 on_exit() {
   if [ $SAVE_DOCKERFILE == false ];then
@@ -90,7 +90,7 @@ if [ ${TARGET} == 'ci' ];then
 cat >> $DOCKERFILE <<EOF
 COPY requirements.txt /ci/requirements.txt
 WORKDIR /ci
-RUN $PIP_INSTALL --upgrade pip && $PIP_INSTALL --user -r requirements.txt
+RUN sudo $PIP_INSTALL --upgrade pip && $PIP_INSTALL --user -r requirements.txt
 
 EOF
 fi
