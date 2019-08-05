@@ -92,7 +92,6 @@ class HierarchicalAttentionModel(HierarchicalModel):
     self.use_true_length = config['model'].get('use_true_length', False)
     if self.use_true_length:
       self.split_token = config['data']['split_token']
-    # self.padding_token = config['data']["padding_token"]
     self.padding_token = utils.PAD_IDX
 
     model_config = config['model']['net']['structure']
@@ -116,7 +115,6 @@ class HierarchicalAttentionModel(HierarchicalModel):
         config, name="sen_encoder")
     self.doc_encoder = delta.layers.RnnAttentionEncoder(
         config, name="doc_encoder")
-    # self.dense = tf.keras.layers.Dense(64, activation=tf.keras.activations.relu)
 
     self.final_dense = tf.keras.layers.Dense(
         self.num_classes,
