@@ -866,14 +866,20 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
     super().__init__(config, mode)
     self.shuffle = True
     self.batch_size = self.config['solver']['optimizer']['batch_size']
+    self.subset = self.config['data']['task']['subset']
+    assert self.subset in ('impro', 'script', 'all')
+    logging.info(f"using subset data: {self.subset}")
 
     self.examples_meta = []
     for _, (filename, examples) in enumerate(self.data_items):
       for label, seg, clip_id in examples:
         if clip_id == 0:
-          self.examples_meta.append((filename, label, seg))
+          if self.subset in filename or self.subset == 'all':
+            # impro script
+            self.examples_meta.append((filename, label, seg))
 
     self.num_examples = len(self.examples_meta)
+    logging.info(f"num examples: {self.num_examples}")
 
     self.on_epoch_end()
 

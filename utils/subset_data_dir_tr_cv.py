@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-""" Meta info for Kaldi data directory. """
+""" Split Kaldi data directory into traininng and validation sets. """
 import argparse
 from absl import logging
 

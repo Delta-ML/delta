@@ -15,10 +15,11 @@ data:
   task:
     name: IEmoCapTask 
     suffix: .npy # file suffix
+    subset: 'all' #impro, script, all
     audio:
       dry_run: false # not save feat
       # params
-      clip_size: 7.5 # clip len in seconds
+      clip_size: 7 # clip len in seconds
       stride: 0.5 # stride in ratio of clip_size
       sr: 16000 # sample rate
       winlen: 0.025 # window len
@@ -78,20 +79,6 @@ model:
       - [2, 1]
       - [2, 1]
       - [1, 1]
-      num_filters: 128
-      linear_num: 786 # hidden number of linear layer
-      cell_num: 128 # cell units of the lstm
-      hidden1: 64 # number of hidden units of fully connected layer
-      attention: false # whether to use attention, false mean use max-pooling
-      attention_size: 128 # attention_size
-      use_lstm_layer: false # whether to use lstm layer, false mean no lstm layer
-      use_dropout: true # whether to use bn, dropout layer
-      dropout_rate: 0.2
-      use_bn: true # whether to use bn, dropout layer
-
-      score_threshold: 0.5 # threshold to predict POS example
-      threshold: 3 # threshold to predict POS example
-
 
 solver:
   name: EmoKerasSolver
@@ -108,14 +95,14 @@ solver:
   optimizer:
     name: adam
     epochs: 150 # aximum epochs
-    batch_size: 100 # number of elements in a training batch
+    batch_size: 32 # number of elements in a training batch
     loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.001 # learning rate of Adam optimizer
       min_rate: 0.00001
       patience: 10
-      type: val_metric # learning rate type: exp_decay, val_metric, custom
+      type: const # learning rate type: exp_decay, val_metric, custom
       decay_rate: 0.5  # the lr decay rate
       decay_steps: 1000  # the lr decay_step for optimizer
     clip_global_norm: 3.0 # clip global norm
@@ -151,7 +138,7 @@ solver:
           enable: true
           count: 2
   saver:
-    model_path: "exp/emo/keras-reset50/7.5s-ls0.0-decay0.5-ckpt"
+    model_path: "exp/emo/keras-reset50/7s-ls0.0-decay1.0-batch32-all"
     max_to_keep: 10
     save_checkpoints_steps: 100
     keep_checkpoint_every_n_hours: 10000

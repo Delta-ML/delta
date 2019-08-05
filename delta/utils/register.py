@@ -98,7 +98,8 @@ METRICS_MODULES = ["py_metrics"]
 SOLVER_MODULES = [
     "raw_cls_solver", "raw_match_solver", "keras_solver", "emotion_solver",
     "kws_solver", "asr_solver", "speaker_solver", "raw_seq_label_solver",
-    "raw_nlu_joint_solver", "raw_seq2seq_solver"
+    "raw_nlu_joint_solver", "raw_seq2seq_solver",
+    "raw_pretrain_cls_solver", "raw_pretrain_seq_label_solver",
 ]
 
 POSTPROCESS_MODULES = [

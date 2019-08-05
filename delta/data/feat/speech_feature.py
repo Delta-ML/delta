@@ -16,7 +16,6 @@
 ''' speech feat entrypoint unittest'''
 import os
 
-import librosa
 import numpy as np
 import tensorflow as tf
 from absl import logging

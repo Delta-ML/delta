@@ -15,6 +15,7 @@ data:
   task:
     name: IEmoCapTask 
     suffix: .npy # file suffix
+    subset: 'impro' #impro, script, all
     audio:
       dry_run: false # not save feat
       # params
@@ -57,7 +58,7 @@ data:
     need_shuffle: true
 
 model:
-  name: EmoBLstmModel 
+  name: EmoBLstmPoolModel
   type: keras # raw, keras or eager model
   net:
     structure:
@@ -78,20 +79,6 @@ model:
       - [2, 1]
       - [2, 1]
       - [1, 1]
-      num_filters: 128
-      linear_num: 786 # hidden number of linear layer
-      cell_num: 128 # cell units of the lstm
-      hidden1: 64 # number of hidden units of fully connected layer
-      attention: false # whether to use attention, false mean use max-pooling
-      attention_size: 128 # attention_size
-      use_lstm_layer: false # whether to use lstm layer, false mean no lstm layer
-      use_dropout: true # whether to use bn, dropout layer
-      dropout_rate: 0.2
-      use_bn: true # whether to use bn, dropout layer
-
-      score_threshold: 0.5 # threshold to predict POS example
-      threshold: 3 # threshold to predict POS example
-
 
 solver:
   name: EmoKerasSolver
@@ -107,14 +94,16 @@ solver:
     var_avg_decay: 0.99 # the decay rate of varaibles
   optimizer:
     name: adam
-    epochs: 100 # aximum epochs
-    batch_size: 100 # number of elements in a training batch
+    epochs: 150 # aximum epochs
+    batch_size: 64 # number of elements in a training batch
     loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.001 # learning rate of Adam optimizer
-      type:  exp_decay # learning rate type
-      decay_rate: 0.99  # the lr decay rate
+      min_rate: 0.00001
+      patience: 10
+      type: const  # learning rate type: exp_decay, val_metric, custom
+      decay_rate: 0.5  # the lr decay rate
       decay_steps: 1000  # the lr decay_step for optimizer
     clip_global_norm: 3.0 # clip global norm
     multitask: False # whether is multi-task
@@ -149,7 +138,7 @@ solver:
           enable: true
           count: 2
   saver:
-    model_path: "exp/emo/keras-blstm/7s-ckpt"
+    model_path: "exp/emo/keras-blstm-pool/7s-ls0.0-decay1.0-batch64-impro"
     max_to_keep: 10
     save_checkpoints_steps: 100
     keep_checkpoint_every_n_hours: 10000

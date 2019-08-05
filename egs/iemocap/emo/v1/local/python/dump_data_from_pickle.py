@@ -16,7 +16,7 @@ import kaldiio
 
 ''' dump wav, text, label from pkl '''
 
-emotions_used = np.array(['ang', 'neu', 'sad', 'exc', 'hap'])
+emotions_used = np.array(['ang', 'neu', 'sad', 'hap'])
 root_path = os.path.realpath(os.getcwd())
 data_path = os.path.join(root_path, 'data')
 sessions = ['Ses01', 'Ses02', 'Ses03', 'Ses04']
@@ -37,27 +37,42 @@ def save_label(data, filename):
 
 with open(os.path.join(data_path,'data_collected.pickle'), 'rb') as handle:
     datas = pickle.load(handle)
-    # data : dict_keys(['start', 'end', 'id', 'v', 'a', 'd', 'emotion', 'emo_evo', 'signal', 'transcription', 'mocap_hand', 'mocap_rot', 'mocap_head'])
     for data in datas:
         # Ses01F_impro01_F000  Excuse me.  neu
         key = data['id']
         samples = data['signal'] # int16 
         text = data['transcription']
         label = data['emotion']
+        all_dirpath = os.path.join(dump_dir, 'all')
+
         if label in emotions_used:
-            if label == 'exc':
-                label = 'hap'
+            if key[7:12] == 'impro':
+                dirpath = os.path.join(dump_dir, 'impro')
+            else:
+                dirpath = os.path.join(dump_dir, 'script')
 
             if key[0:5] in sessions:
-                dirpath = os.path.join(dump_dir, 'train', label, key)
+                dirpath = os.path.join(dirpath, 'train', label, key)
+                all_dirpath = os.path.join(all_dirpath, 'train',label, key)
             else:
-                dirpath = os.path.join(dump_dir, 'eval', label, key)
+                dirpath = os.path.join(dirpath, 'eval', label, key)
+                all_dirpath = os.path.join(all_dirpath, 'eval',label, key)
 
             if not os.path.exists(dirpath):
                 os.makedirs(dirpath)
+                os.makedirs(all_dirpath)
+
             filepath = os.path.join(dirpath, key) + '.wav'
             save_wav(np.array(samples, dtype=np.int16), filepath)
+            link_file = os.path.join(all_dirpath, key) + '.wav'
+            os.symlink(filepath, link_file)
+
             filepath = os.path.join(dirpath, key) + '.txt'
             save_text(text, filepath)
+            link_file = os.path.join(all_dirpath, key) + '.txt'
+            os.symlink(filepath, link_file)
+
             filepath = os.path.join(dirpath, key) + '.label'
             save_label(label, filepath)
+            link_file = os.path.join(all_dirpath, key) + '.label'
+            os.symlink(filepath, link_file)

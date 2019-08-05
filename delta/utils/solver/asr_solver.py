@@ -129,6 +129,14 @@ class AsrSolver(Solver):
     loss = {'ctc': lambda y_true, y_pred: tf.reduce_mean(y_pred)}
     return loss
 
+  def input_generator(self, input_iterator, input_task, cur_sess):
+    ''' dataset_based generator used in keras.model.fit_generator()
+        in future, it will be replaced by tf.keras.utils.Sequence'''
+    next_batch = input_iterator.get_next()
+    for _ in range(len(input_task)):
+      next_batch_data = cur_sess.run(next_batch)
+      yield next_batch_data
+
   def get_run_opts_metas(self):
     ''' RunOptions and RunMetadata '''
     opts_conf = self.config['solver']['run_options']
@@ -236,7 +244,7 @@ class AsrSolver(Solver):
     # metric history
     metric_log = 'metrics.csv'
     csv_logger = CSVLogger(
-        filename=Path(self._model_path).joinpath(metric_log))
+        filename=Path(self._model_path).joinpath(metric_log), separator='\t')
     callbacks.append(csv_logger)
     logging.info(f"CallBack: Metric log to {metric_log}")
 
@@ -374,9 +382,11 @@ class AsrSolver(Solver):
   def train_and_eval(self):
     ''' train and eval '''
     # data must be init before model builg
+    backend_sess = K.get_session()
     train_ds, train_task = self.input_data(mode=utils.TRAIN)
+    train_gen = self.input_generator(train_ds.make_one_shot_iterator(), train_task, backend_sess)
     eval_ds, eval_task = self.input_data(mode=utils.EVAL)
-    del train_ds
+    eval_gen = self.input_generator(eval_ds.make_one_shot_iterator(), eval_task, backend_sess)
 
     self.model_fn(mode=utils.TRAIN)
     assert self._built
@@ -387,16 +397,16 @@ class AsrSolver(Solver):
     try:
       # Run training
       self.active_model.fit_generator(
-          train_task,
+          train_gen,
           steps_per_epoch=len(train_task),
           epochs=self._num_epochs,
           verbose=1,
           callbacks=callbacks,
-          validation_data=eval_task,
+          validation_data=eval_gen,
           validation_steps=len(eval_task),
           validation_freq=1,
           class_weight=None,
-          max_queue_size=20,
+          max_queue_size=50,
           workers=1,
           use_multiprocessing=False,
           shuffle=True,

@@ -9,3 +9,5 @@
     st = auto
     diff = auto
     ui = true
+[credential]
+    helper = cache --timeout 30000

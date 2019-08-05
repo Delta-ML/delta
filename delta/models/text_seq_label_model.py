@@ -95,7 +95,16 @@ class BilstmCrfModel(SeqclassModel):
     # [batch_size, max_len, embed_len]
     out = self.embed(input_x)
     # [batch_size, features]
-    out = self.embed_dropout(out, training=training)
+    if self.use_pretrained_model:
+      logging.info("use_pretrained_model: {}, {}".format(
+        self.pretrained_model_name, self.pretrained_model_mode))
+      if self.pretrained_model_name == 'bert' and \
+        self.pretrained_model_mode == 'fine-tune':
+        out = self.get_pre_train_graph(input_x)
+      else:
+        input_px = self.get_pre_train_graph(input_x)
+        out = tf.concat([out, input_px], axis=-1)
+        out = self.embed_dropout(out, training=training)
     out = self.bilstm(out)
     out = self.dropout(out, training=training)
     output = self.dense(out)

@@ -132,7 +132,7 @@ class RnnAttentionModel(SeqclassModel):
     logging.info("Initialize RnnAttentionModel...")
 
     self.vocab_size = config['data']['vocab_size']
-    self.num_classes = config['data']['task']['num_classes']
+    self.num_classes = config['data']['task']['classes']['num_classes']
 
     model_config = config['model']['net']['structure']
     self.dropout_rate = model_config['dropout_rate']
@@ -266,3 +266,67 @@ class TransformerModel(SeqclassModel):
 
     scores = self.final_dense(out)
     return scores
+
+@registers.model.register
+class FullyConnectModel(SeqclassModel):
+  """FullyConnect model for text classification based on
+  pretrain embedding/model"""
+  def __init__(self, config, **kwargs):
+    super().__init__(config, **kwargs)
+    logging.info("Initialize FullyConnectModel...")
+
+    self.vocab_size = config['data']['vocab_size']
+    self.num_classes = config['data']['task']['classes']['num_classes']
+
+    model_config = config['model']['net']['structure']
+    self.dropout_rate = model_config['dropout_rate']
+    self.embedding_size = model_config['embedding_size']
+    self.num_layers = model_config['num_layers']
+    self.l2_reg_lambda = model_config['l2_reg_lambda']
+    self.max_len = model_config['max_len']
+
+    self.embed = tf.keras.layers.Embedding(
+        self.vocab_size,
+        self.embedding_size,
+        embeddings_initializer=self.embed_initializer)
+
+    self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
+    self.final_dense = tf.keras.layers.Dense(
+        self.num_classes,
+        activation=tf.keras.activations.linear,
+        name="final_dense")
+    self.dropout = tf.keras.layers.Dropout(self.dropout_rate)
+
+    logging.info("Initialize FullyConnectModel done.")
+
+  def call(self, inputs, training=None, mask=None):
+    input_x = inputs["input_x"]
+    if self.use_dense_task:
+      dense_input = inputs["input_dense"]
+
+    # [batch_size, max_len, embed_len]
+    out = self.embed(input_x)
+    if self.use_pretrained_model:
+      logging.info("use_pretrained_model: {}, {}".format(
+        self.pretrained_model_name, self.pretrained_model_mode))
+      if self.pretrained_model_name == 'elmo':
+        input_px = self.get_pre_train_graph(input_x)
+        input_px = tf.reshape(input_px, [-1, self.max_len,
+                                         self.pretrained_model_dim])
+        out = tf.concat([out, input_px], axis=-1)
+        out = tf.reduce_max(out, axis=1)
+      if self.pretrained_model_name == 'bert':
+        out = self.get_pre_train_graph(input_x)
+    else:
+        out = tf.reduce_max(out, axis=1)
+    out = self.embed_d(out, training=training)
+    if self.use_dense_input:
+      dense_out = self.dense_input_linear(dense_input)
+      if self.only_dense_input:
+        out = dense_out
+      else:
+        out = tf.keras.layers.Concatenate()([out, dense_out])
+    # [batch_size, class_num]
+    scores = self.final_dense(out)
+    return scores
+
