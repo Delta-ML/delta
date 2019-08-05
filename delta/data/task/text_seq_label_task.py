@@ -15,7 +15,6 @@
 # ==============================================================================
 ''' sequence labeling task '''
 
-import os
 import collections
 import tensorflow as tf
 from absl import logging
@@ -24,9 +23,6 @@ from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_seq_label_raw_data
 from delta.data.utils.common_utils import load_multi_label_dataset
 from delta.data.preprocess.utils import get_vocab_size
-from delta.data.preprocess.text_ops import tokenize_sentence
-from delta.data.preprocess.text_ops import pre_process_text
-from delta import utils
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
 
@@ -39,54 +35,19 @@ class TextSeqLabelTask(TextTask):
 
   def __init__(self, config, mode):
     super().__init__(config, mode)
-    data_config = config['data']
 
-    self.mode = mode
-    self.paths = data_config[mode]['paths']
-    self.infer_no_label = data_config[utils.INFER].get('infer_no_label', False)
-    if self.mode == utils.INFER and self.infer_no_label:
-      self.infer_without_label = True
-    else:
-      self.infer_without_label = False
-    self.paths_after_pre_process = []
+    self.vocab_min_frequency = self.task_config['vocab_min_frequency']
+    self.text_vocab_file_path = self.task_config['text_vocab']
+    self.label_vocab_file_path = self.task_config['label_vocab']
+    self.max_seq_len = self.task_config['max_seq_len']
+    self.num_classes = self.task_config["classes"]['num_classes']
 
-    task_config = data_config['task']
-    self.vocab_min_frequency = task_config['vocab_min_frequency']
-    self.text_vocab_file_path = task_config['text_vocab']
-    self.label_vocab_file_path = task_config['label_vocab']
-    self.max_seq_len = task_config['max_seq_len']
-    self.num_classes = task_config["classes"]['num_classes']
-    self.batch_size = task_config['batch_size']
-    self.epochs = task_config['epochs']
-    self.num_parallel_calls = task_config['num_parallel_calls']
-    self.num_prefetch_batch = task_config['num_prefetch_batch']
-    self.shuffle_buffer_size = task_config['shuffle_buffer_size']
-    self.need_shuffle = task_config['need_shuffle']
-    self.task_config = task_config
-    self.model_config = config["model"]
-    self.language = self.task_config["language"]
-    self.split_by_space = self.task_config.get("split_by_space", False)
-    self.use_word = self.task_config.get("use_word", False)
+    self.paths = self.data_config[mode]['paths']
     self.paths_after_pre_process = [
-        one_path + ".after" for one_path in self.paths
+      one_path + ".after" for one_path in self.paths
     ]
-    self.init_feed_dict = {}
+
     self.prepare()
-
-  def pre_process_pipeline(self, input_sentences):
-    """Data pipeline function for pre-processing."""
-    batch = pre_process_text(input_sentences, self.language,
-                             self.split_by_space, self.use_word)
-    return batch
-
-  def common_process_pipeline(self, batch):
-    """
-    Data pipeline function for common process.
-    This function is used both by online training and offline inference.
-    """
-    vocab_path = os.path.abspath(self.text_vocab_file_path)
-    token_ids = tokenize_sentence(batch, self.max_seq_len, vocab_path)
-    return token_ids
 
   def load_text_dataset(self, text_placeholder):
     """Load text data set."""

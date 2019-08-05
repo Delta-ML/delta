@@ -92,7 +92,7 @@ class NLUJointTaskTest(tf.test.TestCase):
 
     with self.session() as sess:
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
-      res = sess.run(input_x, feed_dict={input_sentence: ["I am happy"]})
+      res = sess.run(input_x, feed_dict={input_sentence: ["i am happy"]})
       logging.debug(res[0][:5])
       logging.debug(np.shape(res[0]))
       self.assertAllEqual(res[0][:5], [2, 3, 7, 0, 0])

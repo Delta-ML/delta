@@ -3,34 +3,34 @@ data:
   train:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/train.cnndm.src"
+        - "egs/cnn_dailymail/seq2seq/v1/data/train.cnndm.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/train.cnndm.tgt"
+        - "egs/cnn_dailymail/seq2seq/v1/data/train.cnndm.tgt"
   eval:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/val.cnndm.src"
+        - "egs/cnn_dailymail/seq2seq/v1/data/val.cnndm.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/val.cnndm.tgt"
+        - "egs/cnn_dailymail/seq2seq/v1/data/val.cnndm.tgt"
   infer:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/test.cnndm.src"
+        - "egs/cnn_dailymail/seq2seq/v1/data/test.cnndm.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
+        - "egs/cnn_dailymail/seq2seq/v1/data/test.cnndm.tgt"
     infer_no_label: false
   task:
     name: TextS2STask
     preparer:
       enable: true
       name: TextS2SPreparer
-      done_sign: "egs/cnn_dailymail/nlp1/exp/prepare.done"
+      done_sign: "egs/cnn_dailymail/seq2seq/v1/exp/prepare.done"
       reuse: true
     language: english
     split_by_space: true
     vocab_min_frequency: 50
-    text_vocab: "egs/cnn_dailymail/nlp1/exp/text_vocab.txt"
-    label_vocab: "egs/cnn_dailymail/nlp1/exp/label_vocab.txt"
+    text_vocab: "egs/cnn_dailymail/seq2seq/v1/exp/text_vocab.txt"
+    label_vocab: "egs/cnn_dailymail/seq2seq/v1/exp/label_vocab.txt"
     max_enc_len: 400
     max_dec_len: 100
     num_parallel_calls: 12
@@ -96,23 +96,23 @@ solver:
     epochs: 30
   metrics:
     pos_label: 1
-    res_file: "egs/cnn_dailymail/res/infer_res.txt"
+    res_file: "egs/cnn_dailymail/seq2seq/v1/res/infer_res.txt"
     target_file:
-      - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
-    text_vocab: "egs/cnn_dailymail/nlp1/exp/text_vocab.txt"
+      - "egs/cnn_dailymail/seq2seq/v1/data/test.cnndm.tgt"
+    text_vocab: "egs/cnn_dailymail/seq2seq/v1/exp/text_vocab.txt"
     cals:
       - name: RougeCal
         arguments: Null
   postproc:
     name: SavePredSeqPostProc
-    res_file: "egs/cnn_dailymail/res/infer_res.txt"
+    res_file: "egs/cnn_dailymail/seq2seq/v1/res/infer_res.txt"
   saver:
-    model_path: "egs/cnn_dailymail/nlp1/exp/lstm-sum/ckpt"
+    model_path: "egs/cnn_dailymail/seq2seq/v1/exp/lstm-sum/ckpt"
     max_to_keep: 30
     save_checkpoint_steps: 1000
     print_every: 10
   service:
-    model_path: "egs/cnn_dailymail/nlp1/exp/lstm-sum/service"
+    model_path: "egs/cnn_dailymail/seq2seq/v1/exp/lstm-sum/service"
     model_version: "1"
   run_config:
     tf_random_seed: null

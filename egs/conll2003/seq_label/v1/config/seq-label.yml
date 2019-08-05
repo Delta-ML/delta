@@ -99,7 +99,7 @@ solver:
     res_file: "egs/conll2003/seq_label/v1/res/infer_res.txt"
   saver:
     model_path: "egs/conll2003/seq_label/v1/ckpt/bilstmcrf/"
-    max_to_keep: 10
+    max_to_keep: 5
     save_checkpoint_steps: 100
     print_every: 10
   service:
