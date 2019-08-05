@@ -172,7 +172,10 @@ class TextS2STask(TextTask):
     """Inputs for exported model."""
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
+    label_vocab_dict = load_vocab_dict(self.label_vocab_file_paths[0])
+    label_vocab_size = len(label_vocab_dict)
     self.config['data']['vocab_size'] = vocab_size
+    self.config['data']['label_vocab_size'] = label_vocab_size
 
     input_sentence = tf.placeholder(
         shape=(None,), dtype=tf.string, name="input_sentence")

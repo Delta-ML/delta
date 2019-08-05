@@ -8,7 +8,7 @@ if [ ${start_stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # download data
     [ -d $data ] || mkdir -p $data || exit 1
     git clone https://github.com/yvchen/JointSLU.git JointSLU || exit 1
-    mv JointSLU/data origin_data && rm -r JointSLU || exit 1
+    mv JointSLU/data origin_data && rm -r -f JointSLU || exit 1
 fi
 
 if [ ${start_stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then

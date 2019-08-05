@@ -32,7 +32,7 @@ class RawS2SSolverTest(tf.test.TestCase):
   def setUp(self):
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
-    self.config_file = main_root.joinpath('egs/mock_text_seq2seq_data/nlp1/config/transformer-s2s.yml')
+    self.config_file = main_root.joinpath('egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
     self.config = utils.load_config(self.config_file)
     import_all_modules_for_register()
 

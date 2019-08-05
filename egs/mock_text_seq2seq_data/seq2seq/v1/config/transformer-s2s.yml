@@ -3,42 +3,47 @@ data:
   train:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/train.cnndm.src"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/train.txt.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/train.cnndm.tgt"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/train.txt.tgt"
   eval:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/val.cnndm.src"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/dev.txt.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/val.cnndm.tgt"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/dev.txt.tgt"
   infer:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/test.cnndm.src"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/test.txt.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
+        - "egs/mock_text_seq2seq_data/seq2seq/v1/data/test.txt.tgt"
     infer_no_label: false
   task:
     name: TextS2STask
     preparer:
       enable: true
       name: TextS2SPreparer
-      done_sign: "egs/cnn_dailymail/nlp1/exp/prepare.done"
+      done_sign: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/prepare.done"
       reuse: true
-    language: english
-    split_by_space: true
+    language: q
+    split_by_space: false
+    use_label_vocab: false
+    use_word: false
     vocab_min_frequency: 20
-    text_vocab: "egs/cnn_dailymail/nlp1/exp/text_vocab.txt"
-    label_vocab: ""
+    text_vocab: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/text_vocab.txt"
+    label_vocab: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/label_vocab.txt"
     max_enc_len: 400
     max_dec_len: 100
     num_parallel_calls: 12
     num_prefetch_batch: 2
     shuffle_buffer_size: 30000
     need_shuffle: true
-    batch_size: 32
-    epochs: 15
+    batch_size: 16
+    epochs: 2
+    classes:
+      - positive_id: 1
+        num_classes: 2
 
 model:
   name: TransformerSeq2SeqModel
@@ -60,7 +65,7 @@ model:
       hidden_dim: 256
       share_embedding: true
       beam_size: 2
-      length_penalty: 5
+      length_penalty: 1
 
 solver:
   name: RawS2SSolver
@@ -79,33 +84,33 @@ solver:
     loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
-      rate: 0.0001 # learning rate of Adam optimizer
+      rate: 0.0005 # learning rate of Adam optimizer
       type:  exp_decay # learning rate type
       decay_rate: 0.99  # the lr decay rate
       decay_steps: 100  # the lr decay_step for optimizer
     clip_global_norm: 3.0 # clip global norm
     multitask: False # whether is multi-task
     batch_size: 32
-    epochs: 15
+    epochs: 1
   metrics:
     pos_label: 1
-    res_file: "egs/cnn_dailymail/res/trans_infer_res.txt"
+    res_file: "egs/mock_text_seq2seq_data/seq2seq/v1/res/infer_res.txt"
     target_file:
-      - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
-    text_vocab: "egs/cnn_dailymail/nlp1/exp/text_vocab.txt"
+      - "egs/mock_text_seq2seq_data/seq2seq/v1/data/test.txt.tgt"
+    text_vocab: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/text_vocab.txt"
     cals:
       - name: RougeCal
         arguments: Null
   postproc:
     name: SavePredSeqPostProc
-    res_file: "egs/cnn_dailymail/res/trans_infer_res.txt"
+    res_file: "egs/mock_text_seq2seq_data/seq2seq/v1/res/infer_res.txt"
   saver:
-    model_path: "egs/cnn_dailymail/nlp1/exp/transformer-sum/ckpt"
+    model_path: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/transformer-sum/ckpt"
     max_to_keep: 30
-    save_checkpoint_steps: 1000
+    save_checkpoint_steps: 30
     print_every: 10
   service:
-    model_path: "egs/cnn_dailymail/nlp1/exp/transformer-sum/service"
+    model_path: "egs/mock_text_seq2seq_data/seq2seq/v1/exp/transformer-sum/service"
     model_version: "1"
   run_config:
     tf_random_seed: null
