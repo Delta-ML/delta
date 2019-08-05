@@ -63,7 +63,7 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
       logging.debug(res[0][0][:5])
       logging.debug(res[1][0])
-      self.assertAllEqual(res[0][0][:5], [2, 3, 4, 0, 0])
+      self.assertAllEqual(res[0][0][:5], [2, 3, 4, 5, 0])
       self.assertEqual(np.shape(res[0]), (10, max_len))
       self.assertEqual(np.shape(res[1]), (10, max_len))
 
@@ -77,7 +77,7 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
       res = sess.run(input_x, feed_dict={input_sentence: ["I feel good ."]})
       logging.debug(res[0][:5])
-      self.assertAllEqual(res[0][:5], [0, 3, 4, 0, 0])
+      self.assertAllEqual(res[0][:5], [0, 3, 4, 5, 0])
       self.assertEqual(np.shape(res[0]), (max_len,))
 
 

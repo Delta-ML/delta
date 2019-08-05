@@ -76,10 +76,12 @@ conda activate delta-py3.6-tf1.14
 # Add DELTA enviornment
 source env.sh
 
-# generate mock data for text classification.
-cd egs/mock_text_cls_data/text_cls/v1
+# Generate mock data for text classification.
+pushd egs/mock_text_cls_data/text_cls/v1
 ./run.sh
-cd -
+popd
+
+# Train the model
 python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml
 ```
 
@@ -104,7 +106,9 @@ You can simply use the `run.sh` under each directory to prepare the dataset, and
 For example, you can use the following command to download the CONLL2003 dataset and train and evaluate a BLSTM-CRF model for NER: 
 
 ```shell
-./egs/conll2003/seq_label/v1/run.sh
+pushd ./egs/conll2003/seq_label/v1/
+./run.sh
+popd
 python3 delta/main.py --cmd train --config egs/conll2003/seq_label/v1/config/seq-label.yml
 python3 delta/main.py --cmd eval --config egs/conll2003/seq_label/v1/config/seq-label.yml
 ```
