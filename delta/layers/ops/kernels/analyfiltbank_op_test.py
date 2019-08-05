@@ -140,8 +140,8 @@ class AfbOpTest(tf.test.TestCase):
            ]])
       self.assertEqual(tf.rank(power_spc).eval(), 2)
       self.assertEqual(tf.rank(phase_spc).eval(), 2)
-      logging.info('power_spc shape: {}'.format(power_spc.shape))
-      logging.info('phase_spc shape: {}'.format(phase_spc.shape))
+      logging.info('Shape of power_spc: {}'.format(power_spc.shape))
+      logging.info('Shape of phase_spc: {}'.format(phase_spc.shape))
       self.assertAllClose(power_spc.eval().transpose()[:10, :10],
                           power_spc_true)
       self.assertAllClose(phase_spc.eval().transpose()[:10, :10],

@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 from delta.data import feat as feat_lib
 from delta.layers.ops import py_x_ops
@@ -56,6 +57,7 @@ class PitchOpTest(tf.test.TestCase):
           131.147537, 129.032257, 125.000000, 120.300751, 115.107910
       ])
       self.assertEqual(tf.rank(output).eval(), 1)
+      logging.info('Shape of pitch: {}'.format(output.eval().shape))
       self.assertAllClose(output.eval().flatten()[:50], output_true)
 
 
