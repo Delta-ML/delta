@@ -27,7 +27,7 @@ data:
       - "egs/mock_text_nlu_joint_data/nlu-joint/v1/exp/slots_label_vocab.txt"
     max_seq_len: 30
     batch_size: 10
-    epochs: 1
+    epochs: 2
     num_parallel_calls: 12
     num_prefetch_batch: 2
     shuffle_buffer_size: 2000

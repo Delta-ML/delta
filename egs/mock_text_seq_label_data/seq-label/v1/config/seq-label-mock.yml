@@ -24,7 +24,7 @@ data:
     label_vocab: "egs/mock_text_seq_label_data/seq-label/v1/data/label_vocab.txt"
     max_seq_len: 30
     batch_size: 10
-    epochs: 1
+    epochs: 2
     num_parallel_calls: 12
     num_prefetch_batch: 2
     shuffle_buffer_size: 2000
@@ -95,9 +95,9 @@ solver:
     name: SavePredEntityPostProc
     res_file: "egs/mock_text_seq_label_data/seq-label/v1/res/infer_res.txt"
   saver:
-    model_path: "egs/mock_text_seq_label_data/seq-label/v1/exp/ckpt/bilstmcrf/"
+    model_path: "egs/mock_text_seq_label_data/seq-label/v1/ckpt/bilstmcrf/"
     max_to_keep: 10
-    save_checkpoint_steps: 30
+    save_checkpoint_steps: 20
     print_every: 10
   service:
     model_path: "egs/mock_text_seq_label_data/seq-label/v1/exp/bilstmcrf/service"

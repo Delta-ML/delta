@@ -20,8 +20,8 @@ from delta.data.utils.test_utils import mock_a_text_file
 from delta.data.utils.test_utils import save_a_vocab_file
 
 # samples with label
-samples = ["0\tO O O O\t my feeling is low",
-           "1\tO O O O B-ORG\tI am happy in the KFC"]
+samples = ["0\tO O O O\tmy feeling is low",
+           "1\tO O O O B-ORG\ti am happy in the kfc"]
 
 text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "am\t3", "kfc\t4", "my\t5",
                    "feeling\t6", "happy\t7", "is\t8", "low\t9", "in\t10", "the\t11"]

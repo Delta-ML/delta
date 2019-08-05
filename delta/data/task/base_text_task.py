@@ -15,11 +15,16 @@
 # ==============================================================================
 """Base task for NLP."""
 
+import os
 from absl import logging
 
 from delta.data.task.base_task import Task
 from delta import utils
 from delta.utils.register import registers
+from delta.layers.ops import py_x_ops
+from delta.data.preprocess.text_ops import clean_english_str_tf
+from delta.data.preprocess.text_ops import char_cut_tf
+from delta.data.preprocess.text_ops import tokenize_sentence
 
 # pylint: disable=abstract-method
 
@@ -33,6 +38,25 @@ class TextTask(Task):
     assert mode in self.all_modes
     self.preparer = None
     self.use_preparer = True
+    self.mode = mode
+    self.model_config = config["model"]
+    self.data_config = config['data']
+    self.task_config = self.data_config['task']
+
+    self.infer_no_label = self.data_config[utils.INFER].get('infer_no_label', False)
+    if self.mode == utils.INFER and self.infer_no_label:
+      self.infer_without_label = True
+    else:
+      self.infer_without_label = False
+
+    self.batch_size = self.task_config['batch_size']
+    self.epochs = self.task_config['epochs']
+    self.num_parallel_calls = self.task_config['num_parallel_calls']
+    self.num_prefetch_batch = self.task_config['num_prefetch_batch']
+    self.shuffle_buffer_size = self.task_config['shuffle_buffer_size']
+    self.need_shuffle = self.task_config['need_shuffle']
+
+    self.init_feed_dict = {}
 
   def input_fn(self):
 
@@ -50,14 +74,52 @@ class TextTask(Task):
 
   def pre_process_pipeline(self, input_sentences):
     """Data pipeline function for pre-processing."""
-    raise NotImplementedError
+    language = self.task_config["language"]
+    clean_english = self.task_config.get("clean_english", False)
+    split_by_space = self.task_config.get("split_by_space", False)
+    use_word = self.task_config.get("use_word", False)
+
+    if language == "english":
+      if clean_english:
+        batch = clean_english_str_tf(input_sentences)
+      else:
+        batch = input_sentences
+    else:
+      if split_by_space:
+        batch = input_sentences
+      else:
+        if use_word:
+          main_root = os.environ["MAIN_ROOT"]
+          dict_path = os.path.join(main_root,
+                                   "tools/cppjieba/dict/jieba.dict.utf8")
+          hmm_path = os.path.join(main_root, "tools/cppjieba/dict/hmm_model.utf8")
+          user_dict_path = os.path.join(main_root,
+                                        "tools/cppjieba/dict/user.dict.utf8")
+          idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
+          stop_word_path = os.path.join(main_root,
+                                        "tools/cppjieba/dict/stop_words.utf8")
+          batch = py_x_ops.jieba_cut(
+            input_sentences,
+            hmm=True,
+            dict_path=dict_path,
+            hmm_path=hmm_path,
+            user_dict_path=user_dict_path,
+            idf_path=idf_path,
+            stop_word_path=stop_word_path)
+        else:
+          batch = char_cut_tf(input_sentences)
+    return batch
 
   def common_process_pipeline(self, batch):
     """
     Data pipeline function for common process.
     This function is used both by online training and offline inference.
     """
-    raise NotImplementedError
+    text_vocab_file_path = self.task_config['text_vocab']
+    max_seq_len = self.task_config['max_seq_len']
+    vocab_path = os.path.abspath(text_vocab_file_path)
+    token_ids = tokenize_sentence(batch, max_seq_len, vocab_path)
+    return token_ids
 
   def get_input_pipeline(self, for_export):
     """Get the input pipeline function."""

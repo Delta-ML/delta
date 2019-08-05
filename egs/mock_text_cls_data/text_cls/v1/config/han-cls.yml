@@ -18,6 +18,7 @@ data:
       reuse: true
     use_dense: false
     language: chinese
+    clean_english: True
     use_word: true
     vocab_min_frequency: 20
     use_custom_vocab: True
@@ -29,7 +30,7 @@ data:
     shuffle_buffer_size: 1000
     need_shuffle: true
     batch_size: 32
-    epochs: 1
+    epochs: 2
     classes:
       positive_id: 1
       num_classes: 2
