@@ -29,7 +29,7 @@ make clean &> /dev/null
 # compile custom ops under tensorflow/core/user_ops
 
 if [ $target == 'delta' ];then
-    make 
+    make -j
 
 elif [ $target == 'deltann' ];then
     if [ -L $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops ];then
