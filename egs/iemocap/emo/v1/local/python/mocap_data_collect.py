@@ -18,9 +18,10 @@ from features import *
 from helper import *
 
 ''' collection data from corpus '''
+
+iemocap_path = sys.argv[1]
 root_path = os.path.realpath(os.getcwd())
 data_path = os.path.join(root_path, 'data')
-session_path = os.path.join(data_path, 'sessions')
 sessions = ['Session1', 'Session2', 'Session3', 'Session4', 'Session5']
 path_map = {'Ses01':'Session1', 'Ses02':'Session2','Ses03':'Session3','Ses04':'Session4','Ses05':'Session5'}
 framerate = 16000
@@ -89,12 +90,12 @@ def get_mocap_head(path_to_mocap_head, filename, start,end):
     return np.array(mocap_head)
 
 def collect(f):
-    path_to_wav = os.path.join(session_path, path_map[f[0:5]], 'dialog', 'wav')
-    path_to_emotions = os.path.join(session_path, path_map[f[0:5]], 'dialog', 'EmoEvaluation')
-    path_to_transcriptions = os.path.join(session_path, path_map[f[0:5]], 'dialog', 'transcriptions')
-    path_to_mocap_hand = os.path.join(session_path, path_map[f[0:5]], 'dialog', 'MOCAP_hand')
-    path_to_mocap_rot = os.path.join(session_path, path_map[f[0:5]], 'dialog', 'MOCAP_rotated')
-    path_to_mocap_head = os.path.join(session_path, path_map[f[0:5]], 'dialog', 'MOCAP_head')
+    path_to_wav = os.path.join(iemocap_path, path_map[f[0:5]], 'dialog', 'wav')
+    path_to_emotions = os.path.join(iemocap_path, path_map[f[0:5]], 'dialog', 'EmoEvaluation')
+    path_to_transcriptions = os.path.join(iemocap_path, path_map[f[0:5]], 'dialog', 'transcriptions')
+    path_to_mocap_hand = os.path.join(iemocap_path, path_map[f[0:5]], 'dialog', 'MOCAP_hand')
+    path_to_mocap_rot = os.path.join(iemocap_path, path_map[f[0:5]], 'dialog', 'MOCAP_rotated')
+    path_to_mocap_head = os.path.join(iemocap_path, path_map[f[0:5]], 'dialog', 'MOCAP_head')
 
     mocap_f = f
     if (f== 'Ses05M_script01_1b'):
@@ -126,7 +127,7 @@ def collect(f):
 
 def read_iemocap_mocap():
     for session in sessions:
-        path_to_wav = os.path.join(session_path, session, 'dialog', 'wav')
+        path_to_wav = os.path.join(iemocap_path, session, 'dialog', 'wav')
         files2 = os.listdir(path_to_wav)
 
         files = []
