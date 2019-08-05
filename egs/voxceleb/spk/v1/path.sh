@@ -1,5 +1,5 @@
 if [ -z $KALDI_ROOT ];then
-    source ../../../env.sh
+    pushd ../../../.. && source env.sh && popd
     echo "source env.sh"
 fi
 
