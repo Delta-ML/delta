@@ -89,8 +89,16 @@ egs/*/*/res
 egs/*/*/*/res
 
 # dpl copys
+!dpl/lib/tensorflow/
 dpl/lib/tensorflow/*
+!dpl/lib/tensorflow/.gitkeep
+!dpl/lib/tflite/
 dpl/lib/tflite/*
+!dpl/lib/tflite/.gitkeep
+!dpl/lib/custom_ops
 dpl/lib/custom_ops/*
+!dpl/lib/custom_ops/.gitkeep
+!dpl/lib/deltann
 dpl/lib/deltann/*
+!dpl/lib/deltann/.gitkeep
 dpl/test/*

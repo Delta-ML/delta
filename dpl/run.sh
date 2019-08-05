@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# all work do under `docker`
+# Please run this script using `docker`
 # dpl input: 
 #  from `model` dir which has `saved_model` dir 
 #  and `model.yaml` config
