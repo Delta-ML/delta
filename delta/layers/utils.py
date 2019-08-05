@@ -131,3 +131,24 @@ def split_one_doc_to_true_len_sens(doc_t, split_token, padding_token,
     return out_t
 
   raise ValueError("doc_t should be a tensor with rank 1.")
+
+
+def get_pad_mask_from_token_idx(inputs, pad_idx):
+  """
+  get padding mask from the input token idx
+  inputs: [batch_size, time_steps]
+  mask: [batch_size, time_steps]
+  """
+  pad_mask = tf.cast(tf.math.greater(inputs, pad_idx), tf.int32)
+  return pad_mask
+
+
+def get_seg_mask_from_token_idx(inputs, seg_idx):
+  """
+  get padding mask from the input token idx
+  inputs: [batch_size, time_steps]
+  mask: [batch_size, time_steps]
+  """
+  seg_mask = tf.cast(tf.math.equal(inputs, seg_idx), tf.int32)
+  return seg_mask
+

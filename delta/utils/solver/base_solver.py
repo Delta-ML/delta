@@ -16,6 +16,7 @@
 """Base classes of solver."""
 
 import abc
+import math
 import tensorflow as tf
 from absl import logging
 
@@ -170,7 +171,20 @@ class Solver(ABCSolver):
           boundaries=boundaries,
           values=values)
     elif learning_type == 'warmup':
-      global_steps_int = tf.cast(tf.train.get_or_create_global_step(), tf.int32)
+      learning_rate = tf.constant(value=learning_rate, shape=[], dtype=tf.float32)
+      global_step = tf.train.get_or_create_global_step()
+      data_size = self.config['data']['train_data_size']
+      num_epochs = self.config["data"]["task"]['epochs']
+      batch_size = self.config["data"]["task"]['batch_size']
+      num_batch = int(math.ceil(data_size * num_epochs / batch_size))
+      learning_rate = tf.train.polynomial_decay(
+        learning_rate,
+        global_step,
+        num_batch,
+        end_learning_rate=0.0,
+        power=1.0,
+        cycle=False)
+      global_steps_int = tf.cast(global_step, tf.int32)
       warmup_steps_int = tf.constant(lrconf['num_warmup_steps'], dtype=tf.int32)
 
       global_steps_float = tf.cast(global_steps_int, tf.float32)
@@ -195,7 +209,6 @@ class Solver(ABCSolver):
     """Get the optimizer."""
     optconf = self.config['solver']['optimizer']
     method = optconf['name']
-
     learning_rate = self.get_learning_rate()
     if method == 'adadelta':
       opt = tf.train.AdadeltaOptimizer(learning_rate)
@@ -211,6 +224,10 @@ class Solver(ABCSolver):
       opt = tf.train.GradientDescentOptimizer(learning_rate)
     elif method == 'lazyadam':
       opt = tf.contrib.opt.LazyAdamOptimizer(learning_rate)
+    elif method == 'weightedadam':
+      weight_decay = self.config['solver']['optimizer']['weight_decay']
+      opt = tf.contrib.opt.AdamWOptimizer(weight_decay=weight_decay,
+                                          learning_rate=learning_rate)
     elif method == 'yellowfin':
       opt = optimizer.YFOptimizer(learning_rate)
     else:

@@ -196,6 +196,27 @@ class SpeechOpsFeatTest(tf.test.TestCase):
       feature = tffeat.delta_delta(feature, order=2)
       self.assertEqual(feature.eval().shape, (11, 40, 3))
 
+  def test_splice(self):
+    ''' test batch splice frame '''
+    with self.session():
+      feat = tf.ones([1, 3, 2], dtype=tf.float32)
+
+      for l_ctx in range(0, 4):
+        for r_ctx in range(0, 4):
+          ctx = l_ctx + 1 + r_ctx
+          out = tffeat.splice(feat, left_context=l_ctx, right_context=r_ctx)
+          self.assertTupleEqual(out.eval().shape, (1, 3, 2 * ctx))
+          self.assertAllEqual(out, tf.ones([1, 3, 2 * ctx]))
+
+      with self.assertRaises(ValueError):
+        out = tffeat.splice(feat, left_context=-2, right_context=-2).eval()
+
+      with self.assertRaises(ValueError):
+        out = tffeat.splice(feat, left_context=2, right_context=-2).eval()
+
+      with self.assertRaises(ValueError):
+        out = tffeat.splice(feat, left_context=-2, right_context=2).eval()
+
 
 if __name__ == '__main__':
   logging.set_verbosity(logging.INFO)

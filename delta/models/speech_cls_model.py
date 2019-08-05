@@ -102,13 +102,6 @@ class EmoBLstmModel(Model):
     self.dense2 = layers.Dense(4)
     self.drop1 = layers.Dropout(rate=0.2)
 
-    #x = {}
-    #for key, shape in input_shape.items():
-    #  x[key] = tf.convert_to_tensor(
-    #    np.random.normal(size=[1] + shape.as_list()[1:]),
-    #    dtype=tf.keras.backend.floatx())
-    #_ = self.call(x)
-    #super().build(input_shape=[input_shape['inputs'].as_list(), input_shape['labels'].as_list()])
     self.built = True
 
   def call(self, inputs, training=None, mask=None):
@@ -119,6 +112,42 @@ class EmoBLstmModel(Model):
     x = self.lstm2(x)
     x = self.dense1(x)
     x = self.drop1(x, training=training)
+    logits = self.dense2(x)
+    return logits
+
+@registers.model.register
+class EmoBLstmPoolModel(Model):
+
+  def __init__(self, config, **kwargs):
+    super().__init__(**kwargs)
+    self.config = config
+
+  def build(self, input_shape):
+    logging.info(f"{self.__class__.__name__} input_shape : {input_shape}")
+    _, time, feat, channels = input_shape['inputs'].as_list()
+
+    self.reshape = layers.Reshape((time, feat * channels),
+                                  input_shape=(time, feat, channels))
+    self.dense1 = layers.TimeDistributed(layers.Dense(512, activation='relu'))
+    self.drop1 = layers.Dropout(0.5)
+    self.lstm1 = layers.Bidirectional(layers.LSTM(128, return_sequences=True))
+    self.drop2 = layers.Dropout(0.5)
+    self.avg_pool = layers.GlobalAveragePooling1D()
+    self.drop3 = layers.Dropout(rate=0.5)
+    self.dense2 = layers.Dense(4)
+
+    self.built = True
+
+  def call(self, inputs, training=None, mask=None):
+    logging.info(f"xxxx input: {inputs}, training: {training}")
+    x = inputs['inputs']
+    x = self.reshape(x)
+    x = self.dense1(x)
+    x = self.drop1(x, training=training)
+    x = self.lstm1(x)
+    x = self.drop2(x, training=training)
+    x = self.avg_pool(x)
+    x = self.drop3(x, training=training)
     logits = self.dense2(x)
     return logits
 

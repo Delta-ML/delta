@@ -159,6 +159,11 @@ class HierarchicalAttentionModel(HierarchicalModel):
 
     # [batch_size, max_doc_len, max_sen_len, embed_len]
     out = self.embed(input_hx)
+    if self.use_pretrained_model:
+      input_px = self.get_pre_train_graph(input_x)
+      input_px = tf.reshape(input_px, [-1, self.max_doc_len,
+                                       self.max_sen_len, self.pretrained_model_dim])
+      out = tf.concat([out, input_px], axis=-1)
     out = self.embed_d(out, training=training)
     all_sen_encoder = tf.keras.layers.TimeDistributed(self.sen_encoder)
     # [batch_size, max_doc_len, features]

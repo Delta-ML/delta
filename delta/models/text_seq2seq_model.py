@@ -123,7 +123,7 @@ class RnnSeq2SeqModel(Seq2SeqModel):
 
   def __init__(self, config, **kwargs):
     super().__init__(config, **kwargs)
-    tf.logging.info("Initialize RnnSeq2SeqModel...")
+    logging.info("Initialize RnnSeq2SeqModel...")
     model_config = config['model']['net']['structure']
     self.is_infer = config['model']['is_infer']
     self.dropout_rate = model_config['dropout_rate']

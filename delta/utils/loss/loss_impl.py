@@ -114,7 +114,7 @@ class CTCLoss(Loss):
            **kwargs):
 
     del soft_labels
-    blank_index = kwwargs.get('blank_index', 0)
+    blank_index = kwargs.get('blank_index', 0)
     return ctc_lambda_loss(
         logits=logits,
         input_length=input_length,

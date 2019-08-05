@@ -2,15 +2,15 @@
 data:
   train:
     paths:
-    - "data/dump/train"
+    - "data/dump/impro/train"
     segments:
   eval:
     paths:
-    - "data/dump/eval"
+    - "data/dump/impro/eval"
     segments:
   infer:
     paths:
-    - "data/dump/eval"
+    - "data/dump/impro/eval"
     segments:
   task:
     name: SpeechClsTask

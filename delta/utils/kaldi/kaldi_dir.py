@@ -148,7 +148,7 @@ class KaldiMetaData():
         prop: prop name used as dict key.
 
       Return:
-        int, number of lines processed. -1 if file not found.
+        number of lines processed. None if file not found.
       '''
       num_lines = 0
       try:
@@ -159,13 +159,13 @@ class KaldiMetaData():
             target_dict[tokens[0]][prop] = tokens[1]
         return num_lines
       except FileNotFoundError:
-        return -1
+        return None
 
     # Load various scp/ark meta files.
     for file_name, prop_name in self.files_to_load:
       file_path = os.path.join(data_path, file_name)
       num_lines = scp_to_dict(file_path, self.utts, prop_name)
-      if num_lines >= 0:
+      if num_lines:
         logging.info('Loaded file %s (key %s) %d lines.' \
                      % (file_name, prop_name, num_lines))
       else:
@@ -199,11 +199,18 @@ class KaldiMetaData():
     # Dump data in sorted order.
     sorted_utt_keys = sorted(self.utts.keys())
     for file_name, prop_name in self.files_to_load:
-      logging.info('Dumping prop %s to file %s ...' % (prop_name, file_name))
-      file_path = os.path.join(data_path, file_name)
-      with open(file_path, 'w') as fp_out:
-        for utt_key in sorted_utt_keys:
-          fp_out.write('%s %s\n' % (utt_key, self.utts[utt_key][prop_name]))
+      empty = True
+      for utt_key in sorted_utt_keys:
+        if self.utts[utt_key][prop_name]:
+          empty = False
+          break
+      if not empty:
+        file_path = os.path.join(data_path, file_name)
+        logging.info('Dumping prop %s to file %s ...' % (prop_name, file_name))
+        with open(file_path, 'w') as fp_out:
+          for utt_key in sorted_utt_keys:
+            if self.utts[utt_key][prop_name]:
+              fp_out.write('%s %s\n' % (utt_key, self.utts[utt_key][prop_name]))
 
     # Generate speaker -> various data.
     spk_files_to_dump = [
