@@ -156,16 +156,26 @@ class SpeakerBaseRawModel(RawModel):
       outputs = x
     return outputs
 
-  def stats_pooling_layer(self, x):  # pylint: disable=no-self-use
+  def pooling_layer(self, x):
     '''
-      Statistics pooling layer.
+      Add a pooling layer across the whole utterance.
       Input: [NHW]
         --> Reduce along H
-      Output: [NW'] where W' = W * 2
+
+      Statistics pooling output: [N, W * 2]
+      Average pooling output: [N, W]
     '''
-    with tf.variable_scope('stats_pooling'):
-      mean, var = tf.nn.moments(x, 1)
-      x = tf.concat([mean, tf.sqrt(var + 1e-6)], 1)
+    pooling_type = self.netconf['frame_pooling_type']
+    if pooling_type == 'stats':
+      with tf.variable_scope('stats_pooling'):
+        mean, var = tf.nn.moments(x, 1)
+        x = tf.concat([mean, tf.sqrt(var + 1e-6)], 1)
+    elif pooling_type == 'average':
+      with tf.variable_scope('average_pooling'):
+        mean, _ = tf.nn.moments(x, 1)
+        x = mean
+    else:
+      raise ValueError('Unsupported frame_pooling_type: %s' % (pooling_type))
     return x
 
   def text_layer(self, x, input_text):
@@ -227,7 +237,7 @@ class SpeakerCRNNRawModel(SpeakerBaseRawModel):
     x, _ = self.conv_block(inputs, depthwise=False)
     x = self.linear_block(x)
     x = self.lstm_layer(x)
-    x = self.stats_pooling_layer(x)
+    x = self.pooling_layer(x)
     if self.taskconf['text']['enable']:
       x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
@@ -294,7 +304,7 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
   def model(self, inputs, input_text):
     ''' Build the model. '''
     x, _ = self.tdnn_block(inputs)
-    x = self.stats_pooling_layer(x)
+    x = self.pooling_layer(x)
     if self.taskconf['text']['enable']:
       x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
@@ -370,7 +380,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     ''' Build the model. '''
     x = self.resnet(inputs)
     x = self.linear_block(x)
-    x = self.stats_pooling_layer(x)
+    x = self.pooling_layer(x)
     if self.taskconf['text']['enable']:
       x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)

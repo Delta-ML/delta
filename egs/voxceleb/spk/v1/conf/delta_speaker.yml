@@ -126,6 +126,7 @@ model:
       - [2, 2]
 
       linear_num: 512 # hidden number of linear layer, not included in TDNN model
+      frame_pooling_type: stats   # stats, average
       cell_num: 512 # cell units of the lstm
       hidden_dims: # speaker embedding will be extracted from the last layer
       - 512
