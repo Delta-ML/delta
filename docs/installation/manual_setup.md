@@ -40,6 +40,8 @@ Same to [conda install](#conda-package-install).
 
 ### Install CUDA toolkit and CUDANN
 
+See [CUDA Compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) for `CUDA Toolkit and Compatible Driver Version`.
+
 ```shell
 conda install cudatoolkit==10.0.130
 conda install cudnn==7.6.0
