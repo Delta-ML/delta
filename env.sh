@@ -30,7 +30,7 @@ else
 fi
 
 # espnet
-export PATH=$OLD_PATH:$PATH:$ESPNET_ROOT/utils:$ESPNET_ROOT/bin:$MAIN_ROOT/utils
+export PATH=$OLD_PATH:$PATH:$ESPNET_ROOT/utils:$ESPNET_ROOT/bin:$MAIN_ROOT/utils:~/.local/bin
 export OMP_NUM_THREADS=1
 
 

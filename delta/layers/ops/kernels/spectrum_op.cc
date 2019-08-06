@@ -62,8 +62,8 @@ class SpecOp : public OpKernel {
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
     int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
     OP_REQUIRES_OK(
-        context, context->allocate_output(
-                     0, TensorShape({1, i_FrqNum * i_NumFrm}), &output_tensor));
+        context, context->allocate_output(0, TensorShape({i_NumFrm, i_FrqNum}),
+                                          &output_tensor));
 
     const float* input_flat = input_tensor.flat<float>().data();
     float* output_flat = output_tensor->flat<float>().data();

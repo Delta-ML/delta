@@ -8,9 +8,7 @@ fi
 target=$1
 
 if [ -z $MAIN_ROOT ];then
-    pushd ../../../
-    source env.sh
-    popd
+    pushd ../../../ && source env.sh && popd
     echo "source env.sh"
 fi
 
@@ -18,6 +16,10 @@ fi
 echo "prepare dependency"
 if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ];then
     unlink $MAIN_ROOT/delta/layers/ops/cppjieba
+fi
+
+if ! [ -f $MAIN_ROOT/tools/cppjieba.done ];then
+  pushd $MAIN_ROOT/tools && make cppjieba.done && popd
 fi
 
 ln -s $MAIN_ROOT/tools/cppjieba  $MAIN_ROOT/delta/layers/ops/cppjieba || echo $MAIN_ROOT
