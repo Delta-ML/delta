@@ -44,7 +44,8 @@ nlp_zh: cppjieba.done
 
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
-PIP_INSTALL=pip3 install
+PIP_INSTALL=pip3 --no-cache-dir install
+APT_INSTALL=apt-get install -y --no-install-recommends
 
 PYTHON=python3
 
@@ -54,7 +55,7 @@ ci.done:
 
 PROTOC_ZIP := protoc-3.7.1-linux-x86_64.zip
 protoc:
-	$(SUDO) apt-get update && $(SUDO) apt-get install curl unzip -y
+	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) curl unzip
 	curl -OL --retry 100 https://github.com/google/protobuf/releases/download/v3.7.1/$(PROTOC_ZIP) &&\
 	$(SUDO) unzip -o $(PROTOC_ZIP) -d /usr/local bin/protoc &&\
 	rm -f $(PROTOC_ZIP)
@@ -71,11 +72,11 @@ test: protoc test.deps
 # install python packages
 python.done:
 	$(PIP_INSTALL) --user -r requirements.txt
-	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get install -y libsndfile1; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install libsndfile; else $(SUDO) yum install -y libsndfile-devel; fi;
+	if [ -f /etc/lsb-release ]; then $(SUDO) $(APT_INSTALL) libsndfile1; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install libsndfile; else $(SUDO) yum install -y libsndfile-devel; fi;
 	touch python.done
 
 linux.done:
-	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) apt-get install -y libsndfile1 bc sox; else $(SUDO) yum install -y libsndfile-devel bc sox; fi;
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL)libsndfile1 bc sox; else $(SUDO) yum install -y libsndfile-devel bc sox; fi;
 	touch linux.done
 
 # compile custom ops on your environment
@@ -179,8 +180,8 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
-	$(SUDO) apt-get install -y autoconf libtool
-	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) apt-get install -y cmake; else $(SUDO) yum install -y cmake; fi
+	$(SUDO) $(APT_INSTALL) autoconf libtool
+	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
