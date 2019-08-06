@@ -302,7 +302,7 @@ class AsrSolver(Solver):
                     eval_ds,
                     eval_task,
                     monitor_used='val_acc',
-                    decoder_type='beam_search'):
+                    decoder_type='argmax'):
     ''' callbacks for traning'''
 
     #metric callbacks
