@@ -83,8 +83,8 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
     batch_loss = tf.nn.ctc_loss_v2(
         labels,
         logits,
-        ilen,
         olen,
+        ilen,
         logits_time_major=False,
         blank_index=blank_index)
     batch_loss.set_shape([None])

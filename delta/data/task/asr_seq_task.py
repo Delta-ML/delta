@@ -31,7 +31,7 @@ from delta.data.task.base_speech_task import SpeechTask
 def _make_example(uttids, feats, ilens, targets, olens):
   features = {
       'uttids': uttids,
-      'inputs': feats,
+      'inputs': tf.expand_dims(feats, axis=-1) if not isinstance(feats, np.ndarray) else np.expand_dims(feats, axis=-1),
       'input_length': ilens,
       'targets': targets,
       'target_length': olens
@@ -125,7 +125,6 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     assert self.batch_mode
     batch = self.batches[batch_index]
 
-    logging.info("get item {}".format(batch_index))
     uttids, feats, ilens, targets, olens = self._process_batch(batch)
     return _make_example(uttids, feats, ilens, targets, olens)
 
@@ -158,7 +157,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     batch_feat = np.stack(batch_feat).astype(np.float32)
     batch_target = np.stack(batch_target).astype(np.int64)
     ilens = np.array(ilens).astype(np.int64)
-    olens = np.array(ilens).astype(np.int64)
+    olens = np.array(olens).astype(np.int64)
 
     return batch_uttid, batch_feat, ilens, batch_target, olens
 
