@@ -37,9 +37,10 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Benchmarks](#benchmarks)
+- [FAQ](#faq)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowlegement](#acknowlegement)
+- [Acknowledgement](#acknowledgement)
 
 ## Installation
 
@@ -193,6 +194,10 @@ TBA
 | Emotion recognition |  |  |  |  |  |  |
 
 
+## FAQ
+
+See [FAQ](docs/faq.md) for more information.
+
 ## Contributing
 
 Any contribution is welcome. All issues and pull requests are highly appreciated!
@@ -203,7 +208,7 @@ For more details, please refer to [the contribution guide](CONTRIBUTING.md).
 The DELTA platform is licensed under the terms of the Apache license.
 See [LICENSE](LICENSE) for more information.
 
-## Acknowlegement
+## Acknowledgement
 
 The DELTA platform depends on many open source repos.
 See [References](docs/references.md) for more information.
