@@ -47,6 +47,14 @@ conda install cudatoolkit==10.0.130
 conda install cudnn==7.6.0
 ```
 
+For user in China, we can set conda mirror as below:
+
+```shell
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --set show_channel_urls yes
+```
+
 ### Install Tensorflow
 
 ```shell
