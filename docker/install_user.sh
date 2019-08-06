@@ -5,6 +5,6 @@ sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-4.8 g
   sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100 && \
   sudo update-alternatives --config gcc && \
   sudo update-alternatives --config g++ && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+  sudo apt-get clean && \
+  sudo rm -rf /var/lib/apt/lists/*
 
