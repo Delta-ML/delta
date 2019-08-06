@@ -8,7 +8,7 @@ We recommend that users use `Docker` or a virtual environment such as `conda` to
 ### Build conda envs
 
 ```shell
-conda create -n <path>/<env_name> python=3.6
+conda create -p <path>/<env_name> python=3.6
 source activate <path>/<env_name>
 ```
 
