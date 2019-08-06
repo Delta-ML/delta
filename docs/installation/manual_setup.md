@@ -8,7 +8,7 @@ We recommend that users use `Docker` or a virtual environment such as `conda` to
 ### Build conda envs
 
 ```shell
-conda create -n <path>/<env_name> python=3.6
+conda create -p <path>/<env_name> python=3.6
 source activate <path>/<env_name>
 ```
 
@@ -39,6 +39,8 @@ Then we can install tensorflow from `Pip` as below:
 Same to [conda install](#conda-package-install).
 
 ### Install CUDA toolkit and CUDANN
+
+See [CUDA Compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) for `CUDA Toolkit and Compatible Driver Version`.
 
 ```shell
 conda install cudatoolkit==10.0.130
