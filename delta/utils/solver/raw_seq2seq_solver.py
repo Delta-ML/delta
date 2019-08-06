@@ -26,7 +26,6 @@ from delta.utils import metrics
 from delta.utils.register import registers
 from delta.utils.solver.raw_solver import RawSolver
 
-
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation
 
 
@@ -84,14 +83,14 @@ class RawS2SSolver(RawSolver):
           logits=model.logits,
           input_length=model.input_x_len,
           label_length=input_y_len,
-          name="loss",)
+          name="loss",
+      )
       model.loss_op = model.loss
       logging.info("model.loss done")
 
     # output related
     self.build_output(model)
     return model
-
 
   def build_export_model(self):
     """Build the model for export."""
@@ -143,8 +142,7 @@ class RawS2SSolver(RawSolver):
           batch_y_ground_truth = model.sess.run(
             [model.preds, model.y_ground_truth])
         else:
-          batch_preds = model.sess.run(
-              [model.preds])
+          batch_preds = model.sess.run([model.preds])
         if mode == utils.EVAL:
           total_loss += loss_val
           y_preds.append([preds for preds in batch_preds])
@@ -159,7 +157,8 @@ class RawS2SSolver(RawSolver):
 
           y_preds.extend([preds for preds in batch_preds])
           if not self.infer_no_label:
-            y_ground_truth.extend([ground_truth for ground_truth in batch_y_ground_truth])
+            y_ground_truth.extend(
+                [ground_truth for ground_truth in batch_y_ground_truth])
 
         if i % 10 == 0 or i == num_batch_every_epoch - 1:
           logging.info("Evaluation rate of "
@@ -167,7 +166,8 @@ class RawS2SSolver(RawSolver):
                            i / (num_batch_every_epoch - 1)))
 
       if mode == utils.EVAL:
-        logging.info("Evaluation Average Loss: {:.6}".format(total_loss / len(y_preds)))
+        logging.info("Evaluation Average Loss: {:.6}".format(total_loss /
+                                                             len(y_preds)))
 
       else:
         predictions = {"preds": y_preds}

@@ -36,6 +36,7 @@ from delta.utils.register import registers
 
 layers = tf.keras.layers
 
+
 @registers.model.register
 class EmoLstmModel(Model):
 
@@ -114,6 +115,7 @@ class EmoBLstmModel(Model):
     x = self.drop1(x, training=training)
     logits = self.dense2(x)
     return logits
+
 
 @registers.model.register
 class EmoBLstmPoolModel(Model):

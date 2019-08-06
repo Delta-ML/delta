@@ -21,8 +21,8 @@ import tensorflow as tf
 from tensorflow.python.keras import backend as K
 
 from delta.models.base_model import Model
-from delta.layers.resnet import IdentityBlock 
-from delta.layers.resnet import ConvBlock 
+from delta.layers.resnet import IdentityBlock
+from delta.layers.resnet import ConvBlock
 
 from delta.utils.register import registers
 
@@ -34,6 +34,7 @@ from delta.utils.register import registers
 #pylint: disable=too-many-ancestors
 
 layers = tf.keras.layers
+
 
 @registers.model.register
 class ResNet50(Model):

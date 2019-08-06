@@ -121,9 +121,9 @@ class EmoKerasSolver(AsrSolver):
   def get_loss(self):
     ''' keras losses  '''
     return tf.keras.losses.CategoricalCrossentropy(
-      from_logits=True,
-      label_smoothing=self._label_smoothing,
-      reduction=losses_utils.ReductionV2.AUTO)
+        from_logits=True,
+        label_smoothing=self._label_smoothing,
+        reduction=losses_utils.ReductionV2.AUTO)
 
   def eval(self):
     ''' evaluation '''

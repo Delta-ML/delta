@@ -353,8 +353,6 @@ class RawSolver(Solver):
       to_saved_model(self.config, infer_model.sess, infer_model.export_inputs,
                      infer_model.output_dict)
 
-
-
   def train(self):  # pylint: disable=too-many-locals
     """Train the model."""
     mode = utils.TRAIN
@@ -376,26 +374,25 @@ class RawSolver(Solver):
     ds_init_hook = DatasetInitializerHook(train_model.iterator,
                                           train_model.temp_init_feed_dict)
     with tf.train.MonitoredTrainingSession(
-          checkpoint_dir=checkpoint_dir,
-          scaffold=scaffold,
-          hooks=[ds_init_hook],
-          save_checkpoint_steps=self.save_checkpoint_steps,
-          config=self.session_conf) as sess:
-        # Training loop. For each batch...
-        data_size = self.config['data']['train_data_size']
-        num_epochs = self.config["data"]["task"]['epochs']
-        num_batch = int(math.ceil(data_size * num_epochs / self.batch_size))
-        num_batch_per_epoch = int(data_size / self.batch_size)
-        logging.info("num_batch: {}, num_batch_per_epoch: {}, num_epochs: {}".format(
+        checkpoint_dir=checkpoint_dir,
+        scaffold=scaffold,
+        hooks=[ds_init_hook],
+        save_checkpoint_steps=self.save_checkpoint_steps,
+        config=self.session_conf) as sess:
+      # Training loop. For each batch...
+      data_size = self.config['data']['train_data_size']
+      num_epochs = self.config["data"]["task"]['epochs']
+      num_batch = int(math.ceil(data_size * num_epochs / self.batch_size))
+      num_batch_per_epoch = int(data_size / self.batch_size)
+      logging.info(
+          "num_batch: {}, num_batch_per_epoch: {}, num_epochs: {}".format(
               num_batch, num_batch_per_epoch, num_epochs))
-        for i in range(num_batch):
-          _, _, out_loss = sess.run(
-              [train_op, global_step, train_model.loss_op])
-          if i % self.print_every == 0 or i == num_batch - 1:
-            logging.info(
-                "Training for epoch {}: [ {:.2%} ] loss is {:g}".format(
-                    int(i / num_batch_per_epoch),
-                    (i % num_batch_per_epoch) / num_batch_per_epoch, out_loss))
+      for i in range(num_batch):
+        _, _, out_loss = sess.run([train_op, global_step, train_model.loss_op])
+        if i % self.print_every == 0 or i == num_batch - 1:
+          logging.info("Training for epoch {}: [ {:.2%} ] loss is {:g}".format(
+              int(i / num_batch_per_epoch),
+              (i % num_batch_per_epoch) / num_batch_per_epoch, out_loss))
 
   def train_and_eval(self):  # pylint: disable=too-many-locals
     """Train and evaluate the model."""
@@ -438,7 +435,8 @@ class RawSolver(Solver):
             config=self.session_conf) as sess:
           # Training loop. For each batch...
           train_data_size = self.config['data']['train_data_size']
-          num_batch = math.ceil(train_data_size * self.num_epochs / self.batch_size)
+          num_batch = math.ceil(train_data_size * self.num_epochs /
+                                self.batch_size)
           num_batch_per_epoch = math.ceil(train_data_size / self.batch_size)
           logging.info("Total data size: {}, batch num: {}, "
                        "batch num per epoch: {}".format(train_data_size,

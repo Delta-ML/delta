@@ -151,4 +151,3 @@ def get_seg_mask_from_token_idx(inputs, seg_idx):
   """
   seg_mask = tf.cast(tf.math.equal(inputs, seg_idx), tf.int32)
   return seg_mask
-

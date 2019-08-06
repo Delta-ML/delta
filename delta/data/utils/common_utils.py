@@ -248,6 +248,7 @@ def load_match_raw_data(paths, mode, infer_no_label=False):
     return (text_left, text_right), []
   return (text_left, text_right), label
 
+
 def load_seq2seq_raw_data(paths):
   """Load raw data for sequence to sequence to sequence."""
   text = []
