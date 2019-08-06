@@ -30,7 +30,7 @@ label_vocab_list = ["O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4",
 
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file, label_vocab_file):
   logging.info("Generate mock data: {}".format(train_file))
-  mock_a_text_file(samples, 500, train_file)
+  mock_a_text_file(samples, 300, train_file)
   logging.info("Generate mock data: {}".format(dev_file))
   mock_a_text_file(samples, 100, dev_file)
   logging.info("Generate mock data: {}".format(test_file))
