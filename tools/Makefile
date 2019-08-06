@@ -45,7 +45,7 @@ nlp_zh: cppjieba.done
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
 PIP_INSTALL=pip3 --no-cache-dir install
-APT_INSTALL=apt-get install -y --no-install-recommends
+APT_INSTALL=apt-get install -y --no-install-recommends 
 
 PYTHON=python3
 
@@ -76,7 +76,7 @@ python.done:
 	touch python.done
 
 linux.done:
-	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL)libsndfile1 bc sox; else $(SUDO) yum install -y libsndfile-devel bc sox; fi;
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; else $(SUDO) yum install -y bc sox; fi;
 	touch linux.done
 
 # compile custom ops on your environment
