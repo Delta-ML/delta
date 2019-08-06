@@ -27,7 +27,6 @@ from sacrebleu import corpus_bleu
 from delta.utils.metrics import metric_utils
 
 
-
 #pylint: disable=too-few-public-methods
 class ABCMetric(metaclass=abc.ABCMeta):
   ''' abstract class of metric '''
@@ -177,6 +176,7 @@ def run_metrics_for_one_output(metric_config, y_true=None, y_pred=None):
     score[metric_name] = metric_score
   return score
 
+
 @registers.metric.register
 class BleuCal(Metric):
   ''' rouge metric'''
@@ -205,7 +205,7 @@ class RougeCal(Metric):
     self.tgt_paths = self.config['target_file']
     self.label_path_file = self.config["text_vocab"]
     self.tgt_paths_after_pre_process = [
-      one_path + ".after" for one_path in self.tgt_paths
+        one_path + ".after" for one_path in self.tgt_paths
     ]
 
   def call(self, y_true=None, y_pred=None, arguments=None):
@@ -216,9 +216,9 @@ class RougeCal(Metric):
     ref_sents = [sent.strip() for sent in ref_sents]
 
     with open(self.ref_path, "w", encoding="utf-8") as in_f:
-        for ref_sent in ref_sents:
-          in_f.write(ref_sent)
-          in_f.write("\n")
+      for ref_sent in ref_sents:
+        in_f.write(ref_sent)
+        in_f.write("\n")
 
     files_rouge = FilesRouge(self.hyp_path, self.ref_path)
     scores = files_rouge.get_scores(avg=True)
@@ -230,9 +230,8 @@ class RougeCal(Metric):
     for rouge_mode in ['rouge-1', 'rouge-2', 'rouge-l']:
       res += '-' * 30 + '\n'
       for metric in ['f', 'p', 'r']:
-        res += '{}\tAverage_{}:\t{:.5f}\n'.format(rouge_mode.upper(),
-                                               metric.upper(),
-                                               score_dict[rouge_mode][metric])
+        res += '{}\tAverage_{}:\t{:.5f}\n'.format(
+            rouge_mode.upper(), metric.upper(), score_dict[rouge_mode][metric])
     return res
 
 

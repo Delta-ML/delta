@@ -50,7 +50,9 @@ class TextS2SPreparer(TextPreparer):
     for mode in self.all_modes:
       paths = self.config["data"][mode]['paths']
       paths = [paths['source'], paths['target']]
-      paths_after_pre_process = [[one_path + ".after" for one_path in path] for path in paths]
+      paths_after_pre_process = [
+          [one_path + ".after" for one_path in path] for path in paths
+      ]
       logging.debug(
           "paths_after_pre_process: {}".format(paths_after_pre_process))
 
@@ -59,9 +61,9 @@ class TextS2SPreparer(TextPreparer):
       for one_path_text, one_path_target, \
           one_path_text_after, one_path_target_after in zip(*paths, *paths_after_pre_process):
         self.prepare_one_raw_data((one_path_text, one_path_target),
-                                  (one_path_text_after, one_path_target_after), mode,
-                                  infer_without_label, pre_process_pipeline,
-                                  all_texts, all_labels)
+                                  (one_path_text_after, one_path_target_after),
+                                  mode, infer_without_label,
+                                  pre_process_pipeline, all_texts, all_labels)
     return all_texts, all_labels
 
   def load_a_raw_file(self, one_path, mode, infer_without_label):
@@ -94,12 +96,12 @@ class TextS2SPreparer(TextPreparer):
       if os.path.exists(self.label_vocab_file_paths[i]) and \
         self.use_custom_vocab:
         logging.info("Reuse label vocab file: {}".format(
-          self.label_vocab_file_paths[i]))
+            self.label_vocab_file_paths[i]))
       else:
         prepare_vocab(
-          self.label_vocab_file_paths[i],
-          all_labels[i],
-          min_frequency=self.vocab_min_frequency,
-          use_default_dict=True)
+            self.label_vocab_file_paths[i],
+            all_labels[i],
+            min_frequency=self.vocab_min_frequency,
+            use_default_dict=True)
         logging.info("Generate label vocab file: {}".format(
-          self.label_vocab_file_paths[i]))
+            self.label_vocab_file_paths[i]))

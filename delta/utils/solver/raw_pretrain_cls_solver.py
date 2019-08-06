@@ -21,7 +21,6 @@ import tensorflow as tf
 from delta.utils.register import registers
 from delta.utils.solver.raw_solver import RawSolver
 
-
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation
 
 
@@ -76,7 +75,7 @@ class RawPretrainClassSolver(RawSolver):
 
     variables_to_untrain = list()
     trainable_collection = tf.get_collection_ref(
-      tf.GraphKeys.TRAINABLE_VARIABLES)
+        tf.GraphKeys.TRAINABLE_VARIABLES)
     for var in trainable_collection:
       if var.name in init_set:
         variables_to_untrain.append(var)
@@ -93,10 +92,8 @@ class RawPretrainClassSolver(RawSolver):
     all_variables = tf.get_collection_ref(tf.GraphKeys.GLOBAL_VARIABLES)
     init_checkpoint = pretrained_model_path
     pretrained_assignment_map, init_set = self.get_assignment_map_from_checkpoint(
-      all_variables, init_checkpoint)
+        all_variables, init_checkpoint)
     tf.train.init_from_checkpoint(init_checkpoint, pretrained_assignment_map)
 
     if pretrained_model_mode == "feature":
       self.remove_trainable_variables(init_set)
-
-

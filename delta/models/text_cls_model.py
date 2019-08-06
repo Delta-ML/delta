@@ -41,7 +41,8 @@ class TextClassModel(Model):  # pylint: disable=abstract-method
       self.dense_input_linear = tf.keras.layers.Dense(
           self.dense_input_dim, activation=tf.keras.activations.linear)
 
-    self.use_pretrained_model = config['model'].get('use_pre_train_model', False)
+    self.use_pretrained_model = config['model'].get('use_pre_train_model',
+                                                    False)
     if self.use_pretrained_model:
       pretrained_model_config = config['model']['pre_train_model']
       self.pretrained_model_name = pretrained_model_config['name']
@@ -61,22 +62,25 @@ class TextClassModel(Model):  # pylint: disable=abstract-method
     with tf.name_scope('pretrain_graph') as scope:
       pretrained_graph = tf.get_default_graph()
       if self.pretrained_model_name == 'elmo':
-        pretrained_saver = tf.train.import_meta_graph(pretrained_model_meta,
-                                                      input_map={'input_x:0': inputs})
-        input_x_pretrained = pretrained_graph.get_tensor_by_name(scope
-                                                                 + 'input_x_elmo:0')
+        pretrained_saver = tf.train.import_meta_graph(
+            pretrained_model_meta, input_map={'input_x:0': inputs})
+        input_x_pretrained = pretrained_graph.get_tensor_by_name(
+            scope + 'input_x_elmo:0')
       if self.pretrained_model_name == 'bert':
         pad_mask = get_pad_mask_from_token_idx(inputs, pad_idx)
         segment_mask = get_seg_mask_from_token_idx(inputs, seg_idx)
-        pretrained_saver = tf.train.import_meta_graph(pretrained_model_meta,
-                                                      input_map={'input_ids:0': inputs,
-                                                                 'input_mask:0': pad_mask,
-                                                                 'segment_ids:0': segment_mask})
+        pretrained_saver = tf.train.import_meta_graph(
+            pretrained_model_meta,
+            input_map={
+                'input_ids:0': inputs,
+                'input_mask:0': pad_mask,
+                'segment_ids:0': segment_mask
+            })
         if self.pretrained_model_output == 'seq':
           input_x_pretrained = \
             pretrained_graph.get_tensor_by_name(scope + 'encoder_layers_{}:0'.
                                                 format(self.pretrained_model_layers))
         else:
-          input_x_pretrained = pretrained_graph.get_tensor_by_name(scope +
-                                                                  'input_x_bert_cls:0')
+          input_x_pretrained = pretrained_graph.get_tensor_by_name(
+              scope + 'input_x_bert_cls:0')
       return input_x_pretrained

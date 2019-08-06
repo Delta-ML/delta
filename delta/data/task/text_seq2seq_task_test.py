@@ -33,7 +33,8 @@ class TextS2STaskTest(tf.test.TestCase):
     import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
-    self.config_file = main_root.joinpath('egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
+    self.config_file = main_root.joinpath(
+        'egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
 
   def tearDown(self):
     ''' tear down '''
@@ -61,10 +62,11 @@ class TextS2STaskTest(tf.test.TestCase):
                     "input_y" in data["input_y_dict"])
     with self.session() as sess:
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
-      res = sess.run([data["input_x_dict"]["input_enc_x"],
-                      data["input_x_dict"]["input_dec_x"],
-                      data["input_y_dict"]["input_y"],
-                      data["input_x_len"]])
+      res = sess.run([
+          data["input_x_dict"]["input_enc_x"],
+          data["input_x_dict"]["input_dec_x"], data["input_y_dict"]["input_y"],
+          data["input_x_len"]
+      ])
 
       logging.debug(res[0][0])
       logging.debug(res[1][0])
@@ -85,8 +87,14 @@ class TextS2STaskTest(tf.test.TestCase):
 
     with self.session() as sess:
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
-      res = sess.run(input_x, feed_dict={input_sentence: [" vice president walter "
-                                                          "mondale was released"]})
+      res = sess.run(
+          input_x,
+          feed_dict={
+              input_sentence: [
+                  " vice president walter "
+                  "mondale was released"
+              ]
+          })
       logging.debug(res[0][:5])
       logging.debug(np.shape(res[0]))
       self.assertEqual(np.shape(res[0]), (max_len,))

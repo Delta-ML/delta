@@ -83,11 +83,23 @@ TASK_MODULES = [
 ]
 
 MODLE_MODULES = [
-    "speech_cls_rawmodel", "speech_cls_rawmodel", "speech_cls_rawmodel",
-    "speaker_cls_rawmodel", "speech_cls_model", "speech_cls_model", "kws_model",
-    "asr_model", "text_seq_model", "text_seq_model", "text_seq_model",
-    "text_hierarchical_model", "text_seq_label_model",
-    "resnet_model", "text_nlu_joint_model", "text_match_model", "text_seq_label_model",
+    "speech_cls_rawmodel",
+    "speech_cls_rawmodel",
+    "speech_cls_rawmodel",
+    "speaker_cls_rawmodel",
+    "speech_cls_model",
+    "speech_cls_model",
+    "kws_model",
+    "asr_model",
+    "text_seq_model",
+    "text_seq_model",
+    "text_seq_model",
+    "text_hierarchical_model",
+    "text_seq_label_model",
+    "resnet_model",
+    "text_nlu_joint_model",
+    "text_match_model",
+    "text_seq_label_model",
     "text_seq2seq_model",
 ]
 
@@ -96,10 +108,18 @@ LOSS_MODULES = ["loss_impl"]
 METRICS_MODULES = ["py_metrics"]
 
 SOLVER_MODULES = [
-    "raw_cls_solver", "raw_match_solver", "keras_solver", "emotion_solver",
-    "kws_solver", "asr_solver", "speaker_solver", "raw_seq_label_solver",
-    "raw_nlu_joint_solver", "raw_seq2seq_solver",
-    "raw_pretrain_cls_solver", "raw_pretrain_seq_label_solver",
+    "raw_cls_solver",
+    "raw_match_solver",
+    "keras_solver",
+    "emotion_solver",
+    "kws_solver",
+    "asr_solver",
+    "speaker_solver",
+    "raw_seq_label_solver",
+    "raw_nlu_joint_solver",
+    "raw_seq2seq_solver",
+    "raw_pretrain_cls_solver",
+    "raw_pretrain_seq_label_solver",
 ]
 
 POSTPROCESS_MODULES = [
