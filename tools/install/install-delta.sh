@@ -57,6 +57,22 @@ echo "Conda: ${CONDA_ENV} activated!"
 conda install ${TF}
 echo "Conda: TensorFlow installed!"
 
+CURRENT_VER="$(g++ -dumpversion)"
+REQUIRE_VER="5.0.0"
+if [ "$(printf '%s\n' "${REQUIRE_VER}" "${CURRENT_VER}" | sort -V | head -n1)" = "$REQUIRE_VER" ]; then
+  echo "G++ version is ${CURRENT_VER}, which is greater than or equal to ${REQUIRE_VER}"
+else
+  printf "Tensorflow custom op compilation with G++ version less than 5.0.0 may be buggy.\\n"
+  printf "Do you want update the g++ version of this conda env? [yes|no]\\n"
+  printf "[yes] >>> "
+  read -r ans
+  if [ "$ans" != "no" ] && [ "$ans" != "No" ] && [ "$ans" != "NO" ] && \
+    [ "$ans" != "n" ] && [ "$ans" != "N" ]
+    then
+      conda install -c conda-forge cxx-compiler
+    fi
+fi
+
 CONDA_PIP=`which pip`
 if ! which ${CONDA_PIP}3; then
   ln -s ${CONDA_PIP} ${CONDA_PIP}3

@@ -56,12 +56,14 @@ fi
 #BAZEL_CACHE=../.cache/bazel
 BAZEL_CACHE=$MAIN_ROOT/tools/.cache/bazel
 
+function
+
 function clear_lib(){
   echo "clear library under dpl/lib "
   pushd $MAIN_ROOT/dpl/lib
   for dir in `ls`;
   do
-      rm -rf $dir/* 
+      rm -rf $dir/* && touch $dir/.gitkeep
   done
   popd
 }
