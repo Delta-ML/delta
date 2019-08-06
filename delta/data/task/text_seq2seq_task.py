@@ -29,7 +29,6 @@ from delta.data.utils.common_utils import load_seq2seq_raw_data
 from delta.layers.utils import compute_sen_lens
 from delta.utils.register import registers
 
-
 # pylint: disable=too-many-instance-attributes, too-many-locals
 
 
@@ -115,20 +114,23 @@ class TextS2STask(TextTask):
         lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
         num_parallel_calls=self.num_parallel_calls)
 
-    src_ds = src_ds.map(self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+    src_ds = src_ds.map(
+        self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
     tgt_in_ds = tgt_in_ds.map(
-        lambda batch: self.text_pipeline_func(batch, self.max_dec_len,
-                                              self.text_vocab_file_path),
+        lambda batch: self.text_pipeline_func(batch, self.max_dec_len, self.
+                                              text_vocab_file_path),
         num_parallel_calls=self.num_parallel_calls)
 
     tgt_in_size_ds = tgt_in_ds.map(
         lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
         num_parallel_calls=self.num_parallel_calls)
 
-    tgt_in_ds = tgt_in_ds.map(self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+    tgt_in_ds = tgt_in_ds.map(
+        self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
-    inp_ds = tf.data.Dataset.zip((src_ds, src_size_ds, tgt_in_ds, tgt_in_size_ds))
+    inp_ds = tf.data.Dataset.zip(
+        (src_ds, src_size_ds, tgt_in_ds, tgt_in_size_ds))
 
     if self.infer_without_label:
       data_set = inp_ds
@@ -138,13 +140,12 @@ class TextS2STask(TextTask):
       else:
         target_vocab_file_path = self.text_vocab_file_path
       tgt_out_ds = tgt_out_ds.map(
-        lambda batch: self.text_pipeline_func(batch, self.max_dec_len,
-                                              target_vocab_file_path),
-        num_parallel_calls=self.num_parallel_calls)
+          lambda batch: self.text_pipeline_func(batch, self.max_dec_len,
+                                                target_vocab_file_path),
+          num_parallel_calls=self.num_parallel_calls)
 
       tgt_out_ds = tgt_out_ds.map(
-        self.exclude_padding, num_parallel_calls=self.num_parallel_calls
-      )
+          self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
       data_set = tf.data.Dataset.zip((inp_ds, tgt_out_ds))
 
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
@@ -161,7 +162,8 @@ class TextS2STask(TextTask):
   def feature_spec(self):
     """Get shapes for feature."""
     feature_shapes = [(tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]),
-                       tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))]
+                       tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))
+                     ]
     if not self.infer_without_label:
       feature_shapes.append(tf.TensorShape([tf.Dimension(None)]))
     if len(feature_shapes) == 1:
@@ -223,7 +225,8 @@ class TextS2STask(TextTask):
     if self.infer_without_label:
       input_enc_x, input_enc_x_len = iterator.get_next()
     else:
-      (input_enc_x, input_enc_x_len, input_dec_x, input_dec_x_len), input_y = iterator.get_next()
+      (input_enc_x, input_enc_x_len, input_dec_x,
+       input_dec_x_len), input_y = iterator.get_next()
 
     input_x_dict = collections.OrderedDict([("input_enc_x", input_enc_x),
                                             ("input_dec_x", input_dec_x)])

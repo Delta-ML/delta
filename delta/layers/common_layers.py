@@ -94,8 +94,13 @@ def splice_layer(x, name, context):
 
 
 #pylint: disable=too-many-arguments
-def tdnn(x, name, in_dim, context, out_dim, has_bias=True,
-                method='splice_layer'):
+def tdnn(x,
+         name,
+         in_dim,
+         context,
+         out_dim,
+         has_bias=True,
+         method='splice_layer'):
   '''
   TDNN implementation.
 
@@ -120,18 +125,18 @@ def tdnn(x, name, in_dim, context, out_dim, has_bias=True,
   with tf.variable_scope(name):
     if method == 'splice_layer':
       x = splice_layer(x, 'splice', context_list)
-      x = linear(x, 'linear', [in_dim * context_size, out_dim],
-                 has_bias=has_bias)
+      x = linear(
+          x, 'linear', [in_dim * context_size, out_dim], has_bias=has_bias)
     elif method == 'splice_op':
       x = speech_ops.splice(x, context, context)
-      x = linear(x, 'linear', [in_dim * context_size, out_dim],
-                 has_bias=has_bias)
+      x = linear(
+          x, 'linear', [in_dim * context_size, out_dim], has_bias=has_bias)
     elif method == 'conv1d':
       kernel = tf.get_variable(
-        name='DW',
-        shape=[context, in_dim, out_dim],
-        dtype=tf.float32,
-        initializer=tf.contrib.layers.xavier_initializer())
+          name='DW',
+          shape=[context, in_dim, out_dim],
+          dtype=tf.float32,
+          initializer=tf.contrib.layers.xavier_initializer())
       x = tf.nn.conv1d(x, kernel, stride=1, padding='SAME')
       if has_bias:
         b = tf.get_variable(
@@ -182,7 +187,9 @@ def linear(x, names, shapes, has_bias=True):
         initializer=tf.truncated_normal_initializer(stddev=0.1))
     if has_bias:
       bias = tf.get_variable(
-          name='bias', shape=shapes[1], initializer=tf.constant_initializer(0.0))
+          name='bias',
+          shape=shapes[1],
+          initializer=tf.constant_initializer(0.0))
       return tf.matmul(x, weights) + bias
     else:
       return tf.matmul(x, weights)

@@ -29,6 +29,7 @@ from delta.layers.base_layer import Layer
 
 layers = tf.keras.layers
 
+
 class IdentityBlock(Layer):
 
   def __init__(self, kernel_size, filters, stage, block):

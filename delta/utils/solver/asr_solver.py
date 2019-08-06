@@ -52,7 +52,8 @@ class AsrSolver(Solver):
 
     self._lr = self._solver['optimizer']['learning_rate']['rate']
     self._decay_rate = self._solver['optimizer']['learning_rate']['decay_rate']
-    self._val_metric = self._solver['optimizer']['learning_rate']['type'] == 'val_metric'
+    self._val_metric = self._solver['optimizer']['learning_rate'][
+        'type'] == 'val_metric'
     if self._val_metric:
       self._min_lr = self._solver['optimizer']['learning_rate']['min_rate']
       self._patience = self._solver['optimizer']['learning_rate']['patience']
@@ -287,14 +288,14 @@ class AsrSolver(Solver):
     if self._val_metric:
       logging.info(f"CallBack: Learning Rate Shcedule on {monitor_used}")
       lr_shcedule = ReduceLROnPlateau(
-        monitor=monitor_used,
-        factor=self._decay_rate,
-        patience=self._patience,
-        verbose=1,
-        mode='auto',
-        min_delta=0.0001,
-        cooldown=0,
-        min_lr=self._min_lr)
+          monitor=monitor_used,
+          factor=self._decay_rate,
+          patience=self._patience,
+          verbose=1,
+          mode='auto',
+          min_delta=0.0001,
+          cooldown=0,
+          min_lr=self._min_lr)
       callbacks.append(lr_shcedule)
     return callbacks
 
@@ -384,9 +385,11 @@ class AsrSolver(Solver):
     # data must be init before model builg
     backend_sess = K.get_session()
     train_ds, train_task = self.input_data(mode=utils.TRAIN)
-    train_gen = self.input_generator(train_ds.make_one_shot_iterator(), train_task, backend_sess)
+    train_gen = self.input_generator(train_ds.make_one_shot_iterator(),
+                                     train_task, backend_sess)
     eval_ds, eval_task = self.input_data(mode=utils.EVAL)
-    eval_gen = self.input_generator(eval_ds.make_one_shot_iterator(), eval_task, backend_sess)
+    eval_gen = self.input_generator(eval_ds.make_one_shot_iterator(), eval_task,
+                                    backend_sess)
 
     self.model_fn(mode=utils.TRAIN)
     assert self._built

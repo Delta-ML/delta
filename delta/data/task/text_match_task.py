@@ -44,7 +44,7 @@ class TextMatchTask(TextTask):
 
     self.paths = self.data_config[mode]['paths']
     self.paths_after_pre_process = [
-      one_path + ".after" for one_path in self.paths
+        one_path + ".after" for one_path in self.paths
     ]
 
     self.prepare()
