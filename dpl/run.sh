@@ -27,14 +27,20 @@ set -e
 
 USAGE="usage: $0 [linux] [x86_64]"
 
-if [ $# != 3 ]; then
+if [ $# != 2 ]; then
   echo ${USAGE}
   exit -1
 fi
 
 TARGET=$1
 ARCH=$2
-ENGINE=$3
+
+INPUT_PATH="input_model"
+OUTPUT_PATH="output_model"
+MODEL_YAML="input_model/model.yaml"
+VERSION=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.version`
+ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
+MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.saved_model`
 
 if [ -z $MAIN_ROOT ];then
   pushd ..
@@ -42,7 +48,6 @@ if [ -z $MAIN_ROOT ];then
   popd
   echo "source env.sh"
 fi
-
 
 # 1. convert graph
 # convert saved_model under `model` with `model.yaml`
@@ -60,7 +65,7 @@ BAZEL_CACHE=$MAIN_ROOT/tools/.cache/bazel
 
 function convert_graph(){
   if [ ${ENGINE} == 'tf' ];then
-
+    mkdir -p
   elif [ ${ENGINE} == 'tflite' ];then
     echo 'tflite not supported now.'
   elif [ ${ENGINE} == 'tfserving' ];then

@@ -20,7 +20,7 @@ model:
     -
       # meta data
       id: 0
-      name: "emotion" # model name
+      name: "han-cls" # model name
 
       # deltann type
       server_type: "remote" # local, remote
@@ -29,7 +29,7 @@ model:
       # model config
       version: 1    # model version
       local:  # local run
-        path: "/delta/dpl/test/emotion" # model path without version info
+        path: "/delta/dpl/output_model" # model path without version info
         model_type: "saved_model" # e.g. saved_model, frozen_graph_pb, frozen_graph_txt
       remote: # serving host
         host: "http://10.90.55.32"
