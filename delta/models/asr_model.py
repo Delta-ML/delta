@@ -17,7 +17,7 @@
 import tensorflow as tf
 #pylint: disable=import-error,unused-import
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import LSTM, TimeDistributed, Conv2D, MaxPool2D, Flatten, Dense
+from tensorflow.keras.layers import Activation, CuDNNLSTM, TimeDistributed, Conv2D, Dense, Reshape
 from tensorflow.keras.layers import Lambda, Input, Dropout
 from tensorflow.keras import backend as K
 from absl import logging
@@ -73,20 +73,36 @@ class CTCAsrModel(RawModel):
 
   def build(self):
     input_tensor = Input(
-        name='inputs', shape=(None, *self._feat_shape), dtype=tf.float32)
+        name='inputs', shape=(None, *self._feat_shape, 1), dtype=tf.float32)
 
     x = input_tensor
-    x = TimeDistributed(Dense(512, activation='relu'))(x)
-    x = TimeDistributed(Dropout(0.5))(x)
-    x = LSTM(
+
+    x = Conv2D(32, (11,5), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal', name="conv1")(x)
+    x = Conv2D(32, (11,5), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal', name="conv2")(x)
+
+    _, _, dim, channels = x.get_shape().as_list()
+    output_dim = dim * channels
+    x=Reshape((-1, output_dim))(x)
+
+    x = TimeDistributed(Dropout(0.8))(x)
+    x = CuDNNLSTM(
         512,
-        activation='relu',
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
-        dropout=0.2,
         return_sequences=True,
         name='lstm')(
             x)
+    x = Activation('tanh', name='activation')(x)
+
+    x = TimeDistributed(Dropout(0.8))(x)
+    x = CuDNNLSTM(
+        512,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm1')(
+            x)  
+    x = Activation('tanh', name='activation1')(x)
 
     x = TimeDistributed(Dense(1024, activation='relu'))(x)
     x = TimeDistributed(Dropout(0.5))(x)
