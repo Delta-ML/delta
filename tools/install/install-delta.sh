@@ -63,14 +63,16 @@ if [ "$(printf '%s\n' "${REQUIRE_VER}" "${CURRENT_VER}" | sort -V | head -n1)" =
   echo "G++ version is ${CURRENT_VER}, which is greater than or equal to ${REQUIRE_VER}"
 else
   printf "Tensorflow custom op compilation with G++ version less than 5.0.0 may be buggy.\\n"
-  printf "Do you want update the g++ version of this conda env? [yes|no]\\n"
+  printf "Do you want to update the g++ version of this conda env? [yes|no]\\n"
   printf "[yes] >>> "
   read -r ans
   if [ "$ans" != "no" ] && [ "$ans" != "No" ] && [ "$ans" != "NO" ] && \
     [ "$ans" != "n" ] && [ "$ans" != "N" ]
     then
       conda install -c conda-forge cxx-compiler
-    fi
+  else
+    echo "Skip g++ update."
+  fi
 fi
 
 CONDA_PIP=`which pip`

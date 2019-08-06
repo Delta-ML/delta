@@ -24,7 +24,7 @@ model:
 
       # deltann type
       server_type: "remote" # local, remote
-      engine: "TFSERVING" # TF, TFLITE, TFSERVING
+      engine: "TF" # TF, TFLITE, TFSERVING
 
       # model config
       version: 1    # model version

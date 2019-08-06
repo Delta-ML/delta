@@ -25,9 +25,11 @@ set -e
 #  online model
 #  combined offline and online
 
+USAGE="usage: $0 [linux] [x86_64]"
+
 if [ $# != 3 ]; then
-    echo "usage: $0 [linux] [x86_64] [tf|tflite|tfserving]"
-    exit -1
+  echo ${USAGE}
+  exit -1
 fi
 
 TARGET=$1
@@ -35,10 +37,10 @@ ARCH=$2
 ENGINE=$3
 
 if [ -z $MAIN_ROOT ];then
-    pushd ..
-    source env.sh
-    popd
-    echo "source env.sh"
+  pushd ..
+  source env.sh
+  popd
+  echo "source env.sh"
 fi
 
 
@@ -57,7 +59,14 @@ fi
 BAZEL_CACHE=$MAIN_ROOT/tools/.cache/bazel
 
 function convert_graph(){
+  if [ ${ENGINE} == 'tf' ];then
 
+  elif [ ${ENGINE} == 'tflite' ];then
+    echo 'tflite not supported now.'
+  elif [ ${ENGINE} == 'tfserving' ];then
+    echo 'tfserving not supported now.'
+  else:
+    echo ${USAGE}
 }
 
 function clear_lib(){
@@ -65,7 +74,7 @@ function clear_lib(){
   pushd $MAIN_ROOT/dpl/lib
   for dir in `ls`;
   do
-      rm -rf $dir/* && touch $dir/.gitkeep
+    rm -rf $dir/* && touch $dir/.gitkeep
   done
   popd
 }
@@ -160,7 +169,6 @@ clear_lib
 compile_tensorflow $TARGET  $ARCH
 compile_deltann $TARGET $ARCH tf
 compile_custom_ops tensorflow deltann
-
 
 # compile_tflite $TARGET $ARCH
 # compile_deltann $TARGET $ARCH tflite

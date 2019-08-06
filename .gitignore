@@ -89,6 +89,9 @@ egs/*/*/res
 egs/*/*/*/res
 
 # dpl copys
+!dpl/model/saved_model
+dpl/model/saved_model/*
+!dpl/model/saved_model/.gitkeep
 !dpl/lib/tensorflow/
 dpl/lib/tensorflow/*
 !dpl/lib/tensorflow/.gitkeep
