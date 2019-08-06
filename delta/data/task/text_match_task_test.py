@@ -87,7 +87,7 @@ class TextMatchTaskTest(tf.test.TestCase):
       logging.debug(res[3])
       logging.debug(res[4])
 
-      self.assertAllEqual(res[0][0][:10], [4, 12, 13, 0, 0, 0, 0, 0, 0, 0])
+      self.assertAllEqual(res[0][0][:10], [2, 3, 4, 5, 6, 0, 0, 0, 0, 0])
       self.assertEqual(np.shape(res[0]), (batch_size, max_seq_len))
       self.assertEqual(np.shape(res[1]), (batch_size, max_seq_len))
       self.assertEqual(np.shape(res[2]), (batch_size, class_num))
