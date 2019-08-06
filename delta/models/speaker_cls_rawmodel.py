@@ -107,21 +107,25 @@ class SpeakerBaseRawModel(RawModel):
     x: shape [batch, time, feat, channel]
     output: shape [b, t, f]
     '''
-    with tf.variable_scope('linear'):
-      times_t = tf.shape(x)[1]
-      feat, channel = x.shape.as_list()[2:]
-      x = tf.reshape(x, [-1, feat * channel])
-      if self.netconf['use_dropout']:
-        x = tf.layers.dropout(
-            x, self.netconf['dropout_rate'], training=self.train)
-      x = common_layers.linear(x, 'linear1',
-                               [feat * channel, self.netconf['linear_num']])
-      x = tf.nn.relu(x)
-      if self.netconf['use_bn']:
-        bn_name = 'bn_linear'
-        x = tf.layers.batch_normalization(
-            x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
-      x = tf.reshape(x, [-1, times_t, self.netconf['linear_num']])
+    times_t = tf.shape(x)[1]
+    feat, channel = x.shape.as_list()[2:]
+    linear_num = self.netconf['linear_num']
+    if linear_num > 0:
+      with tf.variable_scope('linear'):
+        x = tf.reshape(x, [-1, feat * channel])
+        if self.netconf['use_dropout']:
+          x = tf.layers.dropout(
+              x, self.netconf['dropout_rate'], training=self.train)
+        x = common_layers.linear(x, 'linear1',
+                                 [feat * channel, linear_num])
+        x = tf.nn.relu(x)
+        if self.netconf['use_bn']:
+          bn_name = 'bn_linear'
+          x = tf.layers.batch_normalization(
+              x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
+    else:
+      logging.info('linear_num <= 0, only apply reshape.')
+      x = tf.reshape(x, [-1, times_t, feat * channel])
     return x
 
   def lstm_layer(self, x):
