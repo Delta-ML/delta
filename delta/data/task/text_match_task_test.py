@@ -55,7 +55,7 @@ class TextMatchTaskTest(tf.test.TestCase):
     task_config["split_by_space"] = False
     task_config["use_word"] = True
     task_config[
-      "text_vocab"] = "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt"
+        "text_vocab"] = "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt"
     task_config["need_shuffle"] = False
 
     # generate_mock_files(config)
@@ -69,16 +69,18 @@ class TextMatchTaskTest(tf.test.TestCase):
                     "input_x_right" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-   # with self.session() as sess:
+    # with self.session() as sess:
     #  sess.run(data["iterator"].initializer)
     with self.session() as sess:
       sess.run([data["iterator"].initializer, data["iterator_len"].initializer],
                feed_dict=data["init_feed_dict"])
-      res = sess.run([data["input_x_dict"]["input_x_left"],
-                      data["input_x_dict"]["input_x_right"],
-                      data["input_y_dict"]["input_y"],
-                      data["input_x_len"]["input_x_left_len"],
-                      data["input_x_len"]["input_x_right_len"],])
+      res = sess.run([
+          data["input_x_dict"]["input_x_left"],
+          data["input_x_dict"]["input_x_right"],
+          data["input_y_dict"]["input_y"],
+          data["input_x_len"]["input_x_left_len"],
+          data["input_x_len"]["input_x_right_len"],
+      ])
       logging.debug(res[0][0][:10])
       logging.debug(res[1][0])
       logging.debug(res[2][0])
@@ -102,11 +104,14 @@ class TextMatchTaskTest(tf.test.TestCase):
     input_x_left = export_inputs["model_inputs"]["input_x_left"]
     input_x_right = export_inputs["model_inputs"]["input_x_right"]
     with self.session() as sess:
-     # sess.run(data["iterator"].initializer)
+      # sess.run(data["iterator"].initializer)
       sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
-      res1, res2 = sess.run([input_x_left, input_x_right],
-                            feed_dict={input_sent_left: ["How should I approach forgiveness?"],
-                                       input_sent_right: ["I got chickenpox as a child."]})
+      res1, res2 = sess.run(
+          [input_x_left, input_x_right],
+          feed_dict={
+              input_sent_left: ["How should I approach forgiveness?"],
+              input_sent_right: ["I got chickenpox as a child."]
+          })
       logging.debug(res1[0][:10])
       logging.debug(res2[0][:10])
       self.assertAllEqual(res1[0][:10], [2, 3, 4, 5, 6, 0, 0, 0, 0, 0])

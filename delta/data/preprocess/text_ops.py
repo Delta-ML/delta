@@ -83,4 +83,3 @@ def char_cut_tf(input_str):
     raise Exception("Error input shape for input_str.")
   output_str = tf.strings.strip(output_str)
   return output_str
-

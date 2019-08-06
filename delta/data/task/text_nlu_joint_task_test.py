@@ -51,9 +51,8 @@ class NLUJointTaskTest(tf.test.TestCase):
     task_config["split_by_space"] = False
     task_config["use_word"] = True
     task_config[
-      "text_vocab"] = "egs/mock_text_nlu_joint_data/nlu-joint/v1/data/text_vocab.txt"
+        "text_vocab"] = "egs/mock_text_nlu_joint_data/nlu-joint/v1/data/text_vocab.txt"
     task_config["need_shuffle"] = False
-
 
     # generate_mock_files(config)
     task = TextNLUJointTask(config, utils.TRAIN)
