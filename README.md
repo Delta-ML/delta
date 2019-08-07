@@ -1,4 +1,5 @@
-# <img src="docs/delta_logo_200x200.png"/> DELTA - a DEep learning Language Technology plAtform 
+# <img align="left"  src="docs/delta_logo_200x200.png"/>  DELTA 
+## A DEep learning Language Technology plAtform**
 
 [![Build Status](https://travis-ci.org/didi/delta.svg?branch=master)](https://travis-ci.org/didi/delta)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
