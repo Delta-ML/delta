@@ -1,4 +1,4 @@
-# DELTA - a DEep Language Technology plAtform 
+# <img src="docs/delta_logo_200x200.png"/> DELTA - a DEep learning Language Technology plAtform 
 
 [![Build Status](https://travis-ci.org/didi/delta.svg?branch=master)](https://travis-ci.org/didi/delta)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -38,6 +38,7 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 - [Quick Start](#quick-start)
 - [Benchmarks](#benchmarks)
 - [Contributing](#contributing)
+- [References](#references)
 - [License](#license)
 - [Acknowlegement](#acknowlegement)
 
@@ -197,6 +198,25 @@ TBA
 
 Any contribution is welcome. All issues and pull requests are highly appreciated!
 For more details, please refer to [the contribution guide](CONTRIBUTING.md).
+
+## References
+
+Please cite this [paper](https://arxiv.org/abs/1908.01853) when referencing DELTA.
+```
+@ARTICLE{delta,
+       author = {{Han}, Kun and {Chen}, Junwen and {Zhang}, Hui and {Xu}, Haiyang and
+         {Peng}, Yiping and {Wang}, Yun and {Ding}, Ning and {Deng}, Hui and
+         {Gao}, Yonghu and {Guo}, Tingwei and {Zhang}, Yi and {He}, Yahao and
+         {Ma}, Baochang and {Zhou}, Yulong and {Zhang}, Kangli and {Liu}, Chao and
+         {Lyu}, Ying and {Wang}, Chenxi and {Gong}, Cheng and {Wang}, Yunbo and
+         {Zou}, Wei and {Song}, Hui and {Li}, Xiangang},
+       title = "{DELTA: A DEep learning based Language Technology plAtform}",
+       journal = {arXiv e-prints},
+       year = "2019",
+       url = {https://arxiv.org/abs/1908.01853},
+}
+
+```
 
 ## License
 
