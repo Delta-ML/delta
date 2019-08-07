@@ -1,4 +1,4 @@
-# <img align="left"  src="docs/delta_logo_200x200.png"/>  DELTA 
+# <img align="left"  src="docs/delta_logo_200x200.png" width="160" height="160"/>  DELTA 
 **A DEep learning Language Technology plAtform**
 
 
