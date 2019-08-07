@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -x
 
 # Please run this script using `docker`
 # dpl input: 
@@ -35,19 +35,28 @@ fi
 TARGET=$1
 ARCH=$2
 
-INPUT_PATH="input_model"
-OUTPUT_PATH="output_model"
-MODEL_YAML="input_model/model.yaml"
-VERSION=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.version`
-ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
-MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.saved_model`
-
 if [ -z $MAIN_ROOT ];then
   pushd ..
   source env.sh
   popd
   echo "source env.sh"
 fi
+
+INPUT_PATH="${MAIN_ROOT}/dpl/input_model"
+OUTPUT_PATH="${MAIN_ROOT}/dpl/output_model"
+MODEL_YAML="${MAIN_ROOT}/dpl/input_model/model.yaml"
+VERSION=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.version`
+ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
+MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.model_type`
+OUTPUT_NUM=`cat ${MODEL_YAML} | shyaml get-length model.graphs.0.outputs`
+
+OUTPUT_NAMES=""
+END_NUM=`expr ${OUTPUT_NUM} - 1`
+for i in `seq 0 ${END_NUM}`
+do
+  NEW_OUTPUT=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.outputs.$i.name`
+  OUTPUT_NAMES="${OUTPUT_NAMES},${NEW_OUTPUT}"
+done
 
 # 1. convert graph
 # convert saved_model under `model` with `model.yaml`
@@ -61,25 +70,48 @@ fi
 # 4. compile deltann
 
 #BAZEL_CACHE=../.cache/bazel
-BAZEL_CACHE=$MAIN_ROOT/tools/.cache/bazel
+BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
+UTILS=${MAIN_ROOT}/dpl/utils/deploy
 
 function convert_graph(){
-  if [ ${ENGINE} == 'tf' ];then
-    mkdir -p
-  elif [ ${ENGINE} == 'tflite' ];then
-    echo 'tflite not supported now.'
-  elif [ ${ENGINE} == 'tfserving' ];then
-    echo 'tfserving not supported now.'
-  else:
-    echo ${USAGE}
+  if [ ${ENGINE} == 'TF' ];then
+    if [ ${MODEL_TYPE} == 'saved_model' ]; then
+      GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${VERSION}"
+      mkdir -p ${GADAPTER_PATH}
+      cp -r ${INPUT_PATH}/* ${GADAPTER_PATH}
+    elif [ ${MODEL_TYPE} == 'frozen_graph_pb' ]; then
+      GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tfgraph"
+      bash ${UTILS}/frozen_saved_model.sh ${GADAPTER_PATH} ${OUTPUT_NAMES}
+    else
+      echo "MODEL_TYPE: ${MODEL_TYPE} and ENGINE: ${ENGINE} error!"
+      exit 1
+    fi
+  elif [ ${ENGINE} == 'TFLITE' ];then
+    GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tflite"
+    mkdir -p ${GADAPTER_PATH}
+    echo "tflite to be added."
+    exit 1
+  elif [ ${ENGINE} == 'TFRT' ];then
+    GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tfrt"
+    mkdir -p ${GADAPTER_PATH}
+    echo "tfrt to be added."
+    exit 1
+  elif [ ${ENGINE} == 'TFSERVING' ];then
+    GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${VERSION}"
+    mkdir -p ${GADAPTER_PATH}
+    cp -r ${INPUT_PATH}/* ${GADAPTER_PATH}
+  else
+    echo "MODEL_TYPE: ${MODEL_TYPE} and ENGINE: ${ENGINE} error!"
+    exit 1
+  fi
 }
 
 function clear_lib(){
-  echo "clear library under dpl/lib "
-  pushd $MAIN_ROOT/dpl/lib
+  echo "clear library under dpl/lib"
+  pushd ${MAIN_ROOT}/dpl/lib
   for dir in `ls`;
   do
-    rm -rf $dir/* && touch $dir/.gitkeep
+    rm -rf ${dir}/* && touch ${dir}/.gitkeep
   done
   popd
 }
@@ -89,8 +121,8 @@ function compile_tensorflow(){
   local arch=$2
   echo "compile tensorflow: $target $arch"
 
-  if [ $target == 'linux' ] && [ $arch == 'x86_64' ];then
-	pushd $MAIN_ROOT/tools/tensorflow 
+  if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
+	pushd ${MAIN_ROOT}/tools/tensorflow
     bazel --output_user_root=$BAZEL_CACHE \
        build -c opt //tensorflow:libtensorflow_cc.so || exit 1
 	
@@ -103,7 +135,7 @@ function compile_tensorflow(){
     #    unlink libtensorflow_framework.so.1
     #fi
 	#ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
-	cp *.so* $MAIN_ROOT/dpl/lib/tensorflow/ 
+	cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
 
     popd
     popd
@@ -119,13 +151,13 @@ function compile_tflite(){
   local arch=$2
   echo "compile tflite: $target $arch"
 
-  if [ $target == 'linux' ] && [ $arch == 'x86_64' ];then
-     pushd $MAIN_ROOT/tools/tensorflow
-     bazel --output_user_root=$BAZEL_CACHE \
-       build -c opt //tensorflow/lite/experimental/c:libtensorflowlite_c.so || exit 1
+  if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
+    pushd ${MAIN_ROOT}/tools/tensorflow
+    bazel --output_user_root=$BAZEL_CACHE \
+      build -c opt //tensorflow/lite/experimental/c:libtensorflowlite_c.so || exit 1
 
-	 cp tensorflow/bazel-bin/tensorflow/lite/experimental/c/*.so $MAIN_ROOT/dpl/lib/tflite/
-     popd
+    cp tensorflow/bazel-bin/tensorflow/lite/experimental/c/*.so ${MAIN_ROOT}/dpl/lib/tflite/
+    popd
   else
     echo "Not support: $target $arch"
     exit 1
@@ -137,18 +169,18 @@ function compile_custom_ops(){
   local target=$2
   echo "compile custom ops: $platform $target"
 
-  if [ $platform == 'tensorflow' ];then
-      if [ $target != 'delta' ] && [ $target != 'deltann' ];then
-          echo "compile custom error: target no support. "  $target
+  if [ ${platform} == 'tensorflow' ];then
+    if [ ${target} != 'delta' ] && [ ${target} != 'deltann' ];then
+      echo "compile custom error: target no support. "  ${target}
           exit 1
-      fi
+    fi
 
-      pushd $MAIN_ROOT/delta/layers/ops/
-      bash build.sh  $target
-      popd
+    pushd ${MAIN_ROOT}/delta/layers/ops/
+    bash build.sh ${target}
+    popd
   else
-      echo "Not support: $platform"
-      exit 1
+    echo "Not support: $platform"
+    exit 1
   fi
 }
 
@@ -157,27 +189,25 @@ function compile_deltann(){
   local arch=$2   # x86_64
   local engine=$3   # [tf|tflite|tfserving]
   
-  pushd $MAIN_ROOT/deltann
+  pushd ${MAIN_ROOT}/deltann
   bash build.sh $target $arch $engine
   cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann
   popd
 }
 
 function compile_deltann_egs(){
-    pushd $MAIN_ROOT/deltann
-    make example
-    popd
+  pushd ${MAIN_ROOT}/deltann
+  make example
+  popd
 }
+
+convert_graph
 
 clear_lib
 
-compile_tensorflow $TARGET  $ARCH
-compile_deltann $TARGET $ARCH tf
+compile_tensorflow ${TARGET}  ${ARCH}
+compile_deltann ${TARGET} ${ARCH} ${ENGINE}
 compile_custom_ops tensorflow deltann
-
-# compile_tflite $TARGET $ARCH
-# compile_deltann $TARGET $ARCH tflite
-
 
 compile_deltann_egs
 

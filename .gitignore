@@ -95,6 +95,7 @@ dpl/input_model/saved_model/*
 !dpl/output_model/
 dpl/output_model/*
 !dpl/output_model/.gitkeep
+dpl/gadapter/*
 !dpl/lib/tensorflow/
 dpl/lib/tensorflow/*
 !dpl/lib/tensorflow/.gitkeep

@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 
-## Run under docker image tensorflow/tensorflow:latest-py3
 SHELL = /bin/bash
 
 # Use a prebuild Kaldi to omit the installation
@@ -188,7 +187,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	# if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then $(SUDO) ln -s /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:
@@ -206,7 +205,7 @@ tcmalloc.done:
 
 jsoncpp.done:
 	if ! [ -d jsoncpp ]; then git clone --depth=1 https://github.com/open-source-parsers/jsoncpp.git; fi
-	cd jsoncpp;  cmake . -DBUILD_SHARED_LIBS=ON; make
+	cd jsoncpp/; meson --buildtype release --default-library shared . build-shared; ninja -v -C build-shared test
 	touch jsoncpp.done
 
 mbedtls.done:

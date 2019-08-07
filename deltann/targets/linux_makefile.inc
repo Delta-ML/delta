@@ -6,7 +6,7 @@ ifeq ($(TARGET), linux)
     CXXFLAGS += -std=c++11 -fPIC -mavx -O3
     CCFLAGS += -fPIC -mavx -O3
 
-    ifeq ($(ENGINE),tf)
+    ifeq ($(ENGINE),TF)
         $(info this will compile $(ENGINE))
         CXXFLAGS += -DUSE_TF
         TF_DIR := $(ROOT_DIR)/../tools/tensorflow
@@ -29,7 +29,7 @@ ifeq ($(TARGET), linux)
         ABSEIL := $(ROOT_DIR)/../tools/abseil-cpp
         INCLUDES += -I$(ABSEIL) 
 
-    else ifeq ($(ENGINE),tflite)
+    else ifeq ($(ENGINE),TFLITE)
         $(info this will compile $(ENGINE))
         CXXFLAGS += -DUSE_TFLITE
         TFLITE_DIR := $(TF_DIR)
@@ -43,7 +43,7 @@ ifeq ($(TARGET), linux)
         INCLUDES += -I$(TFLITE_DIR) -I$(TF_DIR)/bazel-tensorflow/external/protobuf_archive/src
         LIBS += -L$(DPL_TFLITE_LIB_DIR) -ltensorflowlite_c
 
-    else ifeq ($(ENGINE),tfserving)
+    else ifeq ($(ENGINE),TFSERVING)
         $(info this will compile $(ENGINE))
 				HTTPS_CLIENT :=$(ROOT_DIR)../tools/https_client
         CXXFLAGS += -DUSE_TF_SERVING -fpermissive

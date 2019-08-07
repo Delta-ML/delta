@@ -94,10 +94,10 @@ RUN sudo $PIP_INSTALL --upgrade pip && $PIP_INSTALL --user -r requirements.txt
 
 EOF
 
-else
+elif [ ${TARGET} == 'delta' ];then
 cat >> $DOCKERFILE <<EOF
 RUN git clone --depth 1 https://github.com/didi/delta.git
-RUN cd /delta/tools && ./install/install-${TARGET}.sh nlp ${DEVICE}
+RUN cd /delta/tools && make basic
 WORKDIR /delta
 
 EOF
