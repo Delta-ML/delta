@@ -81,10 +81,10 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
     # (B, 1)
     # blank index is consistent with Espnet, zero
     batch_loss = tf.nn.ctc_loss_v2(
-        labels,
-        logits,
-        olen,
-        ilen,
+        labels=labels,
+        logits=logits,
+        label_length=olen,
+        logit_length=ilen,
         logits_time_major=False,
         blank_index=blank_index)
     batch_loss.set_shape([None])
