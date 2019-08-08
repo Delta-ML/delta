@@ -96,9 +96,10 @@ EOF
 
 elif [ ${TARGET} == 'delta' ];then
 cat >> $DOCKERFILE <<EOF
-RUN git clone --depth 1 https://github.com/didi/delta.git
-RUN cd /delta/tools && make basic
-WORKDIR /delta
+RUN sudo mkdir workspace && sudo chown delta: /workspace
+RUN cd /workspace && git clone --depth 1 https://github.com/didi/delta.git
+RUN cd /workspace/delta/tools && make basic
+WORKDIR /workspace/delta
 
 EOF
 
