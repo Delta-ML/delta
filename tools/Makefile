@@ -180,6 +180,7 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 apt.done:
 	$(SUDO) apt-get install -y autoconf libtool
 	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) apt-get install -y cmake; else $(SUDO) yum install -y cmake; fi
+	pip3 install
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
@@ -187,7 +188,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	if ! [ -d tensorflow ]; then $(SUDO) ln -s /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:
