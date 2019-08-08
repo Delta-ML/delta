@@ -18,8 +18,7 @@ lint_and_unit_test:
   only:
     - "master"
     - "dev"
-    - "ci_test" # for CI test
-    - "187-fix-bugs-after-merge-pretrain-and-emotion"
+    - "193-update-espnet-version"
 
   script:
     - env
