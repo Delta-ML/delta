@@ -29,7 +29,7 @@ if [[ $start_stage -le 2 && $end_stage -gt 2 && ! -d "./data/dump" ]]; then
     python3 local/python/dump_data_from_pickle.py
 fi
 
-config_file=conf/emo-keras-resnet50.yml 
+config_file=conf/emo-keras-blstm.yml
 echo "Using config $config_file"
 
 #3. make fbank

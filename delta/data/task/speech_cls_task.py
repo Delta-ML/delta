@@ -80,13 +80,13 @@ class SpeechClsTask(SpeechTask):
     else:
       self._stride = 1.0  # percent
     logging.info("Mode: {}, stride {}".format(mode, self._stride))
-
-    self._feature_size = self.taskconf['audio']['feature_size']
-    self._sample_rate = self.taskconf['audio']['sr']
-    self._input_channels = 3 if self.taskconf['audio']['add_delta_deltas'] else 1
     self._feature_type = self.taskconf['audio']['feature_extractor']
-    self._cmvn_path = self.taskconf['audio']['cmvn_path']
+    self._feature_name = self.taskconf['audio']['feature_name']
+    self._sample_rate = self.taskconf['audio']['sr']
     self._winstep = self.taskconf['audio']['winstep']
+    self._feature_size = self.taskconf['audio']['feature_size']
+    self._input_channels = 3 if self.taskconf['audio']['add_delta_deltas'] else 1
+    self._cmvn_path = self.taskconf['audio']['cmvn_path']
     self._save_feat_path = self.taskconf['audio']['save_feat_path']
 
     # {class: [filename, duration, class],...}

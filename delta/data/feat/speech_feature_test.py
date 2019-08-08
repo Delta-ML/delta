@@ -61,11 +61,12 @@ class SpeechFeatureTest(tf.test.TestCase):
 
   def test_tf_feat(self):
     ''' test tensorflow fbank feature interface '''
-    speech_feature.extract_filterbank((self.wavfile),
+    speech_feature.extract_feature((self.wavfile),
                                       winlen=self.winlen,
                                       winstep=self.winstep,
                                       sr=self.sr,
-                                      feature_size=self.feature_size)
+                                      feature_size=self.feature_size,
+                                      feature_name='fbank')
 
     feat = np.load(self.featfile)
     self.assertEqual(feat.shape, (425, 40, 1))
@@ -76,11 +77,12 @@ class SpeechFeatureTest(tf.test.TestCase):
 
   def test_tf_delta_detla(self):
     ''' test tensorflow delta delta '''
-    speech_feature.extract_filterbank((self.wavfile),
+    speech_feature.extract_feature((self.wavfile),
                                       winlen=self.winlen,
                                       winstep=self.winstep,
                                       sr=self.sr,
-                                      feature_size=self.feature_size)
+                                      feature_size=self.feature_size,
+                                      feature_name='fbank')
 
     feat = np.load(self.featfile)
     self.assertEqual(feat.shape, (425, 40, 1))
