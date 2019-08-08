@@ -130,11 +130,13 @@ class AsrSolver(Solver):
     loss = {'ctc': lambda y_true, y_pred: tf.reduce_mean(y_pred)}
     return loss
 
-  def input_generator(self, input_iterator, input_task, cur_sess):
+  def input_generator(self, input_iterator, input_task, cur_sess, mode):
     ''' dataset_based generator used in keras.model.fit_generator()
         in future, it will be replaced by tf.keras.utils.Sequence'''
     next_batch = input_iterator.get_next()
-    for _ in range(len(input_task)):
+    generate_time = len(input_task) * self._num_epochs 
+                    if mode == utils.TRAIN else len(input_task)
+    for _ in range(generate_time):
       next_batch_data = cur_sess.run(next_batch)
       yield next_batch_data
 
@@ -383,11 +385,11 @@ class AsrSolver(Solver):
   def train_and_eval(self):
     ''' train and eval '''
     # data must be init before model builg
-    backend_sess = K.get_session()
+    #backend_sess = K.get_session()
     train_ds, train_task = self.input_data(mode=utils.TRAIN)
-    #train_gen = self.input_generator(tf.data.make_one_shot_iterator(train_ds), train_task, backend_sess)
+    #train_gen = self.input_generator(tf.data.make_one_shot_iterator(train_ds), train_task, backend_sess, mode=utils.TRAIN)
     eval_ds, eval_task = self.input_data(mode=utils.EVAL)
-    #eval_gen = self.input_generator(tf.data.make_one_shot_iterator(eval_ds), eval_task, backend_sess)
+    #eval_gen = self.input_generator(tf.data.make_one_shot_iterator(eval_ds), eval_task, backend_sess, mode=utils.EVAL)
 
     self.model_fn(mode=utils.TRAIN)
     assert self._built
