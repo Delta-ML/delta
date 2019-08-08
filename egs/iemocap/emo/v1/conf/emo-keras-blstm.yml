@@ -2,15 +2,15 @@
 data:
   train:
     paths:
-    - "data/dump/train"
+    - "data/dump/impro/train"
     segments:
   eval:
     paths:
-    - "data/dump/eval"
+    - "data/dump/impro/eval"
     segments:
   infer:
     paths:
-    - "data/dump/eval"
+    - "data/dump/impro/eval"
     segments:
   task:
     name: IEmoCapTask 
@@ -61,24 +61,24 @@ model:
   name: EmoBLstmPoolModel
   type: keras # raw, keras or eager model
   net:
-    structure:
-      embedding_size: 128
-      filters: # equal number of cnn layers
-      - 128
-      - 512
-      - 512
-      filter_size: # equal number of cnn layers
-      - [5, 3]
-      - [5, 3]
-      - [5, 3]
-      filter_stride: # equal number of cnn layers
-      - [1, 1]
-      - [1, 1]
-      - [1, 1]
-      pool_size: # equal number of cnn layers
-      - [2, 1]
-      - [2, 1]
-      - [1, 1]
+    structure: null
+      #embedding_size: 128
+      #filters: # equal number of cnn layers
+      #- 128
+      #- 512
+      #- 512
+      #filter_size: # equal number of cnn layers
+      #- [5, 3]
+      #- [5, 3]
+      #- [5, 3]
+      #filter_stride: # equal number of cnn layers
+      #- [1, 1]
+      #- [1, 1]
+      #- [1, 1]
+      #pool_size: # equal number of cnn layers
+      #- [2, 1]
+      #- [2, 1]
+      #- [1, 1]
 
 solver:
   name: EmoKerasSolver

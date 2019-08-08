@@ -1,3 +1,4 @@
+#!/bin/bash
 
 . ./path.sh
 
@@ -12,7 +13,7 @@ iemocap_root=/export/corpus/iemocap # dataset root dir
 
 if [[ $start_stage -le 0 && $end_stage -gt 0 && ! -d "data" ]]; then
     echo "mkdir data"
-    mkdir data
+    mkdir -p data
 fi
 
 #1. collect data
@@ -24,7 +25,7 @@ fi
 #2. to save `wav`, `text`, `label` to  `dmpy dir
 if [[ $start_stage -le 2 && $end_stage -gt 2 && ! -d "./data/dump" ]]; then
     echo "dump"
-    mkdir ./data/dump
+    mkdir -p data/dump
     python3 local/python/dump_data_from_pickle.py
 fi
 

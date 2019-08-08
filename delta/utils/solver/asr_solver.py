@@ -384,9 +384,9 @@ class AsrSolver(Solver):
     # data must be init before model builg
     backend_sess = K.get_session()
     train_ds, train_task = self.input_data(mode=utils.TRAIN)
-    train_gen = self.input_generator(train_ds.make_one_shot_iterator(), train_task, backend_sess)
+    #train_gen = self.input_generator(tf.data.make_one_shot_iterator(train_ds), train_task, backend_sess)
     eval_ds, eval_task = self.input_data(mode=utils.EVAL)
-    eval_gen = self.input_generator(eval_ds.make_one_shot_iterator(), eval_task, backend_sess)
+    #eval_gen = self.input_generator(tf.data.make_one_shot_iterator(eval_ds), eval_task, backend_sess)
 
     self.model_fn(mode=utils.TRAIN)
     assert self._built
@@ -397,12 +397,12 @@ class AsrSolver(Solver):
     try:
       # Run training
       self.active_model.fit_generator(
-          train_gen,
+          train_task,
           steps_per_epoch=len(train_task),
           epochs=self._num_epochs,
           verbose=1,
           callbacks=callbacks,
-          validation_data=eval_gen,
+          validation_data=eval_task,
           validation_steps=len(eval_task),
           validation_freq=1,
           class_weight=None,
