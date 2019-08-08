@@ -27,7 +27,7 @@ fi
 
 TAG=1.14.0-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
-PIP_INSTALL="pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
+PIP_INSTALL="pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
 
 on_exit() {
   if [ $SAVE_DOCKERFILE == false ];then

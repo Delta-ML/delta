@@ -110,7 +110,11 @@ def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   return loss, transition_params
 
 
-def mask_sequence_loss(logits, labels, input_length, label_length, smoothing=0.0):
+def mask_sequence_loss(logits,
+                       labels,
+                       input_length,
+                       label_length,
+                       smoothing=0.0):
   '''
   softmax cross entropy loss for sequence to sequence
   :param logits: [batch_size, max_seq_len, vocab_size]

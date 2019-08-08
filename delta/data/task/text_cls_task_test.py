@@ -76,7 +76,7 @@ class TextClsTaskTest(tf.test.TestCase):
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
       logging.debug(res[0][0][:5])
       logging.debug(res[1][0][:5])
-      self.assertAllEqual(res[0][0][:5], [6, 7, 8, 0, 0])
+      self.assertAllEqual(res[0][0][:5], [3, 4, 5, 0, 0])
       self.assertEqual(np.shape(res[1]), (32, class_num))
 
     # test online data
@@ -181,7 +181,7 @@ class TextClsTaskTest(tf.test.TestCase):
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
       logging.debug(res[0][0])
       logging.debug(res[1][0])
-      self.assertAllEqual(res[0][0][:5], [4, 5, 0, 0, 0])
+      self.assertAllEqual(res[0][0][:5], [2, 3, 0, 0, 0])
       self.assertEqual(np.shape(res[1]), (32, class_num))
 
     # test online data
@@ -232,7 +232,7 @@ class TextClsTaskTest(tf.test.TestCase):
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
       logging.debug(res[0][0])
       logging.debug(res[1][0])
-      self.assertAllEqual(res[0][0][:5], [4, 5, 0, 0, 0])
+      self.assertAllEqual(res[0][0][:5], [2, 0, 0, 0, 0])
       self.assertEqual(np.shape(res[1]), (32, class_num))
 
     # test online data
@@ -289,7 +289,7 @@ class TextClsTaskTest(tf.test.TestCase):
       ])
       logging.debug(res[0][0])
       logging.debug(res[1][0])
-      self.assertAllEqual(res[0][0][:5], [5, 6, 0, 0, 0])
+      self.assertAllEqual(res[0][0][:5], [2, 3, 4, 0, 0])
       self.assertEqual(np.shape(res[0]), (32, max_len))
       self.assertEqual(np.shape(res[1]), (32, class_num))
       self.assertEqual(np.shape(res[2]), (32,))
@@ -345,7 +345,7 @@ class TextClsTaskTest(tf.test.TestCase):
       ])
       logging.debug(res[0][0][:10])
       logging.debug(res[1][0])
-      self.assertAllEqual(res[0][0][:10], [4, 5, 0, 6, 9, 10, 0, 0, 0, 0])
+      self.assertAllEqual(res[0][0][:10], [2, 0, 0, 0, 6, 2, 0, 0, 8, 0])#[2,3,0,0,6,2,0,0,8,0]
       self.assertEqual(np.shape(res[0]), (32, max_len))
       self.assertEqual(np.shape(res[1]), (32, class_num))
       self.assertEqual(np.shape(res[2]), (32,))

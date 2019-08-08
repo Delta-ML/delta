@@ -73,7 +73,8 @@ class RawClassSolverTest(tf.test.TestCase):
         score_tensor = graph.get_operation_by_name("score").outputs[0]
 
         score = sess.run(
-            score_tensor, feed_dict={input_sentence_tensor: ["I am very angry"]})
+            score_tensor,
+            feed_dict={input_sentence_tensor: ["I am very angry"]})
         logging.info("score: {}".format(score))
 
 

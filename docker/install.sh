@@ -1,4 +1,4 @@
-apt-get update && apt-get install -y \
+apt-get update && apt-get install -y --no-install-recommends \
         autoconf\
         automake \
         clang-format \
@@ -10,4 +10,7 @@ apt-get update && apt-get install -y \
         tig \
         make \
         vim \
-        unzip
+        unzip \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*

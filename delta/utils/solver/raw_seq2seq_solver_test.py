@@ -32,7 +32,8 @@ class RawS2SSolverTest(tf.test.TestCase):
   def setUp(self):
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
-    self.config_file = main_root.joinpath('egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
+    self.config_file = main_root.joinpath(
+        'egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
     self.config = utils.load_config(self.config_file)
     import_all_modules_for_register()
 
@@ -75,8 +76,13 @@ class RawS2SSolverTest(tf.test.TestCase):
         preds_tensor = graph.get_operation_by_name("preds").outputs[0]
 
         preds = sess.run(
-            preds_tensor, feed_dict={input_sentence_tensor: [" vice president walter "
-                                                             "mondale was released"]})
+            preds_tensor,
+            feed_dict={
+                input_sentence_tensor: [
+                    " vice president walter "
+                    "mondale was released"
+                ]
+            })
         logging.info("preds: {}".format(preds))
 
 

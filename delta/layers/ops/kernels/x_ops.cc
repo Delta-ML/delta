@@ -31,7 +31,16 @@ using tensorflow::shape_inference::UnchangedShape;
 Status PitchShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  c->set_output(0, c->Vector(i_NumFrm));
 
   return Status::OK();
 }
@@ -39,7 +48,16 @@ Status PitchShapeFn(InferenceContext* c) {
 Status FrmPowShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  c->set_output(0, c->Vector(i_NumFrm));
 
   return Status::OK();
 }
@@ -47,7 +65,16 @@ Status FrmPowShapeFn(InferenceContext* c) {
 Status ZcrShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+  
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  c->set_output(0, c->Vector(i_NumFrm));
 
   return Status::OK();
 }
@@ -55,7 +82,17 @@ Status ZcrShapeFn(InferenceContext* c) {
 Status SpectrumShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
+  c->set_output(0, c->Matrix(i_NumFrm, i_FrqNum));
 
   return Status::OK();
 }
@@ -63,7 +100,19 @@ Status SpectrumShapeFn(InferenceContext* c) {
 Status CepstrumShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  int ceps_sub_num;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("ceps_subband_num", &ceps_sub_num));
+
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  c->set_output(0, c->Matrix(i_NumFrm, ceps_sub_num));
 
   return Status::OK();
 }
@@ -71,7 +120,18 @@ Status CepstrumShapeFn(InferenceContext* c) {
 Status PLPShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  int plp_order;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("plp_order", &plp_order));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int i_NumFrm = (wav_len - i_WinLen) / i_FrmLen + 1;
+  c->set_output(0, c->Matrix(i_NumFrm, plp_order + 1));
 
   return Status::OK();
 }
@@ -100,7 +160,16 @@ Status SynthfiltbankShapeFn(InferenceContext* c) {
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 2, &input_data_1));
   ShapeHandle input_data_2;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 2, &input_data_2));
-  c->set_output(0, c->Vector(c->UnknownDim()));
+
+  int i_NumFrm = c->Value(c->Dim(input_data_1, 0));
+  float SampleRate = 16000.0f;
+  float win_len, frm_len;
+  TF_RETURN_IF_ERROR(c->GetAttr("window_length", &win_len));
+  TF_RETURN_IF_ERROR(c->GetAttr("frame_length", &frm_len));
+  int i_WinLen = static_cast<int>(win_len * SampleRate);
+  int i_FrmLen = static_cast<int>(frm_len * SampleRate);
+  int L = (i_NumFrm - 1) * i_FrmLen + i_WinLen;
+  c->set_output(0, c->Vector(L));
 
   return Status::OK();
 }
@@ -220,7 +289,7 @@ REGISTER_OP("Pitch")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second. 
-    output: float, pitch features.
+    output: float, pitch features, [num_Frame].
     )doc");
 
 REGISTER_OP("FramePow")
@@ -236,7 +305,7 @@ REGISTER_OP("FramePow")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second. 
-    output: float, frame energy features.
+    output: float, frame energy features, [num_Frame].
     )doc");
 
 REGISTER_OP("ZCR")
@@ -245,14 +314,14 @@ REGISTER_OP("ZCR")
     .Attr("window_length: float = 0.025")
     .Attr("frame_length: float = 0.010")
     .Output("output: float")
-    .SetShapeFn(PitchShapeFn)
+    .SetShapeFn(ZcrShapeFn)
     .Doc(R"doc(
     Create zero cross rate feature files.
     input_data: float, input wave, a tensor of shape [1, data_length].
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second. 
-    output: float, zero cross rate features.
+    output: float, zero cross rate features, [num_Frame].
     )doc");
 
 REGISTER_OP("Spectrum")
@@ -270,7 +339,7 @@ REGISTER_OP("Spectrum")
     window_length: float, window length in second.
     frame_length: float, frame length in second.
     output_type: int, 1: PSD, 2: log(PSD) 
-    output: float, PSD/logPSD features.
+    output: float, PSD/logPSD features, [num_Frame, num_Subband].
     )doc");
 
 REGISTER_OP("Cepstrum")
@@ -281,14 +350,14 @@ REGISTER_OP("Cepstrum")
     .Attr("ceps_subband_num: int = 13")
     .Attr("tag_ceps_mean_norm: bool = true")
     .Output("output: float")
-    .SetShapeFn(SpectrumShapeFn)
+    .SetShapeFn(CepstrumShapeFn)
     .Doc(R"doc(
     Create cepstrum feature files.
     input_data: float, input wave, a tensor of shape [1, data_length].
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second. 
-    output: float, cepstrum features.
+    output: float, cepstrum features, [num_Frame, num_Ceps].
     )doc");
 
 REGISTER_OP("PLP")
@@ -298,14 +367,14 @@ REGISTER_OP("PLP")
     .Attr("frame_length: float = 0.010")
     .Attr("plp_order: int = 12")
     .Output("output: float")
-    .SetShapeFn(SpectrumShapeFn)
+    .SetShapeFn(PLPShapeFn)
     .Doc(R"doc(
     Create plp feature files.
     input_data: float, input wave, a tensor of shape [1, data_length].
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second. 
-    output: float, plp features.
+    output: float, plp features, [num_Frame, plp_order+1].
     )doc");
 
 REGISTER_OP("Analyfiltbank")
@@ -322,8 +391,8 @@ REGISTER_OP("Analyfiltbank")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second, support 30ms only for now.
     frame_length: float, frame length in second, support 10ms only for now.
-    output_1: float, power spectrum [num_Frame, num_Subband]
-    output_2: float, phase spectrum [num_Frame, num_Subband]
+    output_1: float, power spectrum, [num_Frame, num_Subband]
+    output_2: float, phase spectrum, [num_Frame, num_Subband]
     )doc");
 
 REGISTER_OP("Synthfiltbank")
@@ -341,7 +410,7 @@ REGISTER_OP("Synthfiltbank")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second, support 30ms only for now.
     frame_length: float, frame length in second, support 10ms only for now.
-    output: float, reconstructed wave file
+    output: float, reconstructed wave file, [L].
     )doc");
 
 REGISTER_OP("Fbank")

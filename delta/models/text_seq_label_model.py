@@ -97,7 +97,7 @@ class BilstmCrfModel(SeqclassModel):
     # [batch_size, features]
     if self.use_pretrained_model:
       logging.info("use_pretrained_model: {}, {}".format(
-        self.pretrained_model_name, self.pretrained_model_mode))
+          self.pretrained_model_name, self.pretrained_model_mode))
       if self.pretrained_model_name == 'bert' and \
         self.pretrained_model_mode == 'fine-tune':
         out = self.get_pre_train_graph(input_x)

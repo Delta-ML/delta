@@ -107,21 +107,25 @@ class SpeakerBaseRawModel(RawModel):
     x: shape [batch, time, feat, channel]
     output: shape [b, t, f]
     '''
-    with tf.variable_scope('linear'):
-      times_t = tf.shape(x)[1]
-      feat, channel = x.shape.as_list()[2:]
-      x = tf.reshape(x, [-1, feat * channel])
-      if self.netconf['use_dropout']:
-        x = tf.layers.dropout(
-            x, self.netconf['dropout_rate'], training=self.train)
-      x = common_layers.linear(x, 'linear1',
-                               [feat * channel, self.netconf['linear_num']])
-      x = tf.nn.relu(x)
-      if self.netconf['use_bn']:
-        bn_name = 'bn_linear'
-        x = tf.layers.batch_normalization(
-            x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
-      x = tf.reshape(x, [-1, times_t, self.netconf['linear_num']])
+    times_t = tf.shape(x)[1]
+    feat, channel = x.shape.as_list()[2:]
+    linear_num = self.netconf['linear_num']
+    if linear_num > 0:
+      with tf.variable_scope('linear'):
+        x = tf.reshape(x, [-1, feat * channel])
+        if self.netconf['use_dropout']:
+          x = tf.layers.dropout(
+              x, self.netconf['dropout_rate'], training=self.train)
+        x = common_layers.linear(x, 'linear1',
+                                 [feat * channel, linear_num])
+        x = tf.nn.relu(x)
+        if self.netconf['use_bn']:
+          bn_name = 'bn_linear'
+          x = tf.layers.batch_normalization(
+              x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
+    else:
+      logging.info('linear_num <= 0, only apply reshape.')
+      x = tf.reshape(x, [-1, times_t, feat * channel])
     return x
 
   def lstm_layer(self, x):
@@ -156,16 +160,26 @@ class SpeakerBaseRawModel(RawModel):
       outputs = x
     return outputs
 
-  def stats_pooling_layer(self, x):  # pylint: disable=no-self-use
+  def pooling_layer(self, x):
     '''
-      Statistics pooling layer.
+      Add a pooling layer across the whole utterance.
       Input: [NHW]
         --> Reduce along H
-      Output: [NW'] where W' = W * 2
+
+      Statistics pooling output: [N, W * 2]
+      Average pooling output: [N, W]
     '''
-    with tf.variable_scope('stats_pooling'):
-      mean, var = tf.nn.moments(x, 1)
-      x = tf.concat([mean, tf.sqrt(var + 1e-6)], 1)
+    pooling_type = self.netconf['frame_pooling_type']
+    if pooling_type == 'stats':
+      with tf.variable_scope('stats_pooling'):
+        mean, var = tf.nn.moments(x, 1)
+        x = tf.concat([mean, tf.sqrt(var + 1e-6)], 1)
+    elif pooling_type == 'average':
+      with tf.variable_scope('average_pooling'):
+        mean, _ = tf.nn.moments(x, 1)
+        x = mean
+    else:
+      raise ValueError('Unsupported frame_pooling_type: %s' % (pooling_type))
     return x
 
   def text_layer(self, x, input_text):
@@ -227,7 +241,7 @@ class SpeakerCRNNRawModel(SpeakerBaseRawModel):
     x, _ = self.conv_block(inputs, depthwise=False)
     x = self.linear_block(x)
     x = self.lstm_layer(x)
-    x = self.stats_pooling_layer(x)
+    x = self.pooling_layer(x)
     if self.taskconf['text']['enable']:
       x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
@@ -294,7 +308,7 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
   def model(self, inputs, input_text):
     ''' Build the model. '''
     x, _ = self.tdnn_block(inputs)
-    x = self.stats_pooling_layer(x)
+    x = self.pooling_layer(x)
     if self.taskconf['text']['enable']:
       x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
@@ -370,7 +384,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     ''' Build the model. '''
     x = self.resnet(inputs)
     x = self.linear_block(x)
-    x = self.stats_pooling_layer(x)
+    x = self.pooling_layer(x)
     if self.taskconf['text']['enable']:
       x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)

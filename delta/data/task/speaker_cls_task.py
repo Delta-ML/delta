@@ -197,6 +197,7 @@ class ChunkSampler():
         utt_meta = self.meta.utts[utt_key]
         yield (utt_key, utt_meta)
 
+
 class DataQueueAsync():
   ''' Sample from raw data. '''
 
@@ -278,8 +279,9 @@ class ImapUnorderedDataQueue(DataQueueAsync):
     Returns:
       a bool, True if still has unconsumed data, False otherwise.
     '''
-    pool_args = [(None, x) for x in
-                 self.sampler.next_part_utts(self.pool_chunk_size)]
+    pool_args = [
+        (None, x) for x in self.sampler.next_part_utts(self.pool_chunk_size)
+    ]
     self.pool_res = self.pool.imap_unordered(
         self.sampler.get_bare_sampler(), pool_args, chunksize=100)
     if pool_args:
@@ -549,13 +551,14 @@ class SpeakerClsTask(SpeechTask):
     if mode == utils.TRAIN:
       data = data.shuffle(buffer_size=buffer_size)
       if self.uniform_resample:
+
         def class_func(inputs, texts, labels, filenames, clip_ids, soft_labels):
           ''' Return the label of a sample tuple. '''
           return labels
         target_dist = tf.ones((self.num_class,), dtype=tf.float32) / \
                       self.num_class
-        data = data.apply(tf.data.experimental.rejection_resample(
-                          class_func, target_dist))
+        data = data.apply(
+            tf.data.experimental.rejection_resample(class_func, target_dist))
 
     def make_example(inputs, texts, labels, filenames, clip_ids, soft_labels):
       features = {

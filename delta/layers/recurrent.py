@@ -24,6 +24,7 @@ from tensorflow.contrib import seq2seq
 SOS_ID = 4
 EOS_ID = 5
 
+
 class BiRnn(Layer):
   """
   Bidirectional RNN
@@ -110,6 +111,7 @@ class RnnEncoder(Layer):  # pylint: disable=too-many-instance-attributes
   Input Shape: [batch_size, steps, features]
   Output Shape: [batch_size, units]
   """
+
   def __init__(self, config, **kwargs):
     super().__init__(**kwargs)
     logging.info("Initialize RnnEncoder {}...".format(self.name))
@@ -133,10 +135,7 @@ class RnnEncoder(Layer):  # pylint: disable=too-many-instance-attributes
       raise ValueError(error_info)
 
     self.sen_encoder = tf.keras.layers.Bidirectional(
-        rnn_class(self.cell_dim,
-                  return_sequences=True,
-                  return_state=True
-                  ))
+        rnn_class(self.cell_dim, return_sequences=True, return_state=True))
     logging.info("Initialize RnnEncoder {} Done.".format(self.name))
 
   def build(self, input_shape):
@@ -147,7 +146,8 @@ class RnnEncoder(Layer):  # pylint: disable=too-many-instance-attributes
 
   def call(self, inputs, training=None, mask=None):
     if 'lstm' in self.cell_type.lower():
-      out, forward_h, forward_c, backward_h, backward_c = self.sen_encoder(inputs)
+      out, forward_h, forward_c, backward_h, backward_c = self.sen_encoder(
+          inputs)
       state_h = tf.keras.layers.concatenate([forward_h, backward_h])
       state_c = tf.keras.layers.concatenate([forward_c, backward_c])
       states = tf.contrib.rnn.LSTMStateTuple(state_h, state_c)
@@ -191,7 +191,7 @@ class RnnDecoder(Layer):  # pylint: disable=too-many-instance-attributes
       logging.error(error_info)
       raise ValueError(error_info)
 
-    self.cell = rnn_class(2*self.cell_dim)
+    self.cell = rnn_class(2 * self.cell_dim)
     self.embed = emb_layer
     self.vocab_size = vocab_size
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
@@ -204,54 +204,56 @@ class RnnDecoder(Layer):  # pylint: disable=too-many-instance-attributes
     if self.is_infer:
       enc_outputs, enc_state, enc_seq_len = inputs
       batch_size = tf.shape(enc_outputs)[0]
-      helper = seq2seq.GreedyEmbeddingHelper(embedding=dec_emb_fn,
-                                             start_tokens=tf.fill([batch_size],
-                                                                  self.dec_start_id),
-                                             end_token=self.dec_end_id)
+      helper = seq2seq.GreedyEmbeddingHelper(
+          embedding=dec_emb_fn,
+          start_tokens=tf.fill([batch_size], self.dec_start_id),
+          end_token=self.dec_end_id)
     else:
       dec_inputs, dec_seq_len, enc_outputs, enc_state, \
       enc_seq_len = inputs
       batch_size = tf.shape(enc_outputs)[0]
       dec_inputs = self.embed(dec_inputs)
-      helper = seq2seq.TrainingHelper(inputs=dec_inputs,
-                                      sequence_length=dec_seq_len)
+      helper = seq2seq.TrainingHelper(
+          inputs=dec_inputs, sequence_length=dec_seq_len)
 
     if self.is_infer and self.beam_size > 1:
-      tiled_enc_outputs = seq2seq.tile_batch(enc_outputs,
-                                             multiplier=self.beam_size)
-      tiled_seq_len = seq2seq.tile_batch(enc_seq_len,
-                                         multiplier=self.beam_size)
-      attn_mech = self._build_attention(enc_outputs=tiled_enc_outputs,
-                                        enc_seq_len=tiled_seq_len)
+      tiled_enc_outputs = seq2seq.tile_batch(
+          enc_outputs, multiplier=self.beam_size)
+      tiled_seq_len = seq2seq.tile_batch(enc_seq_len, multiplier=self.beam_size)
+      attn_mech = self._build_attention(
+          enc_outputs=tiled_enc_outputs, enc_seq_len=tiled_seq_len)
       dec_cell = seq2seq.AttentionWrapper(self.cell, attn_mech)
-      tiled_enc_last_state = seq2seq.tile_batch(enc_state,
-                                                multiplier=self.beam_size)
-      tiled_dec_init_state = dec_cell.zero_state(batch_size=batch_size * self.beam_size,
-                                                 dtype=tf.float32)
+      tiled_enc_last_state = seq2seq.tile_batch(
+          enc_state, multiplier=self.beam_size)
+      tiled_dec_init_state = dec_cell.zero_state(
+          batch_size=batch_size * self.beam_size, dtype=tf.float32)
       if self.initial_decode_state:
-        tiled_dec_init_state = tiled_dec_init_state.clone(cell_state=tiled_enc_last_state)
+        tiled_dec_init_state = tiled_dec_init_state.clone(
+            cell_state=tiled_enc_last_state)
 
-      dec = seq2seq.BeamSearchDecoder(cell=dec_cell,
-                                      embedding=dec_emb_fn,
-                                      start_tokens=tf.tile([self.dec_start_id],
-                                                           [batch_size]),
-                                      end_token=self.dec_end_id,
-                                      initial_state=tiled_dec_init_state,
-                                      beam_width=self.beam_size,
-                                      output_layer=tf.layers.Dense(self.vocab_size),
-                                      length_penalty_weight=self.length_penalty)
+      dec = seq2seq.BeamSearchDecoder(
+          cell=dec_cell,
+          embedding=dec_emb_fn,
+          start_tokens=tf.tile([self.dec_start_id], [batch_size]),
+          end_token=self.dec_end_id,
+          initial_state=tiled_dec_init_state,
+          beam_width=self.beam_size,
+          output_layer=tf.layers.Dense(self.vocab_size),
+          length_penalty_weight=self.length_penalty)
     else:
-      attn_mech = self._build_attention(enc_outputs=enc_outputs,
-                                        enc_seq_len=enc_seq_len)
-      dec_cell = seq2seq.AttentionWrapper(cell=self.cell,
-                                          attention_mechanism=attn_mech)
-      dec_init_state = dec_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
+      attn_mech = self._build_attention(
+          enc_outputs=enc_outputs, enc_seq_len=enc_seq_len)
+      dec_cell = seq2seq.AttentionWrapper(
+          cell=self.cell, attention_mechanism=attn_mech)
+      dec_init_state = dec_cell.zero_state(
+          batch_size=batch_size, dtype=tf.float32)
       if self.initial_decode_state:
         dec_init_state = dec_init_state.clone(cell_state=enc_state)
-      dec = seq2seq.BasicDecoder(cell=dec_cell,
-                                 helper=helper,
-                                 initial_state=dec_init_state,
-                                 output_layer=tf.layers.Dense(self.vocab_size))
+      dec = seq2seq.BasicDecoder(
+          cell=dec_cell,
+          helper=helper,
+          initial_state=dec_init_state,
+          output_layer=tf.layers.Dense(self.vocab_size))
     if self.is_infer:
       dec_outputs, _, _ = \
         seq2seq.dynamic_decode(decoder=dec,
@@ -267,28 +269,23 @@ class RnnDecoder(Layer):  # pylint: disable=too-many-instance-attributes
                                output_time_major=self.time_major)
     return dec_outputs.rnn_output
 
-  def _build_attention(self,
-                       enc_outputs,
-                       enc_seq_len
-                       ):
+  def _build_attention(self, enc_outputs, enc_seq_len):
     with tf.variable_scope("AttentionMechanism"):
       if self.attn_Type == 'bahdanau':
         attention_mechanism = seq2seq.BahdanauAttention(
-            num_units=2*self.cell_dim,
+            num_units=2 * self.cell_dim,
             memory=enc_outputs,
             memory_sequence_length=enc_seq_len,
             probability_fn=tf.nn.softmax,
             normalize=True,
-            dtype=tf.get_variable_scope().dtype
-        )
+            dtype=tf.get_variable_scope().dtype)
       elif self.params['attention_type'] == 'luong':
         attention_mechanism = seq2seq.LuongAttention(
-            num_units=2*self.cell_dim,
+            num_units=2 * self.cell_dim,
             memory=enc_outputs,
             memory_sequence_length=enc_seq_len,
             probability_fn=tf.nn.softmax,
-            dtype=tf.get_variable_scope().dtype
-        )
+            dtype=tf.get_variable_scope().dtype)
       else:
         raise ValueError('Unknown Attention Type')
       return attention_mechanism

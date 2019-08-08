@@ -269,9 +269,11 @@ def extract_feature(waveforms, params):
     ], 0)
   return feats  # shape [nframes, featue_size, chnanels]
 
+
 def _new_tensor_array(name, size, dtype=None):
   ''' create empty TensorArray which can store size elements.'''
   return tf.TensorArray(dtype, size, name=name)
+
 
 def batch_extract_feature(waveforms, params):
   ''' waveforms: [batch, samples, audio_channels]
@@ -326,13 +328,14 @@ def splice(feat, left_context, right_context):
       https://github.com/kaldi-asr/kaldi/src/feat/feature-functions.cc#L205:6
   '''
 
-  def _loop_continue(time, end_time, context, unused_left_context, right_context,
-                     unused_output_tas):
+  def _loop_continue(time, end_time, context, unused_left_context,
+                     right_context, unused_output_tas):
     del unused_output_tas
     del unused_left_context
     return time < end_time
 
-  def _loop_body(time, end_time, context, left_context, right_context, output_tas):
+  def _loop_body(time, end_time, context, left_context, right_context,
+                 output_tas):
     shape = tf.shape(context)
     B, _, D = shape[0], shape[1], shape[2]
     N = (1 + left_context + right_context) * D
@@ -340,7 +343,8 @@ def splice(feat, left_context, right_context):
     new_feat = context[:, time:time + left_context + 1 + right_context, :]
     new_feat = tf.reshape(new_feat, [B, N])
     new_output_tas = output_tas.write(time, new_feat)
-    return (time + 1, end_time, context, left_context, right_context, new_output_tas)
+    return (time + 1, end_time, context, left_context, right_context,
+            new_output_tas)
 
   with tf.control_dependencies([
       tf.assert_greater_equal(left_context, 0),
@@ -360,13 +364,14 @@ def splice(feat, left_context, right_context):
     shape_invariants = tf.contrib.framework.nest.map_structure(
         lambda t: tf.TensorShape(None), loop_vars)
 
-    (time, end_time, context, left_context, right_context, output_tas) = tf.while_loop(
-        _loop_continue,
-        _loop_body,
-        loop_vars=loop_vars,
-        shape_invariants=shape_invariants,
-        parallel_iterations=parallel_iterations,
-        swap_memory=False)
+    (time, end_time, context, left_context, right_context,
+     output_tas) = tf.while_loop(
+         _loop_continue,
+         _loop_body,
+         loop_vars=loop_vars,
+         shape_invariants=shape_invariants,
+         parallel_iterations=parallel_iterations,
+         swap_memory=False)
     del context
     del left_context
     del right_context

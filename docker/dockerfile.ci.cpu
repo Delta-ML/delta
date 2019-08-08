@@ -17,6 +17,6 @@ RUN /bin/bash /ci/install_user.sh
 
 COPY requirements.txt /ci/requirements.txt
 WORKDIR /ci
-RUN sudo pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --upgrade pip && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --user -r requirements.txt
+RUN sudo pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --upgrade pip && pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --user -r requirements.txt
 
 CMD ["/bin/bash", "-c"]

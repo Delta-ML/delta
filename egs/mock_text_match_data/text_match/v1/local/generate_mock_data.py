@@ -31,7 +31,7 @@ text_vocab_list = ["<unk>\t0", "</s>\t1", "how\t2", "should\t3",
 
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file):
   logging.info("Generate mock data: {}".format(train_file))
-  mock_a_text_file(samples, 1000, train_file)
+  mock_a_text_file(samples, 300, train_file)
   logging.info("Generate mock data: {}".format(dev_file))
   mock_a_text_file(samples, 100, dev_file)
   logging.info("Generate mock data: {}".format(test_file))

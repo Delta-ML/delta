@@ -18,6 +18,7 @@ data:
       reuse: true
     use_dense: false
     language: english
+    clean_english: true
     vocab_min_frequency: 5
     text_vocab: "egs/yahoo_answer/text_cls/v1/exp/text_vocab.txt"
     label_vocab: "egs/yahoo_answer/text_cls/v1/exp/label_vocab.txt"
