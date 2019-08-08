@@ -43,6 +43,7 @@ class PLPOpTest(tf.test.TestCase):
 
       output = py_x_ops.plp(input_data, sample_rate)
 
+      #pylint: disable=bad-whitespace
       output_true = np.array([
           -0.000000, -0.959257, -0.095592, -0.219479, -0.104977, -0.185207,
           -0.153651, -0.081711, -0.156977, -0.072177, 0.077400, 0.027594,
@@ -54,6 +55,7 @@ class PLPOpTest(tf.test.TestCase):
           -0.249340, -0.141225, -0.199109, -0.081247, -0.044329, -0.140386,
           -0.174557, -0.045552
       ])
+      #pylint: enable=bad-whitespace
       self.assertEqual(tf.rank(output).eval(), 1)
       self.assertAllClose(output.eval().flatten()[:50], output_true)
 

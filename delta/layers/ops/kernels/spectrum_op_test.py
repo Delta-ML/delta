@@ -43,6 +43,7 @@ class SpecOpTest(tf.test.TestCase):
 
       output = py_x_ops.spectrum(input_data, sample_rate)
 
+      #pylint: disable=bad-whitespace
       output_true = np.array([
           -16.018925, -16.491777, -16.903442, -18.108875, -19.477205,
           -19.039738, -17.066263, -16.530647, -16.033670, -15.492795,
@@ -55,6 +56,7 @@ class SpecOpTest(tf.test.TestCase):
           -12.840333, -13.056757, -14.582790, -13.900843, -13.864534,
           -14.037180, -15.386706, -16.500109, -16.309618, -13.585808
       ])
+      #pylint: enable=bad-whitespace
       self.assertEqual(tf.rank(output).eval(), 1)
       self.assertAllClose(output.eval().flatten()[:50], output_true)
 

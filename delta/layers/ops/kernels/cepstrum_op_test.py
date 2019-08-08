@@ -43,6 +43,7 @@ class CepsOpTest(tf.test.TestCase):
 
       output = py_x_ops.cepstrum(input_data, sample_rate)
 
+      #pylint: disable=bad-whitespace
       output_true = np.array([
           -39.319466, -0.525144, 1.254634, -1.000523, 3.269833, 1.122467,
           0.374241, 2.331129, 1.194314, -2.226894, -0.080651, 0.341422,
@@ -54,6 +55,7 @@ class CepsOpTest(tf.test.TestCase):
           -1.193706, 2.612660, 0.184458, 0.791051, 2.485928, 2.912481,
           -0.641628, -1.924919
       ])
+      #pylint: enable=bad-whitespace
       self.assertEqual(tf.rank(output).eval(), 1)
       self.assertAllClose(output.eval().flatten()[:50], output_true)
 
