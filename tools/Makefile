@@ -100,7 +100,7 @@ endif
 # deps on the package, for kaldi input pipeline and kaldi io utils
 espnet.done:
 	test -d espnet || git clone --depth=1 https://github.com/espnet/espnet.git
-	cd espnet && git fetch -t && git checkout v.0.4.0
+	cd espnet && git fetch -t && git checkout v.0.5.0
 	if [ -f kaldi.done ] && [ -s kaldi ]; then ln -s `readlink -f kaldi` espnet/tools/kaldi; elif [ -f kaldi.done ] && [ ! -s kaldi ]; then ln -s kaldi espnet/tools/kaldi; fi
 	touch espnet.done
 
