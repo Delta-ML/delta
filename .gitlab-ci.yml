@@ -17,9 +17,6 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-    - "dev"
-    - "ci_test" # for CI test
-    - "180-fix-seq2seq-bug"
 
   script:
     - env
