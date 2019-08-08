@@ -1,5 +1,6 @@
-# <img align="left"  src="docs/delta_logo_200x200.png" width="160" height="160"/>  DELTA 
-**A DEep learning Language Technology plAtform**
+<div align="center">
+  <img src="docs/delta_logo_1.png">
+</div>
 
 
 [![Build Status](https://travis-ci.org/didi/delta.svg?branch=master)](https://travis-ci.org/didi/delta)
@@ -8,10 +9,8 @@
 [![GitHub Issues](https://img.shields.io/github/issues/didi/delta.svg)](https://github.com/didi/delta/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/didi/delta/blob/master/LICENSE)
 
-<br>
-<br>
+# DELTA - A DEep learning Language Technology plAtform
 
------------------
 
 ## What is DELTA?
 
