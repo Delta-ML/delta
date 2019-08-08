@@ -61,6 +61,7 @@ class AsrSolver(Solver):
     self._early_stopping = self._solver['optimizer']['early_stopping']['enable']
 
     self._monitor_used = self._solver['metrics']['monitor_used']
+    self._metrics_used = [] if self._solver['metrics']['metrics_used'] is None else self._solver['metrics']['metrics_used']
     self._model_path = self._solver['saver']['model_path']
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
@@ -203,14 +204,14 @@ class AsrSolver(Solver):
       self.parallel_model.compile(
           loss=loss,
           optimizer=optimizer,
-          metrics=['accuracy'],
+          metrics=self._metrics_used,
           options=run_opts,
           run_metadata=run_metas)
     else:
       self.model.compile(
           loss=loss,
           optimizer=optimizer,
-          metrics=['accuracy'],
+          metrics=self._metrics_used,
           options=run_opts,
           run_metadata=run_metas)
 

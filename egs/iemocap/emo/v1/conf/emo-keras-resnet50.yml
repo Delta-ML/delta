@@ -111,6 +111,7 @@ solver:
       enable: false 
   metrics:
     monitor_used: 'val_acc'
+    metrics_used : ['accuracy']
     pos_label: 1 # int, same to sklearn
     cals:
     - name: AccuracyCal
