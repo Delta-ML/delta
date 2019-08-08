@@ -76,7 +76,7 @@ python.done:
 	touch python.done
 
 linux.done:
-	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; else $(SUDO) yum install -y bc sox; fi;
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install bc sox; else $(SUDO) yum install -y bc sox; fi;
 	touch linux.done
 
 # compile custom ops on your environment
