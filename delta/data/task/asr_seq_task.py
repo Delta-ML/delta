@@ -273,3 +273,16 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     ds = ds.map(_make_example)
     ds = ds.prefetch(tf.contrib.data.AUTOTUNE)
     return ds
+
+  def batch_input_shape(self):
+    ''' batch input TensorShape '''
+    feature, labels = self.__getitem__(0)
+
+    feature_shape, label_shape = {}, {}
+    for feature_key, feature_val in feature.items():
+      feature_shape[feature_key] = tf.TensorShape((None,) + feature_val.shape[1:])
+
+    for label_key, label_val in labels.items():
+      label_shape[label_key] = tf.TensorShape((None,) + label_val.shape[1:])
+
+    return feature_shape, label_shape
