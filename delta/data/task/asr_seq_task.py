@@ -31,7 +31,8 @@ from delta.data.task.base_speech_task import SpeechTask
 def _make_example(uttids, feats, ilens, targets, olens):
   features = {
       'uttids': uttids,
-      'inputs': tf.expand_dims(feats, axis=-1) if not isinstance(feats, np.ndarray) else np.expand_dims(feats, axis=-1),
+      'inputs': tf.expand_dims(feats, axis=-1) 
+                if not isinstance(feats, np.ndarray) else np.expand_dims(feats, axis=-1),
       'input_length': ilens,
       'targets': targets,
       'target_length': olens
