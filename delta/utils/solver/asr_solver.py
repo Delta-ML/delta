@@ -134,8 +134,7 @@ class AsrSolver(Solver):
     ''' dataset_based generator used in keras.model.fit_generator()
         in future, it will be replaced by tf.keras.utils.Sequence'''
     next_batch = input_iterator.get_next()
-    generate_time = len(input_task) * self._num_epochs 
-                    if mode == utils.TRAIN else len(input_task)
+    generate_time = len(input_task) * self._num_epochs if mode == utils.TRAIN else len(input_task)
     for _ in range(generate_time):
       next_batch_data = cur_sess.run(next_batch)
       yield next_batch_data
