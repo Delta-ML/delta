@@ -120,6 +120,7 @@ solver:
       patience: 5
   metrics:
     pos_label: 1 # int, same to sklearn
+    metrics_used : null
     monitor_used : val_token_err
     cals:
     - name: AccuracyCal
