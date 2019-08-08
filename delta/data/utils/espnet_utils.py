@@ -19,8 +19,8 @@ from collections import OrderedDict
 import numpy as np
 from absl import logging
 
-from espnet.utils.cli_utils import FileReaderWrapper
-from espnet.utils.cli_utils import FileWriterWrapper
+from espnet.utils.cli_readers import file_reader_helper 
+from espnet.utils.cli_writers import file_writer_helper 
 from espnet.utils.training.batchfy import make_batchset as make_batchset_espnet
 from espnet.utils.io_utils import LoadInputsAndTargets
 
