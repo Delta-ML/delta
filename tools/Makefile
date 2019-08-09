@@ -45,6 +45,7 @@ nlp_zh: cppjieba.done
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
 PIP_INSTALL=pip3 --no-cache-dir install
+
 APT_INSTALL=apt-get install -y --no-install-recommends
 
 PYTHON=python3
@@ -76,7 +77,11 @@ python.done:
 	touch python.done
 
 linux.done:
+<<<<<<< HEAD
 	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; else $(SUDO) yum install -y bc sox; fi;
+=======
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install bc sox; else $(SUDO) yum install -y bc sox; fi;
+>>>>>>> 3bab43e72e85396bb739050ec10db3dc2efad72e
 	touch linux.done
 
 # compile custom ops on your environment
@@ -100,7 +105,7 @@ endif
 # deps on the package, for kaldi input pipeline and kaldi io utils
 espnet.done:
 	test -d espnet || git clone --depth=1 https://github.com/espnet/espnet.git
-	cd espnet && git fetch -t && git checkout v.0.4.0
+	cd espnet && git fetch -t && git checkout v.0.5.0
 	if [ -f kaldi.done ] && [ -s kaldi ]; then ln -s `readlink -f kaldi` espnet/tools/kaldi; elif [ -f kaldi.done ] && [ ! -s kaldi ]; then ln -s kaldi espnet/tools/kaldi; fi
 	touch espnet.done
 
@@ -180,10 +185,15 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
+<<<<<<< HEAD
 	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool
 	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
 	$(PIP_INSTALL) --user shyaml meson ninja
 	touch apt.done
+=======
+	$(SUDO) $(APT_INSTALL) autoconf libtool
+	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
+>>>>>>> 3bab43e72e85396bb739050ec10db3dc2efad72e
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git

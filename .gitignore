@@ -93,3 +93,7 @@ egs/*/*/*/res
 *.pb
 *.pbtxt
 dpl/lib/*
+dpl/test/*
+!dpl/output_model/
+dpl/output_model/*
+!dpl/output_model/.gitkeep

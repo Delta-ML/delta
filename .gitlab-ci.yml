@@ -17,7 +17,6 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-    - "85-deltann-dpl-script"
 
   script:
     - env
