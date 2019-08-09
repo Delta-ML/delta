@@ -32,13 +32,34 @@ docker pull zh794390558/delta:1.14.0-delta-cpu-py3
 
 ## Create Container
 
-After the image downloaded, create a container:
+After the image downloaded, create a container.
+
+For **delta** usage (model development):
 
 ```bash
-cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:1.14.0-delta-cpu-py3 /bin/bash
+cd /path/to/detla && docker run -it zh794390558/delta:1.14.0-delta-cpu-py3 /bin/bash
 ```
 
-then develop as usual. 
+The basic version of **delta** (except Kaldi) was already installed in this container. You can develop in this container like:
+
+```python
+# Add DELTA enviornment
+source env.sh
+
+# Generate mock data for text classification.
+pushd egs/mock_text_cls_data/text_cls/v1
+./run.sh
+popd
+
+# Train the model
+python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml
+```
+
+For **deltann** usage (model deployment):
+
+```bash
+cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:1.14.0-deltann-cpu-py3 /bin/bash
+```
 
 We recommend using a high-end machine to develop DELTANN, since it needs to compile
 `Tensorflow` which is time-consuming.
