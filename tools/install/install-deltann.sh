@@ -6,6 +6,6 @@ pushd ${BASH_DIR}/../..
 source env.sh
 popd
 
-# make deltann
+make deltann
 
 echo "deltann has been installed successfully ~"
