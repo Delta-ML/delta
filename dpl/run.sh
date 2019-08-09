@@ -214,17 +214,25 @@ function compile_deltann_egs(){
 sudo chown -R deltann:deltann $MAIN_ROOT/tools
 sudo chown -R deltann:deltann $MAIN_ROOT/dpl
 
-convert_graph
+# 1. convert graph 
+# convert_graph
 
-clear_lib
+# 2. clear old libs
+# clear_lib
 
+# 3. compile tensorflow
 # compile_tensorflow ${TARGET}  ${ARCH}
-compile_deltann ${TARGET} ${ARCH} ${ENGINE}
+
+# 4. compile deltann
+# compile_deltann ${TARGET} ${ARCH} ${ENGINE}
+
+# 5. compile custom ops
 compile_custom_ops tensorflow deltann
 
-compile_deltann_egs
+# 6. compile deltann egs
+# compile_deltann_egs
 
-# 5. run test
+# 7. run test
 # run test under docker
 
 
