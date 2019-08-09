@@ -15,4 +15,9 @@ USER $ROLE
 COPY install_user.sh /ci/install_user.sh
 RUN /bin/bash /ci/install_user.sh
 
+RUN sudo mkdir workspace && sudo chown delta: /workspace
+RUN cd /workspace && git clone --depth 1 https://github.com/didi/delta.git
+RUN cd /workspace/delta/tools && make basic
+WORKDIR /workspace/delta
+
 CMD ["/bin/bash", "-c"]

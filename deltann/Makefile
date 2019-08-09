@@ -46,7 +46,7 @@ TARGET := $(HOST_OS)
 # arch
 TARGET_ARCH := $(HOST_ARCH)
 # engine
-ENGINE := tf
+ENGINE := TF
 $(info $(origin ENGINE))
 
 GENDIR := $(MAKEFILE_DIR)/.gen/
@@ -67,13 +67,13 @@ LDFLAGS := -Wl,--version-script=deltann_version_script.lds
 ARFLAGS := -r
 
 YAML := $(ROOT_DIR)/../tools/yaml/yaml-cpp
-JSONCPP := $(ROOT_DIR)/../tools/jsoncpp
+JSONCPP := $(ROOT_DIR)/../tools/jsoncpp/
 HTTP := $(ROOT_DIR)/../tools/https_client/
 MBEDTLS := $(ROOT_DIR)/../tools/mbedtls
 
 INCLUDES := -I$(ROOT_DIR) -I$(YAML)/include -I$(JSONCPP)/include -I$(HTTP) -I$(MBEDTLS)/include
 
-LIBS := -lpthread -lstdc++ -ldl -L$(JSONCPP)/src/lib_json -ljsoncpp
+LIBS := -lpthread -lstdc++ -ldl -L$(JSONCPP)/build-shared/ -ljsoncpp
 
 include $(MAKEFILE_DIR)/targets/${TARGET}_makefile.inc
 

@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
-## Run under docker image tensorflow/tensorflow:latest-py3
 SHELL = /bin/bash
+PATH:= ~/.local/bin:$(PATH)
 
 # Use a prebuild Kaldi to omit the installation
 KALDI :=
@@ -45,7 +45,8 @@ nlp_zh: cppjieba.done
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
 PIP_INSTALL=pip3 --no-cache-dir install
-APT_INSTALL=apt-get install -y --no-install-recommends 
+
+APT_INSTALL=apt-get install -y --no-install-recommends
 
 PYTHON=python3
 
@@ -76,7 +77,11 @@ python.done:
 	touch python.done
 
 linux.done:
+<<<<<<< HEAD
+	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; else $(SUDO) yum install -y bc sox; fi;
+=======
 	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install bc sox; else $(SUDO) yum install -y bc sox; fi;
+>>>>>>> 3bab43e72e85396bb739050ec10db3dc2efad72e
 	touch linux.done
 
 # compile custom ops on your environment
@@ -180,8 +185,15 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
+<<<<<<< HEAD
+	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool
+	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
+	$(PIP_INSTALL) --user shyaml meson ninja
+	touch apt.done
+=======
 	$(SUDO) $(APT_INSTALL) autoconf libtool
 	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
+>>>>>>> 3bab43e72e85396bb739050ec10db3dc2efad72e
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
@@ -189,7 +201,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	# if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:
@@ -207,7 +219,8 @@ tcmalloc.done:
 
 jsoncpp.done:
 	if ! [ -d jsoncpp ]; then git clone --depth=1 https://github.com/open-source-parsers/jsoncpp.git; fi
-	cd jsoncpp;  cmake . -DBUILD_SHARED_LIBS=ON; make
+	@echo $(PATH)
+	cd jsoncpp/; meson --buildtype release --default-library shared . build-shared; ninja -v -C build-shared test
 	touch jsoncpp.done
 
 mbedtls.done:

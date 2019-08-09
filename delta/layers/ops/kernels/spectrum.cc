@@ -19,8 +19,8 @@ limitations under the License.
 #include <stdlib.h>
 #include <string.h>
 
-#include "delta/layers/ops/kernels/spectrum.h"
-#include "delta/layers/ops/kernels/support_functions.h"
+#include "kernels/spectrum.h"
+#include "kernels/support_functions.h"
 
 namespace delta {
 const float window_length_sec = 0.025;

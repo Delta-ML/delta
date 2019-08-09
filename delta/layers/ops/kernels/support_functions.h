@@ -21,7 +21,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "delta/layers/ops/kernels/complex_defines.h"
+#include "kernels/complex_defines.h"
 
 namespace delta {
 /* compute mean */

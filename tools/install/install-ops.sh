@@ -1,7 +1,11 @@
 #!/bin/bash
 
+BASH_DIR=`dirname "$BASH_SOURCE"`
+
 if [ -z $MAIN_ROOT ];then
- source ../../../env.sh
+  pushd ${BASH_DIR}/../../
+  source env.sh
+  popd
 fi
 
 rm $MAIN_ROOT/tools/compile_ops.done || true

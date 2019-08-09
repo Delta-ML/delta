@@ -1,0 +1,59 @@
+# Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+model:
+  custom_ops_path: "" 
+  graphs:
+    -
+      # meta data
+      id: 0
+      name: "han-cls" # model name
+
+      # deltann type
+      server_type: "remote" # local, remote
+      engine: "TF" # TF, TFLITE, TFTRT, TFSERVING
+
+      # model config
+      version: 1    # model version
+      local:  # local run
+        path: "/delta/dpl/output_model" # model path without version info
+        model_type: "saved_model" # e.g. saved_model, frozen_graph_pb, frozen_graph_txt
+      remote: # serving host
+        host: "http://10.90.55.32"
+        port: 8501
+        model_name: "emotion" 
+
+      # inputs and outputs
+      inputs:
+        -
+          id: 0
+          name: "texts"
+          shape: [1]
+          dtype: "int"
+        -
+          id: 1
+          name: "inputs"
+          shape: [3000,40,3]
+          dtype: "float"
+      outputs:
+        -
+          id: 0
+          name: "softmax_output"
+          dtype: "float"
+
+runtime:
+  num_threads: 1
+

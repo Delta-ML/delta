@@ -20,8 +20,8 @@ limitations under the License.
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/platform/logging.h"
 
-#include "delta/layers/ops/kernels/complex_defines.h"
-#include "delta/layers/ops/kernels/spectrum.h"
+#include "kernels/complex_defines.h"
+#include "kernels/spectrum.h"
 
 namespace delta {
 class Cepstrum {

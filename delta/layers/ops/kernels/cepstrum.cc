@@ -19,8 +19,8 @@ limitations under the License.
 #include <stdlib.h>
 #include <string.h>
 
-#include "delta/layers/ops/kernels/cepstrum.h"
-#include "delta/layers/ops/kernels/support_functions.h"
+#include "kernels/cepstrum.h"
+#include "kernels/support_functions.h"
 
 const float DELTAP = 0.000030518f;  // 2^(-16)
 
