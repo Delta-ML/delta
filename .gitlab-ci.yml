@@ -17,9 +17,7 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-    - "dev"
-    - "ci_test" # for CI test
-    - "187-fix-bugs-after-merge-pretrain-and-emotion"
+    - "85-deltann-dpl-script"
 
   script:
     - env
