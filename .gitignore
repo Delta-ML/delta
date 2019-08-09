@@ -88,24 +88,7 @@ egs/*/*/*/exp
 egs/*/*/res
 egs/*/*/*/res
 
-# dpl copys
-!dpl/input_model/saved_model
-dpl/input_model/saved_model/*
-!dpl/input_model/saved_model/.gitkeep
-!dpl/output_model/
-dpl/output_model/*
-!dpl/output_model/.gitkeep
-dpl/gadapter/*
-!dpl/lib/tensorflow/
-dpl/lib/tensorflow/*
-!dpl/lib/tensorflow/.gitkeep
-!dpl/lib/tflite/
-dpl/lib/tflite/*
-!dpl/lib/tflite/.gitkeep
-!dpl/lib/custom_ops
-dpl/lib/custom_ops/*
-!dpl/lib/custom_ops/.gitkeep
-!dpl/lib/deltann
-dpl/lib/deltann/*
-!dpl/lib/deltann/.gitkeep
-dpl/test/*
+# dpl
+*.tflite
+*.pb
+*.pbtxt
