@@ -1,10 +1,15 @@
-# DELTA - a DEep Language Technology plAtform 
+<div align="center">
+  <img src="docs/delta_logo_1.png">
+</div>
+
 
 [![Build Status](https://travis-ci.org/didi/delta.svg?branch=master)](https://travis-ci.org/didi/delta)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub top language](https://img.shields.io/github/languages/top/didi/delta)](https://img.shields.io/github/languages/top/didi/delta)
 [![GitHub Issues](https://img.shields.io/github/issues/didi/delta.svg)](https://github.com/didi/delta/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/didi/delta/blob/master/LICENSE)
+
+# DELTA - A DEep learning Language Technology plAtform
 
 
 ## What is DELTA?
@@ -13,7 +18,7 @@
 DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models 
 for both academia and industry use cases. DELTA is mainly implemented using TensorFlow and Python 3.
 
-For details of DELTA, please refer to this [paper](docs/DELTA.pdf).
+For details of DELTA, please refer to this [paper](https://arxiv.org/abs/1908.01853).
 
 ## What can DELTA do?
 
@@ -38,6 +43,7 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 - [Quick Start](#quick-start)
 - [Benchmarks](#benchmarks)
 - [Contributing](#contributing)
+- [References](#references)
 - [License](#license)
 - [Acknowlegement](#acknowlegement)
 
@@ -76,10 +82,12 @@ conda activate delta-py3.6-tf1.14
 # Add DELTA enviornment
 source env.sh
 
-# generate mock data for text classification.
-cd egs/mock_text_cls_data/text_cls/v1
+# Generate mock data for text classification.
+pushd egs/mock_text_cls_data/text_cls/v1
 ./run.sh
-cd -
+popd
+
+# Train the model
 python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml
 ```
 
@@ -104,7 +112,9 @@ You can simply use the `run.sh` under each directory to prepare the dataset, and
 For example, you can use the following command to download the CONLL2003 dataset and train and evaluate a BLSTM-CRF model for NER: 
 
 ```shell
-./egs/conll2003/seq_label/v1/run.sh
+pushd ./egs/conll2003/seq_label/v1/
+./run.sh
+popd
 python3 delta/main.py --cmd train --config egs/conll2003/seq_label/v1/config/seq-label.yml
 python3 delta/main.py --cmd eval --config egs/conll2003/seq_label/v1/config/seq-label.yml
 ```
@@ -193,6 +203,25 @@ TBA
 
 Any contribution is welcome. All issues and pull requests are highly appreciated!
 For more details, please refer to [the contribution guide](CONTRIBUTING.md).
+
+## References
+
+Please cite this [paper](https://arxiv.org/abs/1908.01853) when referencing DELTA.
+```
+@ARTICLE{delta,
+       author = {{Han}, Kun and {Chen}, Junwen and {Zhang}, Hui and {Xu}, Haiyang and
+         {Peng}, Yiping and {Wang}, Yun and {Ding}, Ning and {Deng}, Hui and
+         {Gao}, Yonghu and {Guo}, Tingwei and {Zhang}, Yi and {He}, Yahao and
+         {Ma}, Baochang and {Zhou}, Yulong and {Zhang}, Kangli and {Liu}, Chao and
+         {Lyu}, Ying and {Wang}, Chenxi and {Gong}, Cheng and {Wang}, Yunbo and
+         {Zou}, Wei and {Song}, Hui and {Li}, Xiangang},
+       title = "{DELTA: A DEep learning based Language Technology plAtform}",
+       journal = {arXiv e-prints},
+       year = "2019",
+       url = {https://arxiv.org/abs/1908.01853},
+}
+
+```
 
 ## License
 

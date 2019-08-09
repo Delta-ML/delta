@@ -37,7 +37,7 @@ text_vocab_split_line_mark = ["<unk>\t0", "</s>\t1", "都\t2", "挺好\t3",
 text_vocab_split_by_space = ["<unk>\t0", "</s>\t1", "都\t2", "挺好\t3",
                              "我\t4", "很\t5"]
 text_vocab_split_by_char = ["<unk>\t0", "</s>\t1", "都\t2", "挺\t3",
-                            "好\t4", "我\t5", "很\t6"]
+                            "好\t4", "我\t5", "很\t6","愤\t7","怒\t8"]
 text_vocab_dict = {"english": text_vocab_english,
                    "split_by_line_mark": text_vocab_split_line_mark,
                    "split_by_space": text_vocab_split_by_space,
@@ -47,7 +47,7 @@ text_vocab_dict = {"english": text_vocab_english,
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file, data_type):
   samples = samples_dict[data_type]
   logging.info("Generate mock data: {}".format(train_file))
-  mock_a_text_file(samples, 1000, train_file)
+  mock_a_text_file(samples, 300, train_file)
   logging.info("Generate mock data: {}".format(dev_file))
   mock_a_text_file(samples, 100, dev_file)
   logging.info("Generate mock data: {}".format(test_file))

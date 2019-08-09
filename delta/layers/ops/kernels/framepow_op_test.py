@@ -20,6 +20,7 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 from delta.data import feat as feat_lib
 from delta.layers.ops import py_x_ops
@@ -55,6 +56,7 @@ class FrmPowOpTest(tf.test.TestCase):
           0.045305
       ])
       self.assertEqual(tf.rank(output).eval(), 1)
+      logging.info('Shape of frame_power: {}'.format(output.eval().shape))
       self.assertAllClose(output.eval().flatten()[:50], output_true)
 
 

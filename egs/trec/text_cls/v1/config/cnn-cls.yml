@@ -18,6 +18,7 @@ data:
       reuse: true
     use_dense: false
     language: english
+    clean_english: true
     vocab_min_frequency: 0
     use_custom_vocab: True
     text_vocab: "egs/trec/text_cls/v1/data/text_vocab.txt"

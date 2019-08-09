@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 from delta.layers.ops import py_x_ops
 from delta.data import feat as feat_lib
@@ -45,20 +46,17 @@ class SpecOpTest(tf.test.TestCase):
 
       #pylint: disable=bad-whitespace
       output_true = np.array([
-          -16.018925, -16.491777, -16.903442, -18.108875, -19.477205,
-          -19.039738, -17.066263, -16.530647, -16.033670, -15.492795,
-          -15.347169, -16.443783, -15.385968, -15.631793, -16.286760,
-          -16.555447, -15.107640, -15.158586, -16.397518, -14.803325,
-          -15.173873, -15.785010, -15.551179, -15.487743, -15.732930,
-          -15.610220, -15.314099, -14.765355, -14.572725, -13.482535,
-          -13.463938, -14.457010, -16.253452, -15.444997, -13.472414,
-          -12.852523, -13.163157, -13.957175, -14.148843, -13.527264,
-          -12.840333, -13.056757, -14.582790, -13.900843, -13.864534,
-          -14.037180, -15.386706, -16.500109, -16.309618, -13.585808
+          [ -16.863441, -16.910473, -17.077059, -16.371634, -16.845686 ],
+          [ -17.922068, -20.396345, -19.396944, -17.331493, -16.118851 ],
+          [ -17.017776, -17.551350, -20.332376, -17.403994, -16.617926 ],
+          [ -19.873854, -17.644503, -20.679525, -17.093716, -16.535091 ],
+          [ -17.074402, -17.295971, -16.896650, -15.995432, -16.560730 ]
       ])
       #pylint: enable=bad-whitespace
-      self.assertEqual(tf.rank(output).eval(), 1)
-      self.assertAllClose(output.eval().flatten()[:50], output_true)
+
+      self.assertEqual(tf.rank(output).eval(), 2)
+      logging.info('Shape of spectrum: {}'.format(output.shape))
+      self.assertAllClose(output.eval()[4:9, 4:9], output_true)
 
 
 if __name__ == '__main__':

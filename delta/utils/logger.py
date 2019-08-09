@@ -33,7 +33,8 @@ def set_logging(is_debug, config):
   if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
-  logging.get_absl_handler().use_absl_log_file(program_name='delta', log_dir=log_dir)
+  logging.get_absl_handler().use_absl_log_file(
+      program_name='delta', log_dir=log_dir)
 
   fh = _logging.StreamHandler()
   fh.setLevel(_logging.NOTSET)

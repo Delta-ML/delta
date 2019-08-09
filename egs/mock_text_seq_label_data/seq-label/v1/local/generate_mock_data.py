@@ -20,17 +20,17 @@ from delta.data.utils.test_utils import mock_a_text_file
 from delta.data.utils.test_utils import save_a_vocab_file
 
 # samples with label
-samples = ["O O O O\tI feel good .",
-           "O O B-ORG O O O O O O\tBy stumps Kent had reached 108 for three ."]
-text_vocab_list = ["<unk>\t0", "</s>\t1", "I\t2", "feel\t3","good\t4", ".\t5", 
-                   "By\t6", "stumps\t7", "Kent\t8", "had\t9", "reached\t10", "108\t11", "for\t12", "three\t13"]
+samples = ["O O O O\ti feel good .",
+           "O O B-ORG O O O O O O\tby stumps kent had reached 108 for three ."]
+text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "feel\t3", "good\t4", ".\t5",
+                   "by\t6", "stumps\t7", "kent\t8", "had\t9", "reached\t10", "108\t11", "for\t12", "three\t13"]
 label_vocab_list = ["O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4",
                     "B-ORG\t5", "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"]
 
 
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file, label_vocab_file):
   logging.info("Generate mock data: {}".format(train_file))
-  mock_a_text_file(samples, 500, train_file)
+  mock_a_text_file(samples, 300, train_file)
   logging.info("Generate mock data: {}".format(dev_file))
   mock_a_text_file(samples, 100, dev_file)
   logging.info("Generate mock data: {}".format(test_file))

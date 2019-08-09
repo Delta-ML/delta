@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 from delta.data import feat as feat_lib
 from delta.layers.ops import py_x_ops
@@ -45,19 +46,17 @@ class PLPOpTest(tf.test.TestCase):
 
       #pylint: disable=bad-whitespace
       output_true = np.array([
-          -0.000000, -0.959257, -0.095592, -0.219479, -0.104977, -0.185207,
-          -0.153651, -0.081711, -0.156977, -0.072177, 0.077400, 0.027594,
-          0.040156, -0.000000, -0.956464, -0.086729, -0.211084, -0.062403,
-          -0.212304, -0.240348, -0.081032, -0.036527, -0.071906, 0.025969,
-          0.004119, 0.003473, -0.000000, -0.952486, -0.094521, -0.143834,
-          -0.133079, -0.244882, -0.175419, -0.040801, -0.071001, -0.134758,
-          0.061415, 0.085666, 0.012909, -0.000000, -0.928211, -0.108592,
-          -0.249340, -0.141225, -0.199109, -0.081247, -0.044329, -0.140386,
-          -0.174557, -0.045552
+          [ -0.209490, -0.326126,  0.010536, -0.027167, -0.117118],
+          [ -0.020293, -0.454695, -0.104243,  0.001560, -0.234854],
+          [ -0.015118, -0.444044, -0.156695, -0.086221, -0.319310],
+          [ -0.031856, -0.130708,  0.047435, -0.089916, -0.160247],
+          [  0.052763, -0.271487,  0.011329,  0.025320,  0.012851]
       ])
       #pylint: enable=bad-whitespace
-      self.assertEqual(tf.rank(output).eval(), 1)
-      self.assertAllClose(output.eval().flatten()[:50], output_true)
+
+      self.assertEqual(tf.rank(output).eval(), 2)
+      logging.info('Shape of PLP: {}'.format(output.shape))
+      self.assertAllClose(output.eval()[50:55, 5:10], output_true)
 
 
 if __name__ == '__main__':

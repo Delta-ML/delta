@@ -28,7 +28,7 @@ samples = [" a shooting at a bar popular with expatriates in mali on saturday ki
 
 def mock_text_class_data(train_file, dev_file, test_file):
   logging.info("Generate mock data: {}".format(train_file))
-  mock_a_text_file(samples, 1000, train_file)
+  mock_a_text_file(samples, 300, train_file)
   split_file(train_file)
   logging.info("Generate mock data: {}".format(dev_file))
   mock_a_text_file(samples, 100, dev_file)

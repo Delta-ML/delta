@@ -1,0 +1,236 @@
+---
+data:
+  train:
+    paths:
+    - 'data/train_combined_no_sil_tr'
+    segments:
+    -
+  eval:
+    paths:
+    - 'data/train_combined_no_sil_cv'
+    segments:
+    -
+  infer:
+    paths:
+    - '__INFER_PATH__'
+    segments:
+    -
+  task:
+    name: SpeakerClsTask
+    data_type: KaldiDataDirectory
+    suffix: .npy # file suffix
+    audio:
+      dry_run: false # not save feat
+      # params
+      clip_size: 3 # clip len in seconds
+      whole_utt_inference: true # whole utterance inference
+      add_random_offset: true # only applied to training samples
+      drop_short_chunks: 0.8 # drop chunks shorter than this value * chunk_size
+                             # only applied when padding = true
+      single_chunk: true # only sample a single chunk from an utterance
+      select_by_spk: true # select utt by spk
+      num_repeats: 4000 # repeat training dataset
+      stride: 0.5 # stride in ratio of clip_size
+      sr: 8000 # sample rate
+      winlen: 0.025 # window len
+      winstep: 0.01 # window stride
+      nfft: 512 # fft bins, default: 512
+      lowfreq: 0
+      highfreq: null # default: null, 200 points for 800 nfft, 400 points for 1600 nfft
+      preemph: 0.97 # default: 0.97
+      # extractor
+      feature_extractor: tffeat # `tffeat` to use TF feature_extraction .so library, 'pyfeat' to python_speech_feature
+      save_feat_path: null  # null for dump feat with same dir of wavs
+      # fbank
+      save_fbank: true # save fbank or power spec
+      feature_size: 30 # extract feature size
+      add_delta_deltas: false # delta deltas
+      # log pwoer
+      log_powspec: false # true, save log power spec; otherwise save power spec
+      # cmvn
+      cmvn: true # apply cmvn or generate cmvn
+      cmvn_type: none # global, local, sliding
+      cmvn_path: exp/delta_speaker/cmvn.npy # cmvn file
+    text:
+      enable: False
+      vocab_path: "" # path to vocab(default: 'vocab
+      vocab_size: 5004 # vocab size
+      max_text_len: 100 # max length for text
+    classes:
+      num: 6153
+      vocab:
+        normal: 0
+        conflict: 1
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 20000 # number of utterances to keep in shuffle buffer
+    need_shuffle: true
+
+model:
+  # choose one of the following models.
+  #name: SpeakerCRNNRawModel
+  name: SpeakerTDNNRawModel
+  #name: SpeakerResNetRawModel
+
+  type: raw # raw, keras or eager model
+  net:
+    structure:
+      #
+      # 2D conv model: use with SpeakerCRNNRawModel
+      #
+      filters: # equal number of cnn layers
+      - 128
+      - 256
+      - 512
+      filter_size: # equal number of cnn layers
+      - [3, 3]
+      - [3, 3]
+      - [3, 3]
+      filter_stride: # equal number of cnn layers
+      - [1, 1]
+      - [1, 1]
+      - [1, 1]
+      pool_size: # equal number of cnn layers
+      - [2, 2]
+      - [2, 1]
+      - [2, 1]
+
+      #
+      # TDNN model: use with SpeakerTDNNRawModel
+      #
+      tdnn_method: splice_layer
+      tdnn_dims:
+      - 512
+      - 512
+      - 512
+      - 512
+      - 1500
+      tdnn_contexts:
+      - [-2, -1, 0, 1, 2]
+      - [-2, 0, 2]
+      - [-3, 0, 3]
+      - 0
+      - 0
+
+      #
+      # resnet model: use with SpeakerResNetRawModel
+      #
+      resnet_contexts: resnet
+      layers_list: [2, 3, 3, 2]
+      block_mode: ir #ir_se
+      filters_list: [64, 64, 128, 256, 512]
+      strides_list:
+      - [2, 2]
+      - [2, 2]
+      - [2, 2]
+      - [2, 2]
+
+      linear_num: 512 # hidden number of linear layer, not included in TDNN model
+      frame_pooling_type: stats   # stats, average
+      cell_num: 512 # cell units of the lstm
+      hidden_dims: # speaker embedding will be extracted from the last layer
+      - 512
+      - 512
+      embedding_dim: 512 # text embedding size
+      num_filters: 8 # text conv layer num filters
+      attention: false # whether to use attention, false mean use max-pooling
+      attention_size: 512 # attention_size
+      use_lstm_layer: false # whether to use lstm layer, false mean no lstm layer
+      use_dropout: true # whether to use bn, dropout layer
+      dropout_rate: 0.2
+      use_bn: true # whether to use bn, dropout layer
+
+      score_threshold: 0.5 # threshold to predict POS example
+      threshold: 3 # threshold to predict POS example
+
+
+solver:
+  name: SpeakerSolver
+  quantization:
+    enable: false # whether to quantization model
+    quant_delay: 0 # Number of steps after which weights and activations are quantized during training
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: adam
+    #name: momentum
+    epochs: 4 # maximum epochs
+    batch_size: 512 # number of elements in a training batch
+    loss: CrossEntropyLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.001 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 2000  # the lr decay_step for optimizer
+    clip_global_norm: 3.0 # clip global norm
+    multitask: False # whether is multi-task
+  metrics:
+    pos_label: 1 # int, same to sklearn
+    cals:
+    - name: AccuracyCal
+      arguments: null
+    - name: ConfusionMatrixCal
+      arguments: null
+    - name: PrecisionCal
+      arguments:
+        average: 'binary'
+    - name: RecallCal
+      arguments:
+        average: 'binary'
+    - name: F1ScoreCal
+      arguments:
+        average: 'binary'
+  postproc:
+      name: SpeakerPostProc
+      log_verbose: false
+      eval: true # compute metrics
+      infer: true  # get predict results
+      pred_path: null # None for `model_path`/infer, dumps infer output to this dir
+      output_softmax: False # output softmax
+      thresholds:
+          - 0.5
+      smoothing:
+          enable: true
+          count: 2
+  saver:
+    model_path: "exp/delta_speaker/ckpt"
+    max_to_keep: 10
+    save_checkpoints_steps: 1000
+    keep_checkpoint_every_n_hours: 10000
+    checkpoint_every: 10 # the step to save checkpoint
+    summary: false
+    save_summary_steps: 50
+    eval_on_dev_every_secs: 1
+    print_every: 50
+    resume_model_path: ""
+  run_config:
+    debug: false # use tfdbug
+    tf_random_seed: null # 0-2**32; null is None, try to read data from /dev/urandom if available or seed from the clock otherwise
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 4
+    inter_op_parallelism_threads: 10
+    allow_growth: true
+    log_step_count_steps: 50 #The frequency, in number of global steps, that the global step/sec and the loss will be logged during training.
+  distilling:
+    enable: false
+    name : Teacher
+    loss : DistillationLoss
+    temperature: 5
+    alpha: 0.5
+    teacher_model: ""
+
+
+serving:
+  enable: true
+  name : Evaluate
+  model: "" # saved model dir, ckpt dir, or frozen_model.pb
+  inputs: 'inputs:0'
+  outpus: 'softmax_output:0'
+

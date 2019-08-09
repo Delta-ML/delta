@@ -267,10 +267,12 @@ class TransformerModel(SeqclassModel):
     scores = self.final_dense(out)
     return scores
 
+
 @registers.model.register
 class FullyConnectModel(SeqclassModel):
   """FullyConnect model for text classification based on
   pretrain embedding/model"""
+
   def __init__(self, config, **kwargs):
     super().__init__(config, **kwargs)
     logging.info("Initialize FullyConnectModel...")
@@ -308,17 +310,17 @@ class FullyConnectModel(SeqclassModel):
     out = self.embed(input_x)
     if self.use_pretrained_model:
       logging.info("use_pretrained_model: {}, {}".format(
-        self.pretrained_model_name, self.pretrained_model_mode))
+          self.pretrained_model_name, self.pretrained_model_mode))
       if self.pretrained_model_name == 'elmo':
         input_px = self.get_pre_train_graph(input_x)
-        input_px = tf.reshape(input_px, [-1, self.max_len,
-                                         self.pretrained_model_dim])
+        input_px = tf.reshape(input_px,
+                              [-1, self.max_len, self.pretrained_model_dim])
         out = tf.concat([out, input_px], axis=-1)
         out = tf.reduce_max(out, axis=1)
       if self.pretrained_model_name == 'bert':
         out = self.get_pre_train_graph(input_x)
     else:
-        out = tf.reduce_max(out, axis=1)
+      out = tf.reduce_max(out, axis=1)
     out = self.embed_d(out, training=training)
     if self.use_dense_input:
       dense_out = self.dense_input_linear(dense_input)
@@ -329,4 +331,3 @@ class FullyConnectModel(SeqclassModel):
     # [batch_size, class_num]
     scores = self.final_dense(out)
     return scores
-

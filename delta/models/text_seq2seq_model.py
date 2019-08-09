@@ -43,17 +43,17 @@ class Seq2SeqModel(Model):
     if self.use_pretrained_embedding:
       self.embedding_path = config['model']['embedding_path']
       logging.info("Loading embedding file from: {}".format(
-        self.embedding_path))
+          self.embedding_path))
       self._word_embedding_init = pickle.load(open(self.embedding_path, 'rb'))
       self.embed_initializer = tf.constant_initializer(
-        self._word_embedding_init)
+          self._word_embedding_init)
     else:
       self.embed_initializer = tf.random_uniform_initializer(-0.1, 0.1)
 
     self.embed = tf.keras.layers.Embedding(
-      self.vocab_size,
-      self.embedding_size,
-      embeddings_initializer=self.embed_initializer)
+        self.vocab_size,
+        self.embedding_size,
+        embeddings_initializer=self.embed_initializer)
     self.share_embedding = model_config['share_embedding']
     if self.use_label_vocab:
       self.decode_vocab_size = self.label_vocab_size
@@ -63,9 +63,10 @@ class Seq2SeqModel(Model):
       self.decoder_embed = self.embed
     else:
       self.decoder_embed = tf.keras.layers.Embedding(
-        self.decode_vocab_size,
-        self.embedding_size,
-        embeddings_initializer=self.embed_initializer)
+          self.decode_vocab_size,
+          self.embedding_size,
+          embeddings_initializer=self.embed_initializer)
+
 
 @registers.model.register
 class TransformerSeq2SeqModel(Seq2SeqModel):
@@ -88,14 +89,16 @@ class TransformerSeq2SeqModel(Seq2SeqModel):
     self.beam_size = model_config['beam_size']
 
     self.mask_layer = tf.keras.layers.Lambda(lambda inputs: tf.cast(
-      tf.not_equal(inputs, self.padding_token), tf.int32))
+        tf.not_equal(inputs, self.padding_token), tf.int32))
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
-    self.pos_embed = layers.PositionEmbedding(self.max_enc_len, self.embedding_size)
+    self.pos_embed = layers.PositionEmbedding(self.max_enc_len,
+                                              self.embedding_size)
 
     self.encoder = layers.TransformerEncoder(config)
-    self.decoder = layers.TransformerDecoder(config, self.embed, self.decode_vocab_size)
+    self.decoder = layers.TransformerDecoder(config, self.embed,
+                                             self.decode_vocab_size)
     logging.info("decode_vocab_size: {}".format(self.decode_vocab_size))
     logging.info("Initialize TransformerModel done.")
 
@@ -130,29 +133,29 @@ class RnnSeq2SeqModel(Seq2SeqModel):
     self.padding_token = utils.PAD_IDX
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
     self.encoder = layers.RnnEncoder(config, name="encoder")
-    self.decoder = layers.RnnDecoder(config, self.decoder_embed, self.decode_vocab_size,
-                                     name="decoder")
+    self.decoder = layers.RnnDecoder(
+        config, self.decoder_embed, self.decode_vocab_size, name="decoder")
     self.mask_layer = tf.keras.layers.Lambda(lambda inputs: tf.cast(
-      tf.not_equal(inputs, self.padding_token), tf.int32))
+        tf.not_equal(inputs, self.padding_token), tf.int32))
 
   def call(self, inputs, training=None, mask=None):
     enc_inputs = inputs["input_enc_x"]
-    seq_enc_len = compute_sen_lens(enc_inputs,
-                                   padding_token=self.padding_token)
+    seq_enc_len = compute_sen_lens(enc_inputs, padding_token=self.padding_token)
     enc_mask = self.mask_layer(enc_inputs)
     enc_inputs = self.embed(enc_inputs)
     enc_inputs = self.embed_d(enc_inputs)
-    enc_outputs, enc_state = self.encoder(enc_inputs,
-                                          training=training, mask=enc_mask)
+    enc_outputs, enc_state = self.encoder(
+        enc_inputs, training=training, mask=enc_mask)
     if self.is_infer:
-      dec_outputs = self.decoder([enc_outputs, enc_state,
-                                  seq_enc_len], training=training)
+      dec_outputs = self.decoder([enc_outputs, enc_state, seq_enc_len],
+                                 training=training)
       return dec_outputs
 
     else:
       dec_inputs = inputs["input_dec_x"]
-      seq_dec_len = compute_sen_lens(dec_inputs,
-                                     padding_token=self.padding_token)
-      dec_outputs = self.decoder([dec_inputs, seq_dec_len, enc_outputs, enc_state,
-                                  seq_enc_len], training=training)
+      seq_dec_len = compute_sen_lens(
+          dec_inputs, padding_token=self.padding_token)
+      dec_outputs = self.decoder(
+          [dec_inputs, seq_dec_len, enc_outputs, enc_state, seq_enc_len],
+          training=training)
       return dec_outputs

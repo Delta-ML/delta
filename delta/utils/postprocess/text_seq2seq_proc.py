@@ -23,6 +23,7 @@ from delta.utils.postprocess.postprocess_utils import ids_to_sentences
 
 #pylint: disable=too-many-instance-attributes, too-few-public-methods, too-many-locals
 
+
 @registers.postprocess.register
 class SavePredSeqPostProc(PostProc):
   '''Save the result of inference.'''
@@ -34,7 +35,8 @@ class SavePredSeqPostProc(PostProc):
 
     res_file = self.config["solver"]["postproc"].get("res_file", "")
     if res_file == "":
-      logging.info("Infer res not saved. You can check 'res_file' in your config.")
+      logging.info(
+          "Infer res not saved. You can check 'res_file' in your config.")
       return
     res_dir = os.path.dirname(res_file)
     if not os.path.exists(res_dir):

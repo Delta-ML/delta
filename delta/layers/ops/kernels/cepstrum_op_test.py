@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
+from absl import logging
 
 from delta.layers.ops import py_x_ops
 from delta.data import feat as feat_lib
@@ -45,20 +46,17 @@ class CepsOpTest(tf.test.TestCase):
 
       #pylint: disable=bad-whitespace
       output_true = np.array([
-          -39.319466, -0.525144, 1.254634, -1.000523, 3.269833, 1.122467,
-          0.374241, 2.331129, 1.194314, -2.226894, -0.080651, 0.341422,
-          3.090863, -39.658028, -0.491055, 1.300456, -0.978587, 3.614898,
-          1.891401, 0.044584, 0.297294, 1.899952, -1.267939, -0.179974,
-          0.934334, 1.845452, -39.940613, -0.489544, 1.108610, 0.293507,
-          3.229793, 0.759369, -0.030200, 1.158299, 2.234188, -1.235799,
-          -1.212533, 0.813340, 3.036731, -39.713657, -0.061213, 1.318654,
-          -1.193706, 2.612660, 0.184458, 0.791051, 2.485928, 2.912481,
-          -0.641628, -1.924919
+          [  0.525808,  0.579537, 0.159656, 0.014726, -0.1866810],
+          [  0.225988,  1.557304, 3.381828, 0.132935,  0.7128600],
+          [ -1.832759, -1.045178, 0.753158, 0.116107, -0.9307780],
+          [ -0.696277,  1.333355, 1.590942, 2.041829, -0.0805630],
+          [ -0.377375,  2.984320, 0.036302, 3.676640,  1.1709290]
       ])
       #pylint: enable=bad-whitespace
-      self.assertEqual(tf.rank(output).eval(), 1)
-      self.assertAllClose(output.eval().flatten()[:50], output_true)
 
+      self.assertEqual(tf.rank(output).eval(), 2)
+      logging.info('Shape of cepstrum: {}'.format(output.shape))
+      self.assertAllClose(output.eval()[15:20, 7:12], output_true)
 
 if __name__ == '__main__':
   tf.test.main()

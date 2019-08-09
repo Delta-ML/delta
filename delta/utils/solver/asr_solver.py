@@ -52,7 +52,8 @@ class AsrSolver(Solver):
 
     self._lr = self._solver['optimizer']['learning_rate']['rate']
     self._decay_rate = self._solver['optimizer']['learning_rate']['decay_rate']
-    self._val_metric = self._solver['optimizer']['learning_rate']['type'] == 'val_metric'
+    self._val_metric = self._solver['optimizer']['learning_rate'][
+        'type'] == 'val_metric'
     if self._val_metric:
       self._min_lr = self._solver['optimizer']['learning_rate']['min_rate']
       self._patience = self._solver['optimizer']['learning_rate']['patience']
@@ -289,14 +290,14 @@ class AsrSolver(Solver):
     if self._val_metric:
       logging.info(f"CallBack: Learning Rate Shcedule on {monitor_used}")
       lr_shcedule = ReduceLROnPlateau(
-        monitor=monitor_used,
-        factor=self._decay_rate,
-        patience=self._patience,
-        verbose=1,
-        mode='auto',
-        min_delta=0.0001,
-        cooldown=0,
-        min_lr=self._min_lr)
+          monitor=monitor_used,
+          factor=self._decay_rate,
+          patience=self._patience,
+          verbose=1,
+          mode='auto',
+          min_delta=0.0001,
+          cooldown=0,
+          min_lr=self._min_lr)
       callbacks.append(lr_shcedule)
     return callbacks
 
