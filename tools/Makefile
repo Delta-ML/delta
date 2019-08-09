@@ -191,7 +191,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:

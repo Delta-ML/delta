@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -ex
 
 # Please run this script using `docker`
 # dpl input: 
@@ -51,7 +51,10 @@ MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.model_type
 OUTPUT_NUM=`cat ${MODEL_YAML} | shyaml get-length model.graphs.0.outputs`
 
 OUTPUT_NAMES=""
-END_NUM=`expr ${OUTPUT_NUM} - 1`
+END_NUM=$((expr ${OUTPUT_NUM} - 1))
+
+echo "OUTPUT_NUM: ${OUTPUT_NUM}"
+
 for i in `seq 0 ${END_NUM}`
 do
   NEW_OUTPUT=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.outputs.$i.name`
@@ -74,6 +77,7 @@ BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
 UTILS=${MAIN_ROOT}/dpl/utils/deploy
 
 function convert_graph(){
+  echo "Satrt transform graph ..."
   if [ ${ENGINE} == 'TF' ];then
     if [ ${MODEL_TYPE} == 'saved_model' ]; then
       GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${VERSION}"
@@ -104,26 +108,28 @@ function convert_graph(){
     echo "MODEL_TYPE: ${MODEL_TYPE} and ENGINE: ${ENGINE} error!"
     exit 1
   fi
+  echo "Graph transformed."
 }
 
 function clear_lib(){
-  echo "clear library under dpl/lib"
+  echo "Clear library under dpl/lib"
   pushd ${MAIN_ROOT}/dpl/lib
   for dir in `ls`;
   do
     rm -rf ${dir}/* && touch ${dir}/.gitkeep
   done
+  echo "Clear library done."
   popd
 }
 
 function compile_tensorflow(){
   local target=$1 # linux
   local arch=$2
-  echo "compile tensorflow: $target $arch"
+  echo "Start compile tensorflow: $target $arch"
 
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
 	pushd ${MAIN_ROOT}/tools/tensorflow
-    bazel --output_user_root=$BAZEL_CACHE \
+    bazel \
        build -c opt //tensorflow:libtensorflow_cc.so || exit 1
 	
     pushd bazel-bin/tensorflow
@@ -131,12 +137,12 @@ function compile_tensorflow(){
     #    unlink libtensorflow_cc.so.1
     #fi
     #ln -s libtensorflow_cc.so.1 libtensorflow_cc.so
-    #if [ -L libtensorflow_framework.so.1 ];then
-    #    unlink libtensorflow_framework.so.1
-    #fi
-	#ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
-	cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
-
+    if [ -L libtensorflow_framework.so.1 ];then
+      unlink libtensorflow_framework.so.1
+    fi
+    ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
+    # cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
+    echo "Compile tensorflow successfully."
     popd
     popd
 
@@ -149,7 +155,7 @@ function compile_tensorflow(){
 function compile_tflite(){
   local target=$1
   local arch=$2
-  echo "compile tflite: $target $arch"
+  echo "Start compile tflite: $target $arch"
 
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
     pushd ${MAIN_ROOT}/tools/tensorflow
@@ -157,6 +163,7 @@ function compile_tflite(){
       build -c opt //tensorflow/lite/experimental/c:libtensorflowlite_c.so || exit 1
 
     cp tensorflow/bazel-bin/tensorflow/lite/experimental/c/*.so ${MAIN_ROOT}/dpl/lib/tflite/
+    echo "Compile tensorflow lite successfully."
     popd
   else
     echo "Not support: $target $arch"
@@ -167,7 +174,7 @@ function compile_tflite(){
 function compile_custom_ops(){
   local platform=$1 # tensorflow
   local target=$2
-  echo "compile custom ops: $platform $target"
+  echo "Strat compile custom ops: $platform $target"
 
   if [ ${platform} == 'tensorflow' ];then
     if [ ${target} != 'delta' ] && [ ${target} != 'deltann' ];then
@@ -178,6 +185,7 @@ function compile_custom_ops(){
     pushd ${MAIN_ROOT}/delta/layers/ops/
     bash build.sh ${target}
     popd
+    echo "Compile custom ops successfully."
   else
     echo "Not support: $platform"
     exit 1
@@ -185,6 +193,7 @@ function compile_custom_ops(){
 }
 
 function compile_deltann(){
+  echo "Start compile deltann ..."
   local target=$1 # linux
   local arch=$2   # x86_64
   local engine=$3   # [tf|tflite|tfserving]
@@ -193,6 +202,7 @@ function compile_deltann(){
   bash build.sh $target $arch $engine
   cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann
   popd
+  echo "Compile deltann successfully."
 }
 
 function compile_deltann_egs(){
@@ -201,11 +211,14 @@ function compile_deltann_egs(){
   popd
 }
 
+sudo chown -R deltann:deltann $MAIN_ROOT/tools
+sudo chown -R deltann:deltann $MAIN_ROOT/dpl
+
 convert_graph
 
 clear_lib
 
-compile_tensorflow ${TARGET}  ${ARCH}
+# compile_tensorflow ${TARGET}  ${ARCH}
 compile_deltann ${TARGET} ${ARCH} ${ENGINE}
 compile_custom_ops tensorflow deltann
 

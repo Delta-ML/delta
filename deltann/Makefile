@@ -73,7 +73,7 @@ MBEDTLS := $(ROOT_DIR)/../tools/mbedtls
 
 INCLUDES := -I$(ROOT_DIR) -I$(YAML)/include -I$(JSONCPP)/include -I$(HTTP) -I$(MBEDTLS)/include
 
-LIBS := -lpthread -lstdc++ -ldl -L$(JSONCPP)/src/lib_json -ljsoncpp
+LIBS := -lpthread -lstdc++ -ldl -L$(JSONCPP)/build-shared/ -ljsoncpp
 
 include $(MAKEFILE_DIR)/targets/${TARGET}_makefile.inc
 
