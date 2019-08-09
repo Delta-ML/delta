@@ -39,8 +39,10 @@ class SpecOpTest(tf.test.TestCase):
 
   def test_spectrum(self):
     ''' test spectrum op'''
-    with self.session():
+    with self.session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
+      logging.info(f"input shape: {input_data.shape}, sample rate dtype: {sample_rate.dtype}")
+      self.assertEqual(sample_rate, 16000)
 
       output = py_x_ops.spectrum(input_data, sample_rate)
 
@@ -57,7 +59,6 @@ class SpecOpTest(tf.test.TestCase):
       self.assertEqual(tf.rank(output).eval(), 2)
       logging.info('Shape of spectrum: {}'.format(output.shape))
       self.assertAllClose(output.eval()[4:9, 4:9], output_true)
-
 
 if __name__ == '__main__':
   tf.test.main()

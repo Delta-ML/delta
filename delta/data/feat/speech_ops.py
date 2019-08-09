@@ -247,7 +247,7 @@ def extract_feature(waveforms, params):
     # shape: [nframes, nbins, nchannels]
     fbank_size = utils.shape_list(mel_fbanks)
     #assert fbank_size[0] == 1
-    logging.info("fbank size : {}".format(fbank_size))
+    logging.debug("fbank size : {}".format(fbank_size))
 
     # This replaces CMVN estimation on data
     if not p.audio_global_cmvn:

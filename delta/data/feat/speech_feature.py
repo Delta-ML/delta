@@ -53,6 +53,13 @@ def _freq_feat_graph(feat_name, **kwargs):
 
   assert feat_name in ('fbank', 'spec')
 
+  params = speech_ops.speech_params(
+     sr=sr,
+     bins=feature_size,
+     add_delta_deltas=False,
+     audio_frame_length=winlen,
+     audio_frame_step=winstep)
+
   graph = None
   if feat_name == 'fbank':
      # get session
@@ -61,17 +68,11 @@ def _freq_feat_graph(feat_name, **kwargs):
       #pylint: disable=not-context-manager
       with graph.as_default():
         # fbank
-        params = speech_ops.speech_params(
-            sr=sr,
-            bins=feature_size,
-            add_delta_deltas=False,
-            audio_frame_length=winlen,
-            audio_frame_step=winstep)
-
         filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
         waveforms, sample_rate = speech_ops.read_wav(filepath, params)
         del sample_rate
         fbank = speech_ops.extract_feature(waveforms, params)
+        # shape must be [T, D, C]
         feat = tf.identity(fbank, name=feat_name)
   elif feat_name == 'spec':
      # get session
@@ -81,7 +82,9 @@ def _freq_feat_graph(feat_name, **kwargs):
       with graph.as_default():
         filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
         waveforms, sample_rate = speech_ops.read_wav(filepath, params)
-        spec = py_x_ops.spectrum(waveforms, sample_rate)
+        spec = py_x_ops.spectrum(waveforms[:, 0], tf.cast(sample_rate, tf.dtypes.float32))
+        # shape must be [T, D, C]
+        spec = tf.expand_dims(spec, -1)
         feat = tf.identity(spec, name=feat_name)
   else:
     raise ValueError(f"Not support freq feat: {feat_name}.")
