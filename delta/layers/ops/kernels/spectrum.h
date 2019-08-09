@@ -20,7 +20,7 @@ limitations under the License.
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/platform/logging.h"
 
-#include "delta/layers/ops/kernels/complex_defines.h"
+#include "kernels/complex_defines.h"
 
 using namespace tensorflow;  // NOLINT
 

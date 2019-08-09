@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "delta/layers/ops/kernels/support_functions.h"
+#include "kernels/support_functions.h"
 
 #include <math.h>
 #include <stdio.h>

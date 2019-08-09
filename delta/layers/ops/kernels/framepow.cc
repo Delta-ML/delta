@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "delta/layers/ops/kernels/framepow.h"
+#include "kernels/framepow.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
