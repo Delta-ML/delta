@@ -89,3 +89,6 @@ egs/*/*/res
 egs/*/*/*/res
 
 # dpl
+*.tflite
+*.pb
+*.pbtxt
