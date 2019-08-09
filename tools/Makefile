@@ -181,15 +181,10 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
-<<<<<<< HEAD
 	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool
 	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
 	$(PIP_INSTALL) --user shyaml meson ninja
 	touch apt.done
-=======
-	$(SUDO) $(APT_INSTALL) autoconf libtool
-	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
->>>>>>> 3bab43e72e85396bb739050ec10db3dc2efad72e
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
