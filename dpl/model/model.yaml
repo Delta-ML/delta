@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-# template model.yam
+# template model.yaml
 
 model:
   custom_ops_path: "" 
