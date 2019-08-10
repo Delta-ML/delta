@@ -7,6 +7,7 @@ set -e
 start_stage=0
 end_stage=100
 
+config_file=conf/emo-keras-blstm.yml
 iemocap_root=/export/corpus/iemocap # dataset root dir
 
 . utils/parse_options.sh # e.g. this parses the --stage option if supplied.
@@ -29,7 +30,6 @@ if [[ $start_stage -le 2 && $end_stage -ge 2 && ! -d "./data/dump" ]]; then
     python3 local/python/dump_data_from_pickle.py || exit 1
 fi
 
-config_file=conf/emo-keras-blstm.yml
 echo "Using config $config_file"
 
 #3. make fbank

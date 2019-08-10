@@ -2,15 +2,15 @@
 data:
   train:
     paths:
-    - "data/dump/impro/train"
+    - "data/dump/all/train"
     segments:
   eval:
     paths:
-    - "data/dump/impro/eval"
+    - "data/dump/all/eval"
     segments:
   infer:
     paths:
-    - "data/dump/impro/eval"
+    - "data/dump/all/eval"
     segments:
   task:
     name: IEmoCapTask 
@@ -63,23 +63,7 @@ model:
   type: keras # raw, keras or eager model
   net:
     structure: null
-      #embedding_size: 128
-      #filters: # equal number of cnn layers
-      #- 128
-      #- 512
-      #- 512
-      #filter_size: # equal number of cnn layers
-      #- [5, 3]
-      #- [5, 3]
-      #- [5, 3]
-      #filter_stride: # equal number of cnn layers
-      #- [1, 1]
-      #- [1, 1]
-      #- [1, 1]
-      #pool_size: # equal number of cnn layers
-      #- [2, 1]
-      #- [2, 1]
-      #- [1, 1]
+
 
 solver:
   name: EmoKerasSolver
@@ -96,7 +80,7 @@ solver:
   optimizer:
     name: adam
     epochs: 150 # aximum epochs
-    batch_size: 32 # number of elements in a training batch
+    batch_size: 64 # number of elements in a training batch
     loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
@@ -140,7 +124,7 @@ solver:
           enable: true
           count: 2
   saver:
-    model_path: "exp/emo/keras-reset50/7s-ls0.0-decay1.0-batch32-all"
+    model_path: "exp/emo/keras-reset50/7s-ls0.0-decay1.0-batch64-all"
     max_to_keep: 10
     save_checkpoints_steps: 100
     keep_checkpoint_every_n_hours: 10000
