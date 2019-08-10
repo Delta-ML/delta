@@ -194,9 +194,9 @@ TBA
 | Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
 |---|---|---|---|---|---|---|
 | Speech recognition | CTC |  |  |  |  |  |
-| Speech recognition | Seq2seq |  |  |  |  |  |
-| Speaker verfication |  |  |  |  |  |  |
-| Emotion recognition |  |  |  |  |  |  |
+| Speaker verfication | TDNN | VoxCeleb | EER | 3.028 | 3.138 | Kaldi |
+| Emotion recognition | ResNet | IEMOCAP | ACC | 59.15 | 56.10 | Neumann and Vu (2017) |
+| Emotion recognition | RNN-mean pool | IEMOCAP | ACC | 65.23 | 56.90 | Mirsamadi et al. (2017) |
 
 
 ## Contributing
