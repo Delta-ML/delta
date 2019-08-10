@@ -35,6 +35,10 @@ fi
 TARGET=$1
 ARCH=$2
 
+# input and output model dir
+INPUT_MODEL="${MAIN_ROOT}/dpl/model"
+MODEL_YAML="${INPUT_MODEL}/model.yaml"
+OUTPUT_MODEL="${MAIN_ROOT}/dpl/.gen"
 
 if [ -z $MAIN_ROOT ];then
   pushd ..
@@ -43,27 +47,12 @@ if [ -z $MAIN_ROOT ];then
   echo "source env.sh"
 fi
 
+. $MAIN_ROOT/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
+
+
 # 0. dpl and model config 
-# input and output dir
-INPUT_PATH="${MAIN_ROOT}/dpl/input_model"
-OUTPUT_PATH="${MAIN_ROOT}/dpl/output_model"
-MODEL_YAML="${MAIN_ROOT}/dpl/input_model/model.yaml"
 # config from model.yaml
-VERSION=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.version`
 ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
-MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.model_type`
-OUTPUT_NUM=`cat ${MODEL_YAML} | shyaml get-length model.graphs.0.outputs`
-
-OUTPUT_NAMES=""
-END_NUM=$((expr ${OUTPUT_NUM} - 1))
-
-echo "OUTPUT_NUM: ${OUTPUT_NUM}"
-
-for i in `seq 0 ${END_NUM}`
-do
-  NEW_OUTPUT=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.outputs.$i.name`
-  OUTPUT_NAMES="${OUTPUT_NAMES},${NEW_OUTPUT}"
-done
 
 # 1. convert graph
 # convert saved_model under `model` with `model.yaml`
@@ -80,8 +69,6 @@ BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
 #BAZEL=bazel --output_user_root=$BAZEL_CACHE
 BAZEL=bazel
 UTILS=${MAIN_ROOT}/dpl/utils/deploy
-
-
 
 function clear_lib(){
   echo "Clear library under dpl/lib"
@@ -143,7 +130,7 @@ function compile_tflite(){
 
 function compile_custom_ops(){
   local platform=$1 # tensorflow
-  local target=$2
+  local target=$2 #delta, deltann
   echo "Strat compile custom ops: $platform $target"
 
   if [ ${platform} == 'tensorflow' ];then
@@ -184,17 +171,22 @@ function compile_deltann_egs(){
 sudo chown -R deltann:deltann $MAIN_ROOT/tools
 sudo chown -R deltann:deltann $MAIN_ROOT/dpl
 
+echo "Input: ${INPUT_MODEL}"
+echo "Output: ${OUTPUT_MODEL}"
+
 # 1. convert graph 
-bash $(MAIN_ROOT)/dpl/gadapter/run.sh $(ENGINE) $(MODEL_TYPE) $(VERSION)
+bash $(MAIN_ROOT)/dpl/gadapter/run.sh
 
 # 2. clear old libs
 clear_lib
 
 # 3. compile tensorflow
 compile_tensorflow ${TARGET}  ${ARCH}
+# compile_tflite $TARGET $ARCH
 
 # 4. compile deltann
 compile_deltann ${TARGET} ${ARCH} ${ENGINE}
+# compile_deltann $TARGET $ARCH tflite
 
 # 5. compile custom ops
 compile_custom_ops tensorflow deltann
@@ -202,7 +194,8 @@ compile_custom_ops tensorflow deltann
 # 6. compile deltann egs
 compile_deltann_egs
 
-# 7. run test
-# run test under docker
+# 7. dump model and lib to `output_model`
 
+# 8. run test
+# run test under docker
 

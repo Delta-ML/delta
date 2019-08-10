@@ -58,8 +58,11 @@ python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_
 For **deltann** usage (model deployment):
 
 ```bash
-cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:1.14.0-deltann-cpu-py3 /bin/bash
+cd /path/to/detla 
+WORKSPACE=$PWD
+docker run -it -v $WORKSPACE:$WORKSPACE zh794390558/delta:1.14.0-deltann-cpu-py3 /bin/bash
 ```
 
 We recommend using a high-end machine to develop DELTANN, since it needs to compile
 `Tensorflow` which is time-consuming.
+
