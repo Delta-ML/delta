@@ -15,7 +15,7 @@
 # ==============================================================================
 
 SHELL = /bin/bash
-PATH:= ~/.local/bin:$(PATH)
+PATH  := ~/.local/bin:$(PATH)
 
 # Use a prebuild Kaldi to omit the installation
 KALDI :=
@@ -210,8 +210,7 @@ tcmalloc.done:
 
 jsoncpp.done:
 	if ! [ -d jsoncpp ]; then git clone --depth=1 https://github.com/open-source-parsers/jsoncpp.git; fi
-	@echo $(PATH)
-	cd jsoncpp/; meson --buildtype release --default-library shared . build-shared; ninja -v -C build-shared test
+	cd jsoncpp; export PATH=~/.local/bin:$(PATH); CXX=g++ BUILD_TYPE=release LIB_TYPE=shared .travis_scripts/meson_builder.sh
 	touch jsoncpp.done
 
 mbedtls.done:

@@ -14,13 +14,15 @@
 # limitations under the License.
 # ==============================================================================
 
+# template model.yam
+
 model:
   custom_ops_path: "" 
   graphs:
     -
       # meta data
       id: 0
-      name: "han-cls" # model name
+      name: "emotion" # model name
 
       # deltann type
       server_type: "remote" # local, remote
