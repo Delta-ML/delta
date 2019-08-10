@@ -75,14 +75,19 @@ def _freq_feat_graph(feat_name, **kwargs):
         # shape must be [T, D, C]
         feat = tf.identity(fbank, name=feat_name)
   elif feat_name == 'spec':
-     # get session
+    # magnitude spec
     if feat_name not in _global_sess:
       graph = tf.Graph()
       #pylint: disable=not-context-manager
       with graph.as_default():
         filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
         waveforms, sample_rate = speech_ops.read_wav(filepath, params)
-        spec = py_x_ops.spectrum(waveforms[:, 0], tf.cast(sample_rate, tf.dtypes.float32))
+
+        spec = py_x_ops.spectrum(
+           waveforms[:, 0],
+           tf.cast(sample_rate, tf.dtypes.float32),
+           output_type=1) #output_type: 1, power spec; 2 log power spec
+        spec = tf.sqrt(spec)
         # shape must be [T, D, C]
         spec = tf.expand_dims(spec, -1)
         feat = tf.identity(spec, name=feat_name)

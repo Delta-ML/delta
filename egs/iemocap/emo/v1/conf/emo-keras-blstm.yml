@@ -30,12 +30,12 @@ data:
       preemph: 0.97 # default: 0.97
       # extractor
       feature_extractor: tffeat # `tffeat` to use TF feature_extraction .so library, 'pyfeat' to python_speech_feature
-      feature_name: fbank # fbank, spec
+      feature_name: spec # fbank, spec
       save_feat_path: null  # null for dump feat with same dir of wavs
       # fbank
       save_fbank: true # save fbank or power spec
-      feature_size: 26 # extract feature size
-      add_delta_deltas: true # delta deltas
+      feature_size: 257 # extract feature size
+      add_delta_deltas: false # delta deltas
       # log pwoer
       log_powspec: false # true, save log power spec; otherwise save power spec
       # cmvn
@@ -63,23 +63,6 @@ model:
   type: keras # raw, keras or eager model
   net:
     structure: null
-      #embedding_size: 128
-      #filters: # equal number of cnn layers
-      #- 128
-      #- 512
-      #- 512
-      #filter_size: # equal number of cnn layers
-      #- [5, 3]
-      #- [5, 3]
-      #- [5, 3]
-      #filter_stride: # equal number of cnn layers
-      #- [1, 1]
-      #- [1, 1]
-      #- [1, 1]
-      #pool_size: # equal number of cnn layers
-      #- [2, 1]
-      #- [2, 1]
-      #- [1, 1]
 
 solver:
   name: EmoKerasSolver

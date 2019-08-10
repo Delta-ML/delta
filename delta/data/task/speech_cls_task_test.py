@@ -64,6 +64,7 @@ class SpeechClsTaskTest(tf.test.TestCase):
           preemph: 0.97 # default: 0.97
           # extractor
           feature_extractor: tffeat # `tffeat` to use TF feature_extraction .so library, 'pyfeat' to python_speech_feature
+          feature_name: fbank # fbank or spec
           save_feat_path: null  # null for dump feat with same dir of wavs
           feature_size: 40 # extract feature size
           add_delta_deltas: true # delta deltas

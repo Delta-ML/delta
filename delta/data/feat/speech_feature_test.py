@@ -69,6 +69,7 @@ class SpeechFeatureTest(tf.test.TestCase):
                                       feature_name='fbank')
 
     feat = np.load(self.featfile)
+    logging.info(f"feat : {feat}")
     self.assertEqual(feat.shape, (425, 40, 1))
 
     with self.session(use_gpu=False):

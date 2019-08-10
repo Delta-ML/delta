@@ -82,6 +82,7 @@ class SpeechClsTask(SpeechTask):
     logging.info("Mode: {}, stride {}".format(mode, self._stride))
     self._feature_type = self.taskconf['audio']['feature_extractor']
     self._feature_name = self.taskconf['audio']['feature_name']
+    logging.info(f"feature type: {self._feature_type}, feature name: {self._feature_name}")
     self._sample_rate = self.taskconf['audio']['sr']
     self._winstep = self.taskconf['audio']['winstep']
     self._feature_size = self.taskconf['audio']['feature_size']
@@ -238,7 +239,8 @@ class SpeechClsTask(SpeechTask):
             files.append(filename)
 
       if self._feature_type == 'tffeat':
-        func = feat_lib.extract_filterbank
+        func = feat_lib.extract_feature
+        featconf.update({'feature_name': self._feature_name})
       elif self._feature_type == 'pyfeat':
         func = feat_lib.extract_feat
       else:
@@ -300,6 +302,8 @@ class SpeechClsTask(SpeechTask):
 
     # compute cmvn
     mean, var = utils.compute_cmvn(sums, square, count)
+    logging.info('mean:{}'.format(mean))
+    logging.info('var:{}'.format(var))
     if not dry_run:
       np.save(self._cmvn_path, (mean, var))
     logging.info('save cmvn:{}'.format(self._cmvn_path))
