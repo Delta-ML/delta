@@ -2,15 +2,15 @@
 data:
   train:
     paths:
-    - "data/dump/train"
+    - "data/dump/all/train"
     segments:
   eval:
     paths:
-    - "data/dump/eval"
+    - "data/dump/all/eval"
     segments:
   infer:
     paths:
-    - "data/dump/eval"
+    - "data/dump/all/eval"
     segments:
   task:
     name: IEmoCapTask 
@@ -30,6 +30,7 @@ data:
       preemph: 0.97 # default: 0.97
       # extractor
       feature_extractor: tffeat # `tffeat` to use TF feature_extraction .so library, 'pyfeat' to python_speech_feature
+      feature_name: fbank # fbank, spec
       save_feat_path: null  # null for dump feat with same dir of wavs
       # fbank
       save_fbank: true # save fbank or power spec
@@ -61,24 +62,8 @@ model:
   name: ResNet50 
   type: keras # raw, keras or eager model
   net:
-    structure:
-      embedding_size: 128
-      filters: # equal number of cnn layers
-      - 128
-      - 512
-      - 512
-      filter_size: # equal number of cnn layers
-      - [5, 3]
-      - [5, 3]
-      - [5, 3]
-      filter_stride: # equal number of cnn layers
-      - [1, 1]
-      - [1, 1]
-      - [1, 1]
-      pool_size: # equal number of cnn layers
-      - [2, 1]
-      - [2, 1]
-      - [1, 1]
+    structure: null
+
 
 solver:
   name: EmoKerasSolver
@@ -95,7 +80,7 @@ solver:
   optimizer:
     name: adam
     epochs: 150 # aximum epochs
-    batch_size: 32 # number of elements in a training batch
+    batch_size: 64 # number of elements in a training batch
     loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
@@ -111,6 +96,7 @@ solver:
       enable: false 
   metrics:
     monitor_used: 'val_acc'
+    metrics_used : ['accuracy']
     pos_label: 1 # int, same to sklearn
     cals:
     - name: AccuracyCal
@@ -138,7 +124,7 @@ solver:
           enable: true
           count: 2
   saver:
-    model_path: "exp/emo/keras-reset50/7s-ls0.0-decay1.0-batch32-all"
+    model_path: "exp/emo/keras-reset50/7s-ls0.0-decay1.0-batch64-all"
     max_to_keep: 10
     save_checkpoints_steps: 100
     keep_checkpoint_every_n_hours: 10000

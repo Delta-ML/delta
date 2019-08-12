@@ -98,7 +98,7 @@ solver:
   optimizer:
     name: adam
     epochs: 5 # maximum epochs
-    batch_size: 32 # number of elements in a training batch
+    batch_size: 8 # number of elements in a training batch
     batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
     batch_frames_in: 0 # maximum number of input frames in a training batch
     batch_frames_out: 0 # maximum number of output frames in a training batch
@@ -120,6 +120,8 @@ solver:
       patience: 5
   metrics:
     pos_label: 1 # int, same to sklearn
+    metrics_used : null
+    monitor_used : val_token_err
     cals:
     - name: AccuracyCal
       arguments: null 

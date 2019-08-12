@@ -20,3 +20,4 @@ cpplint
 seqeval
 rouge
 sacrebleu
+pyAudioAnalysis

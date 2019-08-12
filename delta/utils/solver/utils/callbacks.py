@@ -68,7 +68,7 @@ class TokenErrMetricCallBack(Callback):
       batch_target = batch_data['targets'].tolist()
       batch_predict = self.func(batch_input)[0]
 
-      if self.decoder_type == 'ctc':
+      if self.decoder_type == 'argmax':
         predict_seq_list += py_ctc.ctc_greedy_decode(
             batch_predict, 0, unique=True)
       else:

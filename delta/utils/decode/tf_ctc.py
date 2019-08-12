@@ -58,10 +58,10 @@ def ctc_greedy_decode(logits,
     param: logits, (B, T, C), output of ctc asr model
     param: sequence_length, (B, 1), sequence lengths
     param: merge_repeated, boolean, if merge consecutive repeated classes in output
-    returns: 
+    returns:
         decode_result, (B, T), decode result
-        probs, (B), A float matrix containing, for the sequence found, 
-            the negative of the sum of the greatest logit at each timeframe. 
+        probs, (B), A float matrix containing, for the sequence found,
+            the negative of the sum of the greatest logit at each timeframe.
     '''
 
   logits, sequence_len = ctc_decode_data_prepare(logits, sequence_length,
@@ -90,7 +90,7 @@ def ctc_beam_search_decode(logits,
     param: sequence_length, (B, 1), sequence lengths
     param: beam_width, int, beam search beam width
     param: top_paths, int, controls output size
-    return: 
+    return:
        decode_result, (B, T), decode result
        probs: A float matrix [batch_size, top_paths] containing sequence log-probabilities.
     '''

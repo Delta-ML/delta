@@ -13,16 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' speech feature '''
-from delta.data.feat import speech_ops
 
-from .speech_feature import load_wav
-from .speech_feature import extract_feature
-from .speech_feature import add_delta_delta
+''' inspect feature shape and dtype'''
 
-# numpy
-from .speech_feature import extract_fbank
-from .speech_feature import delta_delta
-from .speech_feature import fbank_feat
-from .speech_feature import powspec_feat
-from .speech_feature import extract_feat
+import numpy as np
+from absl import logging
+from absl import app
+from absl import flags
+
+FLAGS = flags.FLAGS
+flags.DEFINE_string('path', None, 'feature path')
+flags.DEFINE_boolean('verbose', False, 'dump data info')
+
+def main(_):
+  feat = np.load(FLAGS.path)
+  logging.info(f"[{FLAGS.path}]")
+  logging.info(f"  shape: {feat.shape}")
+  logging.info(f"  dtype: {feat.dtype}")
+  logging.info(f"  isnan: {np.all(np.isnan(feat))}")
+  logging.info(f"  isinf: {np.all(np.isinf(feat))}")
+  if FLAGS.verbose:
+    logging.info(f"  data: {feat}")
+    logging.info(f"  data: {feat[0][:]}")
+
+if __name__ == '__main__':
+  logging.set_verbosity(logging.INFO)
+  app.run(main)

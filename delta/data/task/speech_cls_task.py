@@ -80,13 +80,14 @@ class SpeechClsTask(SpeechTask):
     else:
       self._stride = 1.0  # percent
     logging.info("Mode: {}, stride {}".format(mode, self._stride))
-
-    self._feature_size = self.taskconf['audio']['feature_size']
-    self._sample_rate = self.taskconf['audio']['sr']
-    self._input_channels = 3 if self.taskconf['audio']['add_delta_deltas'] else 1
     self._feature_type = self.taskconf['audio']['feature_extractor']
-    self._cmvn_path = self.taskconf['audio']['cmvn_path']
+    self._feature_name = self.taskconf['audio']['feature_name']
+    logging.info(f"feature type: {self._feature_type}, feature name: {self._feature_name}")
+    self._sample_rate = self.taskconf['audio']['sr']
     self._winstep = self.taskconf['audio']['winstep']
+    self._feature_size = self.taskconf['audio']['feature_size']
+    self._input_channels = 3 if self.taskconf['audio']['add_delta_deltas'] else 1
+    self._cmvn_path = self.taskconf['audio']['cmvn_path']
     self._save_feat_path = self.taskconf['audio']['save_feat_path']
 
     # {class: [filename, duration, class],...}
@@ -238,7 +239,8 @@ class SpeechClsTask(SpeechTask):
             files.append(filename)
 
       if self._feature_type == 'tffeat':
-        func = feat_lib.extract_filterbank
+        func = feat_lib.extract_feature
+        featconf.update({'feature_name': self._feature_name})
       elif self._feature_type == 'pyfeat':
         func = feat_lib.extract_feat
       else:
@@ -300,6 +302,8 @@ class SpeechClsTask(SpeechTask):
 
     # compute cmvn
     mean, var = utils.compute_cmvn(sums, square, count)
+    logging.info('mean:{}'.format(mean))
+    logging.info('var:{}'.format(var))
     if not dry_run:
       np.save(self._cmvn_path, (mean, var))
     logging.info('save cmvn:{}'.format(self._cmvn_path))
@@ -721,7 +725,7 @@ class SpeechClsTask(SpeechTask):
           labelid = self.class_id(label)
 
           if self.use_distilling:
-            soft_label = self.teacher(feat)
+            raise ValueError("Not Support distilation for *.wav input")
           else:
             class_num = self.taskconf['classes']['num']
             soft_label = [0] * class_num

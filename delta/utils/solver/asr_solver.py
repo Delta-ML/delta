@@ -62,6 +62,7 @@ class AsrSolver(Solver):
     self._early_stopping = self._solver['optimizer']['early_stopping']['enable']
 
     self._monitor_used = self._solver['metrics']['monitor_used']
+    self._metrics_used = [] if self._solver['metrics']['metrics_used'] is None else self._solver['metrics']['metrics_used']
     self._model_path = self._solver['saver']['model_path']
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
@@ -130,11 +131,12 @@ class AsrSolver(Solver):
     loss = {'ctc': lambda y_true, y_pred: tf.reduce_mean(y_pred)}
     return loss
 
-  def input_generator(self, input_iterator, input_task, cur_sess):
+  def input_generator(self, input_iterator, input_task, cur_sess, mode):
     ''' dataset_based generator used in keras.model.fit_generator()
         in future, it will be replaced by tf.keras.utils.Sequence'''
     next_batch = input_iterator.get_next()
-    for _ in range(len(input_task)):
+    generate_time = len(input_task) * self._num_epochs if mode == utils.TRAIN else len(input_task)
+    for _ in range(generate_time):
       next_batch_data = cur_sess.run(next_batch)
       yield next_batch_data
 
@@ -204,14 +206,14 @@ class AsrSolver(Solver):
       self.parallel_model.compile(
           loss=loss,
           optimizer=optimizer,
-          metrics=['accuracy'],
+          metrics=self._metrics_used,
           options=run_opts,
           run_metadata=run_metas)
     else:
       self.model.compile(
           loss=loss,
           optimizer=optimizer,
-          metrics=['accuracy'],
+          metrics=self._metrics_used,
           options=run_opts,
           run_metadata=run_metas)
 
@@ -303,7 +305,7 @@ class AsrSolver(Solver):
                     eval_ds,
                     eval_task,
                     monitor_used='val_acc',
-                    decoder_type='beam_search'):
+                    decoder_type='argmax'):
     ''' callbacks for traning'''
 
     #metric callbacks
@@ -383,13 +385,11 @@ class AsrSolver(Solver):
   def train_and_eval(self):
     ''' train and eval '''
     # data must be init before model builg
-    backend_sess = K.get_session()
+    #backend_sess = K.get_session()
     train_ds, train_task = self.input_data(mode=utils.TRAIN)
-    train_gen = self.input_generator(train_ds.make_one_shot_iterator(),
-                                     train_task, backend_sess)
+    #train_gen = self.input_generator(tf.data.make_one_shot_iterator(train_ds), train_task, backend_sess, mode=utils.TRAIN)
     eval_ds, eval_task = self.input_data(mode=utils.EVAL)
-    eval_gen = self.input_generator(eval_ds.make_one_shot_iterator(), eval_task,
-                                    backend_sess)
+    #eval_gen = self.input_generator(tf.data.make_one_shot_iterator(eval_ds), eval_task, backend_sess, mode=utils.EVAL)
 
     self.model_fn(mode=utils.TRAIN)
     assert self._built
@@ -400,12 +400,12 @@ class AsrSolver(Solver):
     try:
       # Run training
       self.active_model.fit_generator(
-          train_gen,
+          train_task,
           steps_per_epoch=len(train_task),
           epochs=self._num_epochs,
           verbose=1,
           callbacks=callbacks,
-          validation_data=eval_gen,
+          validation_data=eval_task,
           validation_steps=len(eval_task),
           validation_freq=1,
           class_weight=None,
