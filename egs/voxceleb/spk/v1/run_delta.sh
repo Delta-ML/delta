@@ -14,6 +14,20 @@ source parse_options.sh
 echo "Running from stage $stage ..."
 
 
+if [ $stage -le -1 ]; then
+  echo "Running Kaldi data preparation ..."
+  for ff in /export/corpora/VoxCeleb1 /export/corpora/VoxCeleb2
+  do
+    if [ ! -d $ff ]; then
+      echo "ERROR: Data dir $ff does not exists, Kaldi will fail to generate training data."
+      echo "You may want to download voxceleb corpus first and put them in the right dir."
+      exit 2
+    fi
+  done
+  ./run.sh
+  echo "Running Kaldi data preparation done."
+fi
+
 if [ $stage -le 0 ]; then
   # Prepare data.
   # TODO: run Kaldi script till data/train_combined_no_sil is ready.
