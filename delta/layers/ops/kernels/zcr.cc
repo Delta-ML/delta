@@ -19,8 +19,8 @@ limitations under the License.
 #include <stdlib.h>
 #include <string.h>
 
-#include "delta/layers/ops/kernels/support_functions.h"
-#include "delta/layers/ops/kernels/zcr.h"
+#include "kernels/support_functions.h"
+#include "kernels/zcr.h"
 
 #define ABS(a) (a > 0 ? a : -a)
 

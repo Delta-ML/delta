@@ -88,9 +88,12 @@ egs/*/*/*/exp
 egs/*/*/res
 egs/*/*/*/res
 
-# dpl copys
-dpl/lib/tensorflow/*
-dpl/lib/tflite/*
-dpl/lib/custom_ops/*
-dpl/lib/deltann/*
+# dpl
+*.tflite
+*.pb
+*.pbtxt
+dpl/lib/*
 dpl/test/*
+!dpl/output_model/
+dpl/output_model/*
+!dpl/output_model/.gitkeep

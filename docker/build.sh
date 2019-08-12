@@ -10,7 +10,7 @@ if [ -z $MAIN_ROOT ];then
 fi
 
 # generate dockerfile
-TARGET=$1 #delta or deltann
+TARGET=$1 #ci, delta or deltann
 DEVICE=$2 # cpu or gpu
 MODE=$3 # push image or generate dockerfile
 
@@ -93,6 +93,16 @@ WORKDIR /ci
 RUN sudo $PIP_INSTALL --upgrade pip && $PIP_INSTALL --user -r requirements.txt
 
 EOF
+
+elif [ ${TARGET} == 'delta' ];then
+cat >> $DOCKERFILE <<EOF
+RUN sudo mkdir workspace && sudo chown delta: /workspace
+RUN cd /workspace && git clone --depth 1 https://github.com/didi/delta.git
+RUN cd /workspace/delta/tools && make basic
+WORKDIR /workspace/delta
+
+EOF
+
 fi
 
 cat >> $DOCKERFILE <<EOF

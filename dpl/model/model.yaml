@@ -14,6 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
+# template model.yaml
+
 model:
   custom_ops_path: "" 
   graphs:
@@ -24,12 +26,12 @@ model:
 
       # deltann type
       server_type: "remote" # local, remote
-      engine: "TFSERVING" # TF, TFLITE, TFSERVING
+      engine: "TF" # TF, TFLITE, TFTRT, TFSERVING
 
       # model config
       version: 1    # model version
       local:  # local run
-        path: "/delta/dpl/test/emotion" # model path without version info
+        path: "/delta/dpl/output_model" # model path without version info
         model_type: "saved_model" # e.g. saved_model, frozen_graph_pb, frozen_graph_txt
       remote: # serving host
         host: "http://10.90.55.32"

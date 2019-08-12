@@ -359,7 +359,6 @@ class RawSolver(Solver):
     train_model = self.build(mode)
 
     multitask = self.config['solver']['optimizer']['multitask']
-    use_pretrained_model = self.config['model']['use_pre_train_model']
 
     # Supervisor
     with tf.name_scope("train"):

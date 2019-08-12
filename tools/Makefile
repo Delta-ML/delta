@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
-## Run under docker image tensorflow/tensorflow:latest-py3
 SHELL = /bin/bash
+PATH  := ~/.local/bin:$(PATH)
 
 # Use a prebuild Kaldi to omit the installation
 KALDI :=
@@ -45,7 +45,8 @@ nlp_zh: cppjieba.done
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
 PIP_INSTALL=pip3 --no-cache-dir install
-APT_INSTALL=apt-get install -y --no-install-recommends 
+
+APT_INSTALL=apt-get install -y --no-install-recommends
 
 PYTHON=python3
 
@@ -180,8 +181,10 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
-	$(SUDO) $(APT_INSTALL) autoconf libtool
+	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool
 	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
+	$(PIP_INSTALL) --user shyaml meson ninja
+	touch apt.done
 
 abseil.done: 
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
@@ -189,7 +192,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	# if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && chown $(id -u):$(id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:
@@ -207,7 +210,7 @@ tcmalloc.done:
 
 jsoncpp.done:
 	if ! [ -d jsoncpp ]; then git clone --depth=1 https://github.com/open-source-parsers/jsoncpp.git; fi
-	cd jsoncpp;  cmake . -DBUILD_SHARED_LIBS=ON; make
+	cd jsoncpp; export PATH=~/.local/bin:$(PATH); CXX=g++ BUILD_TYPE=release LIB_TYPE=shared .travis_scripts/meson_builder.sh
 	touch jsoncpp.done
 
 mbedtls.done:

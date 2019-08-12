@@ -17,8 +17,6 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-    - "173-refactor-ctc"
-    - /^*\[ci run\]*$/
 
   script:
     - env
