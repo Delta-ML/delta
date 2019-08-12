@@ -4,9 +4,12 @@ import os
 import glob
 import numpy
 import math
+import matplotlib.pyplot as plt
 from scipy.fftpack import fft
 from scipy.fftpack.realtransforms import dct
 from scipy.signal import lfilter, hamming
+from pyAudioAnalysis import audioBasicIO
+from pyAudioAnalysis import utilities
 
 eps = 0.00000001
 

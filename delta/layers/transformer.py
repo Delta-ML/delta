@@ -16,6 +16,7 @@
 """Transformer layers."""
 import math
 
+from absl import logging
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.util import nest

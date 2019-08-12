@@ -725,7 +725,7 @@ class SpeechClsTask(SpeechTask):
           labelid = self.class_id(label)
 
           if self.use_distilling:
-            soft_label = self.teacher(feat)
+            raise ValueError("Not Support distilation for *.wav input")
           else:
             class_num = self.taskconf['classes']['num']
             soft_label = [0] * class_num
