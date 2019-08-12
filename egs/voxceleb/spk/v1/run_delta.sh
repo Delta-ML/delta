@@ -17,33 +17,25 @@ echo "Running from stage $stage ..."
 if [ $stage -le 0 ]; then
   # Prepare data.
   # TODO: run Kaldi script till data/train_combined_no_sil is ready.
-
-  if [ ! -d data/train_combined_no_sil_tr ] || [ ! -d data/train_combined_no_sil_cv ]
-  then
-    echo "Making training and validation sets ..."
-    subset_data_dir_tr_cv.py \
-      --num-utt-cv 1000 \
-      data/train_combined_no_sil \
-      data/train_combined_no_sil_tr \
-      data/train_combined_no_sil_cv
-    echo "Making training and validation sets Done."
-  fi
+  echo "Making training and validation sets ..."
+  subset_data_dir_tr_cv.py \
+    --num-utt-cv 1000 \
+    data/train_combined_no_sil \
+    data/train_combined_no_sil_tr \
+    data/train_combined_no_sil_cv
+  echo "Making training and validation sets Done."
 fi
 
 if [ $stage -le 1 ]; then
-  if [ ! -f exp/delta_speaker/cmvn.npy ]
-  then
-    echo "Computing CMVN stats ..."
-    python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/delta_speaker.yml
-    echo "Computing CMVN stats Done."
-  fi
+  echo "Computing CMVN stats ..."
+  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/delta_speaker.yml
+  echo "Computing CMVN stats Done."
 fi
 
 if [ $stage -le 2 ]; then
   # Train the model.
   echo "Training the model ..."
-  CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/delta_speaker.yml
+  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/delta_speaker.yml
   echo "Training the model Done."
 fi
 
