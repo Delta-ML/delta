@@ -17,7 +17,7 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-    - "193-update-espnet-version"
+    - "/\[ci run\]/"
 
   script:
     - env
