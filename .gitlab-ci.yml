@@ -17,7 +17,7 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-    - /\[ci run\]/
+    - /*\[ci run\]*/
 
   script:
     - env
