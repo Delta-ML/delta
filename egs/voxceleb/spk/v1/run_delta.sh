@@ -5,7 +5,7 @@ set -e
 voxceleb1_trials=data/voxceleb1_test_no_sil/trials
 test_nj=8
 test_use_gpu=true
-stage=0
+stage=-1
 
 
 source path.sh
