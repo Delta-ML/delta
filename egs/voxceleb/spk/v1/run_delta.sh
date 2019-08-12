@@ -37,20 +37,20 @@ if [ $stage -le 0 ]; then
     data/train_combined_no_sil \
     data/train_combined_no_sil_tr \
     data/train_combined_no_sil_cv
-  echo "Making training and validation sets Done."
+  echo "Making training and validation sets done."
 fi
 
 if [ $stage -le 1 ]; then
   echo "Computing CMVN stats ..."
   python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/delta_speaker.yml
-  echo "Computing CMVN stats Done."
+  echo "Computing CMVN stats done."
 fi
 
 if [ $stage -le 2 ]; then
   # Train the model.
   echo "Training the model ..."
   python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/delta_speaker.yml
-  echo "Training the model Done."
+  echo "Training the model done."
 fi
 
 if [ $stage -le 9 ]; then
