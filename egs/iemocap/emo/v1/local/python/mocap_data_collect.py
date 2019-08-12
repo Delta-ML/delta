@@ -14,7 +14,6 @@ import pickle
 from multiprocessing import Pool, Lock, cpu_count, Manager
 
 from sklearn.preprocessing import label_binarize
-from features import *
 from helper import *
 
 ''' collection data from corpus '''
