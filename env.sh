@@ -30,9 +30,11 @@ else
 fi
 
 # espnet
-export PATH=$OLD_PATH:$PATH:$ESPNET_ROOT/utils:$ESPNET_ROOT/bin:$MAIN_ROOT/utils:~/.local/bin
+export PATH=$OLD_PATH:$PATH:$ESPNET_ROOT/utils:$ESPNET_ROOT/bin:$MAIN_ROOT/utils
 export OMP_NUM_THREADS=1
 
+# pip bins
+export PATH=$PATH;~/.local/bin
 
 # delta
 export PYTHONPATH=${PYTHONPATH}:$MAIN_ROOT:$MAIN_ROOT/tools/espnet
