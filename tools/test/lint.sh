@@ -49,4 +49,4 @@ on_exit(){
 trap on_exit EXIT ABRT QUIT
 
 #flake8
-flake8 $MAIN_ROOT --count --select=E9,F6,F7,F81,F82,F83,F9 --show-source --statistics
+flake8
