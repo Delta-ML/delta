@@ -28,7 +28,8 @@ data:
       drop_short_chunks: 0.8 # drop chunks shorter than this value * chunk_size
                              # only applied when padding = true
       single_chunk: true # only sample a single chunk from an utterance
-      select_by_spk: true # select utt by spk
+      select_by_spk_train: true # select utt by spk in training
+      select_by_spk_eval: true # select utt by spk in evaluation
       num_repeats: 4000 # repeat training dataset
       stride: 0.5 # stride in ratio of clip_size
       sr: 8000 # sample rate
