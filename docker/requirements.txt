@@ -20,3 +20,5 @@ cpplint
 seqeval
 rouge
 sacrebleu
+pyAudioAnalysis
+flake8
