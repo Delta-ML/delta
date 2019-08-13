@@ -337,7 +337,7 @@ class SpeakerClsTask(SpeechTask):
     if 'select_by_spk' in self.taskconf['audio']:
       self.select_by_spk = self.taskconf['audio']['select_by_spk']
     else:
-      self.select_by_spk = 0.0
+      self.select_by_spk = False
 
     if 'num_repeats' in self.taskconf['audio']:
       self.num_repeats = self.taskconf['audio']['num_repeats']
