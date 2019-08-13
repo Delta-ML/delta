@@ -1,5 +1,6 @@
-# When update this file, 
-# please using `docker/run.sh` to generate dockerfiles for DELTA
+# When update this file,
+# please using `pushd docker && bash run.sh && popd`
+# to generate dockerfiles for DELTA
 
 matplotlib
 sklearn
