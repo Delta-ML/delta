@@ -41,7 +41,7 @@ statistics = True
 
 
 # Redirect all output to the specified file.
-output-file = .flake8.log
+output-file = /tmp/flake8.log
 
 # Also print output to stdout if output-file has been configured.
 tee = True
@@ -52,6 +52,7 @@ exclude =
     .git,
     # python cache
     __pycache__,
+    tools
 
 # Provide a comma-separate list of glob patterns to include for checks.
 filename = *.py
