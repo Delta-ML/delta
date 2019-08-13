@@ -47,3 +47,6 @@ on_exit(){
   unlink $PYTMPFILE
 }
 trap on_exit EXIT ABRT QUIT
+
+#flake8
+flake8
