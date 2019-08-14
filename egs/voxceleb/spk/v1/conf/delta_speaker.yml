@@ -164,6 +164,9 @@ solver:
     epochs: 4 # maximum epochs
     batch_size: 512 # number of elements in a training batch
     loss: CrossEntropyLoss
+    arcface_params:
+      m: 0.5
+      s: 64.0
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.001 # learning rate of Adam optimizer
