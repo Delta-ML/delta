@@ -61,7 +61,7 @@ class SpeakerBaseRawModel(RawModel):
     self.std = None
     self.train = None
 
-  def preprocess(self, inputs, input_text):
+  def preprocess(self, inputs):
     ''' Speech preprocessing. '''
     with tf.variable_scope('feature'):
       if self.input_type == 'samples':
@@ -84,20 +84,20 @@ class SpeakerBaseRawModel(RawModel):
           feats = inputs
         else:
           raise ValueError('Error cmvn_type %s.' % (cmvn_type))
-    return feats, input_text
+    return feats
 
   def call(self, features, **kwargs):
     ''' Implementation of __call__(). '''
     self.train = kwargs['training']
     feats = tf.identity(features['inputs'], name='feats')
-    texts = features['texts']
+    labels = features['labels']
 
     with tf.variable_scope('model', reuse=tf.AUTO_REUSE):
-      feats, texts = self.preprocess(feats, texts)
-      logits = self.model(feats, texts)
+      feats = self.preprocess(feats)
+      logits = self.model(feats, labels)
     return logits
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Stub function. '''
     return None
 
@@ -241,14 +241,12 @@ class SpeakerBaseRawModel(RawModel):
 class SpeakerCRNNRawModel(SpeakerBaseRawModel):
   ''' A speaker model with simple 2D conv layers. '''
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Build the model. '''
-    x, _ = self.conv_block(inputs, depthwise=False)
+    x, _ = self.conv_block(feats, depthwise=False)
     x = self.linear_block(x)
     x = self.lstm_layer(x)
     x = self.pooling_layer(x)
-    if self.taskconf['text']['enable']:
-      x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
     logits = self.logits_layer(dense_output)
     model_outputs = {'logits': logits, 'embeddings': embedding}
@@ -310,12 +308,10 @@ class SpeakerCRNNRawModel(SpeakerBaseRawModel):
 class SpeakerTDNNRawModel(SpeakerBaseRawModel):
   ''' A speaker model with TDNN layers. '''
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Build the model. '''
-    x, _ = self.tdnn_block(inputs)
+    x, _ = self.tdnn_block(feats)
     x = self.pooling_layer(x)
-    if self.taskconf['text']['enable']:
-      x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
     logits = self.logits_layer(dense_output)
     model_outputs = {'logits': logits, 'embeddings': embedding}
@@ -385,13 +381,11 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
 class SpeakerResNetRawModel(SpeakerBaseRawModel):
   ''' A speaker model with ResNet layers. '''
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Build the model. '''
-    x = self.resnet(inputs)
+    x = self.resnet(feats)
     x = self.linear_block(x)
     x = self.pooling_layer(x)
-    if self.taskconf['text']['enable']:
-      x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
     logits = self.logits_layer(dense_output)
     model_outputs = {'logits': logits, 'embeddings': embedding}
