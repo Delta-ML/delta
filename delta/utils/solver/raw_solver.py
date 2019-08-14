@@ -124,7 +124,7 @@ class RawSolver(Solver):
     model.iterator = inputs["iterator"]
     model.input_x_dict = inputs["input_x_dict"]
     model.input_x_len = inputs["input_x_len"]
-    model.temp_init_feed_dict = inputs["init_feed_dict"]
+    # model.temp_init_feed_dict = inputs["init_feed_dict"]
     model.loss_fn = self.get_loss_fn()
     if mode != utils.INFER or not self.infer_no_label:
       input_y = inputs["input_y_dict"]["input_y"]
@@ -237,8 +237,7 @@ class RawSolver(Solver):
       if self.first_eval:
         model.sess.run(tf.tables_initializer())
         self.first_eval = False
-      model.sess.run(
-          model.iterator.initializer, feed_dict=model.temp_init_feed_dict)
+      model.sess.run(model.iterator.initializer)
 
       # Evaluating loop.
       data_size = self.config["data"]['{}_data_size'.format(mode)]
@@ -370,8 +369,7 @@ class RawSolver(Solver):
       # scaffold
       scaffold = self.get_scaffold(mode, global_step)
 
-    ds_init_hook = DatasetInitializerHook(train_model.iterator,
-                                          train_model.temp_init_feed_dict)
+    ds_init_hook = DatasetInitializerHook(train_model.iterator)
     with tf.train.MonitoredTrainingSession(
         checkpoint_dir=checkpoint_dir,
         scaffold=scaffold,
@@ -424,8 +422,7 @@ class RawSolver(Solver):
         # scaffold
         scaffold = self.get_scaffold(utils.TRAIN, global_step)
 
-        ds_init_hook = DatasetInitializerHook(train_model.iterator,
-                                              train_model.temp_init_feed_dict)
+        ds_init_hook = DatasetInitializerHook(train_model.iterator)
         with tf.train.MonitoredTrainingSession(
             checkpoint_dir=checkpoint_dir,
             scaffold=scaffold,

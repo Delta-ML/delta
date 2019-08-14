@@ -25,6 +25,7 @@ from delta.data.utils.common_utils import load_multi_label_dataset
 from delta.data.preprocess.utils import get_vocab_size
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
+from delta.data.preprocess.text_ops import load_raw_data
 
 # pylint: disable=too-many-instance-attributes
 
@@ -49,10 +50,10 @@ class TextSeqLabelTask(TextTask):
 
     self.prepare()
 
-  def load_text_dataset(self, text_placeholder):
+  def load_text_dataset(self, text_path):
     """Load text data set."""
     logging.info("Loading text dataset...")
-    text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
+    text_ds = tf.data.TextLineDataset(text_path)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds = text_ds.map(
         input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
@@ -65,25 +66,32 @@ class TextSeqLabelTask(TextTask):
 
   def generate_data(self):
     """Generate data for offline training."""
-    text, label = load_seq_label_raw_data(
-        paths=self.paths, mode=self.mode, infer_no_label=self.infer_no_label)
+    paths=self.paths
+    self.column_num = 2 #TODO 这个后面放到config里面去
+    if self.infer_without_label:
+      text_ds = load_raw_data(paths, self.column_num)
+    else:
+      label_ds, text_ds = load_raw_data(paths, self.column_num)
 
-    text_placeholder = tf.placeholder(tf.string, name="text")
-    label_placeholder = tf.placeholder(tf.string, name="label")
-    self.init_feed_dict[text_placeholder] = text
-    self.init_feed_dict[label_placeholder] = label
+    logging.info("process text ds...")
+    input_pipeline_func = self.get_input_pipeline(for_export=False)
+    text_ds = text_ds.map(
+      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+    text_size_ds = text_ds.map(
+      lambda x: compute_sen_lens(x, padding_token=0),
+      num_parallel_calls=self.num_parallel_calls)
+    text_ds = tf.data.Dataset.zip((text_ds, text_size_ds))
 
-    text_ds = self.load_text_dataset(text_placeholder)
-
+    logging.info("process label ds...")
     if self.infer_without_label:
       data_set = text_ds
     else:
-      label_ds = load_multi_label_dataset(label_placeholder, self.config)
+      label_ds = load_multi_label_dataset(label_ds, self.config)  # TODO one_label 也要改
       data_set = tf.data.Dataset.zip((text_ds, label_ds))
 
     self.config['data']['vocab_size'] = get_vocab_size(
         self.text_vocab_file_path)
-    self.config['data']['{}_data_size'.format(self.mode)] = len(text)
+    # TODO self.config['data']['{}_data_size'.format(self.mode)] = len(text)?? 这个写个函数
 
     return data_set
 
@@ -154,8 +162,7 @@ class TextSeqLabelTask(TextTask):
     return_dict = {
         "input_x_dict": input_x_dict,
         "input_x_len": input_x_len,
-        "iterator": iterator,
-        "init_feed_dict": self.init_feed_dict
+        "iterator": iterator
     }
 
     if not self.infer_without_label:
