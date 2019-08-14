@@ -225,11 +225,16 @@ class SpeakerBaseRawModel(RawModel):
 
   def logits_layer(self, x):
     ''' Logits layer to further produce softmax. '''
-    with tf.variable_scope('logits'):
-      logits = common_layers.linear(
-          x, 'logits-matmul',
-          [x.shape[-1].value, self.taskconf['classes']['num']])
-    return logits
+    if self.netconf['has_logits_layer']:
+      with tf.variable_scope('logits'):
+        logits = common_layers.linear(
+            x, 'logits-matmul',
+            [x.shape[-1].value, self.taskconf['classes']['num']])
+      return logits
+    else:
+      logging.info('has_logits_layer == False, not adding logits layer.')
+      logging.info('Make sure to use a loss with internal logits layer.')
+      return x
 
 
 @registers.model.register
