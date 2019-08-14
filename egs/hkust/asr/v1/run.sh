@@ -142,7 +142,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
     mkdir -p data/lang_1char/
 
     echo "make a non-linguistic symbol list"
-    cut -f 2- data/${train_set}/text | grep -o -P '\[.*?\]' | sort | uniq > ${nlsyms}
+    cut -f 2- data/${train_set}/text | perl -nle'print $& while m{\[.*?\]}g' | sort | uniq > ${nlsyms}
     cat ${nlsyms}
 
     echo "make a dictionary"
