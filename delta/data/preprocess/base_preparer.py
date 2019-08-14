@@ -117,50 +117,55 @@ class TextPreparer(Preparer):
     if self.multi_text:
       one_text_after = []
       for i, one_text in enumerate(text):
-        text_placeholder = tf.placeholder(
-            dtype=tf.string, shape=(None,), name="text_{}".format(i))
-        self.init_feed_dict[text_placeholder] = one_text
         one_text_iterator = get_pre_process_text_ds_iter(
-            text_placeholder, pre_process_pipeline, self.num_parallel_calls,
+            one_text, pre_process_pipeline, self.num_parallel_calls,
             self.batch_size)
-        batch_num = int(math.ceil(len(one_text) / float(self.batch_size)))
-        text_after_arr = self.run_text_pipeline(one_text_iterator, batch_num)
+        text_after_arr = self.run_text_pipeline(one_text_iterator)
         text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
         all_texts += text_after
         one_text_after.append(text_after)
     else:
-      text_placeholder = tf.placeholder(
-          dtype=tf.string, shape=(None,), name="text")
-      self.init_feed_dict[text_placeholder] = text
-      text_iterator = get_pre_process_text_ds_iter(text_placeholder,
+      text_iterator = get_pre_process_text_ds_iter(text,
                                                    pre_process_pipeline,
                                                    self.num_parallel_calls,
                                                    self.batch_size)
-      batch_num = int(math.ceil(len(text) / float(self.batch_size)))
-      text_after_arr = self.run_text_pipeline(text_iterator, batch_num)
+
+
+      text_after_arr = self.run_text_pipeline(text_iterator)
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
       all_texts += text_after
       one_text_after = text_after
+    self.config['data']['{}_data_size'.format(mode)] = len(one_text_after[0])
 
+    label_ds = label.batch(self.batch_size)
+    label_iterator = label_ds.make_initializable_iterator()
+    label__after_arr=self.run_text_pipeline(label_iterator)
+    label_after = [one_line.decode("utf-8") for one_line in label__after_arr]
     if self.multi_output:
       for i in range(self.output_num):
-        all_labels[i] += label[i]
+        all_labels[i] += label__after_arr[i]
     else:
-      all_labels += label
+      print('label_after',label_after)
+      all_labels += label_after
     logging.debug(f"one_text_after: {len(one_text_after)}")
-    self.save_a_raw_file(label, one_text_after, one_path_after,
+    self.save_a_raw_file(label_after, one_text_after, one_path_after,
                          infer_without_label)
 
-  def run_text_pipeline(self, text_iterator, batch_num):
+  def run_text_pipeline(self, text_iterator):
     """Run the text pre-process pipeline, fetch data in numpy array format."""
     text_after = []
     text_t = text_iterator.get_next()
-    with tf.Session(config=self.session_conf) as sess:
-      sess.run(text_iterator.initializer, feed_dict=self.init_feed_dict)
-      for _ in range(batch_num):
-        text_after.append(sess.run(text_t))
+    with tf.Session() as sess:
+      sess.run(text_iterator.initializer)
+      # 由于不知道数据集大小，这里使用while循环，当全部数据访问完毕时，则抛出错误
+      while True:
+        try:
+          text_after.append(sess.run(text_t))
+        except:
+          break
     text_after_arr = np.concatenate(text_after, axis=0)
     return text_after_arr
+
 
   def load_a_raw_file(self, one_path, mode, infer_without_label):
     """
