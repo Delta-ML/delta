@@ -99,7 +99,7 @@ class SpeakerBaseRawModel(RawModel):
 
   def model(self, feats, labels):
     ''' Stub function. '''
-    return None
+    return 0
 
   def linear_block(self, x):
     '''
