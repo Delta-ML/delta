@@ -22,9 +22,9 @@ from tensorflow.python.keras import backend as keras_backend
 
 def create_cmvn_statis(feature_size, add_delta_deltas=True):
   ''' init sums, squares and cout of feature statistic '''
-  sums = np.zeros([1, feature_size, 3 if add_delta_deltas else 1])
-  square = np.zeros([1, feature_size, 3 if add_delta_deltas else 1])
-  count = 0
+  sums = np.zeros([1, feature_size, 3 if add_delta_deltas else 1], dtype=np.float64)
+  square = np.zeros([1, feature_size, 3 if add_delta_deltas else 1], dtype=np.float64)
+  count = 0.0
   return sums, square, count
 
 

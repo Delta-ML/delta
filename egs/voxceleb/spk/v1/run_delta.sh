@@ -53,7 +53,7 @@ if [ $stage -le 9 ]; then
     echo "Preparing feats for test ..."
     local/nnet3/xvector/prepare_feats_for_egs.sh \
         --compress false \
-        data/voxceleb1_test data/voxceleb1_test_no_sil data/voxceleb1_test_no_sil
+        data/voxceleb1_test data/voxceleb1_test_no_sil exp/voxceleb1_test_no_sil
     utils/fix_data_dir.sh data/voxceleb1_test_no_sil
     sed "s/\.wav//g" data/voxceleb1_test/trials > $voxceleb1_trials
     echo "Preparing feats for test done."

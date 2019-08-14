@@ -15,9 +15,9 @@ cpplint --version &> /dev/null || sudo pip install --user cpplint
 CPPTMPFILE=`mktemp`
 
 # cpplint
-for dir in $MAIN_ROOT/delta $MAIN_ROOT/tools/test;
+for dir in delta deltann tools/test;
 do
-    find $dir -name '*.c' -o -name '*.cc' -o -name '*.h'  >> $CPPTMPFILE
+    find $MAIN_ROOT/$dir -name '*.c' -o -name '*.cc' -o -name '*.h'  >> $CPPTMPFILE
 done
 
 while read file;
@@ -31,9 +31,9 @@ pylint --version &> /dev/null || sudo pip install --user pylint
 PYTMPFILE=`mktemp`
 
 # pylint
-for dir in $MAIN_ROOT/delta $MAIN_ROOT/tools/test;
+for dir in delta deltann egs dpl tools/test utils;
 do
-    find $dir -name '*.py' >> $PYTMPFILE
+    find $MAIN_ROOT/$dir -name '*.py' >> $PYTMPFILE
 done
 
 while read file;
@@ -47,3 +47,6 @@ on_exit(){
   unlink $PYTMPFILE
 }
 trap on_exit EXIT ABRT QUIT
+
+#flake8
+flake8

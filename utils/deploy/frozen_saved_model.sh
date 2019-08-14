@@ -11,7 +11,7 @@ output_names=$2
 
 ROOT=${MAIN_ROOT}/tools/tensorflow
 
-${ROOT}/bazel-bin/tensorflow/python/tools/freeze_graph \
+python3 ${ROOT}/bazel-bin/tensorflow/python/tools/freeze_graph.py \
   --input_saved_model_dir=$saved_model_dir\
   --saved_model_tags='serve' \
   --output_node_names=$output_names\

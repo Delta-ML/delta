@@ -31,7 +31,8 @@ from delta.data.task.base_speech_task import SpeechTask
 def _make_example(uttids, feats, ilens, targets, olens):
   features = {
       'uttids': uttids,
-      'inputs': feats,
+      'inputs': tf.expand_dims(feats, axis=-1) 
+                if not isinstance(feats, np.ndarray) else np.expand_dims(feats, axis=-1),
       'input_length': ilens,
       'targets': targets,
       'target_length': olens
@@ -125,7 +126,6 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     assert self.batch_mode
     batch = self.batches[batch_index]
 
-    logging.info("get item {}".format(batch_index))
     uttids, feats, ilens, targets, olens = self._process_batch(batch)
     return _make_example(uttids, feats, ilens, targets, olens)
 
@@ -158,7 +158,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     batch_feat = np.stack(batch_feat).astype(np.float32)
     batch_target = np.stack(batch_target).astype(np.int64)
     ilens = np.array(ilens).astype(np.int64)
-    olens = np.array(ilens).astype(np.int64)
+    olens = np.array(olens).astype(np.int64)
 
     return batch_uttid, batch_feat, ilens, batch_target, olens
 
@@ -274,3 +274,16 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     ds = ds.map(_make_example)
     ds = ds.prefetch(tf.contrib.data.AUTOTUNE)
     return ds
+
+  def batch_input_shape(self):
+    ''' batch input TensorShape '''
+    feature, labels = self.__getitem__(0)
+
+    feature_shape, label_shape = {}, {}
+    for feature_key, feature_val in feature.items():
+      feature_shape[feature_key] = tf.TensorShape((None,) + feature_val.shape[1:])
+
+    for label_key, label_val in labels.items():
+      label_shape[label_key] = tf.TensorShape((None,) + label_val.shape[1:])
+
+    return feature_shape, label_shape

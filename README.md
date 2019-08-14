@@ -42,10 +42,11 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Benchmarks](#benchmarks)
+- [FAQ](#faq)
 - [Contributing](#contributing)
 - [References](#references)
 - [License](#license)
-- [Acknowlegement](#acknowlegement)
+- [Acknowledgement](#acknowledgement)
 
 ## Installation
 
@@ -194,10 +195,14 @@ TBA
 | Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
 |---|---|---|---|---|---|---|
 | Speech recognition | CTC |  |  |  |  |  |
-| Speech recognition | Seq2seq |  |  |  |  |  |
-| Speaker verfication |  |  |  |  |  |  |
-| Emotion recognition |  |  |  |  |  |  |
+| Speaker verfication | TDNN | VoxCeleb | EER | 3.028 | 3.138 | Kaldi |
+| Emotion recognition | ResNet | IEMOCAP | ACC | 59.15 | 56.10 | Neumann and Vu (2017) |
+| Emotion recognition | RNN-mean pool | IEMOCAP | ACC | 65.23 | 56.90 | Mirsamadi et al. (2017) |
 
+
+## FAQ
+
+See [FAQ](docs/faq.md) for more information.
 
 ## Contributing
 
@@ -228,7 +233,7 @@ Please cite this [paper](https://arxiv.org/abs/1908.01853) when referencing DELT
 The DELTA platform is licensed under the terms of the Apache license.
 See [LICENSE](LICENSE) for more information.
 
-## Acknowlegement
+## Acknowledgement
 
 The DELTA platform depends on many open source repos.
 See [References](docs/references.md) for more information.

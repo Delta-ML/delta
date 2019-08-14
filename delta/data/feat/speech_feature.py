@@ -21,6 +21,7 @@ import tensorflow as tf
 from absl import logging
 
 from delta.data.feat import speech_ops
+from delta.layers.ops import py_x_ops
 from delta.data.feat import python_speech_features as psf
 
 _global_sess = {}
@@ -42,46 +43,76 @@ def _get_out_tensor_name(tensor_name, output_index):
   return tensor_name + ":" + str(output_index)
 
 
-#pylint: disable=too-many-locals
-def extract_filterbank(*args, **kwargs):
-  ''' tensorflow fbank feat '''
+def _freq_feat_graph(feat_name, **kwargs):
   winlen = kwargs.get('winlen')
   winstep = kwargs.get('winstep')
   feature_size = kwargs.get('feature_size')
   sr = kwargs.get('sr')  #pylint: disable=invalid-name
   nfft = kwargs.get('nfft')
-  dry_run = kwargs.get('dry_run')
   del nfft
 
-  feat_name = 'fbank'
+  assert feat_name in ('fbank', 'spec')
+
+  params = speech_ops.speech_params(
+     sr=sr,
+     bins=feature_size,
+     add_delta_deltas=False,
+     audio_frame_length=winlen,
+     audio_frame_step=winstep)
+
   graph = None
-  op = None
-  # get session
-  if feat_name not in _global_sess:
-    graph = tf.Graph()
-    #pylint: disable=not-context-manager
-    with graph.as_default():
-      # fbank
-      params = speech_ops.speech_params(
-          sr=sr,
-          bins=feature_size,
-          add_delta_deltas=False,
-          audio_frame_length=winlen,
-          audio_frame_step=winstep)
+  if feat_name == 'fbank':
+     # get session
+    if feat_name not in _global_sess:
+      graph = tf.Graph()
+      #pylint: disable=not-context-manager
+      with graph.as_default():
+        # fbank
+        filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
+        waveforms, sample_rate = speech_ops.read_wav(filepath, params)
+        del sample_rate
+        fbank = speech_ops.extract_feature(waveforms, params)
+        # shape must be [T, D, C]
+        feat = tf.identity(fbank, name=feat_name)
+  elif feat_name == 'spec':
+    # magnitude spec
+    if feat_name not in _global_sess:
+      graph = tf.Graph()
+      #pylint: disable=not-context-manager
+      with graph.as_default():
+        filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
+        waveforms, sample_rate = speech_ops.read_wav(filepath, params)
 
-      filepath = tf.placeholder(dtype=tf.string, shape=[], name='wavpath')
-      waveforms, sample_rate = speech_ops.read_wav(filepath, params)
-      del sample_rate
-      fbank = speech_ops.extract_feature(waveforms, params)
-      fbank = tf.identity(fbank, name=feat_name)
+        spec = py_x_ops.spectrum(
+           waveforms[:, 0],
+           tf.cast(sample_rate, tf.dtypes.float32),
+           output_type=1) #output_type: 1, power spec; 2 log power spec
+        spec = tf.sqrt(spec)
+        # shape must be [T, D, C]
+        spec = tf.expand_dims(spec, -1)
+        feat = tf.identity(spec, name=feat_name)
+  else:
+    raise ValueError(f"Not support freq feat: {feat_name}.")
+ 
+  return graph, (_get_out_tensor_name('wavpath', 0), _get_out_tensor_name(feat_name, 0))
 
+
+#pylint: disable=too-many-locals
+def extract_feature(*wavefiles, **kwargs):
+  ''' tensorflow fbank feat '''
+  dry_run = kwargs.get('dry_run')
+  feat_name = 'fbank'
+  feat_name = kwargs.get('feature_name') 
+  assert feat_name
+
+  graph, (input_tensor, output_tensor) = _freq_feat_graph(feat_name, **kwargs)
   sess = _get_session(_get_out_tensor_name(feat_name, 0), graph)
 
-  for wavpath in args:
+  for wavpath in wavefiles:
     savepath = os.path.splitext(wavpath)[0] + '.npy'
-    logging.debug('input: {}, output: {}'.format(wavpath, savepath))
+    logging.debug('extract_feat: input: {}, output: {}'.format(wavpath, savepath))
 
-    feat = sess.run(feat_name + ":0", feed_dict={'wavpath:0': wavpath})
+    feat = sess.run(output_tensor, feed_dict={input_tensor: wavpath})
 
     # save feat
     if dry_run:

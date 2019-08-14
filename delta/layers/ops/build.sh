@@ -40,9 +40,8 @@ elif [ $target == 'deltann' ];then
     ln -s $MAIN_ROOT/delta/layers/ops  $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops 
     
     pushd $MAIN_ROOT/tools/tensorflow
-    
-    bazel --output_user_root=$MAIN_ROOT/tools/.cache/bazel \
-       build -c opt //tensorflow/core/user_ops/ops:x_ops.so || { echo "compile custom ops error"; exit 1; }
+   
+    bazel build --verbose_failures -c opt //tensorflow/core/user_ops/ops:x_ops.so || { echo "compile custom ops error"; exit 1; }
     
     cp bazel-bin/tensorflow/core/user_ops/ops/*.so $MAIN_ROOT/dpl/lib/custom_ops
     cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/delta/layers/ops/ 

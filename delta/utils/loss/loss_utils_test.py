@@ -79,7 +79,7 @@ class LossUtilTest(tf.test.TestCase):
     with self.cached_session():
       label_lens = np.expand_dims(np.asarray([5, 4]), 1)
       input_lens = np.expand_dims(np.asarray([5, 5]), 1)  # number of timesteps
-      loss_log_probs = [7.2771974, 710.25275]
+      loss_log_probs = [7.2771974, 8.057934]
 
       # dimensions are batch x time x categories
       labels = np.asarray([[0, 1, 2, 1, 0], [0, 1, 1, 0, -1]])

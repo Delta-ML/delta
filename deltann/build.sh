@@ -2,7 +2,7 @@
 
 if [ $# != 3 ];then
   echo "usage: $0 [linux|android|ios] [x86_64|arm|arm64] [tf|tflite|tfserving]"
-  echo "now only support [linux] [x86_64] [tf|tflite|tfserving]"
+  echo "now only support [linux] [x86_64] [TF|TFLITE|TFTRT|TFSERVING]"
   exit 1
 fi
 

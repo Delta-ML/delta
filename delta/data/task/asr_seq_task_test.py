@@ -283,7 +283,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
           self.assertDTypeEqual(features['input_length'], np.int32)
           self.assertDTypeEqual(features['target_length'], np.int32)
 
-          self.assertEqual(len(features['inputs'].shape), 3)
+          self.assertEqual(len(features['inputs'].shape), 4)
           self.assertEqual(len(features['input_length'].shape), 1)
           self.assertEqual(len(features['targets'].shape), 2)
           self.assertEqual(len(features['target_length'].shape), 1)
@@ -315,7 +315,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
           self.assertDTypeEqual(features['input_length'], np.int32)
           self.assertDTypeEqual(features['target_length'], np.int32)
 
-          self.assertEqual(len(features['inputs'].shape), 3)
+          self.assertEqual(len(features['inputs'].shape), 4)
           self.assertEqual(len(features['input_length'].shape), 1)
           self.assertEqual(len(features['targets'].shape), 2)
           self.assertEqual(len(features['target_length'].shape), 1)

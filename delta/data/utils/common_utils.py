@@ -88,6 +88,7 @@ def clean_english_str(string):
   return string.strip().lower()
 
 
+#pylint: disable=too-many-locals
 def load_nlu_joint_raw_data(paths, mode, infer_no_label=False):
   """Load raw data for sequence labeling"""
   text = []
@@ -127,6 +128,7 @@ def load_nlu_joint_raw_data(paths, mode, infer_no_label=False):
   if mode == utils.INFER and infer_no_label:
     return text, ([], [])
   return text, (intent_label, slots_label)
+#pylint: enable=too-many-locals
 
 
 # pylint: disable=too-many-branches
@@ -255,7 +257,7 @@ def load_seq2seq_raw_data(paths):
   for path in paths:
     with open(path, 'r', encoding='utf-8') as file_input:
       lines = file_input.readlines()
-      for i, line in enumerate(lines):
+      for _, line in enumerate(lines):
         line = line.strip()
         text.append(line)
       all_lines = len(lines)
@@ -302,7 +304,7 @@ def save_a_text_seq2seq_file(texts_after, new_path):
   """Save a text sequence data to a file"""
   logging.info("Saving processed file to: {}".format(new_path))
   with open(new_path, "w", encoding="utf-8") as out_f:
-    for i, one_line in enumerate(texts_after):
+    for _, one_line in enumerate(texts_after):
       out_f.write(one_line + "\n")
 
 

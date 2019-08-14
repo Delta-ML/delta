@@ -29,6 +29,7 @@ data:
       preemph: 0.97 # default: 0.97
       # extractor
       feature_extractor: tffeat # `tffeat` to use TF feature_extraction .so library, 'pyfeat' to python_speech_feature
+      feature_name: fbank # fbank, spec
       save_feat_path: null  # null for dump feat with same dir of wavs
       # fbank
       save_fbank: true # save fbank or power spec
@@ -120,6 +121,8 @@ solver:
     multitask: False # whether is multi-task
   metrics:
     pos_label: 1 # int, same to sklearn
+    monitor_used: 'val_acc'
+    metrics_used : ['accuracy']
     cals:
     - name: AccuracyCal
       arguments: null 

@@ -17,7 +17,7 @@
 from delta.data.feat import speech_ops
 
 from .speech_feature import load_wav
-from .speech_feature import extract_filterbank
+from .speech_feature import extract_feature
 from .speech_feature import add_delta_delta
 
 # numpy

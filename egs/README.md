@@ -18,8 +18,7 @@ All examples are under directory `egs` and named by its name of dataset. All dat
 
 | DataSet | Supported Tasks | Description |
 |---|---|---|
-| [hkust](egs/hkust) | ASR |  |
-| [voxceleb](egs/voxceleb) | Speaker Verfication |  |
-| [sre16](egs/sre16) | Speaker Verfication |  |
-| [iemocap](egs/iemocap) | Emotion |  |
+| [hkust](egs/hkust) | ASR | HKUST Mandarin Telephone Speech |
+| [voxceleb](egs/voxceleb) | Speaker Verfication | VoxCeleb is an audio-visual dataset consisting of short clips of human speech, extracted from interview videos uploaded to YouTube |
+| [iemocap](egs/iemocap) | Emotion | The Interactive Emotional Dyadic Motion Capture (IEMOCAP) database is an acted, multimodal and multispeaker database, recently collected at SAIL lab at USC. |
 
