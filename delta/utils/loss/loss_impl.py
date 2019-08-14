@@ -21,6 +21,7 @@ from delta.utils.loss.loss_utils import cross_entropy
 from delta.utils.loss.loss_utils import mask_sequence_loss
 from delta.utils.loss.loss_utils import ctc_lambda_loss
 from delta.utils.loss.loss_utils import crf_log_likelihood
+from delta.utils.loss.loss_utils import arcface_loss
 
 from delta.utils.register import registers
 
@@ -166,3 +167,38 @@ class SequenceCrossEntropyLoss(Loss):
     del soft_labels
     loss = mask_sequence_loss(logits, labels, input_length, label_length)
     return loss
+
+
+@registers.loss.register
+class ArcFaceLossWithLogits(Loss):
+  '''
+  ArcFace loss for speaker classification.
+  This loss includes a logits layer.
+  '''
+
+  def __init__(self, config):
+    super().__init__(config)
+    self.output_num = self.config['data']['task']['classes']['num']
+    self.params = self.config['solver']['optimizer']['arcface_params']
+    self.s = self.params['s']
+    self.m = self.params['m']
+    self.xent = CrossEntropyLoss(config)
+
+  #pylint: disable=too-many-arguments
+  def call(self,
+           logits=None,
+           input_length=None,
+           labels=None,
+           label_length=None,
+           soft_labels=None,
+           **kwargs):
+
+    del soft_labels
+    loss = arcface_loss(
+        embedding=logits,
+        labels=labels,
+        out_num=self.output_num,
+        w_init=tf.truncated_normal_initializer(stddev=0.1),
+        s=self.s,
+        m=self.m)
+    return self.xent(name='xent', logits=loss, labels=labels)
