@@ -83,3 +83,15 @@ def char_cut_tf(input_str):
     raise Exception("Error input shape for input_str.")
   output_str = tf.strings.strip(output_str)
   return output_str
+
+def load_raw_data(paths, column_num):
+  """Load raw data for text task."""
+
+  ds = tf.data.TextLineDataset(paths)
+  ds = ds.map(lambda x: tf.strings.split(x, sep="\t", result_type="RaggedTensor"))
+  # TODO report error log
+  ds = ds.filter(lambda line: tf.equal(tf.size(line), column_num))
+  map_text=[]  #[text_ds,label_ds]
+  for i in range(column_num):
+    map_text.append(ds.map(lambda x: x[i]))
+  return tuple(map_text)

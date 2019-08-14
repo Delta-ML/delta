@@ -281,6 +281,8 @@ def save_a_text_cls_file(label, texts_after, new_path, no_label):
 def save_a_text_match_file(label, texts_after, new_path, no_label):
   """Save a text match data to a file."""
   logging.info("Saving processed file to: {}".format(new_path))
+  print("texts_after",texts_after)
+  print("label",label)
   with open(new_path, "w", encoding="utf-8") as out_f:
     for i, (one_line_l, one_line_r) in enumerate(zip(*texts_after)):
       if no_label:

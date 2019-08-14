@@ -15,10 +15,10 @@ data:
     type: Classification
     name: TextMatchTask
     preparer:
-      enable: true
+      enable: false
       name: TextMatchPreparer
       done_sign: "egs/quora_qp/match/v1/exp/prepare.done"
-      reuse: true
+      reuse: false
     use_dense: false
     language: english
     vocab_min_frequency: 5

@@ -32,7 +32,8 @@ def get_pre_process_text_ds_iter(
     batch_size,
 ):
   """Get pre-process oprators."""
-  text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
+  #text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
+  text_ds = text_placeholder
   text_ds = text_ds.map(pipeline_func, num_parallel_calls=num_parallel_calls)
 
   text_ds = text_ds.batch(batch_size)
