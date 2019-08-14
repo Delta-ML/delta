@@ -133,7 +133,7 @@ model:
       - 512
       - 512
       embedding_dim: 512 # text embedding size
-      has_logits_layer: false # don't add logits layer in model, use with ArcFace
+      has_logits_layer: true # add logits layer in model. If false, use with ArcFace
       num_filters: 8 # text conv layer num filters
       attention: false # whether to use attention, false mean use max-pooling
       attention_size: 512 # attention_size
