@@ -133,7 +133,10 @@ model:
       - 512
       - 512
       embedding_dim: 512 # text embedding size
-      has_logits_layer: true # add logits layer in model. If false, use with ArcFace
+      logits_type: linear # or: linear_no_bias, arcface
+      arcface_params:
+        s: 64.0
+        m: 0.5
       num_filters: 8 # text conv layer num filters
       attention: false # whether to use attention, false mean use max-pooling
       attention_size: 512 # attention_size
@@ -164,9 +167,6 @@ solver:
     epochs: 4 # maximum epochs
     batch_size: 512 # number of elements in a training batch
     loss: CrossEntropyLoss
-    arcface_params:
-      m: 0.5
-      s: 64.0
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.001 # learning rate of Adam optimizer
