@@ -92,7 +92,6 @@ class TextPreparer(Preparer):
     else:
       all_labels = [[] for _ in range(self.output_num)]
     all_texts = []
-    #all_labels = []
     for mode in self.all_modes:
       paths = self.config["data"][mode]['paths']
       paths_after_pre_process = [one_path + ".after" for one_path in paths]
@@ -114,39 +113,29 @@ class TextPreparer(Preparer):
                            all_labels):
     """Prepare one raw data."""
     text, label = self.load_a_raw_file(one_path, mode, infer_without_label)
-    #ps tf.dataset
+
     if self.multi_text:
       one_text_after = []
       for i, one_text in enumerate(text):
-        #text_placeholder = tf.placeholder(
-           # dtype=tf.string, shape=(None,), name="text_{}".format(i))
-        #self.init_feed_dict[text_placeholder] = one_text
         one_text_iterator = get_pre_process_text_ds_iter(
             one_text, pre_process_pipeline, self.num_parallel_calls,
             self.batch_size)
-       # batch_num = int(math.ceil(len(one_text) / float(self.batch_size)))
         text_after_arr = self.run_text_pipeline(one_text_iterator)
         text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
         all_texts += text_after
         one_text_after.append(text_after)
     else:
-      #text_placeholder = tf.placeholder(
-       #   dtype=tf.string, shape=(None,), name="text")
-      #self.init_feed_dict[text_placeholder] = text
       text_iterator = get_pre_process_text_ds_iter(text,
                                                    pre_process_pipeline,
                                                    self.num_parallel_calls,
                                                    self.batch_size)
 
 
-     # batch_num = int(math.ceil(len(text) / float(self.batch_size)))
       text_after_arr = self.run_text_pipeline(text_iterator)
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
       all_texts += text_after
       one_text_after = text_after
-   # print('all_texts',one_text_after)
     self.config['data']['{}_data_size'.format(mode)] = len(one_text_after[0])
-    print('_____________data_size', self.config['data']['{}_data_size'.format(mode)])
 
     label_ds = label.batch(self.batch_size)
     label_iterator = label_ds.make_initializable_iterator()
@@ -167,7 +156,6 @@ class TextPreparer(Preparer):
     text_after = []
     text_t = text_iterator.get_next()
     with tf.Session() as sess:
-      # 注意要先对迭代器初始化
       sess.run(text_iterator.initializer)
       # 由于不知道数据集大小，这里使用while循环，当全部数据访问完毕时，则抛出错误
       while True:

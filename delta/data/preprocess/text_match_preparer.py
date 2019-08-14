@@ -38,17 +38,17 @@ class TextMatchPreparer(TextPreparer):
     For single output, label: [label1, label2, ...]
     For multiple outputs, label: [[label1_1, ...], [label1_2, ...]]
     """
-    #ps base_preparer: infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
+
     if infer_without_label:
       col=2
-    else:  #train ,infer_with_label 异常：infer_no_label=true 但是有3列
+    else:
       col=3
 
-    map_text = load_raw_data([one_path], col)  #return turple
+    map_text = load_raw_data([one_path], col)
     if infer_without_label and len(map_text)==2:
       text = map_text
       label = []
-    else:          #ps此处默认非infer和infer with_label的情况下，数据是三列
+    else:
       text = map_text[1:]
       label = map_text[0]
 
