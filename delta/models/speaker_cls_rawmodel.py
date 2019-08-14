@@ -91,7 +91,12 @@ class SpeakerBaseRawModel(RawModel):
     ''' Implementation of __call__(). '''
     self.train = kwargs['training']
     feats = tf.identity(features['inputs'], name='feats')
-    labels = features['labels']
+    logging.info(features)
+    if 'labels' in features:
+      labels = features['labels']
+    else:
+      # serving export mode
+      labels = None
 
     with tf.variable_scope('model', reuse=tf.AUTO_REUSE):
       feats = self.preprocess(feats)
@@ -282,6 +287,9 @@ class SpeakerBaseRawModel(RawModel):
 
   def logits_layer(self, x, labels):
     ''' Logits layer to further produce softmax. '''
+    if labels is None:
+      # serving export mode, no need for logits
+      return x
     output_num = self.taskconf['classes']['num']
     logits_type = self.netconf['logits_type']
     logits_shape = [x.shape[-1].value, output_num]
