@@ -158,7 +158,6 @@ def get_batches(config, mode):
   num_batches = config['data']['task']['num_batches']
   _, ngpu = utils.gpu_device_names()
   global_batch_size = config['data']['task']['batch']['batch_size']
-  batch_size = utils.per_device_batch_size(global_batch_size, ngpu)
   batch_bins = config['data']['task']['batch']['batch_bins']
   batch_frames_in = config['data']['task']['batch']['batch_frames_in']
   batch_frames_out = config['data']['task']['batch']['batch_frames_out']
@@ -168,7 +167,7 @@ def get_batches(config, mode):
   minibatches = make_batchset(
       task=task,
       data=metas,
-      batch_size=batch_size,
+      batch_size=global_batch_size,
       max_length_in=maxlen_src,
       max_length_out=maxlen_tgt,
       num_batches=num_batches,
