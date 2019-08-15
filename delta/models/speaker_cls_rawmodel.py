@@ -305,10 +305,20 @@ class SpeakerBaseRawModel(RawModel):
     logits_type = self.netconf['logits_type']
     logits_shape = [x.shape[-1].value, output_num]
     with tf.variable_scope('logits'):
+      init_type = self.netconf['logits_weight_init']['type']
+      if init_type == 'truncated_normal':
+        stddev = self.netconf['logits_weight_init']['stddev']
+        init = tf.truncated_normal_initializer(stddev=stddev)
+      elif init_type == 'xavier_uniform':
+        init = tf.contrib.layers.xavier_initializer(uniform=True)
+      elif init_type == 'xavier_norm':
+        init = tf.contrib.layers.xavier_initializer(uniform=False)
+      else:
+        raise ValueError('Unsupported weight init type: %s' % (init_type))
       weights = tf.get_variable(
           name='weights',
           shape=logits_shape,
-          initializer=tf.truncated_normal_initializer(stddev=0.1))
+          initializer=init)
       if logits_type == 'linear':
         bias = tf.get_variable(
             name='bias',

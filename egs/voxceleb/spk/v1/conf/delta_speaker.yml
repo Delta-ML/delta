@@ -133,6 +133,9 @@ model:
       - 512
       - 512
       embedding_dim: 512 # text embedding size
+      logits_weight_init:
+        type: truncated_normal # xavier_uniform, xavier_normal
+        stddev: 0.1
       logits_type: linear # or: linear_no_bias, arcface
       arcface_params:
         s: 64.0
