@@ -105,7 +105,7 @@ class SpeakerBaseRawModel(RawModel):
 
   def model(self, feats, labels):
     ''' Stub function. '''
-    return 0
+    return NotImplementedError('Stub function.')
 
   def linear_block(self, x):
     '''
