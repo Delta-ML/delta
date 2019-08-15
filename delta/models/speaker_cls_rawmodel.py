@@ -122,8 +122,7 @@ class SpeakerBaseRawModel(RawModel):
         if self.netconf['use_dropout']:
           x = tf.layers.dropout(
               x, self.netconf['dropout_rate'], training=self.train)
-        x = common_layers.linear(x, 'linear1',
-                                 [feat * channel, linear_num])
+        x = common_layers.linear(x, 'linear1', [feat * channel, linear_num])
         x = tf.nn.relu(x)
         if self.netconf['use_bn']:
           bn_name = 'bn_linear'
@@ -232,7 +231,13 @@ class SpeakerBaseRawModel(RawModel):
   def arcface_layer(self, inputs, labels, output_num, weights):
     ''' ArcFace layer. '''
 
-    def arcface_loss(embedding, labels, out_num, weights, s=64., m=0.5, limit_to_pi=True):
+    def arcface_loss(embedding,
+                     labels,
+                     out_num,
+                     weights,
+                     s=64.,
+                     m=0.5,
+                     limit_to_pi=True):
       '''
       https://github.com/auroua/InsightFace_TF/blob/master/losses/face_losses.py
       :param embedding: the input embedding vectors
@@ -283,11 +288,13 @@ class SpeakerBaseRawModel(RawModel):
             tf.multiply(cos_mt_temp, mask),
             name='arcface_loss_output')
       return output
+
     params = self.netconf['arcface_params']
     s = params['s']
     m = params['m']
     limit_to_pi = params['limit_to_pi']
-    return arcface_loss(inputs, labels, output_num, weights, s=s, m=m, limit_to_pi=limit_to_pi)
+    return arcface_loss(
+        inputs, labels, output_num, weights, s=s, m=m, limit_to_pi=limit_to_pi)
 
   def logits_layer(self, x, labels):
     ''' Logits layer to further produce softmax. '''
@@ -299,14 +306,14 @@ class SpeakerBaseRawModel(RawModel):
     logits_shape = [x.shape[-1].value, output_num]
     with tf.variable_scope('logits'):
       weights = tf.get_variable(
-        name='weights',
-        shape=logits_shape,
-        initializer=tf.truncated_normal_initializer(stddev=0.1))
+          name='weights',
+          shape=logits_shape,
+          initializer=tf.truncated_normal_initializer(stddev=0.1))
       if logits_type == 'linear':
         bias = tf.get_variable(
-          name='bias',
-          shape=logits_shape[1],
-          initializer=tf.constant_initializer(0.0))
+            name='bias',
+            shape=logits_shape[1],
+            initializer=tf.constant_initializer(0.0))
         return tf.matmul(x, weights) + bias
       elif logits_type == 'linear_no_bias':
         return tf.matmul(x, weights)
