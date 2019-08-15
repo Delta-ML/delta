@@ -138,8 +138,8 @@ model:
         stddev: 0.1
       logits_type: linear # options: linear, linear_no_bias, arcface
       arcface_params:
-        s: 64.0
-        m: 0.5
+        scale: 64.0 # scaling factor
+        margin: 0.5 # additive margin
         limit_to_pi: false # limit (theta + m) to [0, pi]
       remove_last_nonlinearity: false # if true, don't add non-lin to last embedding layer
       embedding_after_linear: true # if true, output embedding after linear layer (before relu)

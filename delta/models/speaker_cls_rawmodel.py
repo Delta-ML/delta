@@ -297,8 +297,8 @@ class SpeakerBaseRawModel(RawModel):
       return output
 
     params = self.netconf['arcface_params']
-    s = params['s']
-    m = params['m']
+    s = params['scale']
+    m = params['margin']
     limit_to_pi = params['limit_to_pi']
     return arcface_loss(
         inputs, labels, output_num, weights, s=s, m=m, limit_to_pi=limit_to_pi)
