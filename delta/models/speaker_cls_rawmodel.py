@@ -205,27 +205,34 @@ class SpeakerBaseRawModel(RawModel):
     with tf.variable_scope('dense'):
       shape = x.shape[-1].value
       hidden_dims = self.netconf['hidden_dims']
-      hidden_idx = 1
       y = x
       use_bn = self.netconf['use_bn']
-      for hidden in hidden_dims:
-        embedding = common_layers.linear(
+      remove_nonlin = self.netconf['remove_last_nonlinearity']
+      for idx, hidden in enumerate(hidden_dims):
+        last_layer = idx == (len(hidden_dims) - 1)
+        y = common_layers.linear(
             y,
-            'dense-matmul-%d' % (hidden_idx), [shape, hidden],
+            'dense-matmul-%d' % (idx + 1), [shape, hidden],
             has_bias=not use_bn)
         shape = hidden
-        y = tf.nn.relu(embedding)
+        embedding = y
+        if last_layer and not remove_nonlin:
+          y = tf.nn.relu(y)
         if use_bn:
           y = tf.layers.batch_normalization(
               y,
               axis=-1,
               momentum=0.99,
               training=self.train,
-              name='dense-bn-%d' % (hidden_idx))
-        if self.netconf['use_dropout']:
+              name='dense-bn-%d' % (idx + 1))
+        if self.netconf['use_dropout'] and not remove_nonlin:
           y = tf.layers.dropout(
               y, self.netconf['dropout_rate'], training=self.train)
-        hidden_idx += 1
+      if self.netconf['embedding_after_linear']:
+        logging.info('Output embedding right after linear layer.')
+      else:
+        logging.info('Output embedding after non-lin, batch norm and dropout.')
+        embedding = y
     return embedding, y
 
   def arcface_layer(self, inputs, labels, output_num, weights):
