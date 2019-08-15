@@ -113,7 +113,7 @@ class AsrSolver(Solver):
     super().input_fn(mode)
     assert self.task
     self.batch_input_shape = self.task.batch_input_shape()
-    batch_size = self.config['solver']['optimizer']['batch_size']
+    batch_size = self.config['data']['task']['batch']['batch_size']
     num_epoch = self.config['solver']['optimizer']['epochs']
     return self.task.input_fn(mode, batch_size, num_epoch), self.task
 

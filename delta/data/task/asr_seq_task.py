@@ -53,7 +53,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     super().__init__(config, mode)
     self.dummy = config['data']['task']['dummy']
     self.batch_mode = config['data']['task']['batch_mode']
-    self.batch_size = config['solver']['optimizer']['batch_size']
+    self.batch_size = config['data']['task']['batch']['batch_size']
     self._shuffle_buffer_size = config['data']['task']['shuffle_buffer_size']
     self._need_shuffle = config['data']['task']['need_shuffle'] and mode == utils.TRAIN
     # get batches form data path
@@ -104,7 +104,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     if self.batch_mode:
       steps = len(self.batches)
     else:
-      batch_size = self._config['solver']['optimizer']['batch_size']
+      batch_size = self._config['data']['task']['batch']['batch_size']
       steps = int(self.n_utts / batch_size)
     return steps
 
