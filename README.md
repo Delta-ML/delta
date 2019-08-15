@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/delta_logo_1.png">
+  <img src="docs/_static/delta_logo.png">
 </div>
 
 
