@@ -216,7 +216,7 @@ class SpeakerBaseRawModel(RawModel):
             has_bias=not use_bn)
         shape = hidden
         embedding = y
-        if last_layer and not remove_nonlin:
+        if not last_layer or not remove_nonlin:
           y = tf.nn.relu(y)
         if use_bn:
           y = tf.layers.batch_normalization(
