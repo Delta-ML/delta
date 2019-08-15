@@ -137,6 +137,7 @@ model:
       arcface_params:
         s: 64.0
         m: 0.5
+        limit_to_pi: false # limit (theta + m) to [0, pi]
       num_filters: 8 # text conv layer num filters
       attention: false # whether to use attention, false mean use max-pooling
       attention_size: 512 # attention_size
