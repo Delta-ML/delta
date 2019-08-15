@@ -30,10 +30,8 @@ recog_model=model.acc.best # set a model to be used for decoding: 'model.acc.bes
 n_average=10
 
 # data
-#hkust1=/export/corpora/LDC/LDC2005S15/
-#hkust2=/export/corpora/LDC/LDC2005T32/
-hkust1=/nfs/project/datasets/opensource_data/hkust/LDC2005S15/
-hkust2=/nfs/project/datasets/opensource_data/hkust/LDC2005T32/
+hkust1=/export/corpora/LDC/LDC2005S15/
+hkust2=/export/corpora/LDC/LDC2005T32/
 
 # exp tag
 tag="" # tag for managing experiments.
@@ -162,6 +160,9 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
             --nlsyms ${nlsyms} data/${rtask} ${dict} > ${feat_recog_dir}/data.json
     done
 fi
+
+echo "Prepare data Done!"
+exit 0
 
 # you can skip this and remove --rnnlm option in the recognition (stage 5)
 if [ -z ${lmtag} ]; then
