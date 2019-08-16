@@ -23,9 +23,10 @@ from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_match_raw_data
 from delta.data.utils.common_utils import load_one_label_dataset
 from delta.data.preprocess.utils import load_vocab_dict
+from delta.data.preprocess.text_ops import load_raw_data
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
-
+from delta import utils
 # pylint: disable=too-many-instance-attributes
 
 
@@ -52,18 +53,20 @@ class TextMatchTask(TextTask):
   # pylint: disable=too-many-locals
   def generate_data(self):
     """Generate data for offline training."""
-    (text_left, text_right), label = load_match_raw_data(
-        paths=self.paths_after_pre_process, mode=self.mode)
+    label,text_left, text_right = load_raw_data(
+        paths=self.paths_after_pre_process, col=3)
 
-    text_left_placeholder = tf.placeholder(tf.string, name="text_left")
-    text_right_placeholder = tf.placeholder(tf.string, name="text_right")
-    label_placeholder = tf.placeholder(tf.string, name="label")
-    self.init_feed_dict[text_left_placeholder] = text_left
-    self.init_feed_dict[text_right_placeholder] = text_right
-    self.init_feed_dict[label_placeholder] = label
 
-    text_ds_left = tf.data.Dataset.from_tensor_slices(text_left_placeholder)
-    text_ds_right = tf.data.Dataset.from_tensor_slices(text_right_placeholder)
+
+    #text_left_placeholder = tf.placeholder(tf.string, name="text_left")
+    #text_right_placeholder = tf.placeholder(tf.string, name="text_right")
+    #label_placeholder = tf.placeholder(tf.string, name="label")
+    #self.init_feed_dict[text_left_placeholder] = text_left
+    #self.init_feed_dict[text_right_placeholder] = text_right
+    #self.init_feed_dict[label_placeholder] = label
+
+    text_ds_left = tf.data.Dataset.from_tensor_slices(text_left)
+    text_ds_right = tf.data.Dataset.from_tensor_slices(text_right)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds_left = text_ds_left.map(
         input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
@@ -81,7 +84,7 @@ class TextMatchTask(TextTask):
     if self.infer_without_label:
       data_set_left_right = text_ds_left_right
     else:
-      label_ds = load_one_label_dataset(label_placeholder, self.config)
+      label_ds = load_one_label_dataset(label, self.config)
       data_set_left_right = tf.data.Dataset.zip((text_ds_left_right, label_ds))
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
@@ -178,7 +181,7 @@ class TextMatchTask(TextTask):
         "input_x_len": input_x_len,
         "iterator": iterator,
         "iterator_len": iterator_len,
-        "init_feed_dict": self.init_feed_dict
+        #"init_feed_dict": self.init_feed_dict   #去掉
     }
 
     if not self.infer_without_label:
