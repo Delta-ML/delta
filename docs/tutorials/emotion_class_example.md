@@ -1,7 +1,7 @@
 
 # A Emotion Classification Usage Example
 
-In this tutorial, we demonstrate a emotion recognition task with an open source dataset: `IEMOCAP`.
+In this tutorial, we demonstrate an emotion recognition task with an open source dataset: `IEMOCAP`.
 
 A complete process contains following steps:
 
