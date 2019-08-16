@@ -6,7 +6,7 @@ In this tutorial, we demonstrate a emotion classification task with an open sour
 A complete process contains following steps:
 
 - Prepare the data set.
-- Run
+- Run egs/iemocap/emo/v1/run.sh script
 
 Before doing any these steps, please make sure that `delta` has been successfully installed. 
 
@@ -18,11 +18,17 @@ source env.sh
 
 ## Prepare the Data Set
 
-Iemocap https://sail.usc.edu/iemocap/index.html
+Download iemocap https://sail.usc.edu/iemocap/index.html
 
 ## Run
 
-The run.sh script in `egs/iemocap/emo/v1`,  config files in `egs/iemocap/emo/v1/conf`
+First:
+
+```
+cd egs/iemocap/emo/v1
+```
+
+Then run run.sh script
 
 ```
 ./run.sh --config_file=conf/emo-keras-blstm.yml --iemocap_root=/iemocap/path
