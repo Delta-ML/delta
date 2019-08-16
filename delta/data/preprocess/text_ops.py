@@ -85,14 +85,14 @@ def char_cut_tf(input_str):
   return output_str
 
 
-def load_raw_data(paths, column_num):
+def load_textline_dataset(paths, column_num):
   """Load raw data for text task."""
   ds = tf.data.TextLineDataset(paths)
   ds = ds.map(lambda x: tf.strings.split(x, sep="\t", result_type="RaggedTensor"))
   # TODO report error log
   ds = ds.filter(lambda line: tf.equal(tf.size(line), column_num))
-  map_text=[]
+  ds_list=[]
   for i in range(column_num):
-    map_text.append(ds.map(lambda x: x[i]))
+    ds_list.append(ds.map(lambda x: x[i]))
 
-  return tuple(map_text)
+  return tuple(ds_list)

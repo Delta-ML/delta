@@ -30,7 +30,6 @@ from delta.utils.solver.utils.solver_utils import get_ckpt_state
 from delta.utils.solver.utils.solver_utils import get_session_conf
 from delta.utils.solver.utils.solver_utils import to_saved_model
 from delta.utils.solver.utils.solver_utils import run_metrics
-from delta.utils.solver.utils.hooks import DatasetInitializerHook
 
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation
 
@@ -85,11 +84,14 @@ class RawSolver(Solver):
         save_checkpoint_steps, \
         resume_model_path, print_every
 
-  def get_scaffold(self, mode, global_step=None):
+  def get_scaffold(self, mode, global_step=None, iter_initializer=None):
     """Get training scaffold."""
 
     init_op = tf.global_variables_initializer()
-    local_init_op = tf.tables_initializer()
+    if iter_initializer is None:
+      local_init_op = tf.tables_initializer()
+    else:
+      local_init_op = tf.group(tf.tables_initializer(), iter_initializer)
     saver = self.get_saver(global_step)
     scaffold = tf.train.Scaffold(
         saver=saver, init_op=init_op, local_init_op=local_init_op)
@@ -124,7 +126,6 @@ class RawSolver(Solver):
     model.iterator = inputs["iterator"]
     model.input_x_dict = inputs["input_x_dict"]
     model.input_x_len = inputs["input_x_len"]
-    # model.temp_init_feed_dict = inputs["init_feed_dict"]
     model.loss_fn = self.get_loss_fn()
     if mode != utils.INFER or not self.infer_no_label:
       input_y = inputs["input_y_dict"]["input_y"]
@@ -367,13 +368,11 @@ class RawSolver(Solver):
       checkpoint_dir = get_checkpoint_dir(self.config)
 
       # scaffold
-      scaffold = self.get_scaffold(mode, global_step)
+      scaffold = self.get_scaffold(mode, global_step, train_model.iterator.initializer)
 
-    ds_init_hook = DatasetInitializerHook(train_model.iterator)
     with tf.train.MonitoredTrainingSession(
         checkpoint_dir=checkpoint_dir,
         scaffold=scaffold,
-        hooks=[ds_init_hook],
         save_checkpoint_steps=self.save_checkpoint_steps,
         config=self.session_conf) as sess:
       # Training loop. For each batch...
@@ -420,13 +419,11 @@ class RawSolver(Solver):
         checkpoint_dir = get_checkpoint_dir(self.config)
 
         # scaffold
-        scaffold = self.get_scaffold(utils.TRAIN, global_step)
+        scaffold = self.get_scaffold(utils.TRAIN, global_step, train_model.iterator.initializer)
 
-        ds_init_hook = DatasetInitializerHook(train_model.iterator)
         with tf.train.MonitoredTrainingSession(
             checkpoint_dir=checkpoint_dir,
             scaffold=scaffold,
-            hooks=[ds_init_hook],
             save_checkpoint_steps=self.save_checkpoint_steps,
             config=self.session_conf) as sess:
           # Training loop. For each batch...
