@@ -3,9 +3,9 @@
 set -e
 
 voxceleb1_trials=data/voxceleb1_test_no_sil/trials
-test_nj=8
+test_nj=1
 test_use_gpu=true
-stage=0
+stage=-1
 
 
 source path.sh
@@ -14,37 +14,43 @@ source parse_options.sh
 echo "Running from stage $stage ..."
 
 
+if [ $stage -le -1 ]; then
+  echo "Running Kaldi data preparation ..."
+  for ff in /export/corpora/VoxCeleb1 /export/corpora/VoxCeleb2
+  do
+    if [ ! -d $ff ]; then
+      echo "ERROR: Data dir $ff does not exists, Kaldi will fail to generate training data."
+      echo "You may want to download voxceleb corpus first and put them in the right dir."
+      exit 2
+    fi
+  done
+  ./run.sh
+  echo "Running Kaldi data preparation done."
+fi
+
 if [ $stage -le 0 ]; then
   # Prepare data.
   # TODO: run Kaldi script till data/train_combined_no_sil is ready.
-
-  if [ ! -d data/train_combined_no_sil_tr ] || [ ! -d data/train_combined_no_sil_cv ]
-  then
-    echo "Making training and validation sets ..."
-    subset_data_dir_tr_cv.py \
-      --num-utt-cv 1000 \
-      data/train_combined_no_sil \
-      data/train_combined_no_sil_tr \
-      data/train_combined_no_sil_cv
-    echo "Making training and validation sets Done."
-  fi
+  echo "Making training and validation sets ..."
+  subset_data_dir_tr_cv.py \
+    --num-utt-cv 1000 \
+    data/train_combined_no_sil \
+    data/train_combined_no_sil_tr \
+    data/train_combined_no_sil_cv
+  echo "Making training and validation sets done."
 fi
 
 if [ $stage -le 1 ]; then
-  if [ ! -f exp/delta_speaker/cmvn.npy ]
-  then
-    echo "Computing CMVN stats ..."
-    python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/delta_speaker.yml
-    echo "Computing CMVN stats Done."
-  fi
+  echo "Computing CMVN stats ..."
+  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/delta_speaker.yml
+  echo "Computing CMVN stats done."
 fi
 
 if [ $stage -le 2 ]; then
   # Train the model.
   echo "Training the model ..."
-  CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/delta_speaker.yml
-  echo "Training the model Done."
+  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/delta_speaker.yml
+  echo "Training the model done."
 fi
 
 if [ $stage -le 9 ]; then

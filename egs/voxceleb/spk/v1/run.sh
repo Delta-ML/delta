@@ -155,6 +155,9 @@ if [ $stage -le 5 ]; then
   utils/fix_data_dir.sh data/train_combined_no_sil
 fi
 
+echo "Kaldi data preparation done."
+exit 0
+
 # Stages 6 through 8 are handled in run_xvector.sh
 local/nnet3/xvector/run_xvector.sh --stage $stage --train-stage -1 \
   --data data/train_combined_no_sil --nnet-dir $nnet_dir \
