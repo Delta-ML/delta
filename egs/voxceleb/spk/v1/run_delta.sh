@@ -3,7 +3,7 @@
 set -e
 
 voxceleb1_trials=data/voxceleb1_test_no_sil/trials
-test_nj=8
+test_nj=1
 test_use_gpu=true
 stage=-1
 
