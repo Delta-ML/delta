@@ -28,6 +28,7 @@ from delta.utils.solver.utils.solver_utils import get_session_conf
 from delta.data.preprocess.utils import prepare_vocab
 from delta.data.preprocess.utils import prepare_vocab_from_config
 from delta.data.preprocess.utils import get_pre_process_text_ds_iter
+from delta.data.utils.common_utils import get_file_len
 
 
 class Preparer:
@@ -112,26 +113,27 @@ class TextPreparer(Preparer):
                            infer_without_label, pre_process_pipeline, all_texts,
                            all_labels):
     """Prepare one raw data."""
-    text, label = self.load_a_raw_file(one_path, mode, infer_without_label)
-
+    text, label = self.load_a_raw_file(one_path, infer_without_label)
+    text=text[0]
+    data_size = get_file_len([one_path])
+    batch_num = int(math.ceil(data_size / float(self.batch_size)))
     if self.multi_text:
       one_text_after = []
-      for i, one_text in enumerate(text):
+      for i, one_text in enumerate(text):   #to be confirmed
         one_text_iterator = get_pre_process_text_ds_iter(
             one_text, pre_process_pipeline, self.num_parallel_calls,
             self.batch_size)
-        text_after_arr = self.run_text_pipeline(one_text_iterator)
+        text_after_arr = self.run_dataset(one_text_iterator,batch_num)
         text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
         all_texts += text_after
         one_text_after.append(text_after)
     else:
+
       text_iterator = get_pre_process_text_ds_iter(text,
                                                    pre_process_pipeline,
                                                    self.num_parallel_calls,
                                                    self.batch_size)
-
-
-      text_after_arr = self.run_text_pipeline(text_iterator)
+      text_after_arr = self.run_dataset(text_iterator,batch_num)
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
       all_texts += text_after
       one_text_after = text_after
@@ -139,32 +141,27 @@ class TextPreparer(Preparer):
 
     label_ds = label.batch(self.batch_size)
     label_iterator = label_ds.make_initializable_iterator()
-    label__after_arr=self.run_text_pipeline(label_iterator)
+    label__after_arr=self.run_dataset(label_iterator,batch_num)
     label_after = [one_line.decode("utf-8") for one_line in label__after_arr]
     if self.multi_output:
       for i in range(self.output_num):
         all_labels[i] += label__after_arr[i]
     else:
-      print('label_after',label_after)
       all_labels += label_after
     logging.debug(f"one_text_after: {len(one_text_after)}")
     self.save_a_raw_file(label_after, one_text_after, one_path_after,
                          infer_without_label)
 
-  def run_text_pipeline(self, text_iterator):
+  def run_dataset(self, data_iterator,batch_num):
     """Run the text pre-process pipeline, fetch data in numpy array format."""
-    text_after = []
-    text_t = text_iterator.get_next()
-    with tf.Session() as sess:
-      sess.run(text_iterator.initializer)
-      # 由于不知道数据集大小，这里使用while循环，当全部数据访问完毕时，则抛出错误
-      while True:
-        try:
-          text_after.append(sess.run(text_t))
-        except:
-          break
-    text_after_arr = np.concatenate(text_after, axis=0)
-    return text_after_arr
+    data_after = []
+    data_t = data_iterator.get_next()
+    with tf.Session(config=self.session_conf) as sess:
+      sess.run(data_iterator.initializer, feed_dict=self.init_feed_dict)
+      for _ in range(batch_num):
+        data_after.append(sess.run(data_t))
+    data_after_arr = np.concatenate(data_after, axis=0)
+    return data_after_arr
 
 
   def load_a_raw_file(self, one_path, mode, infer_without_label):

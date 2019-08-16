@@ -23,7 +23,7 @@ from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_match_raw_data
 from delta.data.utils.common_utils import load_one_label_dataset
 from delta.data.preprocess.utils import load_vocab_dict
-from delta.data.preprocess.text_ops import load_raw_data
+from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
 from delta import utils
@@ -53,7 +53,7 @@ class TextMatchTask(TextTask):
   # pylint: disable=too-many-locals
   def generate_data(self):
     """Generate data for offline training."""
-    label,text_left, text_right = load_raw_data(
+    label,text_left, text_right = load_textline_dataset(
         paths=self.paths_after_pre_process, col=3)
 
 

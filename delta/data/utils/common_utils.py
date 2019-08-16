@@ -19,11 +19,13 @@
 import re
 import json
 import numpy as np
+import subprocess
 from absl import logging
 import tensorflow as tf
 
 from delta import utils
 from delta.data.preprocess.text_ops import tokenize_label
+
 
 
 def input_fn(dataset, mode, batch_size, num_epoch=None):
@@ -392,3 +394,15 @@ def load_dense_dataset(dense_feature):
   """Load dense data set"""
   dataset = tf.data.Dataset.from_tensor_slices(dense_feature)
   return dataset
+
+def get_file_len(fname_paths):
+  len_res = []
+  for fname in fname_paths:
+    p = subprocess.Popen(['wc', '-l', fname], stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+    result, err = p.communicate()
+    if p.returncode != 0:
+      raise IOError("get file len error")
+    len_res.append(int(result.strip().split()[0]))
+
+  return sum(len_res)

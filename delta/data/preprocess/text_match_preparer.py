@@ -16,9 +16,9 @@
 ''' Preparer for text match.'''
 
 from delta.data.preprocess.base_preparer import TextPreparer
+from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.data import utils as data_utils
 from delta.utils.register import registers
-from delta.data.preprocess.text_ops import load_raw_data
 # pylint: disable=too-many-instance-attributes
 
 
@@ -30,7 +30,7 @@ class TextMatchPreparer(TextPreparer):
     super().__init__(config)
     self.multi_text = True
 
-  def load_a_raw_file(self, one_path, mode, infer_without_label):
+  def load_a_raw_file(self, one_path, infer_without_label):
     """
     Load a raw file. Return text and label.
     For single text input, text: [sentence1, ...]
@@ -40,17 +40,17 @@ class TextMatchPreparer(TextPreparer):
     """
 
     if infer_without_label:
-      col=2
+      column_num=2
     else:
-      col=3
+      column_num=3
 
-    map_text = load_raw_data([one_path], col)
-    if infer_without_label and len(map_text)==2:
-      text = map_text
+    ds_list = load_textline_dataset([one_path], column_num)
+    if infer_without_label:
+      text = ds_list
       label = []
     else:
-      text = map_text[1:]
-      label = map_text[0]
+      text = ds_list[1:]
+      label = ds_list[0]
 
     return (text,label)
 
