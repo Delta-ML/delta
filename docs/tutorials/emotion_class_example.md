@@ -1,7 +1,7 @@
 
 # A Emotion Classification Usage Example
 
-In this tutorial, we demonstrate a emotion classification task with an open source dataset: `iemocap`.
+In this tutorial, we demonstrate a emotion recognition task with an open source dataset: `IEMOCAP`.
 
 A complete process contains following steps:
 
@@ -18,7 +18,7 @@ source env.sh
 
 ## Prepare the Data Set
 
-Download iemocap https://sail.usc.edu/iemocap/index.html
+Download IEMOCAP https://sail.usc.edu/iemocap/index.html
 
 ## Run
 
