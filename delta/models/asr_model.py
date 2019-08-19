@@ -110,11 +110,11 @@ class CTCAsrModel(RawModel):
     # Output layer with softmax
     x = TimeDistributed(Dense(self._vocab_size))(x)
 
-    input_length = Input(name='input_length', shape=[1], dtype='int64')
+    input_length = Input(name='input_length', shape=[], dtype='int64')
     labels = Input(name='targets', shape=[None], dtype='int32')
-    label_length = Input(name='target_length', shape=[1], dtype='int64')
+    label_length = Input(name='target_length', shape=[], dtype='int64')
     loss_out = Lambda(
-        self.ctc_lambda_func, output_shape=(1,),
+        self.ctc_lambda_func, output_shape=(),
         name='ctc')([x, input_length, labels, label_length])
 
     self._model = tf.keras.Model(

@@ -28,3 +28,22 @@ if [ $stage -le 0 ] && [ $stop_stage -ge 0 ]; then
 fi
 
 
+if [ $stage -le 1 ] && [ $stop_stage -ge 1 ]; then
+  echo "Train..."
+  python3 -u $MAIN_ROOT/delta/main.py --config conf/$config_file --cmd train
+  echo "Train Done."
+fi
+
+if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
+  echo "Eval..."
+  python3 -u $MAIN_ROOT/delta/main.py --config conf/$config_file --cmd eval
+  echo "Eval Done."
+fi
+
+if [ $stage -le 3 ] && [ $stop_stage -ge 3 ]; then
+  echo "Infer..."
+  python3 -u $MAIN_ROOT/delta/main.py --config conf/$config_file --cmd infer
+  echo "Infer Done."
+fi
+
+

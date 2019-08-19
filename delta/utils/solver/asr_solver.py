@@ -180,7 +180,7 @@ class AsrSolver(Solver):
       self.model.build(input_shape=self.batch_input_shape[0])
 
     # parallel and compile model
-    self.build(multi_gpu=mode == utils.TRAIN)
+    self.build(multi_gpu = (mode == utils.TRAIN))
 
     if mode != utils.TRAIN:
       model_path = Path(self._model_path).joinpath('best_model.h5')
@@ -202,7 +202,7 @@ class AsrSolver(Solver):
 
     # compile model
     if self.ngpu > 1 and multi_gpu:
-      self._parallel_model = multi_gpu_model(self.model, gpus=self.ngpu)
+      self._parallel_model = multi_gpu_model(self.model, gpus=self.ngpu, cpu_relocation=False, cpu_merge=False)
       self.parallel_model.compile(
           loss=loss,
           optimizer=optimizer,
@@ -353,14 +353,15 @@ class AsrSolver(Solver):
   #pylint: disable=too-many-locals
   def eval(self):
     ''' only eval'''
-    mode = utils.EVAL
     #get eval dataset
     # data must be init before model build
-    eval_ds, eval_task = self.input_data(mode=mode)
+    logging.info("make Task")
+    eval_ds, eval_task = self.input_data(mode=utils.EVAL)
     eval_gen = tf.data.make_one_shot_iterator(eval_ds)
 
+    logging.info("build Model")
     #get eval model
-    self.model_fn(mode=mode)
+    self.model_fn(mode=utils.EVAL)
     assert self._built
 
     #load model
@@ -369,12 +370,17 @@ class AsrSolver(Solver):
     target_seq_list, predict_seq_list = [], []
     for _ in range(len(eval_task)):
       batch_data = K.get_session().run(eval_gen.get_next()[0])
+
       batch_input = batch_data['inputs']
       batch_target = batch_data['targets'].tolist()
+
       batch_predict = eval_func(batch_input)[0]
+
       batch_decode = py_ctc.ctc_greedy_decode(batch_predict, 0, unique=True)
+
       target_seq_list += batch_target
       predict_seq_list += batch_decode
+
     token_errors = metrics_lib.token_error(
         predict_seq_list=predict_seq_list,
         target_seq_list=target_seq_list,
