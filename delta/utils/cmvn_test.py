@@ -131,6 +131,28 @@ class CmvnTest(tf.test.TestCase):
     with self.session(use_gpu=False, force_gpu=False):
       self.assertAllClose(feat_out.eval(), feat_true.eval())
 
+  def testApplyLocalCmvn(self):  #pylint: disable=invalid-name
+    ''' test apply_local_cmvn() '''
+    np.random.seed(12)
+    tf.set_random_seed(12)
+
+    feat_size = 40
+    delta_deltas = True
+
+    feat_shape = [2, 10, feat_size, 3 if delta_deltas else 1]
+    feat = np.random.randn(*feat_shape)
+    feat = feat.astype(np.float32)
+
+    mean = np.mean(feat, axis=1, keepdims=True)
+    var = np.var(feat, axis=1, keepdims=True)
+    eps = 1e-9
+    feat_true = (feat - mean) / np.sqrt(var + eps)
+
+    feat = tf.constant(feat)
+
+    feat_out = utils.apply_local_cmvn(feat, epsilon=eps)
+    with self.session(use_gpu=False, force_gpu=False):
+      self.assertAllClose(feat_out.eval(), feat_true)
 
 if __name__ == '__main__':
   tf.test.main()
