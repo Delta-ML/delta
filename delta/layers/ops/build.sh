@@ -33,6 +33,11 @@ make clean &> /dev/null
 if [ $target == 'delta' ];then
     make -j $(nproc)
 
+    if [ ! -f ./x_ops.so ];then
+        echo "No x_ops.so generated. Compiling ops failed!"
+        exit 1
+    fi
+
 elif [ $target == 'deltann' ];then
     if [ -L $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops ];then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops

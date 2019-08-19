@@ -24,6 +24,7 @@ from delta import utils
 from delta.data.utils.common_utils import load_seq_label_raw_data
 from delta.data.utils.common_utils import load_one_label_dataset
 from delta.data.utils.common_utils import load_multi_label_dataset
+from delta.data.utils.common_utils import get_file_len
 
 # pylint: disable=invalid-name,too-many-locals,missing-docstring
 
@@ -72,17 +73,26 @@ class CommonUtilsTest(tf.test.TestCase):
         self.assertEqual(np.argmax(sess.run(label_res)), true_res[i])
 
   def test_load_multi_label_dataset(self):
-    label = ["O I-MISC I-MISC"]
-    true_res = [0, 8, 8]
-    label_ds = load_multi_label_dataset(label, self.config)
-
+    label = ["O I-MISC I-MISC", "O B-MISC I-MISC"]
+    label_filepath = tempfile.mktemp(suffix='label_file_for_unitest.txt')
+    with open(label_filepath, mode='w', encoding='utf-8') as fobj:
+      for token in label:
+        fobj.write(token)
+        fobj.write('\n')
+    label_ds = tf.data.TextLineDataset(label_filepath)
+    true_res = [[0, 8, 8], [0, 7, 8]]
+    label_ds = load_multi_label_dataset(label_ds, self.config)
     iterator = label_ds.make_initializable_iterator()
     label_res = iterator.get_next()
 
     with tf.Session() as sess:
       sess.run(iterator.initializer)
-      for _ in range(len(label)):
-        self.assertEqual(list(sess.run(label_res)[:3]), true_res)
+      for i in range(len(label)):
+        self.assertEqual(list(sess.run(label_res)[:3]), true_res[i])
+
+  def test_get_file_name(self):
+    paths = self.config["data"]["train"]["paths"]
+    self.assertEqual(get_file_len(paths), 300)
 
 
 if __name__ == '__main__':

@@ -22,6 +22,7 @@ import numpy as np
 import subprocess
 from absl import logging
 import tensorflow as tf
+import subprocess
 
 from delta import utils
 from delta.data.preprocess.text_ops import tokenize_label
@@ -343,7 +344,6 @@ def load_one_label_dataset(label_ds, config, output_index=None):
   else:
     num_classes = classes["num_classes"]
     label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  #label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
 
   label_ds = label_ds.map(
       lambda x: tokenize_label(
@@ -377,7 +377,6 @@ def load_multi_label_dataset(label_ds, config, output_index=None):
   else:
     label_vocab_file_path = label_vocab_file_path
 
- # label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
   label_ds = label_ds.map(
       lambda x: tokenize_label(
           x,
@@ -394,6 +393,7 @@ def load_dense_dataset(dense_feature):
   """Load dense data set"""
   dataset = tf.data.Dataset.from_tensor_slices(dense_feature)
   return dataset
+
 
 def get_file_len(fname_paths):
   len_res = []
