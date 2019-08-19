@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-
 set -e
 
 voxceleb1_trials=data/voxceleb1_test_no_sil/trials
 test_nj=1
 test_use_gpu=true
 stage=-1
+config_file=tdnn_arcface.yml
 
 
 source path.sh
@@ -43,14 +43,14 @@ fi
 # not need stage 1 
 if [ $stage -le 1 ]; then
   echo "Computing CMVN stats ..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/delta_speaker.yml
+  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/$config_file
   echo "Computing CMVN stats done."
 fi
 
 if [ $stage -le 2 ]; then
   # Train the model.
   echo "Training the model ..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/delta_speaker.yml
+  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/$config_file
   echo "Training the model done."
 fi
 
@@ -75,13 +75,14 @@ function infer_one_set() {
 
   utils/split_data.sh $data_dir $test_nj
   mkdir -p $output_dir/split$test_nj || true
+
   for idx in $(seq 1 $test_nj)
   do
     mkdir $output_dir/split$test_nj/$idx || true
     sed \
       -e "s%__INFER_PATH__%$data_dir/split$test_nj/$idx%" \
       -e "s%pred_path:.*%pred_path: $output_dir/split$test_nj/$idx%" \
-      conf/delta_speaker.yml > exp/conf/delta_speaker.yml.$idx.yml
+      conf/${config_file} > exp/conf/${config_file}.$idx.yml
     if "$test_use_gpu"
     then
       gpu_idx=$((idx-1))
@@ -89,9 +90,11 @@ function infer_one_set() {
       gpu_idx=
     fi
     CUDA_VISIBLE_DEVICES="$gpu_idx" \
-      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config exp/conf/delta_speaker.yml.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
+      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config exp/conf/${config_file}.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
   done
+
   wait
+
   for idx in $(seq 1 $test_nj)
   do
     txt=$output_dir/split$test_nj/$idx/utt_embeddings.txt
@@ -125,15 +128,12 @@ fi
 # PLDA
 
 if [ $stage -le 12 ]; then
-  if [ ! -d data/train_no_sil ]
-  then
-    echo "Preparing feats for clean training set ..."
-    local/nnet3/xvector/prepare_feats_for_egs.sh \
-        --compress false \
-        data/train data/train_no_sil exp/train_no_sil
-    utils/fix_data_dir.sh data/train_no_sil
-    echo "Preparing feats for clean training set done."
-  fi
+  echo "Preparing feats for clean training set ..."
+  local/nnet3/xvector/prepare_feats_for_egs.sh \
+      --compress false \
+      data/train data/train_no_sil data/train_no_sil
+  utils/fix_data_dir.sh data/train_no_sil
+  echo "Preparing feats for clean training set done."
 fi
 
 infer_train_dir=exp/delta_speaker/ckpt/infer_train
