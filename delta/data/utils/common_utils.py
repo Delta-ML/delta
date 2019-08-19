@@ -42,8 +42,8 @@ def input_fn(dataset, mode, batch_size, num_epoch=None):
     per_device_batch_size = batch_size
     num_epoch = 1
 
-  logging.info("Total Batch size:{}, Per device batch size: {}".format(
-      batch_size, per_device_batch_size))
+  logging.info("Learning Phase: {}, Total Batch size:{}, Per device batch size: {}".format(
+      mode, batch_size, per_device_batch_size))
 
   def _input_fn():
     return dataset(mode, per_device_batch_size, num_epoch)

@@ -2,15 +2,15 @@
 data:
   train:
     paths:
-    - "dump/train_nodup_sp/deltafalse/data.json"
+    - "dump/train_nodev/deltafalse/data_unigram30.json"
     segments: null
   eval:
     paths:
-    - "dump/train_dev/deltafalse/data.json"
+    - "dump/train_dev/deltafalse/data_unigram30.json"
     segments: null
   infer:
     paths:
-    - "dump/dev/deltafalse/data.json"
+    - "dump/test/deltafalse/data_unigram30.json"
     segments: null
   task:
     dummy: false
@@ -26,8 +26,8 @@ data:
       max_len: 100 # max length for target tokens
     vocab:
       type: char # char, bpe, wpm, word
-      size: 3653 # vocab size in vocab_file
-      path: 'data/lang_1char/train_nodup_sp_units.txt' # path to vocab(default: 'vocab
+      size: 27 # vocab size
+      path: 'data/lang_char/train_nodev_unigram30_units.txt'
     batch:
       batch_size: 8 # number of elements in a training batch
       batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch

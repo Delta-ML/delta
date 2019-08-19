@@ -110,11 +110,6 @@ def make_batchset(task,
       batch_frames_in=batch_frames_in,
       batch_frames_out=batch_frames_out,
       batch_frames_inout=batch_frames_inout)
-  # for debugging
-  if num_batches > 0:
-    minibatches = minibatches[:num_batches]
-  logging.info('# minibaches: ' + str(len(minibatches)))
-
   return minibatches
 
 
@@ -124,9 +119,11 @@ def get_batches(config, mode):
   assert mode in (utils.TRAIN, utils.EVAL, utils.INFER)
 
   # read meta of json
-  logging.info("load json data")
   json_path = config['data'][mode]['paths']
   assert len(json_path) == 1
+  logging.info(f"=== load json data {json_path} ===")
+  logging.info(f" # learning phase: {mode}")
+
   #pylint: disable=invalid-name
   with open(json_path[0], 'r', encoding='utf-8') as f:
     metas_raw = json.load(f)['utts']
@@ -136,10 +133,12 @@ def get_batches(config, mode):
 
   # dataset size
   utts = len(metas.keys())
-  logging.info('# utts: ' + str(utts))
+  logging.info(' # utts: ' + str(utts))
 
   # make batchset
   use_sortagrad = config['data']['task']['sortagrad']
+  logging.info(f' # sortagrad: {use_sortagrad}')
+
   task = config['data']['task']['type']
   assert task in list(TASK_SET.keys())
   # using same json for asr and tts task
@@ -152,17 +151,24 @@ def get_batches(config, mode):
   else:
     raise ValueError("task type must int : {} get : {}".format(
         list(TASK_SET.keys()), task))
+  logging.info(f" # task: {task}")
+
+  # delta config
   maxlen_src = config['data']['task'][src]['max_len']
   maxlen_tgt = config['data']['task'][tgt]['max_len']
   batch_sort_key = config['data']['task']['batch_sort_key']
-  num_batches = config['data']['task']['num_batches']
-  _, ngpu = utils.gpu_device_names()
+  num_batches = config['data']['task']['num_batches'] # for debug
   global_batch_size = config['data']['task']['batch']['batch_size']
   batch_bins = config['data']['task']['batch']['batch_bins']
   batch_frames_in = config['data']['task']['batch']['batch_frames_in']
   batch_frames_out = config['data']['task']['batch']['batch_frames_out']
   batch_frames_inout = config['data']['task']['batch']['batch_frames_inout']
   batch_strategy = config['data']['task']['batch']['batch_strategy']
+
+  _, ngpu = utils.gpu_device_names()
+  min_batch_size = ngpu if ngpu else 1
+  logging.info(f" # ngpu: {ngpu}")
+  logging.info(f" # min_batch_size: {min_batch_size}")
 
   minibatches = make_batchset(
       task=task,
@@ -172,7 +178,7 @@ def get_batches(config, mode):
       max_length_out=maxlen_tgt,
       num_batches=num_batches,
       batch_sort_key=batch_sort_key,
-      min_batch_size=ngpu if ngpu else 1,
+      min_batch_size= min_batch_size,
       shortest_first=use_sortagrad,
       batch_bins=batch_bins,
       batch_frames_in=batch_frames_in,

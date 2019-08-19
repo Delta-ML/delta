@@ -66,15 +66,17 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
       true_fn=lambda: input_length,
       false_fn=lambda: tf.squeeze(input_length),
   )
+
   olen = tf.cond(
       pred=tf.equal(tf.rank(label_length), 1),
       true_fn=lambda: label_length,
       false_fn=lambda: tf.squeeze(label_length))
+
   deps = [
-      tf.assert_rank(labels, 2),
-      tf.assert_rank(logits, 3),
-      tf.assert_rank(ilen, 1),  # input_length
-      tf.assert_rank(olen, 1),  # output_length
+      tf.assert_rank(labels, 2, name='label_rank_check'),
+      tf.assert_rank(logits, 3, name='logits_rank_check'),
+      tf.assert_rank(ilen, 1, name='src_len_rank_check'),  # input_length
+      tf.assert_rank(olen, 1, name='tgt_len_rank_check'),  # output_length
   ]
 
   with tf.control_dependencies(deps):
@@ -86,7 +88,8 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
         label_length=olen,
         logit_length=ilen,
         logits_time_major=False,
-        blank_index=blank_index)
+        blank_index=blank_index,
+        name='ctc_loss_dense')
     batch_loss.set_shape([None])
   return batch_loss
 
