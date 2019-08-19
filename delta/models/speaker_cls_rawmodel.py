@@ -187,19 +187,6 @@ class SpeakerBaseRawModel(RawModel):
       raise ValueError('Unsupported frame_pooling_type: %s' % (pooling_type))
     return x
 
-  def text_layer(self, x, input_text):
-    ''' Text layer. Might be useless in speaker model. '''
-    with tf.variable_scope('text'):
-      embedding_chars_expanded = common_layers.embedding_look_up(
-          input_text, self.vocab_size, self.netconf['embedding_dim'])
-      h_pool_flat = common_layers.conv_pool(
-          embedding_chars_expanded,
-          list(map(int, self.netconf['filter_sizes'])),
-          self.netconf['embedding_dim'], self.netconf['num_filters'],
-          input_text.shape[1])
-      outputs = tf.concat((x, h_pool_flat), axis=1)
-    return outputs
-
   def dense_layer(self, x):
     ''' Embedding layers. '''
     with tf.variable_scope('dense'):

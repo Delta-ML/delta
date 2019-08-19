@@ -5,7 +5,7 @@ voxceleb1_trials=data/voxceleb1_test_no_sil/trials
 test_nj=1
 test_use_gpu=true
 stage=-1
-config_file=conf/tdnn_arcface.yml
+config_file=tdnn_arcface.yml
 
 
 source path.sh
@@ -40,19 +40,21 @@ if [ $stage -le 0 ]; then
   echo "Making training and validation sets done."
 fi
 
+# not need stage 1 
 if [ $stage -le 1 ]; then
   echo "Computing CMVN stats ..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config $config_file
+  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/$config_file
   echo "Computing CMVN stats done."
 fi
 
 if [ $stage -le 2 ]; then
   # Train the model.
   echo "Training the model ..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config $config_file
+  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/$config_file
   echo "Training the model done."
 fi
 
+# sliding-cmvn and vad
 if [ $stage -le 9 ]; then
   if [ ! -d data/voxceleb1_test_no_sil ]
   then
@@ -80,7 +82,7 @@ function infer_one_set() {
     sed \
       -e "s%__INFER_PATH__%$data_dir/split$test_nj/$idx%" \
       -e "s%pred_path:.*%pred_path: $output_dir/split$test_nj/$idx%" \
-      ${config_file} >${config_file}.$idx.yml
+      conf/${config_file} > exp/conf/${config_file}.$idx.yml
     if "$test_use_gpu"
     then
       gpu_idx=$((idx-1))
@@ -88,7 +90,7 @@ function infer_one_set() {
       gpu_idx=
     fi
     CUDA_VISIBLE_DEVICES="$gpu_idx" \
-      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config ${config_file}.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
+      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config exp/conf/${config_file}.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
   done
 
   wait
@@ -110,13 +112,20 @@ if [ $stage -le 10 ]; then
   echo "Running inference through model on test set done."
 fi
 
+# Cosine
+
 if [ $stage -le 11 ]; then
   echo "Computing cosine scores ..."
   ivector-normalize-length scp:${test_vector_scp} ark:${test_vector_scp}.norm
   ivector-compute-dot-products <(awk '{print $1, $2}' $voxceleb1_trials) ark:${test_vector_scp}.norm ark:${test_vector_scp}.norm $infer_dir/cosine_scores
   compute-eer <(local/prepare_for_eer.py $voxceleb1_trials $infer_dir/cosine_scores) 2>&1 | tee $infer_dir/cosine_results
+  echo "Cosine EER:"
+  cat $infer_dir/cosine_results
   echo "Computing cosine scores done."
 fi
+
+
+# PLDA
 
 if [ $stage -le 12 ]; then
   echo "Preparing feats for clean training set ..."
@@ -168,6 +177,7 @@ if [ $stage -le 16 ]; then
   eer=`compute-eer <(local/prepare_for_eer.py $voxceleb1_trials exp/scores_voxceleb1_test) 2> /dev/null`
   mindcf1=`sid/compute_min_dcf.py --p-target 0.01 exp/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
   mindcf2=`sid/compute_min_dcf.py --p-target 0.001 exp/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
+  echo "PLDA:"
   echo "EER: $eer%"
   echo "minDCF(p-target=0.01): $mindcf1"
   echo "minDCF(p-target=0.001): $mindcf2"
