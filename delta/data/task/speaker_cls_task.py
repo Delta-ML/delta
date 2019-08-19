@@ -39,8 +39,8 @@ class ChunkSampler():
   def __init__(self, meta, chunk_size):
     '''
       Args:
+      meta: an object of `KaldiMetaData` or None
       chunk_size: fixed chunk size in frames.
-      pad_chunks: whether to zero pad chunks.
     '''
     self.chunk_size = chunk_size
     self.pad_chunks = True
