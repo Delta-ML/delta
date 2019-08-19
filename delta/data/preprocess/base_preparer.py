@@ -102,20 +102,20 @@ class TextPreparer(Preparer):
       infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
       for one_path, one_path_after in zip(paths, paths_after_pre_process):
-        self.prepare_one_raw_data(one_path, one_path_after, mode,
+        data_size = get_file_len([one_path])
+        self.prepare_one_raw_data([one_path], one_path_after, mode,
                                   infer_without_label, pre_process_pipeline,
-                                  all_texts, all_labels)
+                                  all_texts, all_labels,data_size)
     if self.output_num <= 1:
       all_labels = [all_labels]
     return all_texts, all_labels
 
   def prepare_one_raw_data(self, one_path, one_path_after, mode,
                            infer_without_label, pre_process_pipeline, all_texts,
-                           all_labels):
+                           all_labels,data_size):
     """Prepare one raw data."""
     text, label = self.load_a_raw_file(one_path, infer_without_label)
 
-    data_size = get_file_len([one_path])
     batch_num = int(math.ceil(data_size / float(self.batch_size)))
     if self.multi_text:
       one_text_after = []
@@ -138,18 +138,26 @@ class TextPreparer(Preparer):
       all_texts += text_after
       one_text_after = text_after
     self.config['data']['{}_data_size'.format(mode)] = len(one_text_after[0])
+    one_label_after = []
+    if not infer_without_label:
+      if self.multi_output:
+        for i in range(self.output_num):
+          label_ds = label[i].batch(self.batch_size)
+          label_iterator = label_ds.make_initializable_iterator()
+          label__after_arr = self.run_dataset(label_iterator, batch_num)
+          label_after_one = [one_line.decode("utf-8") for one_line in label__after_arr]
+          one_label_after.append(label_after_one)
+          all_labels[i] += label_after_one
+      else:
+        label = label[0]
+        label_ds = label.batch(self.batch_size)
+        label_iterator = label_ds.make_initializable_iterator()
+        label__after_arr = self.run_dataset(label_iterator, batch_num)
+        one_label_after = [one_line.decode("utf-8") for one_line in label__after_arr]
+        all_labels += one_label_after
 
-    label_ds = label.batch(self.batch_size)
-    label_iterator = label_ds.make_initializable_iterator()
-    label__after_arr=self.run_dataset(label_iterator,batch_num)
-    label_after = [one_line.decode("utf-8") for one_line in label__after_arr]
-    if self.multi_output:
-      for i in range(self.output_num):
-        all_labels[i] += label__after_arr[i]
-    else:
-      all_labels += label_after
     logging.debug(f"one_text_after: {len(one_text_after)}")
-    self.save_a_raw_file(label_after, one_text_after, one_path_after,
+    self.save_a_raw_file(one_label_after, one_text_after, one_path_after,
                          infer_without_label)
 
   def run_dataset(self, data_iterator,batch_num):
@@ -164,7 +172,7 @@ class TextPreparer(Preparer):
     return data_after_arr
 
 
-  def load_a_raw_file(self, one_path, mode, infer_without_label):
+  def load_a_raw_file(self, one_path, infer_without_label):
     """
     Load a raw file. Return text and label.
     For single text input, text: [sentence1, ...]

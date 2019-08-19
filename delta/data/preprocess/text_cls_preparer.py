@@ -43,13 +43,13 @@ class TextClsPreparer(TextPreparer):
       column_num = 1
     else:
       column_num = 2
-    ds_list = load_textline_dataset([one_path], column_num)
+    ds_list = load_textline_dataset(one_path, column_num)
     if infer_without_label:
       text = ds_list
-      label = []
+      label = []         #to modifiy
     else:
       text = ds_list[1:]
-      label = ds_list[0]
+      label = ds_list[:1]
     return (text, label)
 
 

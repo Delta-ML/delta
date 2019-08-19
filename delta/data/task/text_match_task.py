@@ -58,20 +58,11 @@ class TextMatchTask(TextTask):
     """Generate data for offline training."""
     if self.infer_without_label:
       column_num=2
+      text_ds_left, text_ds_right = load_textline_dataset(self.paths_after_pre_process, column_num)
     else:
       column_num=3
+      label,text_ds_left, text_ds_right=load_textline_dataset(self.paths_after_pre_process, column_num)
 
-    ds_list = load_textline_dataset(self.paths_after_pre_process, column_num)
-    if self.infer_without_label:
-      text_ds = ds_list
-      label = []
-    else:
-      text_ds = ds_list[1:]
-      label = ds_list[0]
-
-    text_ds_left,text_ds_right = text_ds
-   # text_ds_left = tf.data.Dataset.from_tensor_slices(text_left)
-    #text_ds_right = tf.data.Dataset.from_tensor_slices(text_right)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds_left = text_ds_left.map(
         input_pipeline_func, num_parallel_calls=self.num_parallel_calls)

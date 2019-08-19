@@ -23,9 +23,12 @@ from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_one_label_dataset
 from delta.data.utils.common_utils import load_multi_label_dataset
 from delta.data.utils.common_utils import load_nlu_joint_raw_data
+from delta.data.utils.common_utils import get_file_len
+from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.data.preprocess.utils import get_vocab_size
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
+from delta import utils
 
 # pylint: disable=too-many-instance-attributes
 
@@ -47,13 +50,14 @@ class TextNLUJointTask(TextTask):
     self.paths_after_pre_process = [
         one_path + ".after" for one_path in self.paths
     ]
+    self.infer_no_label = self.config["data"][utils.INFER].get(
+      'infer_no_label', False)
+    self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
     self.prepare()
-
-  def load_text_dataset(self, text_placeholder):
+  def load_text_dataset(self, text_ds):
     """Load text data set."""
     logging.info("Loading text dataset...")
-    text_ds = tf.data.Dataset.from_tensor_slices(text_placeholder)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds = text_ds.map(
         input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
@@ -66,17 +70,14 @@ class TextNLUJointTask(TextTask):
 
   def generate_data(self):
     """Generate data for offline training."""
-    text, (intent_label, slots_label) = load_nlu_joint_raw_data(
-        paths=self.paths_after_pre_process, mode=self.mode)
+    if self.infer_without_label:
+      column_num = 1
+      text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
+    else:
+      column_num = 3
+      intent_label, slots_label,text_ds=load_textline_dataset(self.paths_after_pre_process, column_num)
 
-    text_placeholder = tf.placeholder(tf.string, name="text")
-    intent_label_placeholder = tf.placeholder(tf.string, name="intent_label")
-    slots_label_placeholder = tf.placeholder(tf.string, name="slots_label")
-    self.init_feed_dict[text_placeholder] = text
-    self.init_feed_dict[intent_label_placeholder] = intent_label
-    self.init_feed_dict[slots_label_placeholder] = slots_label
-
-    text_ds = self.load_text_dataset(text_placeholder)
+    text_ds = self.load_text_dataset(text_ds)
 
     if self.infer_without_label:
       data_set = text_ds
@@ -89,7 +90,7 @@ class TextNLUJointTask(TextTask):
 
     self.config['data']['vocab_size'] = get_vocab_size(
         self.text_vocab_file_path)
-    self.config['data']['{}_data_size'.format(self.mode)] = len(text)
+    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(self.paths_after_pre_process)
 
     return data_set
 
@@ -162,8 +163,7 @@ class TextNLUJointTask(TextTask):
     return_dict = {
         "input_x_dict": input_x_dict,
         "input_x_len": input_x_len,
-        "iterator": iterator,
-        "init_feed_dict": self.init_feed_dict
+        "iterator": iterator
     }
 
     if not self.infer_without_label:
