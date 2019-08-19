@@ -42,7 +42,12 @@ class CTCAsrModel(RawModel):
     super().__init__(name=name)
     self._config = config
 
+    logging.info("--- dummy Task to get meta data ---")
+    logging.info("--- do not care the Task mode here ---")
     task = utils.task(config, mode=utils.TRAIN)
+    logging.info("--- dummy Task to get meta data ---")
+    logging.flush()
+
     self._feat_shape = task.feat_shape
     self._vocab_size = task.vocab_size
 
