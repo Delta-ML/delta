@@ -114,7 +114,7 @@ class TextPreparer(Preparer):
                            all_labels):
     """Prepare one raw data."""
     text, label = self.load_a_raw_file(one_path, infer_without_label)
-    text=text[0]
+
     data_size = get_file_len([one_path])
     batch_num = int(math.ceil(data_size / float(self.batch_size)))
     if self.multi_text:
@@ -128,7 +128,7 @@ class TextPreparer(Preparer):
         all_texts += text_after
         one_text_after.append(text_after)
     else:
-
+      text = text[0]
       text_iterator = get_pre_process_text_ds_iter(text,
                                                    pre_process_pipeline,
                                                    self.num_parallel_calls,

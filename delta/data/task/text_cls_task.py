@@ -66,16 +66,16 @@ class TextClsTask(TextTask):
     else:
       column_num = 2
 
-    ds_list = load_textline_dataset(self.paths_after_pre_proces, column_num)
+    ds_list = load_textline_dataset(self.paths_after_pre_process, column_num)
 
     if self.infer_without_label:
-      text = ds_list
+      text_ds = ds_list
       label = []
     else:
-      text = ds_list[1:]
+      text_ds = ds_list[1:]
       label = ds_list[0]
-
-    text_ds = tf.data.Dataset.from_tensor_slices(text)
+    text_ds=text_ds[0]
+    #text_ds = tf.data.Dataset.from_tensor_slices(text)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
 
     text_ds = text_ds.map(

@@ -329,7 +329,7 @@ def load_npy(npy_path, dtype=np.float32):
   return dense_feature
 
 
-def load_one_label_dataset(label_placeholder, config, output_index=None):
+def load_one_label_dataset(label_ds, config, output_index=None):
   """Load one-label data set."""
   logging.info("Loading one label dataset...")
   num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
@@ -343,7 +343,7 @@ def load_one_label_dataset(label_placeholder, config, output_index=None):
   else:
     num_classes = classes["num_classes"]
     label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
+  #label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
 
   label_ds = label_ds.map(
       lambda x: tokenize_label(
@@ -359,7 +359,7 @@ def load_one_label_dataset(label_placeholder, config, output_index=None):
   return label_ds
 
 
-def load_multi_label_dataset(label_placeholder, config, output_index=None):
+def load_multi_label_dataset(label_ds, config, output_index=None):
   """Load multi-label data set."""
   logging.info("Loading multi label dataset...")
   label_vocab_file_path = config["data"]["task"]["label_vocab"]
@@ -377,7 +377,7 @@ def load_multi_label_dataset(label_placeholder, config, output_index=None):
   else:
     label_vocab_file_path = label_vocab_file_path
 
-  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
+ # label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
   label_ds = label_ds.map(
       lambda x: tokenize_label(
           x,
