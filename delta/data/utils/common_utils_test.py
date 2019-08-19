@@ -61,8 +61,14 @@ class CommonUtilsTest(tf.test.TestCase):
 
   def test_load_one_label_dataset(self):
     label = ["O", "O", "O", "I-MISC"]
+    label_filepath = tempfile.mktemp(suffix='label_file_for_unitest.txt')
+    with open(label_filepath, mode='w', encoding='utf-8') as fobj:
+      for token in label:
+        fobj.write(token)
+        fobj.write('\n')
+    label_ds = tf.data.TextLineDataset(label_filepath)
     true_res = [0, 0, 0, 8]
-    label_ds = load_one_label_dataset(label, self.config)
+    label_ds = load_one_label_dataset(label_ds, self.config)
 
     iterator = label_ds.make_initializable_iterator()
     label_res = iterator.get_next()
