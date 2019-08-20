@@ -61,7 +61,7 @@ class TextS2STaskTest(tf.test.TestCase):
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
     with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_enc_x"],
           data["input_x_dict"]["input_dec_x"], data["input_y_dict"]["input_y"],
@@ -86,7 +86,7 @@ class TextS2STaskTest(tf.test.TestCase):
     input_x = export_inputs["model_inputs"]["input_enc_x"]
 
     with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res = sess.run(
           input_x,
           feed_dict={

@@ -50,7 +50,7 @@ class TextMatchPreparer(TextPreparer):
       label = []
     else:
       text = ds_list[1:]
-      label = ds_list[0]
+      label = ds_list[:1]
 
     return (text,label)
 
