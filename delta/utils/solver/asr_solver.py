@@ -24,7 +24,6 @@ import tensorflow as tf
 #pylint: disable=import-error
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras import backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import CSVLogger
@@ -36,6 +35,7 @@ from delta.utils import metrics as metrics_lib
 from delta.utils.solver.base_solver import Solver
 from delta.utils.register import registers
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
+from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint 
 
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -253,8 +253,9 @@ class AsrSolver(Solver):
 
     #save model
     save_best = Path(self._model_path).joinpath('best_model.h5')
-    save_best_cb = ModelCheckpoint(
-        str(save_best),
+    save_best_cb = ParallelModelCheckpoint(
+        model=self.model,
+        filepath=str(save_best),
         monitor=monitor_used,
         verbose=1,
         save_best_only=True,
@@ -266,8 +267,9 @@ class AsrSolver(Solver):
     # save checkpoint
     save_ckpt = Path(self._model_path).joinpath('model.{epoch:02d}-{' +
                                                 monitor_used + ':.2f}.h5')
-    save_ckpt_cb = ModelCheckpoint(
-        str(save_ckpt),
+    save_ckpt_cb = ParallelModelCheckpoint(
+        model=self.model,
+        filepath=str(save_ckpt),
         monitor=monitor_used,
         verbose=1,
         save_best_only=False,
