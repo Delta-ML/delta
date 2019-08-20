@@ -113,18 +113,18 @@ class ParallelModelCheckpoint(ModelCheckpoint):
                load_weights_on_restart=False,
                period=1):
     self.model_to_save = model
-    super(ParallelModelCheckpoint, self).__init__(filepath=filepath,
-                                                  monitor=monitor,
-                                                  verbose=verbose,
-                                                  save_best_only=save_best_only,
-                                                  save_weights_only=save_weights_only,
-                                                  mode=mode,
-                                                  save_freq=save_freq,
-                                                  load_weights_on_restart=load_weights_on_restart,
-                                                  period=period)
+    super().__init__(
+        filepath=filepath,
+        monitor=monitor,
+        verbose=verbose,
+        save_best_only=save_best_only,
+        save_weights_only=save_weights_only,
+        mode=mode,
+        save_freq=save_freq,
+        load_weights_on_restart=load_weights_on_restart,
+        period=period)
 
   #pylint: disable=unused-argument
   def set_model(self, model):
     '''set the model to saved'''
-
-    super(ParallelModelCheckpoint, self).set_model(self.model_to_save)
+    super().set_model(self.model_to_save)
