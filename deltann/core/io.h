@@ -32,7 +32,10 @@ namespace delta {
 
 namespace core {
 
-enum class InOut { DELTA_IN = 0, DELTA_OUT };
+enum class InOut {
+  DELTA_IN = 0,
+  DELTA_OUT
+};
 
 // model input/output identifier
 class BaseInOut {

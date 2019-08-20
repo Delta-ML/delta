@@ -82,12 +82,26 @@ class CTCAsrModel(RawModel):
 
     x = input_tensor
 
-    x = Conv2D(32, (11,5), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal', name="conv1")(x)
-    x = Conv2D(32, (11,5), use_bias=True, activation='relu', padding='same', kernel_initializer='he_normal', name="conv2")(x)
+    x = Conv2D(
+        32, (11, 5),
+        use_bias=True,
+        activation='relu',
+        padding='same',
+        kernel_initializer='he_normal',
+        name="conv1")(
+            x)
+    x = Conv2D(
+        32, (11, 5),
+        use_bias=True,
+        activation='relu',
+        padding='same',
+        kernel_initializer='he_normal',
+        name="conv2")(
+            x)
 
     _, _, dim, channels = x.get_shape().as_list()
     output_dim = dim * channels
-    x=Reshape((-1, output_dim))(x)
+    x = Reshape((-1, output_dim))(x)
 
     x = TimeDistributed(Dropout(0.8))(x)
     x = CuDNNLSTM(
@@ -106,7 +120,7 @@ class CTCAsrModel(RawModel):
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm1')(
-            x)  
+            x)
     x = Activation('tanh', name='activation1')(x)
 
     x = TimeDistributed(Dense(1024, activation='relu'))(x)

@@ -30,12 +30,17 @@ from delta.data.task.base_speech_task import SpeechTask
 
 def _make_example(uttids, feats, ilens, targets, olens):
   features = {
-      'uttids': uttids,
-      'inputs': tf.expand_dims(feats, axis=-1) 
-                if not isinstance(feats, np.ndarray) else np.expand_dims(feats, axis=-1),
-      'input_length': ilens,
-      'targets': targets,
-      'target_length': olens
+      'uttids':
+          uttids,
+      'inputs':
+          tf.expand_dims(feats, axis=-1) if not isinstance(feats, np.ndarray)
+          else np.expand_dims(feats, axis=-1),
+      'input_length':
+          ilens,
+      'targets':
+          targets,
+      'target_length':
+          olens
   }
   labels = {
       'ctc':
@@ -55,7 +60,8 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     self.batch_mode = config['data']['task']['batch_mode']
     self.batch_size = config['data']['task']['batch']['batch_size']
     self._shuffle_buffer_size = config['data']['task']['shuffle_buffer_size']
-    self._need_shuffle = config['data']['task']['need_shuffle'] and mode == utils.TRAIN
+    self._need_shuffle = config['data']['task'][
+        'need_shuffle'] and mode == utils.TRAIN
     # get batches form data path
     if self.dummy:
       self._feat_shape = [40]
@@ -290,7 +296,8 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
 
     feature_shape, label_shape = {}, {}
     for feature_key, feature_val in feature.items():
-      feature_shape[feature_key] = tf.TensorShape((None,) + feature_val.shape[1:])
+      feature_shape[feature_key] = tf.TensorShape((None,) +
+                                                  feature_val.shape[1:])
 
     for label_key, label_val in labels.items():
       label_shape[label_key] = tf.TensorShape((None,) + label_val.shape[1:])

@@ -19,8 +19,8 @@ from collections import OrderedDict
 import numpy as np
 from absl import logging
 
-from espnet.utils.cli_readers import file_reader_helper 
-from espnet.utils.cli_writers import file_writer_helper 
+from espnet.utils.cli_readers import file_reader_helper
+from espnet.utils.cli_writers import file_writer_helper
 from espnet.utils.training.batchfy import make_batchset as make_batchset_espnet
 from espnet.utils.io_utils import LoadInputsAndTargets
 
@@ -157,7 +157,7 @@ def get_batches(config, mode):
   maxlen_src = config['data']['task'][src]['max_len']
   maxlen_tgt = config['data']['task'][tgt]['max_len']
   batch_sort_key = config['data']['task']['batch_sort_key']
-  num_batches = config['data']['task']['num_batches'] # for debug
+  num_batches = config['data']['task']['num_batches']  # for debug
   global_batch_size = config['data']['task']['batch']['batch_size']
   batch_bins = config['data']['task']['batch']['batch_bins']
   batch_frames_in = config['data']['task']['batch']['batch_frames_in']
@@ -178,7 +178,7 @@ def get_batches(config, mode):
       max_length_out=maxlen_tgt,
       num_batches=num_batches,
       batch_sort_key=batch_sort_key,
-      min_batch_size= min_batch_size,
+      min_batch_size=min_batch_size,
       shortest_first=use_sortagrad,
       batch_bins=batch_bins,
       batch_frames_in=batch_frames_in,

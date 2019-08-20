@@ -45,18 +45,18 @@ class CepsOpTest(tf.test.TestCase):
       output = py_x_ops.cepstrum(input_data, sample_rate)
 
       #pylint: disable=bad-whitespace
-      output_true = np.array([
-          [  0.525808,  0.579537, 0.159656, 0.014726, -0.1866810],
-          [  0.225988,  1.557304, 3.381828, 0.132935,  0.7128600],
-          [ -1.832759, -1.045178, 0.753158, 0.116107, -0.9307780],
-          [ -0.696277,  1.333355, 1.590942, 2.041829, -0.0805630],
-          [ -0.377375,  2.984320, 0.036302, 3.676640,  1.1709290]
-      ])
+      output_true = np.array(
+          [[0.525808, 0.579537, 0.159656, 0.014726, -0.1866810],
+           [0.225988, 1.557304, 3.381828, 0.132935, 0.7128600],
+           [-1.832759, -1.045178, 0.753158, 0.116107, -0.9307780],
+           [-0.696277, 1.333355, 1.590942, 2.041829, -0.0805630],
+           [-0.377375, 2.984320, 0.036302, 3.676640, 1.1709290]])
       #pylint: enable=bad-whitespace
 
       self.assertEqual(tf.rank(output).eval(), 2)
       logging.info('Shape of cepstrum: {}'.format(output.shape))
       self.assertAllClose(output.eval()[15:20, 7:12], output_true)
+
 
 if __name__ == '__main__':
   tf.test.main()

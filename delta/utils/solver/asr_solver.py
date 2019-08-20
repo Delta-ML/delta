@@ -35,7 +35,7 @@ from delta.utils import metrics as metrics_lib
 from delta.utils.solver.base_solver import Solver
 from delta.utils.register import registers
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
-from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint 
+from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -62,7 +62,8 @@ class AsrSolver(Solver):
     self._early_stopping = self._solver['optimizer']['early_stopping']['enable']
 
     self._monitor_used = self._solver['metrics']['monitor_used']
-    self._metrics_used = [] if self._solver['metrics']['metrics_used'] is None else self._solver['metrics']['metrics_used']
+    self._metrics_used = [] if self._solver['metrics'][
+        'metrics_used'] is None else self._solver['metrics']['metrics_used']
     self._model_path = self._solver['saver']['model_path']
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
@@ -135,7 +136,9 @@ class AsrSolver(Solver):
     ''' dataset_based generator used in keras.model.fit_generator()
         in future, it will be replaced by tf.keras.utils.Sequence'''
     next_batch = input_iterator.get_next()
-    generate_time = len(input_task) * self._num_epochs if mode == utils.TRAIN else len(input_task)
+    generate_time = len(
+        input_task) * self._num_epochs if mode == utils.TRAIN else len(
+            input_task)
     for _ in range(generate_time):
       next_batch_data = cur_sess.run(next_batch)
       yield next_batch_data
@@ -180,7 +183,7 @@ class AsrSolver(Solver):
       self.model.build(input_shape=self.batch_input_shape[0])
 
     # parallel and compile model
-    self.build(multi_gpu = (mode == utils.TRAIN))
+    self.build(multi_gpu=(mode == utils.TRAIN))
 
     if mode != utils.TRAIN:
       model_path = Path(self._model_path).joinpath('best_model.h5')
@@ -202,7 +205,8 @@ class AsrSolver(Solver):
 
     # compile model
     if self.ngpu > 1 and multi_gpu:
-      self._parallel_model = multi_gpu_model(self.model, gpus=self.ngpu, cpu_relocation=False, cpu_merge=False)
+      self._parallel_model = multi_gpu_model(
+          self.model, gpus=self.ngpu, cpu_relocation=False, cpu_merge=False)
       self.parallel_model.compile(
           loss=loss,
           optimizer=optimizer,

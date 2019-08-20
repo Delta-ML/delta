@@ -116,8 +116,7 @@ class SpeakerBaseRawModel(RawModel):
         if self.netconf['use_dropout']:
           x = tf.layers.dropout(
               x, self.netconf['dropout_rate'], training=self.train)
-        x = common_layers.linear(x, 'linear1',
-                                 [feat * channel, linear_num])
+        x = common_layers.linear(x, 'linear1', [feat * channel, linear_num])
         x = tf.nn.relu(x)
         if self.netconf['use_bn']:
           bn_name = 'bn_linear'
