@@ -166,3 +166,24 @@ class SequenceCrossEntropyLoss(Loss):
     del soft_labels
     loss = mask_sequence_loss(logits, labels, input_length, label_length)
     return loss
+
+@registers.loss.register
+class FocalLoss(Loss):
+  def __init__(self, config):
+    super().__init__(config)
+
+  def call(self,
+           logits=None,
+           input_length=None,
+           labels=None,
+           label_length=None,
+           soft_labels=None):
+
+    del input_length
+    del label_length
+    del soft_labels
+
+    return focal_loss(
+        logits=logits,
+        labels=labels,
+        name='focal_loss')
