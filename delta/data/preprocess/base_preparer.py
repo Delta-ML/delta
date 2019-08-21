@@ -167,7 +167,10 @@ class TextPreparer(Preparer):
     with tf.Session(config=self.session_conf) as sess:
       sess.run(data_iterator.initializer, feed_dict=self.init_feed_dict)
       for _ in range(batch_num):
-        data_after.append(sess.run(data_t))
+        try:
+          data_after.append(sess.run(data_t))
+        except tf.errors.OutOfRangeError:
+          break
     data_after_arr = np.concatenate(data_after, axis=0)
     return data_after_arr
 

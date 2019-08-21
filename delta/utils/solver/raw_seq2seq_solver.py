@@ -67,7 +67,6 @@ class RawS2SSolver(RawSolver):
     model = self.model_fn()
     training = mode == utils.TRAIN
     model.logits = model(inputs["input_x_dict"], training=training)
-    model.temp_init_feed_dict = inputs["init_feed_dict"]
     model.iterator = inputs["iterator"]
     model.input_x_dict = inputs["input_x_dict"]
     model.input_x_len = inputs["input_x_len"]
@@ -120,7 +119,7 @@ class RawS2SSolver(RawSolver):
       if self.first_eval:
         model.sess.run(tf.tables_initializer())
         self.first_eval = False
-      model.sess.run(model.iterator.initializer, model.temp_init_feed_dict)
+      model.sess.run(model.iterator.initializer)
 
       # Evaluating loop.
       total_loss = 0.0
