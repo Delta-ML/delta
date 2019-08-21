@@ -26,10 +26,10 @@ data:
       max_len: 100 # max length for target tokens
     vocab:
       type: char # char, bpe, wpm, word
-      size: 3653 # vocab size in vocab_file
+      size: 3655 # vocab size in vocab_file
       path: 'data/lang_1char/train_nodup_sp_units.txt' # path to vocab(default: 'vocab
     batch:
-      batch_size: 8 # number of elements in a training batch
+      batch_size: 16 # number of elements in a training batch
       batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
       batch_frames_in: 0 # maximum number of input frames in a training batch
       batch_frames_out: 0 # maximum number of output frames in a training batch

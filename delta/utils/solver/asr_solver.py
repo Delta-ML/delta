@@ -421,8 +421,8 @@ class AsrSolver(Solver):
           validation_steps=len(eval_task),
           validation_freq=1,
           class_weight=None,
-          max_queue_size=50,
-          workers=1,
+          max_queue_size=100,
+          workers=4,
           use_multiprocessing=False,
           shuffle=True,
           initial_epoch=0)
