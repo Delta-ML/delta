@@ -184,7 +184,6 @@ class LossUtilTest(tf.test.TestCase):
       self.assertAllClose(output.eval(), output_true)
 
   def test_focal_loss(self):
-    print('test_focal_loss')
     with self.cached_session():
       loss = loss_utils.focal_loss(
           logits=tf.constant(self.logits),
