@@ -126,13 +126,34 @@ class CTCAsrModel(RawModel):
             x)
 
     x = TimeDistributed(Dropout(0.2))(x)
-    x = CuDNNLSTM(
-        units=512,
+    x = Bidirectional(
+        CuDNNLSTM(
+        512,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
-        name='lstm1')(
+        name='lstm1'))(
             x)
+
+    x = TimeDistributed(Dropout(0.2))(x)
+    x = Bidirectional(
+        CuDNNLSTM(
+        512,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm2'))(
+            x)
+
+    x = TimeDistributed(Dropout(0.2))(x)
+    x = Bidirectional(
+        CuDNNLSTM(
+        512,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm3'))(
+            x) 
 
     x = TimeDistributed(Dense(1024, activation='relu'))(x)
     x = TimeDistributed(Dropout(0.5))(x)
