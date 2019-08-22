@@ -117,12 +117,13 @@ class CTCAsrModel(RawModel):
     x = Reshape((-1, output_dim))(x)
 
     x = TimeDistributed(Dropout(0.2))(x)
-    x = CuDNNLSTM(
+    x = Bidirectional(
+        CuDNNLSTM(
         units=512,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
-        name='lstm')(
+        name='lstm'))(
             x)
 
     x = TimeDistributed(Dropout(0.2))(x)
