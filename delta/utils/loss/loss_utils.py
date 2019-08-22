@@ -71,6 +71,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
       pred=tf.equal(tf.rank(label_length), 1),
       true_fn=lambda: label_length,
       false_fn=lambda: tf.squeeze(label_length))
+  olen = tf.cast(olen, tf.int32)
 
   deps = [
       tf.assert_rank(labels, 2, name='label_rank_check'),
@@ -79,20 +80,45 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
       tf.assert_rank(olen, 1, name='tgt_len_rank_check'),  # output_length
   ]
 
+  labels, logits = ctc_data_transform(labels, logits, blank_index)
+
   with tf.control_dependencies(deps):
     # (B, 1)
     # blank index is consistent with Espnet, zero
-    batch_loss = tf.nn.ctc_loss_v2(
+    batch_loss = tf.nn.ctc_loss(
         labels=labels,
-        logits=logits,
-        label_length=olen,
-        logit_length=ilen,
-        logits_time_major=False,
-        blank_index=blank_index,
-        name='ctc_loss_dense')
-    batch_loss.set_shape([None])
+        inputs=logits,
+        sequence_length=olen,
+        time_major=False,
+        preprocess_collapse_repeated=True,
+        ctc_merge_repeated=True,
+        ignore_longer_outputs_than_inputs=False)
   return batch_loss
 
+def ctc_data_transform(labels, logits, blank_index):
+  ''' 
+  data transform according blank_index
+  '''
+  if blank_index < 0 or blank_index is None:
+    raise ValueError('blank_index must be greater than or equal to zero')
+ 
+  num_class = logits.shape[2] - 1
+  if blank_index != num_class:
+    logits = tf.concat([logits[:, :, :blank_index],
+                        logits[:, :, blank_index + 1:],
+                        logits[:, :, blank_index:blank_index + 1]
+                       ], axis=2)
+ 
+  
+  labels = tf.cast(labels, tf.int32)
+  labels_idx = tf.where(tf.not_equal(labels, 0)) 
+  labels_values = tf.gather_nd(labels, labels_idx)
+  labels_shape = tf.cast(tf.shape(labels), dtype=tf.int64)
+  labels_sparse = tf.SparseTensor(indices=labels_idx, 
+                                  values=labels_values, 
+                                  dense_shape=labels_shape)
+
+  return labels_sparse, logits
 
 def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   '''
