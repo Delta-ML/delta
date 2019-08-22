@@ -170,9 +170,9 @@ class FocalLoss(Loss):
     super().__init__(config)
 
     self.gamma = 2
-    if 'gamma' in self._config[solver][optimizer]:
-        self.gamma = self._config[solver][optimizer][gamma]
-    assert gamma >= 0, 'gamma must greater than or equal to zero'
+    if 'gamma' in self._config['solver']['optimizer']:
+        self.gamma = self._config['solver']['optimizer']['gamma']
+    assert self.gamma >= 0, 'gamma must greater than or equal to zero'
 
   def call(self,
            logits=None,
@@ -187,5 +187,5 @@ class FocalLoss(Loss):
     return focal_loss(
         logits=logits,
         labels=labels,
-        gamma = self.gamma,
+        gamma=self.gamma,
         name='focal_loss')
