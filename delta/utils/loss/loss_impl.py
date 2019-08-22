@@ -21,6 +21,7 @@ from delta.utils.loss.loss_utils import cross_entropy
 from delta.utils.loss.loss_utils import mask_sequence_loss
 from delta.utils.loss.loss_utils import ctc_lambda_loss
 from delta.utils.loss.loss_utils import crf_log_likelihood
+from delta.utils.loss.loss_utils import focal_loss
 
 from delta.utils.register import registers
 
