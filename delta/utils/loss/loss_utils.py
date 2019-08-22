@@ -200,3 +200,28 @@ def arcface_loss(embedding,
         tf.multiply(cos_mt_temp, mask),
         name='arcface_loss_output')
   return output
+
+def focal_loss(logits, labels, gamma=2, name='focal_loss'):
+    """
+    Focal loss for multi classification
+    :param logits: A float32 tensor of shape [batch_size num_class].
+    :param labels: A int32 tensor of shape [batch_size, num_class] or [batch_size].
+    :param gamma: A scalar for focal loss gamma hyper-parameter.
+    Returns: A tensor of the same shape as `lables`
+    """
+    if len(labels.shape) == 1:
+        labels = tf.one_hot(labels, logits.shape[-1])
+    else:
+        labels = labels
+    labels = tf.to_float(labels)
+
+    y_pred = tf.nn.softmax(logits, dim=-1)
+    L = -labels * ((1 - y_pred)**gamma) * tf.log(y_pred)
+    loss = tf.reduce_sum(L)
+
+    if tf.executing_eagerly():
+      tf.contrib.summary.scalar(name, loss)
+    else:
+      tf.summary.scalar(name, loss)
+
+    return loss
