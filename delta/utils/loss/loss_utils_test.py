@@ -38,11 +38,15 @@ class LossUtilTest(tf.test.TestCase):
     self.seq_labels = np.array([[5, 1, 1], [3, 2, 0]], dtype=np.int32)
     self.input_length = np.array([[3, 2]], dtype=np.int32)
     self.label_length = np.array([3, 2], dtype=np.int32)
+    # test misclassified examples
+    self.logits_2 = np.array([[10, 2, 3, 4, 5, 6], [2, 3, 10, 4, 5, 1]],
+                           dtype=np.float32)
 
   def tearDown(self):
     ''' tear down '''
 
   def test_cross_entropy(self):
+
     ''' test cross entropy'''
     with self.cached_session():
       loss = loss_utils.cross_entropy(
@@ -51,6 +55,11 @@ class LossUtilTest(tf.test.TestCase):
           labels=tf.constant(self.labels),
           label_length=None)
       self.assertAllClose(loss.eval(), 0.0, rtol=1e-06, atol=1.5e-6)
+
+      loss_2 = loss_utils.cross_entropy(
+          logits=tf.constant(self.logits_2),
+          labels=tf.constant(self.labels))
+      self.assertAllClose(loss_2.eval(), 6.5194526, rtol=1e-06, atol=1.5e-6)
 
       loss = loss_utils.cross_entropy(
           logits=tf.constant(self.seq_logits),
