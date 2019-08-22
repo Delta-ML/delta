@@ -205,7 +205,7 @@ def focal_loss(logits, labels, gamma=2, name='focal_loss'):
     """
     Focal loss for multi classification
     :param logits: A float32 tensor of shape [batch_size num_class].
-    :param labels: A int32 tensor of shape [batch_size, num_class].
+    :param labels: A int32 tensor of shape [batch_size, num_class] or [batch_size].
     :param gamma: A scalar for focal loss gamma hyper-parameter.
     Returns: A tensor of the same shape as `lables`
     """
