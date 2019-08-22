@@ -99,7 +99,8 @@ class CTCAsrModel(RawModel):
         activation='relu',
         padding='same',
         kernel_initializer='he_normal',
-        name="conv1")(x)
+        name="conv1")(
+            x)
 
     x = Conv2D(
         filters=32,
@@ -108,7 +109,8 @@ class CTCAsrModel(RawModel):
         activation='relu',
         padding='same',
         kernel_initializer='he_normal',
-        name="conv2")(x)
+        name="conv2")(
+            x)
 
     _, _, dim, channels = x.get_shape().as_list()
     output_dim = dim * channels
@@ -176,48 +178,48 @@ class CTCRefAsrModel(CTCAsrModel):
 
     x = Bidirectional(
         CuDNNLSTM(
-        units=320,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm'))(
-            x)  
+            units=320,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm'))(
+                x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        units=320,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm1'))(
-            x)
+            units=320,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm1'))(
+                x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        units=320,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm2'))(
-            x)
+            units=320,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm2'))(
+                x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        units=320,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm3'))(
-            x)
+            units=320,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm3'))(
+                x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        units=320,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm4'))(
-            x)
+            units=320,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm4'))(
+                x)
 
     # Output layer with softmax
     x = TimeDistributed(Dense(self._vocab_size))(x)
