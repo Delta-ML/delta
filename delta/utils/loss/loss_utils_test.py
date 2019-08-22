@@ -130,6 +130,40 @@ class LossUtilTest(tf.test.TestCase):
       self.assertAllClose(loss.eval(), ref, atol=1e-05)
       self.assertAllClose(np.mean(loss.eval()), np.mean(ref), atol=1e-05)
 
+  def test_ctc_data_transform(self):
+    ''' test ctc_data_transform '''
+    with self.cached_session():
+      inputs = np.asarray(
+            [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
+              [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
+              [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]],
+            dtype=np.float32)
+      labels = np.asarray([[0, 1, 2, 5, 0], [0, 1, 1, 0, 0]]) 
+    
+      blank_index = 0
+      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels, inputs, blank_index)
+      labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform) 
+      new_inputs = [[[0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553, 0.633766],
+                     [0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436, 0.111121],
+                     [0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688, 0.0357786]]]
+      self.assertAllClose(inputs_after_transform, new_inputs)
+
+      blank_index = 2
+      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels, inputs, blank_index)
+      labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
+      new_inputs = [[[0.633766, 0.221185, 0.0129757, 0.0142857, 0.0260553, 0.0917319],
+                     [0.111121, 0.588392, 0.0055756, 0.00569609, 0.010436, 0.278779],
+                     [0.0357786, 0.633813, 0.00249248, 0.00272882, 0.0037688, 0.321418]]] 
+      self.assertAllClose(inputs_after_transform, new_inputs)
+ 
+      blank_index = 5 
+      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels, inputs, blank_index)
+      labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
+      new_inputs = [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
+                     [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
+                     [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]]  
+      self.assertAllClose(inputs_after_transform, new_inputs)
+
   def test_crf_loss(self):
     ''' test crf loss '''
     with self.cached_session():
