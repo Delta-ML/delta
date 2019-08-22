@@ -16,10 +16,20 @@
 ''' asr ctc model '''
 import tensorflow as tf
 #pylint: disable=import-error,unused-import
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Bidirectional, Activation, CuDNNLSTM, TimeDistributed, Conv2D, Dense, Reshape
-from tensorflow.keras.layers import Lambda, Input, Dropout
 from tensorflow.keras import backend as K
+from tensorflow.keras.models import Model
+
+from tensorflow.keras.layers import Bidirectional
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import CuDNNLSTM
+from tensorflow.keras.layers import TimeDistributed
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import Reshape
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Lambda
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Input
+
 from absl import logging
 
 #delta
@@ -83,45 +93,44 @@ class CTCAsrModel(RawModel):
     x = input_tensor
 
     x = Conv2D(
-        32, (11, 5),
+        filters=32,
+        kernel_size=(11, 5),
         use_bias=True,
         activation='relu',
         padding='same',
         kernel_initializer='he_normal',
-        name="conv1")(
-            x)
+        name="conv1")(x)
+
     x = Conv2D(
-        32, (11, 5),
+        filters=32,
+        kernel_size=(11, 5),
         use_bias=True,
         activation='relu',
         padding='same',
         kernel_initializer='he_normal',
-        name="conv2")(
-            x)
+        name="conv2")(x)
 
     _, _, dim, channels = x.get_shape().as_list()
     output_dim = dim * channels
     x = Reshape((-1, output_dim))(x)
 
-    x = TimeDistributed(Dropout(0.8))(x)
+    x = TimeDistributed(Dropout(0.2))(x)
     x = CuDNNLSTM(
-        512,
+        units=512,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm')(
             x)
-    x = Activation('tanh', name='activation')(x)
 
-    x = TimeDistributed(Dropout(0.8))(x)
+    x = TimeDistributed(Dropout(0.2))(x)
     x = CuDNNLSTM(
-        512,
+        units=512,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm1')(
             x)
-    x = Activation('tanh', name='activation1')(x)
 
     x = TimeDistributed(Dense(1024, activation='relu'))(x)
     x = TimeDistributed(Dropout(0.5))(x)
@@ -167,54 +176,48 @@ class CTCRefAsrModel(CTCAsrModel):
 
     x = Bidirectional(
         CuDNNLSTM(
-        320,
+        units=320,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm'))(
             x)  
-    x = Activation('tanh', name='activation')(x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        320,
+        units=320,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm1'))(
             x)
-    x = Activation('tanh', name='activation1')(x)
-
 
     x = Bidirectional(
         CuDNNLSTM(
-        320,
+        units=320,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm2'))(
             x)
-    x = Activation('tanh', name='activation2')(x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        320,
+        units=320,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm3'))(
             x)
-    x = Activation('tanh', name='activation3')(x)
 
     x = Bidirectional(
         CuDNNLSTM(
-        320,
+        units=320,
         kernel_initializer='glorot_uniform',
         bias_initializer='random_normal',
         return_sequences=True,
         name='lstm4'))(
             x)
-    x = Activation('tanh', name='activation4')(x)
 
     # Output layer with softmax
     x = TimeDistributed(Dense(self._vocab_size))(x)
