@@ -91,7 +91,6 @@ MODLE_MODULES = [
     "speech_cls_model",
     "kws_model",
     "asr_model",
-    "asr_ref_model",
     "text_seq_model",
     "text_seq_model",
     "text_seq_model",

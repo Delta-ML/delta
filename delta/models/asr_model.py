@@ -17,7 +17,7 @@
 import tensorflow as tf
 #pylint: disable=import-error,unused-import
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Activation, CuDNNLSTM, TimeDistributed, Conv2D, Dense, Reshape
+from tensorflow.keras.layers import Bidirectional, Activation, CuDNNLSTM, TimeDistributed, Conv2D, Dense, Reshape
 from tensorflow.keras.layers import Lambda, Input, Dropout
 from tensorflow.keras import backend as K
 from absl import logging
@@ -147,3 +147,85 @@ class CTCAsrModel(RawModel):
   def call(self, inputs, **kwargs):
     output = self.model(inputs, **kwargs)
     return output
+
+
+@registers.model.register
+class CTCRefAsrModel(CTCAsrModel):
+  '''
+  CTC ASR Model
+  reference: https://www.cs.cmu.edu/~ymiao/pub/icassp2016_ctc.pdf
+  '''
+
+  def build(self):
+    input_tensor = Input(
+        name='inputs', shape=(None, *self._feat_shape, 1), dtype=tf.float32)
+
+    x = input_tensor
+    _, _, dim, channels = x.get_shape().as_list()
+    output_dim = dim * channels
+    x = Reshape((-1, output_dim))(x)
+
+    x = Bidirectional(
+        CuDNNLSTM(
+        320,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm'))(
+            x)  
+    x = Activation('tanh', name='activation')(x)
+
+    x = Bidirectional(
+        CuDNNLSTM(
+        320,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm1'))(
+            x)
+    x = Activation('tanh', name='activation1')(x)
+
+
+    x = Bidirectional(
+        CuDNNLSTM(
+        320,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm2'))(
+            x)
+    x = Activation('tanh', name='activation2')(x)
+
+    x = Bidirectional(
+        CuDNNLSTM(
+        320,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm3'))(
+            x)
+    x = Activation('tanh', name='activation3')(x)
+
+    x = Bidirectional(
+        CuDNNLSTM(
+        320,
+        kernel_initializer='glorot_uniform',
+        bias_initializer='random_normal',
+        return_sequences=True,
+        name='lstm4'))(
+            x)
+    x = Activation('tanh', name='activation4')(x)
+
+    # Output layer with softmax
+    x = TimeDistributed(Dense(self._vocab_size))(x)
+
+    input_length = Input(name='input_length', shape=[], dtype='int64')
+    labels = Input(name='targets', shape=[None], dtype='int32')
+    label_length = Input(name='target_length', shape=[], dtype='int64')
+    loss_out = Lambda(
+        self.ctc_lambda_func, output_shape=(),
+        name='ctc')([x, input_length, labels, label_length])
+
+    self._model = tf.keras.Model(
+        inputs=[input_tensor, labels, input_length, label_length],
+        outputs=[loss_out])
