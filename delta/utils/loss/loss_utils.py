@@ -89,9 +89,9 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
     batch_loss = tf.nn.ctc_loss(
         labels=labels,
         inputs=logits,
-        sequence_length=olen,
+        sequence_length=ilen,
         time_major=False,
-        preprocess_collapse_repeated=True,
+        preprocess_collapse_repeated=False,
         ctc_merge_repeated=True,
         ignore_longer_outputs_than_inputs=False)
   return batch_loss
