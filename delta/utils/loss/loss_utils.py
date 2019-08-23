@@ -80,7 +80,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
       tf.assert_rank(ilen, 1, name='src_len_rank_check'),  # input_length
       tf.assert_rank(olen, 1, name='tgt_len_rank_check'),  # output_length
   ]
- 
+
   labels, logits = ctc_data_transform(labels, logits, blank_index)
 
   with tf.control_dependencies(deps):
@@ -97,32 +97,32 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
   return batch_loss
 
 def ctc_data_transform(labels, logits, blank_index):
-  ''' 
+  '''
   data transform according blank_index
   '''
   if blank_index < 0 or blank_index is None:
     raise ValueError('blank_index must be greater than or equal to zero')
- 
+
   num_class = logits.shape[2] - 1
   if blank_index != num_class:
     logits = tf.concat([logits[:, :, :blank_index],
                         logits[:, :, blank_index + 1:],
                         logits[:, :, blank_index:blank_index + 1]
                        ], axis=2)
- 
+
   labels = tf.cast(labels, tf.int32)
-  labels_idx = tf.where(tf.not_equal(labels, 0)) 
+  labels_idx = tf.where(tf.not_equal(labels, 0))
   labels_values = tf.gather_nd(labels, labels_idx)
   labels_num_class = tf.zeros_like(labels_values, dtype=tf.int32) + num_class
-  labels_values_change_blank = tf.where(tf.equal(labels_values, blank_index), 
-                                        labels_num_class, 
+  labels_values_change_blank = tf.where(tf.equal(labels_values, blank_index),
+                                        labels_num_class,
                                         labels_values)
-  labels_values = tf.where(labels_values_change_blank < blank_index, 
-                           labels_values_change_blank, 
+  labels_values = tf.where(labels_values_change_blank < blank_index,
+                           labels_values_change_blank,
                            labels_values_change_blank - 1)
   labels_shape = tf.cast(tf.shape(labels), dtype=tf.int64)
-  labels_sparse = tf.SparseTensor(indices=labels_idx, 
-                                  values=labels_values, 
+  labels_sparse = tf.SparseTensor(indices=labels_idx,
+                                  values=labels_values,
                                   dense_shape=labels_shape)
 
   return labels_sparse, logits
