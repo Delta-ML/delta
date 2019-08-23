@@ -79,10 +79,10 @@ class LossUtilTest(tf.test.TestCase):
     with self.cached_session():
       label_lens = np.expand_dims(np.asarray([5, 4]), 1)
       input_lens = np.expand_dims(np.asarray([5, 5]), 1)  # number of timesteps
-      loss_log_probs = [7.2771974, 8.057934]
+      loss_log_probs = [9.409339, 4.275597]
 
       # dimensions are batch x time x categories
-      labels = np.asarray([[0, 1, 2, 1, 0], [0, 1, 1, 0, -1]])
+      labels = np.asarray([[1, 2, 5, 4, 5], [0, 1, 2, 0, 0]])
       inputs = np.asarray(
           [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
             [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
@@ -108,11 +108,11 @@ class LossUtilTest(tf.test.TestCase):
           np.mean(loss.eval()), np.mean(loss_log_probs), atol=1e-05)
 
       # test when batch_size = 1, that is, one sample only
-      ref = [7.277198]
+      ref = [9.409339]
       input_lens = np.asarray([5])
       label_lens = np.asarray([5])
 
-      labels = np.asarray([[0, 1, 2, 1, 0]])
+      labels = np.asarray([[1, 2, 5, 4, 5]])
       inputs = np.asarray(
           [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
             [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
@@ -138,30 +138,36 @@ class LossUtilTest(tf.test.TestCase):
               [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
               [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]],
             dtype=np.float32)
-      labels = np.asarray([[0, 1, 2, 5, 0], [0, 1, 1, 0, 0]]) 
+      labels = np.asarray([[1, 2, 3, 4, 1], [2, 1, 1, 1, 1]]) 
     
       blank_index = 0
       labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform) 
+      new_labels = [[0, 1, 2, 3, 0], [1, 0, 0, 0, 0]]
       new_inputs = [[[0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553, 0.633766],
                      [0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436, 0.111121],
                      [0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688, 0.0357786]]]
+      self.assertAllEqual(labels_after_transform, new_labels)
       self.assertAllClose(inputs_after_transform, new_inputs)
 
       blank_index = 2
       labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
+      new_labels = [[1, 4, 2, 3, 1], [4, 1, 1, 1, 1]]
       new_inputs = [[[0.633766, 0.221185, 0.0129757, 0.0142857, 0.0260553, 0.0917319],
                      [0.111121, 0.588392, 0.0055756, 0.00569609, 0.010436, 0.278779],
                      [0.0357786, 0.633813, 0.00249248, 0.00272882, 0.0037688, 0.321418]]] 
+      self.assertAllClose(labels_after_transform, new_labels)
       self.assertAllClose(inputs_after_transform, new_inputs)
  
       blank_index = 5 
       labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
+      new_labels = [[1, 2, 3, 4, 1], [2, 1, 1, 1, 1]]
       new_inputs = [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
                      [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
                      [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]]  
+      self.assertAllClose(labels_after_transform, new_labels)
       self.assertAllClose(inputs_after_transform, new_inputs)
 
   def test_crf_loss(self):
