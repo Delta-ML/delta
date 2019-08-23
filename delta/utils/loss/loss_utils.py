@@ -66,6 +66,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
       true_fn=lambda: input_length,
       false_fn=lambda: tf.squeeze(input_length),
   )
+  ilen = tf.cast(ilen, tf.int32)
 
   olen = tf.cond(
       pred=tf.equal(tf.rank(label_length), 1),
@@ -79,7 +80,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
       tf.assert_rank(ilen, 1, name='src_len_rank_check'),  # input_length
       tf.assert_rank(olen, 1, name='tgt_len_rank_check'),  # output_length
   ]
-
+ 
   labels, logits = ctc_data_transform(labels, logits, blank_index)
 
   with tf.control_dependencies(deps):
@@ -93,7 +94,6 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
         preprocess_collapse_repeated=True,
         ctc_merge_repeated=True,
         ignore_longer_outputs_than_inputs=False)
-    #batch_loss = batch_loss
   return batch_loss
 
 def ctc_data_transform(labels, logits, blank_index):
@@ -110,7 +110,6 @@ def ctc_data_transform(labels, logits, blank_index):
                         logits[:, :, blank_index:blank_index + 1]
                        ], axis=2)
  
-  
   labels = tf.cast(labels, tf.int32)
   labels_idx = tf.where(tf.not_equal(labels, 0)) 
   labels_values = tf.gather_nd(labels, labels_idx)
