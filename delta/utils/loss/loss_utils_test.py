@@ -77,12 +77,12 @@ class LossUtilTest(tf.test.TestCase):
   def test_ctc_lambda_loss(self):
     ''' test ctc loss '''
     with self.cached_session():
-      label_lens = np.expand_dims(np.asarray([5, 4]), 1)
-      input_lens = np.expand_dims(np.asarray([5, 5]), 1)  # number of timesteps
-      loss_log_probs = [9.409339, 4.275597]
+      label_lens = np.expand_dims(np.asarray([5, 3]), 1)
+      input_lens = np.expand_dims(np.asarray([5, 3]), 1)  # number of timesteps
+      loss_log_probs = [9.409339, 5.37700698]
 
       # dimensions are batch x time x categories
-      labels = np.asarray([[1, 2, 5, 4, 5], [0, 1, 2, 0, 0]])
+      labels = np.asarray([[1, 2, 5, 4, 5], [3, 1, 2, 0, 0]])
       inputs = np.asarray(
           [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
             [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
