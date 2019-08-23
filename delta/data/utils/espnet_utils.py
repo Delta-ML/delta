@@ -158,7 +158,7 @@ def get_batches(config, mode):
   maxlen_tgt = config['data']['task'][tgt]['max_len']
   batch_sort_key = config['data']['task']['batch_sort_key']
   num_batches = config['data']['task']['num_batches']  # for debug
-  global_batch_size = config['data']['task']['batch']['batch_size']
+  global_batch_size = config['solver']['optimizer']['batch_size']
   batch_bins = config['data']['task']['batch']['batch_bins']
   batch_frames_in = config['data']['task']['batch']['batch_frames_in']
   batch_frames_out = config['data']['task']['batch']['batch_frames_out']

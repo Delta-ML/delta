@@ -152,6 +152,8 @@ class AsrSolver(Solver):
         report_tensor_allocations_upon_oom=opts_conf[
             'report_tensor_allocations_upon_oom'])
     run_metas = tf.RunMetadata()
+    run_metas = None
+    run_opts = None
     return run_opts, run_metas
 
   def get_optimizer(self, multitask):
