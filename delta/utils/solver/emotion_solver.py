@@ -132,8 +132,7 @@ class EmoKerasSolver(AsrSolver):
     self.model_fn(mode=utils.EVAL)
     assert self._built
 
-    callbacks = self.get_callbacks(
-        eval_ds, eval_task, monitor_used=self._monitor_used)
+    callbacks = []
 
     self.active_model.evaluate_generator(
         eval_task,

@@ -114,7 +114,7 @@ class AsrSolver(Solver):
     super().input_fn(mode)
     assert self.task
     self.batch_input_shape = self.task.batch_input_shape()
-    batch_size = self.config['data']['task']['batch']['batch_size']
+    batch_size = self.config['solver']['optimizer']['batch_size']
     num_epoch = self.config['solver']['optimizer']['epochs']
     return self.task.input_fn(mode, batch_size, num_epoch), self.task
 
@@ -152,9 +152,6 @@ class AsrSolver(Solver):
         report_tensor_allocations_upon_oom=opts_conf[
             'report_tensor_allocations_upon_oom'])
     run_metas = tf.RunMetadata()
-
-    run_metas = None
-    run_opts = None
     return run_opts, run_metas
 
   def get_optimizer(self, multitask):
@@ -186,14 +183,14 @@ class AsrSolver(Solver):
     self.build(multi_gpu=(mode == utils.TRAIN))
 
     if mode != utils.TRAIN:
-      model_path = Path(self._model_path).joinpath('best_model.h5')
+      model_path = Path(self._model_path).joinpath('best_model.ckpt')
       logging.info(f"{mode}: load model from: {model_path}")
       if self.model.built:
-        self.model.load_weights(str(model_path))
+        self.model.load_weights(str(model_path), by_name=False)
       else:
         self._model = tf.keras.models.load_model(str(model_path))
 
-  def build(self, multi_gpu=True):
+  def build(self, multi_gpu=False):
     ''' main entrypoint to build model '''
     assert self.model
 
@@ -256,7 +253,7 @@ class AsrSolver(Solver):
     logging.info(f"CallBack: Metric log to {metric_log}")
 
     #save model
-    save_best = Path(self._model_path).joinpath('best_model.h5')
+    save_best = Path(self._model_path).joinpath('best_model.ckpt')
     save_best_cb = ParallelModelCheckpoint(
         model=self.model,
         filepath=str(save_best),
@@ -270,7 +267,7 @@ class AsrSolver(Solver):
 
     # save checkpoint
     save_ckpt = Path(self._model_path).joinpath('model.{epoch:02d}-{' +
-                                                monitor_used + ':.2f}.h5')
+                                                monitor_used + ':.2f}.ckpt')
     save_ckpt_cb = ParallelModelCheckpoint(
         model=self.model,
         filepath=str(save_ckpt),
