@@ -93,6 +93,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
         preprocess_collapse_repeated=True,
         ctc_merge_repeated=True,
         ignore_longer_outputs_than_inputs=False)
+    #batch_loss = batch_loss
   return batch_loss
 
 def ctc_data_transform(labels, logits, blank_index):
@@ -113,6 +114,13 @@ def ctc_data_transform(labels, logits, blank_index):
   labels = tf.cast(labels, tf.int32)
   labels_idx = tf.where(tf.not_equal(labels, 0)) 
   labels_values = tf.gather_nd(labels, labels_idx)
+  labels_num_class = tf.zeros_like(labels_values, dtype=tf.int32) + num_class
+  labels_values_change_blank = tf.where(tf.equal(labels_values, blank_index), 
+                                        labels_num_class, 
+                                        labels_values)
+  labels_values = tf.where(labels_values_change_blank < blank_index, 
+                           labels_values_change_blank, 
+                           labels_values_change_blank - 1)
   labels_shape = tf.cast(tf.shape(labels), dtype=tf.int64)
   labels_sparse = tf.SparseTensor(indices=labels_idx, 
                                   values=labels_values, 
