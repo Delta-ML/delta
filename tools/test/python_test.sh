@@ -27,7 +27,7 @@ do
   fi
 done < $tmpfile
 
-if [ $retcode != 0 ]; then
+if [ $retcode -ne 0 ]; then
   exit $retcode
 fi
 
