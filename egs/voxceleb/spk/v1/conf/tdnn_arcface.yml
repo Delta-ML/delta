@@ -170,7 +170,7 @@ solver:
   optimizer:
     name: adam
     #name: momentum
-    epochs: 4 # maximum epochs
+    epochs: 6 # maximum epochs
     batch_size: 512 # number of elements in a training batch
     loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
@@ -210,7 +210,7 @@ solver:
           enable: true
           count: 2
   saver:
-    model_path: "exp/delta_speaker/ckpt"
+    model_path: "exp/delta_speaker/arcface-ckpt"
     max_to_keep: 10
     save_checkpoints_steps: 1000
     keep_checkpoint_every_n_hours: 10000
