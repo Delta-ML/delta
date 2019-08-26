@@ -215,7 +215,10 @@ jsoncpp.done:
 
 mbedtls.done:
 	if ! [ -d mbedtls ]; then git clone --depth=1 --recursive https://github.com/ARMmbed/mbedtls.git; fi
-	cd mbedtls && make clean && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
+	cd mbedtls/crypto && make clean
+	cd mbedtls && make clean
+	cd mbedtls/crypto && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
+	cd mbedtls && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	touch mbedtls.done
 
 curl.done: mbedtls.done
