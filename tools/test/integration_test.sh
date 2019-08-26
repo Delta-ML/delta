@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Set bash to 'debug' mode, it will exit on :
+# -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
+set -e
+set -u
+set -o pipefail
+
+
+
 if [ -z $MAIN_ROOT ];then
   if [ -f env.sh ];then 
       source env.sh
