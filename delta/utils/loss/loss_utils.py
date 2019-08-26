@@ -104,6 +104,9 @@ def ctc_data_transform(labels, logits, blank_index):
     raise ValueError('blank_index must be greater than or equal to zero')
 
   num_class = logits.shape[2] - 1
+  if blank_index > num_class:
+    raise ValueError('blank_index must be less than or equal to num_class - 1')
+  
   if blank_index != num_class:
     logits = tf.concat([logits[:, :, :blank_index],
                         logits[:, :, blank_index + 1:],
