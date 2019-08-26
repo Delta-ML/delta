@@ -82,7 +82,9 @@ class SpeechClsTask(SpeechTask):
     logging.info("Mode: {}, stride {}".format(mode, self._stride))
     self._feature_type = self.taskconf['audio']['feature_extractor']
     self._feature_name = self.taskconf['audio']['feature_name']
-    logging.info(f"feature type: {self._feature_type}, feature name: {self._feature_name}")
+    logging.info(
+        f"feature type: {self._feature_type}, feature name: {self._feature_name}"
+    )
     self._sample_rate = self.taskconf['audio']['sr']
     self._winstep = self.taskconf['audio']['winstep']
     self._feature_size = self.taskconf['audio']['feature_size']

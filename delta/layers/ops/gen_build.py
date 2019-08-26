@@ -13,46 +13,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Generate BUILD file for bazel build."""
 
 import os
 
 cppjieba = [
-  'cppjieba/include/cppjieba/Jieba.hpp',
-  'cppjieba/include/cppjieba/QuerySegment.hpp',
-  'cppjieba/deps/limonp/Logging.hpp',
-  'cppjieba/include/cppjieba/DictTrie.hpp',
-  'cppjieba/deps/limonp/StringUtil.hpp',
-  'cppjieba/deps/limonp/StdExtension.hpp',
-  'cppjieba/include/cppjieba/Unicode.hpp',
-  'cppjieba/deps/limonp/LocalVector.hpp',
-  'cppjieba/include/cppjieba/Trie.hpp',
-  'cppjieba/include/cppjieba/SegmentBase.hpp',
-  'cppjieba/include/cppjieba/PreFilter.hpp',
-  'cppjieba/include/cppjieba/FullSegment.hpp',
-  'cppjieba/include/cppjieba/MixSegment.hpp',
-  'cppjieba/include/cppjieba/MPSegment.hpp',
-  'cppjieba/include/cppjieba/SegmentTagged.hpp',
-  'cppjieba/include/cppjieba/PosTagger.hpp',
-  'cppjieba/include/cppjieba/HMMSegment.hpp',
-  'cppjieba/include/cppjieba/HMMModel.hpp',
-  'cppjieba/include/cppjieba/KeywordExtractor.hpp',
-
+    'cppjieba/include/cppjieba/Jieba.hpp',
+    'cppjieba/include/cppjieba/QuerySegment.hpp',
+    'cppjieba/deps/limonp/Logging.hpp',
+    'cppjieba/include/cppjieba/DictTrie.hpp',
+    'cppjieba/deps/limonp/StringUtil.hpp',
+    'cppjieba/deps/limonp/StdExtension.hpp',
+    'cppjieba/include/cppjieba/Unicode.hpp',
+    'cppjieba/deps/limonp/LocalVector.hpp',
+    'cppjieba/include/cppjieba/Trie.hpp',
+    'cppjieba/include/cppjieba/SegmentBase.hpp',
+    'cppjieba/include/cppjieba/PreFilter.hpp',
+    'cppjieba/include/cppjieba/FullSegment.hpp',
+    'cppjieba/include/cppjieba/MixSegment.hpp',
+    'cppjieba/include/cppjieba/MPSegment.hpp',
+    'cppjieba/include/cppjieba/SegmentTagged.hpp',
+    'cppjieba/include/cppjieba/PosTagger.hpp',
+    'cppjieba/include/cppjieba/HMMSegment.hpp',
+    'cppjieba/include/cppjieba/HMMModel.hpp',
+    'cppjieba/include/cppjieba/KeywordExtractor.hpp',
 ]
 copts = [
-  "-Itensorflow/core/user_ops/ops",
-  "-Itensorflow/core/user_ops/ops/cppjieba/include",
-  "-Itensorflow/core/user_ops/ops/cppjieba/deps"
+    "-Itensorflow/core/user_ops/ops",
+    "-Itensorflow/core/user_ops/ops/cppjieba/include",
+    "-Itensorflow/core/user_ops/ops/cppjieba/deps"
 ]
 
-src = [os.path.join("kernels", one_path) for one_path in os.listdir("kernels") if one_path.endswith(".cc")]
-src += [os.path.join("kernels", one_path) for one_path in os.listdir("kernels") if one_path.endswith(".h")]
+src = [
+    os.path.join("kernels", one_path)
+    for one_path in os.listdir("kernels")
+    if one_path.endswith(".cc")
+]
+src += [
+    os.path.join("kernels", one_path)
+    for one_path in os.listdir("kernels")
+    if one_path.endswith(".h")
+]
 src += cppjieba
 # print(src)
 
 first_line = 'load("//tensorflow:tensorflow.bzl",  "tf_custom_op_library")'
-second_line = 'tf_custom_op_library(name = "x_ops.so", \nsrcs = ["{}"], \ncopts = ["{}"])'.format('",\n"'.join(src), '",\n"'.join(copts))
+second_line = 'tf_custom_op_library(name = "x_ops.so", \nsrcs = ["{}"], \ncopts = ["{}"])'.format(
+    '",\n"'.join(src), '",\n"'.join(copts))
 
 print(first_line)
 print(second_line)

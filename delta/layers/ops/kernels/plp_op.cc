@@ -61,8 +61,8 @@ class PLPOp : public OpKernel {
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
     OP_REQUIRES_OK(context, context->allocate_output(
-                       0, TensorShape({i_NumFrm, (plp_order_ + 1)}),
-                       &output_tensor));
+                                0, TensorShape({i_NumFrm, (plp_order_ + 1)}),
+                                &output_tensor));
 
     const float* input_flat = input_tensor.flat<float>().data();
     float* output_flat = output_tensor->flat<float>().data();

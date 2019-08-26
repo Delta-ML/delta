@@ -60,6 +60,13 @@ class AsrSeqTaskTest(tf.test.TestCase):
           type: char # char, bpe, wpm, word
           size: 3653 # vocab size in vocab_file
           path: '/nfs/cold_project/dataset/opensource/librispeech/espnet/egs/hkust/asr1/data/lang_1char/train_nodup_sp_units.txt' # path to vocab(default: 'vocab
+        batch:
+          batch_size: 32 # number of elements in a training batch
+          batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
+          batch_frames_in: 0 # maximum number of input frames in a training batch
+          batch_frames_out: 0 # maximum number of output frames in a training batch
+          batch_frames_inout: 0 # maximum number of input+output frames in a training batch
+          batch_strategy: auto # strategy to count maximum size of batch(support 4 values: "auto", "seq", "frame", "bin")
         batch_mode: false # ture, user control batch; false, `generate` will yeild one example 
         num_parallel_calls: 12
         num_prefetch_batch: 2
@@ -128,12 +135,6 @@ class AsrSeqTaskTest(tf.test.TestCase):
       optimizer:
         name: adam
         epochs: 5 # maximum epochs
-        batch_size: 32 # number of elements in a training batch
-        batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
-        batch_frames_in: 0 # maximum number of input frames in a training batch
-        batch_frames_out: 0 # maximum number of output frames in a training batch
-        batch_frames_inout: 0 # maximum number of input+output frames in a training batch
-        batch_strategy: auto # strategy to count maximum size of batch(support 4 values: "auto", "seq", "frame", "bin")
         loss: CTCLoss 
         label_smoothing: 0.0 # label smoothing rate
         learning_rate:
