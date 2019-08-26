@@ -181,8 +181,7 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
-	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool
-	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
+	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool cmake; else $(SUDO) yum install -y cmake3; fi
 	$(PIP_INSTALL) --user shyaml meson ninja
 	touch apt.done
 
@@ -215,7 +214,10 @@ jsoncpp.done:
 
 mbedtls.done:
 	if ! [ -d mbedtls ]; then git clone --depth=1 --recursive https://github.com/ARMmbed/mbedtls.git; fi
-	cd mbedtls && make clean && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
+	cd mbedtls/crypto && make clean
+	cd mbedtls && make clean
+	cd mbedtls/crypto && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
+	cd mbedtls && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	touch mbedtls.done
 
 curl.done: mbedtls.done

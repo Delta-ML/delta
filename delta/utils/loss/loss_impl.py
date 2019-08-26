@@ -21,6 +21,7 @@ from delta.utils.loss.loss_utils import cross_entropy
 from delta.utils.loss.loss_utils import mask_sequence_loss
 from delta.utils.loss.loss_utils import ctc_lambda_loss
 from delta.utils.loss.loss_utils import crf_log_likelihood
+from delta.utils.loss.loss_utils import focal_loss
 
 from delta.utils.register import registers
 
@@ -39,10 +40,8 @@ class CrossEntropyLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None,
            **kwargs):
 
-    del soft_labels
     loss = cross_entropy(
         logits=logits,
         input_length=input_length,
@@ -73,8 +72,10 @@ class DistillationLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None,
            **kwargs):
+
+    assert "soft_lables" in kwargs
+    soft_labels = kwargs["soft_labels"]
 
     loss_standard = cross_entropy(
         logits=logits,
@@ -110,10 +111,8 @@ class CTCLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None,
            **kwargs):
 
-    del soft_labels
     blank_index = kwargs.get('blank_index', 0)
     return ctc_lambda_loss(
         logits=logits,
@@ -136,7 +135,6 @@ class CrfLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None,
            **kwargs):
     assert "model" in kwargs
     model = kwargs["model"]
@@ -161,8 +159,33 @@ class SequenceCrossEntropyLoss(Loss):
            input_length=None,
            labels=None,
            label_length=None,
-           soft_labels=None):
+           **kwargs):
 
-    del soft_labels
     loss = mask_sequence_loss(logits, labels, input_length, label_length)
     return loss
+
+@registers.loss.register
+class FocalLoss(Loss):
+  def __init__(self, config):
+    super().__init__(config)
+
+    self.gamma = 2
+    if 'gamma' in self._config['solver']['optimizer']:
+        self.gamma = self._config['solver']['optimizer']['gamma']
+    assert self.gamma >= 0, 'gamma must greater than or equal to zero'
+
+  def call(self,
+           logits=None,
+           input_length=None,
+           labels=None,
+           label_length=None,
+           **kwargs):
+
+    del input_length
+    del label_length
+
+    return focal_loss(
+        logits=logits,
+        labels=labels,
+        gamma=self.gamma,
+        name='focal_loss')

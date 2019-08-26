@@ -38,11 +38,15 @@ class LossUtilTest(tf.test.TestCase):
     self.seq_labels = np.array([[5, 1, 1], [3, 2, 0]], dtype=np.int32)
     self.input_length = np.array([[3, 2]], dtype=np.int32)
     self.label_length = np.array([3, 2], dtype=np.int32)
+    # test misclassified examples
+    self.logits_2 = np.array([[10, 2, 3, 4, 5, 6], [2, 3, 10, 4, 5, 1]],
+                           dtype=np.float32)
 
   def tearDown(self):
     ''' tear down '''
 
   def test_cross_entropy(self):
+
     ''' test cross entropy'''
     with self.cached_session():
       loss = loss_utils.cross_entropy(
@@ -51,6 +55,11 @@ class LossUtilTest(tf.test.TestCase):
           labels=tf.constant(self.labels),
           label_length=None)
       self.assertAllClose(loss.eval(), 0.0, rtol=1e-06, atol=1.5e-6)
+
+      loss_2 = loss_utils.cross_entropy(
+          logits=tf.constant(self.logits_2),
+          labels=tf.constant(self.labels))
+      self.assertAllClose(loss_2.eval(), 6.5194526, rtol=1e-06, atol=1.5e-6)
 
       loss = loss_utils.cross_entropy(
           logits=tf.constant(self.seq_logits),
@@ -212,6 +221,75 @@ class LossUtilTest(tf.test.TestCase):
           tf.constant(sequence_lengths), trans_params)
 
       self.assertEqual(loss.eval(), loss_true)
+
+  def test_arcface_loss(self):
+    ''' test arcface loss '''
+
+    def gen_fake_data(batch_size, embedding_size, num_spks):
+      ''' generate fake embeddings and labels '''
+      assert batch_size == embedding_size
+      assert num_spks == embedding_size
+      embeddings = np.eye(batch_size, dtype='float32')
+      labels = np.zeros((batch_size,), dtype='int32')
+      for spk in range(batch_size):
+        labels[spk] = spk
+      return embeddings, labels
+
+    with self.cached_session():
+      batch_size = 4
+      embedding_size = 4
+      num_spks = 4
+      embeddings, labels = gen_fake_data(batch_size, embedding_size, num_spks)
+      weights = embeddings  # use whatever data is (somehow) trivial
+
+      weights_tensor = tf.constant(weights)
+      embeddings_tensor = tf.constant(embeddings)
+      labels_tensor = tf.constant(labels)
+
+      output_true = np.asarray([[56.165283, 0., 0., 0.],
+                                [0., 56.165283, 0., 0.],
+                                [0., 0., 56.165283, 0.],
+                                [0., 0., 0., 56.165283]], dtype='float32')
+      output = loss_utils.arcface_loss(embeddings_tensor,
+                                       labels_tensor,
+                                       num_spks,
+                                       weights_tensor,
+                                       s=64.0,
+                                       m=0.5,
+                                       limit_to_pi=True)
+      self.assertAllClose(output.eval(), output_true)
+
+  def test_focal_loss(self):
+    with self.cached_session():
+      logits = np.array([[22, 23, 24]], dtype=np.float32)
+      labels = np.array([2], dtype=np.int32)
+
+      ce_loss = loss_utils.cross_entropy(
+          logits=tf.constant(logits),
+          input_length=None,
+          labels=tf.constant(labels),
+          label_length=None)
+
+      fl_loss0 = loss_utils.focal_loss(
+          logits=tf.constant(logits),
+          labels=tf.constant(labels),
+          gamma = 0)
+
+      self.assertAllClose(fl_loss0.eval(), 0.407606, rtol=1e-06, atol=1e-6)
+      self.assertAllClose(fl_loss0.eval(), ce_loss.eval(), rtol=1e-07, atol=1e-7)
+
+      fl_loss2 = loss_utils.focal_loss(
+          logits=tf.constant(logits),
+          labels=tf.constant(labels),
+          gamma = 2)
+
+      fl_loss5 = loss_utils.focal_loss(
+          logits=tf.constant(logits),
+          labels=tf.constant(labels),
+          gamma = 5)
+
+      self.assertAllClose(fl_loss2.eval(), 0.045677, rtol=1e-06, atol=1e-6)
+      self.assertAllClose(fl_loss5.eval(), 0.001713, rtol=1e-06, atol=1e-6)
 
 
 if __name__ == '__main__':

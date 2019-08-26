@@ -16,6 +16,7 @@
 '''
 A series of models for speaker classification.
 '''
+import math
 from absl import logging
 import tensorflow as tf
 import tensorflow.keras.layers as keras_layers
@@ -24,6 +25,7 @@ from delta import utils
 from delta.layers import common_layers
 from delta.models.base_model import RawModel
 from delta.utils.register import registers
+from delta.utils.loss.loss_utils import arcface_loss
 
 #pylint: disable=invalid-name
 #pylint: disable=too-many-locals
@@ -61,7 +63,7 @@ class SpeakerBaseRawModel(RawModel):
     self.std = None
     self.train = None
 
-  def preprocess(self, inputs, input_text):
+  def preprocess(self, inputs):
     ''' Speech preprocessing. '''
     with tf.variable_scope('feature'):
       if self.input_type == 'samples':
@@ -84,22 +86,27 @@ class SpeakerBaseRawModel(RawModel):
           feats = inputs
         else:
           raise ValueError('Error cmvn_type %s.' % (cmvn_type))
-    return feats, input_text
+    return feats
 
   def call(self, features, **kwargs):
     ''' Implementation of __call__(). '''
     self.train = kwargs['training']
     feats = tf.identity(features['inputs'], name='feats')
-    texts = features['texts']
+    logging.info(features)
+    if 'labels' in features:
+      labels = features['labels']
+    else:
+      # serving export mode
+      labels = None
 
     with tf.variable_scope('model', reuse=tf.AUTO_REUSE):
-      feats, texts = self.preprocess(feats, texts)
-      logits = self.model(feats, texts)
+      feats = self.preprocess(feats)
+      logits = self.model(feats, labels)
     return logits
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Stub function. '''
-    return None
+    return NotImplementedError('Stub function.')
 
   def linear_block(self, x):
     '''
@@ -181,70 +188,97 @@ class SpeakerBaseRawModel(RawModel):
       raise ValueError('Unsupported frame_pooling_type: %s' % (pooling_type))
     return x
 
-  def text_layer(self, x, input_text):
-    ''' Text layer. Might be useless in speaker model. '''
-    with tf.variable_scope('text'):
-      embedding_chars_expanded = common_layers.embedding_look_up(
-          input_text, self.vocab_size, self.netconf['embedding_dim'])
-      h_pool_flat = common_layers.conv_pool(
-          embedding_chars_expanded,
-          list(map(int, self.netconf['filter_sizes'])),
-          self.netconf['embedding_dim'], self.netconf['num_filters'],
-          input_text.shape[1])
-      outputs = tf.concat((x, h_pool_flat), axis=1)
-    return outputs
-
   def dense_layer(self, x):
     ''' Embedding layers. '''
     with tf.variable_scope('dense'):
       shape = x.shape[-1].value
       hidden_dims = self.netconf['hidden_dims']
-      hidden_idx = 1
       y = x
       use_bn = self.netconf['use_bn']
-      for hidden in hidden_dims:
-        embedding = common_layers.linear(
+      remove_nonlin = self.netconf['remove_last_nonlinearity']
+      for idx, hidden in enumerate(hidden_dims):
+        last_layer = idx == (len(hidden_dims) - 1)
+        y = common_layers.linear(
             y,
-            'dense-matmul-%d' % (hidden_idx), [shape, hidden],
+            'dense-matmul-%d' % (idx + 1), [shape, hidden],
             has_bias=not use_bn)
         shape = hidden
-        y = tf.nn.relu(embedding)
+        embedding = y
+        if not last_layer or not remove_nonlin:
+          y = tf.nn.relu(y)
         if use_bn:
           y = tf.layers.batch_normalization(
               y,
               axis=-1,
               momentum=0.99,
               training=self.train,
-              name='dense-bn-%d' % (hidden_idx))
-        if self.netconf['use_dropout']:
+              name='dense-bn-%d' % (idx + 1))
+        if self.netconf['use_dropout'] and not remove_nonlin:
           y = tf.layers.dropout(
               y, self.netconf['dropout_rate'], training=self.train)
-        hidden_idx += 1
+      if self.netconf['embedding_after_linear']:
+        logging.info('Output embedding right after linear layer.')
+      else:
+        logging.info('Output embedding after non-lin, batch norm and dropout.')
+        embedding = y
     return embedding, y
 
-  def logits_layer(self, x):
+  def arcface_layer(self, inputs, labels, output_num, weights):
+    ''' ArcFace layer. '''
+    params = self.netconf['arcface_params']
+    s = params['scale']
+    m = params['margin']
+    limit_to_pi = params['limit_to_pi']
+    return arcface_loss(
+        inputs, labels, output_num, weights, s=s, m=m, limit_to_pi=limit_to_pi)
+
+  def logits_layer(self, x, labels):
     ''' Logits layer to further produce softmax. '''
+    if labels is None:
+      # serving export mode, no need for logits
+      return x
+    output_num = self.taskconf['classes']['num']
+    logits_type = self.netconf['logits_type']
+    logits_shape = [x.shape[-1].value, output_num]
     with tf.variable_scope('logits'):
-      logits = common_layers.linear(
-          x, 'logits-matmul',
-          [x.shape[-1].value, self.taskconf['classes']['num']])
-    return logits
+      init_type = self.netconf['logits_weight_init']['type']
+      if init_type == 'truncated_normal':
+        stddev = self.netconf['logits_weight_init']['stddev']
+        init = tf.truncated_normal_initializer(stddev=stddev)
+      elif init_type == 'xavier_uniform':
+        init = tf.contrib.layers.xavier_initializer(uniform=True)
+      elif init_type == 'xavier_norm':
+        init = tf.contrib.layers.xavier_initializer(uniform=False)
+      else:
+        raise ValueError('Unsupported weight init type: %s' % (init_type))
+      weights = tf.get_variable(
+          name='weights',
+          shape=logits_shape,
+          initializer=init)
+      if logits_type == 'linear':
+        bias = tf.get_variable(
+            name='bias',
+            shape=logits_shape[1],
+            initializer=tf.constant_initializer(0.0))
+        return tf.matmul(x, weights) + bias
+      elif logits_type == 'linear_no_bias':
+        return tf.matmul(x, weights)
+      elif logits_type == 'arcface':
+        return self.arcface_layer(x, labels, output_num, weights)
 
 
 @registers.model.register
 class SpeakerCRNNRawModel(SpeakerBaseRawModel):
   ''' A speaker model with simple 2D conv layers. '''
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Build the model. '''
-    x, _ = self.conv_block(inputs, depthwise=False)
+    x, _ = self.conv_block(feats, depthwise=False)
     x = self.linear_block(x)
     x = self.lstm_layer(x)
     x = self.pooling_layer(x)
-    if self.taskconf['text']['enable']:
-      x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
-    logits = self.logits_layer(dense_output)
+    logits = self.logits_layer(dense_output, labels)
     model_outputs = {'logits': logits, 'embeddings': embedding}
     return model_outputs
 
@@ -304,14 +338,12 @@ class SpeakerCRNNRawModel(SpeakerBaseRawModel):
 class SpeakerTDNNRawModel(SpeakerBaseRawModel):
   ''' A speaker model with TDNN layers. '''
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Build the model. '''
-    x, _ = self.tdnn_block(inputs)
+    x, _ = self.tdnn_block(feats)
     x = self.pooling_layer(x)
-    if self.taskconf['text']['enable']:
-      x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
-    logits = self.logits_layer(dense_output)
+    logits = self.logits_layer(dense_output, labels)
     model_outputs = {'logits': logits, 'embeddings': embedding}
     return model_outputs
 
@@ -379,15 +411,13 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
 class SpeakerResNetRawModel(SpeakerBaseRawModel):
   ''' A speaker model with ResNet layers. '''
 
-  def model(self, inputs, input_text):
+  def model(self, feats, labels):
     ''' Build the model. '''
-    x = self.resnet(inputs)
+    x = self.resnet(feats)
     x = self.linear_block(x)
     x = self.pooling_layer(x)
-    if self.taskconf['text']['enable']:
-      x = self.text_layer(x, input_text)
     embedding, dense_output = self.dense_layer(x)
-    logits = self.logits_layer(dense_output)
+    logits = self.logits_layer(dense_output, labels)
     model_outputs = {'logits': logits, 'embeddings': embedding}
     return model_outputs
 

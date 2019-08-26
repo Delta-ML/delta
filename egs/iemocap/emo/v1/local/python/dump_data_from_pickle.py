@@ -11,7 +11,6 @@ import wave
 from scipy.io import wavfile
 
 from dump_all_data import gen_all_data
-from features import *
 from helper import *
 import kaldiio
 

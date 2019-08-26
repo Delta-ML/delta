@@ -39,8 +39,8 @@ class ChunkSampler():
   def __init__(self, meta, chunk_size):
     '''
       Args:
+      meta: an object of `KaldiMetaData` or None
       chunk_size: fixed chunk size in frames.
-      pad_chunks: whether to zero pad chunks.
     '''
     self.chunk_size = chunk_size
     self.pad_chunks = True
@@ -334,10 +334,15 @@ class SpeakerClsTask(SpeechTask):
     else:
       self.single_chunk = 0.0
 
-    if 'select_by_spk' in self.taskconf['audio']:
-      self.select_by_spk = self.taskconf['audio']['select_by_spk']
+    if 'select_by_spk_train' in self.taskconf['audio']:
+      self.select_by_spk_train = self.taskconf['audio']['select_by_spk_train']
     else:
-      self.select_by_spk = 0.0
+      self.select_by_spk_train = False
+
+    if 'select_by_spk_eval' in self.taskconf['audio']:
+      self.select_by_spk_eval = self.taskconf['audio']['select_by_spk_eval']
+    else:
+      self.select_by_spk_eval = False
 
     if 'num_repeats' in self.taskconf['audio']:
       self.num_repeats = self.taskconf['audio']['num_repeats']
@@ -391,9 +396,12 @@ class SpeakerClsTask(SpeechTask):
       logging.info('Single chunk sampling enabled.')
       self.sampler.single_chunk = self.single_chunk
 
-    if self.mode != utils.INFER:
-      logging.info('Utt selection by spk enabled.')
-      self.sampler.select_by_spk = self.select_by_spk
+    if self.mode == utils.TRAIN:
+      logging.info('Utt selection by spk enabled for training.')
+      self.sampler.select_by_spk = self.select_by_spk_train
+    elif self.mode == utils.EVAL:
+      logging.info('Utt selection by spk enabled for evaluation.')
+      self.sampler.select_by_spk = self.select_by_spk_eval
 
     if self.mode == utils.TRAIN:
       logging.info('Num repeats = %d.' % (self.num_repeats))
