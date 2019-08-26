@@ -181,8 +181,7 @@ deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
 	tensorflow-src.done jsoncpp.done curl.done https_client.done
 
 apt.done:
-	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool
-	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) $(APT_INSTALL) cmake; else $(SUDO) yum install -y cmake; fi
+	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool cmake; else $(SUDO) yum install -y cmake3; fi
 	$(PIP_INSTALL) --user shyaml meson ninja
 	touch apt.done
 
