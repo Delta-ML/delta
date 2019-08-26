@@ -5,6 +5,7 @@ voxceleb1_trials=data/voxceleb1_test_no_sil/trials
 test_nj=1
 test_use_gpu=true
 stage=-1
+stop_stage=100
 config_file=tdnn_arcface.yml
 
 
@@ -196,4 +197,10 @@ if [ $stage -le 16 ]; then
   # EER: 5.329%
   # minDCF(p-target=0.01): 0.4933
   # minDCF(p-target=0.001): 0.6168
+fi
+
+if [ $stage -le 17 ] || [ $stop_stage -ge 17 ]; then
+  echo "export model..."
+  python3 -u $MAIN_ROOT/delta/main.py --cmd export_model --config conf/$config_file
+  echo "export model done."
 fi
