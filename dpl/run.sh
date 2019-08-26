@@ -32,6 +32,11 @@ if [ $# != 2 ]; then
   exit -1
 fi
 
+if [ -z $MAIN_ROOT ];then
+  source ../env.sh
+  echo "source env.sh"
+fi
+
 TARGET=$1
 ARCH=$2
 
@@ -40,14 +45,7 @@ INPUT_MODEL="${MAIN_ROOT}/dpl/model"
 MODEL_YAML="${INPUT_MODEL}/model.yaml"
 OUTPUT_MODEL="${MAIN_ROOT}/dpl/.gen"
 
-if [ -z $MAIN_ROOT ];then
-  pushd ..
-  source env.sh
-  popd
-  echo "source env.sh"
-fi
-
-. $MAIN_ROOT/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
+. ${MAIN_ROOT}/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
 
 
 # 0. dpl and model config 
@@ -175,7 +173,7 @@ echo "Input: ${INPUT_MODEL}"
 echo "Output: ${OUTPUT_MODEL}"
 
 # 1. convert graph 
-bash $(MAIN_ROOT)/dpl/gadapter/run.sh
+pushd ${MAIN_ROOT}/dpl/gadapter && bash run.sh && popd
 
 # 2. clear old libs
 clear_lib

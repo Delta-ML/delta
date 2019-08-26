@@ -1,15 +1,13 @@
 #!/bin/bash
 set -ex
 
-if [ $# != 2 ]; then
+if [ $# != 0 ]; then
   echo "usage: $0"
   exit -1
 fi
 
 if [ -z $MAIN_ROOT ];then
-  pushd ..
-  source env.sh
-  popd
+  source ../../env.sh
   echo "source env.sh"
 fi
 
