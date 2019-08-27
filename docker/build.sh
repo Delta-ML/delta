@@ -14,6 +14,11 @@ TARGET=$1 #ci, delta or deltann
 DEVICE=$2 # cpu or gpu
 MODE=$3 # push image or generate dockerfile
 
+INSTALL_GCC48=true  # install gcc-4.8
+if [ $TARGET == 'deltann' ];then
+  INSTALL_GCC48=false
+fi
+
 SAVE_DOCKERFILE=false
 if [ $MODE == 'dockerfile' ];then
   SAVE_DOCKERFILE=true
@@ -28,6 +33,10 @@ fi
 TAG=1.14.0-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
 PIP_INSTALL="pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
+
+set -e
+set -u
+set -o pipefail
 
 on_exit() {
   if [ $SAVE_DOCKERFILE == false ];then
@@ -78,12 +87,14 @@ USER \$ROLE
 
 EOF
 
+if [ ${INSTALL_GCC48} == true ]; then
 cat >> $DOCKERFILE <<EOF
 # install gcc
 COPY install_user.sh /ci/install_user.sh
 RUN /bin/bash /ci/install_user.sh
 
 EOF
+fi
 
 if [ ${TARGET} == 'ci' ];then
 # install python pakcages

@@ -227,7 +227,7 @@ curl.done: mbedtls.done
 	touch curl.done
 
 https_client.done:
-	git clone https://github.com/HISONA/https_client.git
+	if ! [ -d https_client ];then git clone https://github.com/HISONA/https_client.git; fi
 	cd https_client && make
 	touch https_client.done
 
