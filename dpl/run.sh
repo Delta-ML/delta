@@ -160,7 +160,7 @@ function compile_deltann(){
   
   pushd ${MAIN_ROOT}/deltann
   bash build.sh $target $arch $engine || { echo "build deltann error"; exit 1; }
-  cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann || { echo "copy deltann error"; exit 1 }
+  cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann || { echo "copy deltann error"; exit 1; }
   popd
   echo "Compile deltann successfully."
 }

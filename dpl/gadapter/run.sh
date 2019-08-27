@@ -28,8 +28,9 @@ function convert_graph(){
 
   if [ ${engine} == 'TF' ];then
     if [ ${model_type} == 'saved_model' ]; then
-      echo "copy saved model"
       GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${version}"
+      mkdir -p $GADAPTER_PATH
+      echo "copy saved model to $GADAPTER_PATH"
       cp -r ${input_model_path}/*  ${GADAPTER_PATH} || { echo "copy saved_model error"; exit 1; }
     elif [ ${model_type} == 'frozen_graph_pb' ]; then
       echo "forzen graph"
@@ -65,10 +66,10 @@ ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
 MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.model_type`
 OUTPUT_NUM=`cat ${MODEL_YAML} | shyaml get-length model.graphs.0.outputs`
 
-OUTPUT_NAMES=""
-END_NUM=$((expr ${OUTPUT_NUM} - 1))
-
 echo "OUTPUT_NUM: ${OUTPUT_NUM}"
+
+OUTPUT_NAMES=""
+END_NUM=$((${OUTPUT_NUM} - 1 ))
 
 for i in `seq 0 ${END_NUM}`
 do
@@ -76,5 +77,6 @@ do
   OUTPUT_NAMES="${OUTPUT_NAMES},${NEW_OUTPUT}"
 done
 
+echo "OUTPUT_NAMES: ${OUTPUT_NAMES}"
 
-convert_graph $(ENGINE) $(MODEL_TYPE) $(VERSION) ${INPUT_MODEL}
+convert_graph ${ENGINE} $MODEL_TYPE $VERSION ${INPUT_MODEL}

@@ -31,7 +31,7 @@ ln -s $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/delta/layers/ops/cppjieba || { echo "
 
 # clean 
 
-make clean &> /dev/null
+make clean &> /dev/null || exit 1
 
 # compile custom ops under tensorflow/core/user_ops
 
@@ -44,10 +44,11 @@ if [ $target == 'delta' ];then
     fi
 
 elif [ $target == 'deltann' ]; then
-    if [ -L $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops ];then
+    ops_dir=$MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops 
+    if [ -L $ops_dir ] && [ -d $ops_dir ]; then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
     fi
-    ln -s $MAIN_ROOT/delta/layers/ops  $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops 
+    ln -s $MAIN_ROOT/delta/layers/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
     
     pushd $MAIN_ROOT/tools/tensorflow
    
