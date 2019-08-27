@@ -12,6 +12,10 @@ if [ -z $MAIN_ROOT ];then
     echo "source env.sh"
 fi
 
+set -e
+set -u
+set -o pipefail
+
 # prepare dependency
 echo "prepare dependency"
 if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ];then
@@ -22,7 +26,7 @@ if ! [ -f $MAIN_ROOT/tools/cppjieba.done ];then
   pushd $MAIN_ROOT/tools && make cppjieba.done && popd
 fi
 
-ln -s $MAIN_ROOT/tools/cppjieba  $MAIN_ROOT/delta/layers/ops/cppjieba || echo $MAIN_ROOT
+ln -s $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/delta/layers/ops/cppjieba || { echo "build ops: link jieba error" ; exit 1; }
 
 # clean 
 
@@ -38,7 +42,7 @@ if [ $target == 'delta' ];then
         exit 1
     fi
 
-elif [ $target == 'deltann' ];then
+elif [ $target == 'deltann' ]; then
     if [ -L $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops ];then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
     fi
@@ -52,5 +56,4 @@ elif [ $target == 'deltann' ];then
     cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/delta/layers/ops/ 
 
     popd
-
 fi

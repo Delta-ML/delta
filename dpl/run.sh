@@ -65,8 +65,8 @@ ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
 
 BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
 mkdir -p $BAZEL_CACHE
-BAZEL="bazel --output_base=${BAZEL_CACHE}"
-#BAZEL=bazel
+#BAZEL="bazel --output_base=${BAZEL_CACHE}"
+BAZEL=bazel
 UTILS=${MAIN_ROOT}/dpl/utils/deploy
 
 function clear_lib(){
@@ -94,14 +94,15 @@ function compile_tensorflow(){
     #    unlink libtensorflow_cc.so.1
     #fi
     #ln -s libtensorflow_cc.so.1 libtensorflow_cc.so
-    if [ -L libtensorflow_framework.so.1 ];then
-      unlink libtensorflow_framework.so.1
-    fi
-    ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
-    # cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
+    #if [ -L libtensorflow_framework.so.1 ];then
+      #unlink libtensorflow_framework.so.1
+    #fi
+    #ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
+    cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
+    popd
+    popd
+
     echo "Compile tensorflow successfully."
-    popd
-    popd
 
   else
     echo "Not support: $target $arch"
