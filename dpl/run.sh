@@ -73,14 +73,14 @@ UTILS=${MAIN_ROOT}/dpl/utils/deploy
 
 
 function clear_lib(){
-  echo "Clear library under dpl/lib"
+  echo "Clear library under dpl/lib..."
   pushd ${MAIN_ROOT}/dpl/lib
   for dir in `ls`;
   do
-    rm -rf ${dir}/* && touch ${dir}/.gitkeep
+    rm -rf ${dir}/* && touch ${dir}/.gitkeep || exit 1
   done
-  echo "Clear library done."
   popd
+  echo "Clear library done."
 }
 
 function compile_tensorflow(){
@@ -143,7 +143,7 @@ function compile_custom_ops(){
     fi
 
     pushd ${MAIN_ROOT}/delta/layers/ops/
-    bash build.sh ${target}
+    bash build.sh ${target} || { echo "build ops error"; exit 1; }
     popd
     echo "Compile custom ops successfully."
   else
@@ -159,8 +159,8 @@ function compile_deltann(){
   local engine=$3   # [tf|tflite|tfserving]
   
   pushd ${MAIN_ROOT}/deltann
-  bash build.sh $target $arch $engine
-  cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann
+  bash build.sh $target $arch $engine || { echo "build deltann error"; exit 1; }
+  cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann || { echo "copy deltann error"; exit 1 }
   popd
   echo "Compile deltann successfully."
 }
@@ -168,14 +168,16 @@ function compile_deltann(){
 function compile_deltann_egs(){
   echo "Compile deltann examples..."
   pushd ${MAIN_ROOT}/deltann
-  make example
+  make example || { echo "Compile deltann examples error"; exit 1; }
   popd
   echo "Compile deltann examples done."
 }
 
 function convert_model(){
   echo "Convert model..."
-  pushd ${MAIN_ROOT}/dpl/gadapter && bash run.sh && popd
+  pushd ${MAIN_ROOT}/dpl/gadapter
+  bash run.sh || { echo "convert model error"; exit 1; }
+  popd
   echo "Convert model done."
 }
 

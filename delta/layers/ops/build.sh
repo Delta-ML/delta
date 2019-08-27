@@ -17,12 +17,13 @@ set -u
 set -o pipefail
 
 # prepare dependency
-echo "prepare dependency"
-if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ];then
+echo "build ops: prepare dependency"
+
+if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ]; then
     unlink $MAIN_ROOT/delta/layers/ops/cppjieba
 fi
 
-if ! [ -f $MAIN_ROOT/tools/cppjieba.done ];then
+if ! [ -f $MAIN_ROOT/tools/cppjieba.done ]; then
   pushd $MAIN_ROOT/tools && make cppjieba.done && popd
 fi
 
