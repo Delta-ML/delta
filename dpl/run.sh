@@ -69,8 +69,6 @@ BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
 mkdir -p $BAZEL_CACHE
 #BAZEL="bazel --output_base=${BAZEL_CACHE}"
 BAZEL=bazel
-UTILS=${MAIN_ROOT}/dpl/utils/deploy
-
 
 function clear_lib(){
   echo "Clear library under dpl/lib..."

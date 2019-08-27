@@ -19,6 +19,8 @@ set -e
 set -u
 set -o pipefail
 
+UTILS=${MAIN_ROOT}/dpl/utils/deploy
+
 function convert_graph(){
   engine=$1 # TF, TFLITE, TFTRT, TFSERVING
   model_type=$2 # saved_model, frozen_graph_pb
