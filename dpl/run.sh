@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ex
 
 # Please run this script using `docker`
 # dpl input: 
@@ -47,6 +46,9 @@ OUTPUT_MODEL="${MAIN_ROOT}/dpl/.gen"
 
 . ${MAIN_ROOT}/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
 
+set -e
+set -u
+set -o pipefail
 
 # 0. dpl and model config 
 # config from model.yaml
@@ -68,6 +70,7 @@ mkdir -p $BAZEL_CACHE
 #BAZEL="bazel --output_base=${BAZEL_CACHE}"
 BAZEL=bazel
 UTILS=${MAIN_ROOT}/dpl/utils/deploy
+
 
 function clear_lib(){
   echo "Clear library under dpl/lib"
@@ -163,9 +166,17 @@ function compile_deltann(){
 }
 
 function compile_deltann_egs(){
+  echo "Compile deltann examples..."
   pushd ${MAIN_ROOT}/deltann
   make example
   popd
+  echo "Compile deltann examples done."
+}
+
+function convert_model(){
+  echo "Convert model..."
+  pushd ${MAIN_ROOT}/dpl/gadapter && bash run.sh && popd
+  echo "Convert model done."
 }
 
 sudo chown -R deltann:deltann $MAIN_ROOT/tools
@@ -175,7 +186,7 @@ echo "Input: ${INPUT_MODEL}"
 echo "Output: ${OUTPUT_MODEL}"
 
 # 1. convert graph 
-pushd ${MAIN_ROOT}/dpl/gadapter && bash run.sh && popd
+convert_model
 
 # 2. clear old libs
 clear_lib
