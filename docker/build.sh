@@ -13,6 +13,7 @@ fi
 TARGET=$1 #ci, delta or deltann
 DEVICE=$2 # cpu or gpu
 MODE=$3 # push image or generate dockerfile
+INSTALL_GCC48=false  # install gcc-4.8
 
 SAVE_DOCKERFILE=false
 if [ $MODE == 'dockerfile' ];then
@@ -78,12 +79,14 @@ USER \$ROLE
 
 EOF
 
+if [ ${INSTALL_GCC48} == true ]; then
 cat >> $DOCKERFILE <<EOF
 # install gcc
 COPY install_user.sh /ci/install_user.sh
 RUN /bin/bash /ci/install_user.sh
 
 EOF
+fi
 
 if [ ${TARGET} == 'ci' ];then
 # install python pakcages
