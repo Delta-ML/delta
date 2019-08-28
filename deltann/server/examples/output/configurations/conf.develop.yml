@@ -1,7 +1,0 @@
-envConfig:
-  port: :8053
-  env: develop
-
-model:
-  confPath: ./lib
-  modelPath: ./model
