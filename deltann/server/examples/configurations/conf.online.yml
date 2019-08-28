@@ -1,0 +1,7 @@
+envConfig:
+  port: :8053
+  env: online
+
+model:
+  confPath: ./lib
+  modelPath: ./model

@@ -97,3 +97,8 @@ dpl/test/*
 !dpl/output_model/
 dpl/output_model/*
 !dpl/output_model/.gitkeep
+
+#deltann serving
+deltann/server/glide.lock
+deltann/server/vendor
+deltenn/server/exapmples/output
