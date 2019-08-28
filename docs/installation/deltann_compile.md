@@ -26,6 +26,12 @@ Configure your system build by running the ./configure,
 ```
 bazel build -c opt --verbose_failures //tensorflow:libtensorflow_cc.so
 ```
+
+mkl support 
+```
+bazel build -c opt --config=mkl --verbose_failures //tensorflow:libtensorflow_cc.so
+```
+
 ### GPU support
 
 Configure your system build by running the ./configure.
