@@ -45,10 +45,11 @@ See [cuDNN Support Matrix](https://docs.nvidia.com/deeplearning/sdk/cudnn-suppor
 
 For Nvidia Driver Version: 418.67, CUDA Version: 10.1:
 ```shell
-conda install cudatoolkit==10.1.105
-conda install cupti=10.1.105
+conda install cudatoolkit==10.1.168-0
+conda install cupti=10.1.168-0
 conda install cudnn==7.6.0
 ```
+
 or 
 ```shell
 conda install cudatoolkit==10.1
@@ -74,6 +75,8 @@ Other references:
 ```shell
 pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple tensorflow-gpu==1.14.0
 ```
+
+For tensorflow 1.14.0, [make sure numpy version is 1.16.4](https://github.com/tensorflow/tensorflow/issues/31249).
 
 ### Install dependences
 
