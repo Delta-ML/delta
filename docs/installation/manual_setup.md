@@ -46,11 +46,13 @@ See [cuDNN Support Matrix](https://docs.nvidia.com/deeplearning/sdk/cudnn-suppor
 For Nvidia Driver Version: 418.67, CUDA Version: 10.1:
 ```shell
 conda install cudatoolkit==10.1.105
+conda install cupti=10.1.105
 conda install cudnn==7.6.0
 ```
 or 
 ```shell
 conda install cudatoolkit==10.1
+conda install cupti==10.1
 conda install cudnn==7.6.0
 ```
 
