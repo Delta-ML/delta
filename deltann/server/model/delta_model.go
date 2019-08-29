@@ -13,42 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-package core
+package model
 
-import (
-	. "delta/deltann/server/model"
-	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
-)
+/*
+#cgo CFLAGS: -I${SRCDIR}/../dpl/output/include
+#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm  -lstdc++  -lz -lpthread
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <c_api.h>
+extern int DeltaGoInit(char* yamDeltaGoInitl_file);
+extern int DeltaGoRun();
+extern int DeltaGoDestroy();
+*/
+import "C"
 
-const defaultPort = ":8004"
-
-// Options allows configuring the started agent.
-type DeltaOptions struct {
-	ServerPort         string
-	ServerRelativePath string
-	DeltaModelYaml     string
+func DeltaModelInit(yaml string) error {
+	yamlFile := C.CString(yaml)
+	C.DeltaGoInit(yamlFile)
+	return nil
 }
 
-func DeltaListen(opts DeltaOptions) error {
+func DeltaModelRun() error {
+	C.DeltaGoRun()
+	return nil
+}
 
-	//TODO: load delta model
-	DeltaModelInit(opts.DeltaModelYaml)
-
-	router := gin.Default()
-	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-		DeltaModelRun()
-	})
-
-	dPort := opts.ServerPort
-	if dPort == "" {
-		dPort = defaultPort
-	}
-
-	err := router.Run(dPort)
-	if err != nil {
-		glog.Infof("delta serving init port  %s", dPort)
-	}
-
-	return err
+func DeltaDestroy() error {
+	C.DeltaGoDestroy()
+	return nil
 }
