@@ -17,8 +17,6 @@ package core
 
 import (
 	. "delta/deltann/server/model"
-	"github.com/gin-gonic/gin"
-	"github.com/golang/glog"
 )
 
 const defaultPort = ":8004"
@@ -35,20 +33,20 @@ func DeltaListen(opts DeltaOptions) error {
 	//TODO: load delta model
 	DeltaModelInit(opts.DeltaModelYaml)
 
-	router := gin.Default()
-	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-		DeltaModelRun()
-	})
+	//router := gin.Default()
+	//router.POST(opts.ServerRelativePath, func(context *gin.Context) {
+	//	DeltaModelRun()
+	//})
+	//
+	//dPort := opts.ServerPort
+	//if dPort == "" {
+	//	dPort = defaultPort
+	//}
+	//
+	//err := router.Run(dPort)
+	//if err != nil {
+	//	glog.Infof("delta serving init port  %s", dPort)
+	//}
 
-	dPort := opts.ServerPort
-	if dPort == "" {
-		dPort = defaultPort
-	}
-
-	err := router.Run(dPort)
-	if err != nil {
-		glog.Infof("delta serving init port  %s", dPort)
-	}
-
-	return err
+	return nil
 }

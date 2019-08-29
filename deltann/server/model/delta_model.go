@@ -17,29 +17,82 @@ package model
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../dpl/output/include
-#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm  -lstdc++  -lz -lpthread
+#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann  -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm  -lstdc++  -lz -lpthread
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <c_api.h>
 */
 import "C"
+import (
+	"github.com/golang/glog"
+	"unsafe"
+)
 
 var inf C.InferHandel
+var model C.ModelHandel
 
 func DeltaModelInit(yaml string) error {
 	yamlFile := C.CString(yaml)
-	model := C.DeltaLoadModel(yamlFile)
+	defer C.free(unsafe.Pointer(yamlFile))
+	model = C.DeltaLoadModel(yamlFile)
 	inf = C.DeltaCreate(model)
 	return nil
 }
 
 func DeltaModelRun() error {
-	//TODO DeltaModelRun
+	inNum := C.int(1)
+	var ins C.Input
+
+	text := C.CString("I'm angry.")
+	defer C.free(unsafe.Pointer(text))
+	ins.ptr = unsafe.Pointer(text)
+
+	ins.size = 1
+
+	inputName := C.CString("input_sentence")
+	defer C.free(unsafe.Pointer(inputName))
+	ins.input_name = inputName
+
+	graphName := C.CString("default")
+	defer C.free(unsafe.Pointer(graphName))
+	ins.graph_name = graphName
+
+	glog.Infof("ins %s", ins)
+
+	C.DeltaSetInputs(inf, &ins, inNum)
+	C.DeltaRun(inf)
+	outNum := C.DeltaGetOutputCount(inf)
+	glog.Infof("The output num is %d", outNum)
+
+	//for (int i = 0; i < out_num; ++i) {
+	//	int byte_size = DeltaGetOutputByteSize(inf, i);
+	//	fprintf(stderr, "The %d output byte size is %d\n", i, byte_size);
+	//
+	//	float* data = (float*)malloc(byte_size);
+	//	DeltaCopyToBuffer(inf, i, (void*)data, byte_size);
+	//
+	//	int num = byte_size / sizeof(float);
+	//	for (int j = 0; j < num; ++j) {
+	//		fprintf(stderr, "score is %f\n", data[j]);
+	//	}
+	//	free(data);
+	//}
+
+	//var data uint8 = 5
+	//
+	//cdata := C.malloc(C.size_t(unsafe.Sizeof(data)))
+	//*(*C.char)(cdata) = C.char(data)
+	//defer C.free(cdata)
+	//
+	//info := &C.info{size: C.int(unsafe.Sizeof(data)), data: cdata}
+	//C.test(info)
+
 	return nil
 }
 
 func DeltaDestroy() error {
-	//TODO DeltaDestroy
+	C.DeltaDestroy(inf)
+	C.DeltaUnLoadModel(model)
 	return nil
 }
