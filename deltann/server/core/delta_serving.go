@@ -15,16 +15,8 @@ limitations under the License.
 ==============================================================================*/
 package core
 
-/*
-#cgo CFLAGS: -I${SRCDIR}/include
-#cgo LDFLAGS: -L${SRCDIR}/lib  -lm  -lstdc++  -lz -lpthread
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-*/
-import "C"
-
 import (
+	. "delta/deltann/server/model"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 )
@@ -35,12 +27,17 @@ const defaultPort = ":8004"
 type DeltaOptions struct {
 	ServerPort         string
 	ServerRelativePath string
+	DeltaModelYaml     string
 }
 
 func DeltaListen(opts DeltaOptions) error {
+
+	//TODO: load delta model
+	DeltaModelInit(opts.DeltaModelYaml)
+
 	router := gin.Default()
-	router.POST("/delta/api/:name/*action", func(context *gin.Context) {
-		glog.Info("hello")
+	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
+		DeltaModelRun()
 	})
 
 	dPort := opts.ServerPort

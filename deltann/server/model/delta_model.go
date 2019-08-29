@@ -13,20 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-package main
+package model
 
-import (
-	. "delta/deltann/server/core"
-	"flag"
-	"github.com/golang/glog"
-)
+/*
+#cgo CFLAGS: -I${SRCDIR}/../dpl/output/include
+#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm  -lstdc++  -lz -lpthread
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <c_api.h>
+*/
+import "C"
 
-func main() {
-	flag.Parse()
-	defer glog.Flush()
-	err := DeltaListen(DeltaOptions{":8004", "/api/model", "<yaml>"})
-	if err != nil {
-		glog.Fatalf("DeltaListen err %s", err.Error())
-	}
+var inf C.InferHandel
 
+func DeltaModelInit(yaml string) error {
+	yamlFile := C.CString(yaml)
+	model := C.DeltaLoadModel(yamlFile)
+	inf = C.DeltaCreate(model)
+	return nil
+}
+
+func DeltaModelRun() error {
+	//TODO DeltaModelRun
+	return nil
+}
+
+func DeltaDestroy() error {
+	//TODO DeltaDestroy
+	return nil
 }
