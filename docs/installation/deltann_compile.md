@@ -176,6 +176,49 @@ The resulting library is in tensorflow/lite/tools/make/gen/lib/libtensorflow-lit
 cd delta/deltann && ./build.sh ios arm tflite
 ```
 
+### Tailor tensorflow lite library
+
+There isn't an automatic way of doing this。You can edit tensorflow/lite/kernels/register.cc and tensorflow/lite/kernels/BUILD, delete some ops that you don't require.
+
+Eg：delete lstm op if you don't require.
+
+tensorflow/lite/kernels/register.cc：
+
+```
+--- a/tensorflow/lite/kernels/register.cc
++++ b/tensorflow/lite/kernels/register.cc
+@@ -60,7 +60,6 @@ TfLiteRegistration* Register_BATCH_TO_SPACE_ND();
+ TfLiteRegistration* Register_MUL();
+ TfLiteRegistration* Register_L2_NORMALIZATION();
+ TfLiteRegistration* Register_LOCAL_RESPONSE_NORMALIZATION();
+ -TfLiteRegistration* Register_LSTM();
+ TfLiteRegistration* Register_BIDIRECTIONAL_SEQUENCE_LSTM();
+ TfLiteRegistration* Register_UNIDIRECTIONAL_SEQUENCE_LSTM();
+ TfLiteRegistration* Register_PAD();
+@@ -184,7 +183,6 @@ BuiltinOpResolver::BuiltinOpResolver() {
+   AddBuiltin(BuiltinOperator_L2_NORMALIZATION, Register_L2_NORMALIZATION());
+   AddBuiltin(BuiltinOperator_LOCAL_RESPONSE_NORMALIZATION,
+              Register_LOCAL_RESPONSE_NORMALIZATION());
+-  AddBuiltin(BuiltinOperator_LSTM, Register_LSTM(), /* min_version */ 1,
+                /* max_version */ 2);
+   AddBuiltin(BuiltinOperator_BIDIRECTIONAL_SEQUENCE_LSTM,
+   Register_BIDIRECTIONAL_SEQUENCE_LSTM());
+```
+
+tensorflow/lite/kernels/BUILD：
+
+```
+--- a/tensorflow/lite/kernels/BUILD
++++ b/tensorflow/lite/kernels/BUILD
+@@ -190,7 +190,6 @@ cc_library(
+         "local_response_norm.cc",
+         "logical.cc",
+         "lsh_projection.cc",
+-        "lstm.cc",
+         "maximum_minimum.cc",
+         "mfcc.cc",
+         "mul.cc",
+```
 
 ## Tensorflow Seving
 1. Download tensorflow serving
