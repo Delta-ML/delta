@@ -41,9 +41,11 @@ Same to [conda install](#conda-package-install).
 ### Install CUDA toolkit and CUDANN
 
 See [CUDA Compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) for `CUDA Toolkit and Compatible Driver Version`.
+See [cuDNN Support Matrix](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) for `cuDNN For CUDA and NVIDIA Hardware`.
 
+For Nvidia Driver Version: 418.67, CUDA Version: 10.1:
 ```shell
-conda install cudatoolkit==10.0.130
+conda install cudatoolkit==10.1.105
 conda install cudnn==7.6.0
 ```
 
