@@ -11,8 +11,4 @@ RUN adduser --disabled-password --gecos '' --shell '/bin/bash' $ROLE   && adduse
 
 USER $ROLE 
 
-# install gcc
-COPY install_user.sh /ci/install_user.sh
-RUN /bin/bash /ci/install_user.sh
-
 CMD ["/bin/bash", "-c"]

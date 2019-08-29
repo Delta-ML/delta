@@ -39,7 +39,7 @@ done
 while read file;
 do
     echo "pylint: $file"
-    pylint -j 1 $file 
+    pylint -j `nproc` $file
 done < $PYTMPFILE
 
 on_exit(){

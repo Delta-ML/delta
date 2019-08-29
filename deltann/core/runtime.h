@@ -224,9 +224,7 @@ class Runtime {
             ss << ptr[i] << ",";
           }
         } break;
-        case DataType::DELTA_CHAR: {
-          LOG_FATAL << "DataType::CHAR do nothing";
-        }
+        case DataType::DELTA_CHAR: { LOG_FATAL << "DataType::CHAR do nothing"; }
         default:
           LOG_FATAL << "Error, not support dtype ";
       }

@@ -345,7 +345,9 @@ class TextClsTaskTest(tf.test.TestCase):
       ])
       logging.debug(res[0][0][:10])
       logging.debug(res[1][0])
-      self.assertAllEqual(res[0][0][:10], [2, 0, 0, 0, 6, 2, 0, 0, 8, 0])#[2,3,0,0,6,2,0,0,8,0]
+      self.assertAllEqual(
+          res[0][0][:10],
+          [2, 0, 0, 0, 6, 2, 0, 0, 8, 0])  #[2,3,0,0,6,2,0,0,8,0]
       self.assertEqual(np.shape(res[0]), (32, max_len))
       self.assertEqual(np.shape(res[1]), (32, class_num))
       self.assertEqual(np.shape(res[2]), (32,))

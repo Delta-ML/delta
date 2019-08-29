@@ -41,24 +41,26 @@ class SpecOpTest(tf.test.TestCase):
     ''' test spectrum op'''
     with self.session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
-      logging.info(f"input shape: {input_data.shape}, sample rate dtype: {sample_rate.dtype}")
+      logging.info(
+          f"input shape: {input_data.shape}, sample rate dtype: {sample_rate.dtype}"
+      )
       self.assertEqual(sample_rate, 16000)
 
       output = py_x_ops.spectrum(input_data, sample_rate)
 
       #pylint: disable=bad-whitespace
-      output_true = np.array([
-          [ -16.863441, -16.910473, -17.077059, -16.371634, -16.845686 ],
-          [ -17.922068, -20.396345, -19.396944, -17.331493, -16.118851 ],
-          [ -17.017776, -17.551350, -20.332376, -17.403994, -16.617926 ],
-          [ -19.873854, -17.644503, -20.679525, -17.093716, -16.535091 ],
-          [ -17.074402, -17.295971, -16.896650, -15.995432, -16.560730 ]
-      ])
+      output_true = np.array(
+          [[-16.863441, -16.910473, -17.077059, -16.371634, -16.845686],
+           [-17.922068, -20.396345, -19.396944, -17.331493, -16.118851],
+           [-17.017776, -17.551350, -20.332376, -17.403994, -16.617926],
+           [-19.873854, -17.644503, -20.679525, -17.093716, -16.535091],
+           [-17.074402, -17.295971, -16.896650, -15.995432, -16.560730]])
       #pylint: enable=bad-whitespace
 
       self.assertEqual(tf.rank(output).eval(), 2)
       logging.info('Shape of spectrum: {}'.format(output.shape))
       self.assertAllClose(output.eval()[4:9, 4:9], output_true)
+
 
 if __name__ == '__main__':
   tf.test.main()

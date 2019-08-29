@@ -12,21 +12,26 @@ if [ -z $MAIN_ROOT ];then
     echo "source env.sh"
 fi
 
+set -e
+set -u
+set -o pipefail
+
 # prepare dependency
-echo "prepare dependency"
-if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ];then
+echo "build ops: prepare dependency"
+
+if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ]; then
     unlink $MAIN_ROOT/delta/layers/ops/cppjieba
 fi
 
-if ! [ -f $MAIN_ROOT/tools/cppjieba.done ];then
+if ! [ -f $MAIN_ROOT/tools/cppjieba.done ]; then
   pushd $MAIN_ROOT/tools && make cppjieba.done && popd
 fi
 
-ln -s $MAIN_ROOT/tools/cppjieba  $MAIN_ROOT/delta/layers/ops/cppjieba || echo $MAIN_ROOT
+ln -s $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/delta/layers/ops/cppjieba || { echo "build ops: link jieba error" ; exit 1; }
 
 # clean 
 
-make clean &> /dev/null
+make clean &> /dev/null || exit 1
 
 # compile custom ops under tensorflow/core/user_ops
 
@@ -38,11 +43,12 @@ if [ $target == 'delta' ];then
         exit 1
     fi
 
-elif [ $target == 'deltann' ];then
-    if [ -L $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops ];then
+elif [ $target == 'deltann' ]; then
+    ops_dir=$MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops 
+    if [ -L $ops_dir ] && [ -d $ops_dir ]; then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
     fi
-    ln -s $MAIN_ROOT/delta/layers/ops  $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops 
+    ln -s $MAIN_ROOT/delta/layers/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
     
     pushd $MAIN_ROOT/tools/tensorflow
    
@@ -52,5 +58,4 @@ elif [ $target == 'deltann' ];then
     cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/delta/layers/ops/ 
 
     popd
-
 fi

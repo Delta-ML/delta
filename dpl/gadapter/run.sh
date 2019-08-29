@@ -1,15 +1,12 @@
 #!/bin/bash
-set -ex
 
-if [ $# != 2 ]; then
+if [ $# != 0 ]; then
   echo "usage: $0"
   exit -1
 fi
 
 if [ -z $MAIN_ROOT ];then
-  pushd ..
-  source env.sh
-  popd
+  source ../../env.sh
   echo "source env.sh"
 fi
 
@@ -17,6 +14,12 @@ fi
 # input and output model dir
 INPUT_MODEL="${MAIN_ROOT}/dpl/model"
 MODEL_YAML="${INPUT_MODEL}/model.yaml"
+
+set -e
+set -u
+set -o pipefail
+
+UTILS=${MAIN_ROOT}/dpl/utils/deploy
 
 function convert_graph(){
   engine=$1 # TF, TFLITE, TFTRT, TFSERVING
@@ -28,10 +31,13 @@ function convert_graph(){
   if [ ${engine} == 'TF' ];then
     if [ ${model_type} == 'saved_model' ]; then
       GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${version}"
-      cp -r ${input_model_path}/*  ${GADAPTER_PATH}
+      mkdir -p $GADAPTER_PATH
+      echo "copy saved model to $GADAPTER_PATH"
+      cp -r ${input_model_path}/*  ${GADAPTER_PATH} || { echo "copy saved_model error"; exit 1; }
     elif [ ${model_type} == 'frozen_graph_pb' ]; then
+      echo "forzen graph"
       GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tfgraph"
-      bash ${UTILS}/frozen_saved_model.sh ${GADAPTER_PATH} ${OUTPUT_NAMES}
+      bash ${UTILS}/frozen_saved_model.sh ${GADAPTER_PATH} ${OUTPUT_NAMES} || { echo "forzen graph error"; exit 1; }
     else
       echo "MODEL_TYPE: ${model_type} and ENGINE: ${engine} error!"
       exit 1
@@ -45,8 +51,9 @@ function convert_graph(){
     echo "tfrt to be added."
     exit 1
   elif [ ${engine} == 'TFSERVING' ];then
+    echo "copy saved model for tfserving"
     GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${version}"
-    cp -r ${input_model_path}/* ${GADAPTER_PATH}
+    cp -r ${input_model_path}/* ${GADAPTER_PATH} || { echo "copy saved model for tfserving error"; exit 1; }
   else
     echo "MODEL_TYPE: ${model_type} and ENGINE: ${engine} error!"
     exit 1
@@ -61,10 +68,10 @@ ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
 MODEL_TYPE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.local.model_type`
 OUTPUT_NUM=`cat ${MODEL_YAML} | shyaml get-length model.graphs.0.outputs`
 
-OUTPUT_NAMES=""
-END_NUM=$((expr ${OUTPUT_NUM} - 1))
-
 echo "OUTPUT_NUM: ${OUTPUT_NUM}"
+
+OUTPUT_NAMES=""
+END_NUM=$((${OUTPUT_NUM} - 1 ))
 
 for i in `seq 0 ${END_NUM}`
 do
@@ -72,5 +79,6 @@ do
   OUTPUT_NAMES="${OUTPUT_NAMES},${NEW_OUTPUT}"
 done
 
+echo "OUTPUT_NAMES: ${OUTPUT_NAMES}"
 
-convert_graph $(ENGINE) $(MODEL_TYPE) $(VERSION) ${INPUT_MODEL}
+convert_graph ${ENGINE} $MODEL_TYPE $VERSION ${INPUT_MODEL}

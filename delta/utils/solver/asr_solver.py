@@ -24,7 +24,6 @@ import tensorflow as tf
 #pylint: disable=import-error
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras import backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import CSVLogger
@@ -36,6 +35,7 @@ from delta.utils import metrics as metrics_lib
 from delta.utils.solver.base_solver import Solver
 from delta.utils.register import registers
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
+from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -62,7 +62,8 @@ class AsrSolver(Solver):
     self._early_stopping = self._solver['optimizer']['early_stopping']['enable']
 
     self._monitor_used = self._solver['metrics']['monitor_used']
-    self._metrics_used = [] if self._solver['metrics']['metrics_used'] is None else self._solver['metrics']['metrics_used']
+    self._metrics_used = [] if self._solver['metrics'][
+        'metrics_used'] is None else self._solver['metrics']['metrics_used']
     self._model_path = self._solver['saver']['model_path']
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
@@ -135,7 +136,9 @@ class AsrSolver(Solver):
     ''' dataset_based generator used in keras.model.fit_generator()
         in future, it will be replaced by tf.keras.utils.Sequence'''
     next_batch = input_iterator.get_next()
-    generate_time = len(input_task) * self._num_epochs if mode == utils.TRAIN else len(input_task)
+    generate_time = len(
+        input_task) * self._num_epochs if mode == utils.TRAIN else len(
+            input_task)
     for _ in range(generate_time):
       next_batch_data = cur_sess.run(next_batch)
       yield next_batch_data
@@ -149,7 +152,6 @@ class AsrSolver(Solver):
         report_tensor_allocations_upon_oom=opts_conf[
             'report_tensor_allocations_upon_oom'])
     run_metas = tf.RunMetadata()
-
     run_metas = None
     run_opts = None
     return run_opts, run_metas
@@ -180,17 +182,17 @@ class AsrSolver(Solver):
       self.model.build(input_shape=self.batch_input_shape[0])
 
     # parallel and compile model
-    self.build(multi_gpu=mode == utils.TRAIN)
+    self.build(multi_gpu=(mode == utils.TRAIN))
 
     if mode != utils.TRAIN:
-      model_path = Path(self._model_path).joinpath('best_model.h5')
+      model_path = Path(self._model_path).joinpath('best_model.ckpt')
       logging.info(f"{mode}: load model from: {model_path}")
       if self.model.built:
-        self.model.load_weights(str(model_path))
+        self.model.load_weights(str(model_path), by_name=False)
       else:
         self._model = tf.keras.models.load_model(str(model_path))
 
-  def build(self, multi_gpu=True):
+  def build(self, multi_gpu=False):
     ''' main entrypoint to build model '''
     assert self.model
 
@@ -202,7 +204,8 @@ class AsrSolver(Solver):
 
     # compile model
     if self.ngpu > 1 and multi_gpu:
-      self._parallel_model = multi_gpu_model(self.model, gpus=self.ngpu)
+      self._parallel_model = multi_gpu_model(
+          self.model, gpus=self.ngpu, cpu_relocation=False, cpu_merge=False)
       self.parallel_model.compile(
           loss=loss,
           optimizer=optimizer,
@@ -252,9 +255,10 @@ class AsrSolver(Solver):
     logging.info(f"CallBack: Metric log to {metric_log}")
 
     #save model
-    save_best = Path(self._model_path).joinpath('best_model.h5')
-    save_best_cb = ModelCheckpoint(
-        str(save_best),
+    save_best = Path(self._model_path).joinpath('best_model.ckpt')
+    save_best_cb = ParallelModelCheckpoint(
+        model=self.model,
+        filepath=str(save_best),
         monitor=monitor_used,
         verbose=1,
         save_best_only=True,
@@ -265,9 +269,10 @@ class AsrSolver(Solver):
 
     # save checkpoint
     save_ckpt = Path(self._model_path).joinpath('model.{epoch:02d}-{' +
-                                                monitor_used + ':.2f}.h5')
-    save_ckpt_cb = ModelCheckpoint(
-        str(save_ckpt),
+                                                monitor_used + ':.2f}.ckpt')
+    save_ckpt_cb = ParallelModelCheckpoint(
+        model=self.model,
+        filepath=str(save_ckpt),
         monitor=monitor_used,
         verbose=1,
         save_best_only=False,
@@ -353,14 +358,15 @@ class AsrSolver(Solver):
   #pylint: disable=too-many-locals
   def eval(self):
     ''' only eval'''
-    mode = utils.EVAL
     #get eval dataset
     # data must be init before model build
-    eval_ds, eval_task = self.input_data(mode=mode)
+    logging.info("make Task")
+    eval_ds, eval_task = self.input_data(mode=utils.EVAL)
     eval_gen = tf.data.make_one_shot_iterator(eval_ds)
 
+    logging.info("build Model")
     #get eval model
-    self.model_fn(mode=mode)
+    self.model_fn(mode=utils.EVAL)
     assert self._built
 
     #load model
@@ -369,12 +375,17 @@ class AsrSolver(Solver):
     target_seq_list, predict_seq_list = [], []
     for _ in range(len(eval_task)):
       batch_data = K.get_session().run(eval_gen.get_next()[0])
+
       batch_input = batch_data['inputs']
       batch_target = batch_data['targets'].tolist()
+
       batch_predict = eval_func(batch_input)[0]
+
       batch_decode = py_ctc.ctc_greedy_decode(batch_predict, 0, unique=True)
+
       target_seq_list += batch_target
       predict_seq_list += batch_decode
+
     token_errors = metrics_lib.token_error(
         predict_seq_list=predict_seq_list,
         target_seq_list=target_seq_list,
@@ -409,8 +420,8 @@ class AsrSolver(Solver):
           validation_steps=len(eval_task),
           validation_freq=1,
           class_weight=None,
-          max_queue_size=50,
-          workers=1,
+          max_queue_size=100,
+          workers=4,
           use_multiprocessing=False,
           shuffle=True,
           initial_epoch=0)

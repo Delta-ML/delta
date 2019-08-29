@@ -17,6 +17,7 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
+    - "203-ctc-egs"
 
   script:
     - env

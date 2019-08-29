@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ex
 
 # Please run this script using `docker`
 # dpl input: 
@@ -32,6 +31,11 @@ if [ $# != 2 ]; then
   exit -1
 fi
 
+if [ -z $MAIN_ROOT ];then
+  source ../env.sh
+  echo "source env.sh"
+fi
+
 TARGET=$1
 ARCH=$2
 
@@ -40,15 +44,11 @@ INPUT_MODEL="${MAIN_ROOT}/dpl/model"
 MODEL_YAML="${INPUT_MODEL}/model.yaml"
 OUTPUT_MODEL="${MAIN_ROOT}/dpl/.gen"
 
-if [ -z $MAIN_ROOT ];then
-  pushd ..
-  source env.sh
-  popd
-  echo "source env.sh"
-fi
+. ${MAIN_ROOT}/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
 
-. $MAIN_ROOT/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
-
+set -e
+set -u
+set -o pipefail
 
 # 0. dpl and model config 
 # config from model.yaml
@@ -66,19 +66,19 @@ ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
 # 4. compile deltann
 
 BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
-#BAZEL=bazel --output_user_root=$BAZEL_CACHE
+mkdir -p $BAZEL_CACHE
+#BAZEL="bazel --output_base=${BAZEL_CACHE}"
 BAZEL=bazel
-UTILS=${MAIN_ROOT}/dpl/utils/deploy
 
 function clear_lib(){
-  echo "Clear library under dpl/lib"
+  echo "Clear library under dpl/lib..."
   pushd ${MAIN_ROOT}/dpl/lib
   for dir in `ls`;
   do
-    rm -rf ${dir}/* && touch ${dir}/.gitkeep
+    rm -rf ${dir}/* && touch ${dir}/.gitkeep || exit 1
   done
-  echo "Clear library done."
   popd
+  echo "Clear library done."
 }
 
 function compile_tensorflow(){
@@ -87,22 +87,23 @@ function compile_tensorflow(){
   echo "Start compile tensorflow: $target $arch"
 
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
-	pushd ${MAIN_ROOT}/tools/tensorflow
-    $(BAZEL) build -c opt //tensorflow:libtensorflow_cc.so || exit 1
+    pushd ${MAIN_ROOT}/tools/tensorflow
+    ${BAZEL} build -c opt --verbose_failures //tensorflow:libtensorflow_cc.so || exit 1
 	
     pushd bazel-bin/tensorflow
     #if [ -L libtensorflow_cc.so.1 ]; then
     #    unlink libtensorflow_cc.so.1
     #fi
     #ln -s libtensorflow_cc.so.1 libtensorflow_cc.so
-    if [ -L libtensorflow_framework.so.1 ];then
-      unlink libtensorflow_framework.so.1
-    fi
-    ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
-    # cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
+    #if [ -L libtensorflow_framework.so.1 ];then
+      #unlink libtensorflow_framework.so.1
+    #fi
+    #ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
+    cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
+    popd
+    popd
+
     echo "Compile tensorflow successfully."
-    popd
-    popd
 
   else
     echo "Not support: $target $arch"
@@ -117,7 +118,7 @@ function compile_tflite(){
 
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
     pushd ${MAIN_ROOT}/tools/tensorflow
-    $(BAZEL) build -c opt //tensorflow/lite/experimental/c:libtensorflowlite_c.so || exit 1
+    ${BAZEL} build -c opt --verbose_failures //tensorflow/lite/experimental/c:libtensorflowlite_c.so || exit 1
 
     cp tensorflow/bazel-bin/tensorflow/lite/experimental/c/*.so ${MAIN_ROOT}/dpl/lib/tflite/
     echo "Compile tensorflow lite successfully."
@@ -140,7 +141,7 @@ function compile_custom_ops(){
     fi
 
     pushd ${MAIN_ROOT}/delta/layers/ops/
-    bash build.sh ${target}
+    bash build.sh ${target} || { echo "build ops error"; exit 1; }
     popd
     echo "Compile custom ops successfully."
   else
@@ -156,16 +157,26 @@ function compile_deltann(){
   local engine=$3   # [tf|tflite|tfserving]
   
   pushd ${MAIN_ROOT}/deltann
-  bash build.sh $target $arch $engine
-  cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann
+  bash build.sh $target $arch $engine || { echo "build deltann error"; exit 1; }
+  cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann || { echo "copy deltann error"; exit 1; }
   popd
   echo "Compile deltann successfully."
 }
 
 function compile_deltann_egs(){
+  echo "Compile deltann examples..."
   pushd ${MAIN_ROOT}/deltann
-  make example
+  make example || { echo "Compile deltann examples error"; exit 1; }
   popd
+  echo "Compile deltann examples done."
+}
+
+function convert_model(){
+  echo "Convert model..."
+  pushd ${MAIN_ROOT}/dpl/gadapter
+  bash run.sh || { echo "convert model error"; exit 1; }
+  popd
+  echo "Convert model done."
 }
 
 sudo chown -R deltann:deltann $MAIN_ROOT/tools
@@ -175,7 +186,7 @@ echo "Input: ${INPUT_MODEL}"
 echo "Output: ${OUTPUT_MODEL}"
 
 # 1. convert graph 
-bash $(MAIN_ROOT)/dpl/gadapter/run.sh
+convert_model
 
 # 2. clear old libs
 clear_lib

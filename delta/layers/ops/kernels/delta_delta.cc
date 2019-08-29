@@ -44,7 +44,7 @@ bool DeltaDelta::Initialize(int order, int window) {
       1.0;  // trival window for 0th order delta [i.e. baseline feats]
 
   for (int i = 1; i <= order_; i++) {
-    std::vector<double>&prev_scales = scales_[i - 1], &cur_scales = scales_[i];
+    std::vector<double>& prev_scales = scales_[i - 1], &cur_scales = scales_[i];
 
     int window = window_;
     if (window == 0) {

@@ -1,0 +1,183 @@
+---
+data:
+  train:
+    paths:
+    - "dump/train_nodev/deltafalse/data_unigram30.json"
+    segments: null
+  eval:
+    paths:
+    - "dump/train_dev/deltafalse/data_unigram30.json"
+    segments: null
+  infer:
+    paths:
+    - "dump/test/deltafalse/data_unigram30.json"
+    segments: null
+  task:
+    dummy: false
+    name: AsrSeqTask
+    type: asr # asr, tts
+    audio:
+      dry_run: false # not save feat
+    src:
+      max_len: 3000 # max length for frames
+      subsampling_factor: 1
+      preprocess_conf: null
+    tgt:
+      max_len: 100 # max length for target tokens
+    vocab:
+      type: char # char, bpe, wpm, word
+      size: 27 # vocab size
+      path: 'data/lang_char/train_nodev_unigram30_units.txt'
+    batch:
+      batch_size: 8 # number of elements in a training batch
+      batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
+      batch_frames_in: 0 # maximum number of input frames in a training batch
+      batch_frames_out: 0 # maximum number of output frames in a training batch
+      batch_frames_inout: 0 # maximum number of input+output frames in a training batch
+      batch_strategy: auto # strategy to count maximum size of batch(support 4 values: "auto", "seq", "frame", "bin")
+    batch_mode: true # ture, user control batch; false, `generate` will yeild one example
+    num_parallel_calls: 10
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 2000
+    need_shuffle: true
+    sortagrad: true
+    batch_sort_key: 'input' # shuffle, input, output for asr and tts, and sortagrad for asr
+    num_batches: 0 # for debugging
+
+model:
+  name: CTCAsrModel
+  type: keras # raw, keras or eager model
+  net:
+    structure:
+      encoder:
+        name:
+        filters: # equal number of cnn layers
+        - 128
+        - 512
+        - 512
+        filter_size: # equal number of cnn layers
+        - [5, 3]
+        - [5, 3]
+        - [5, 3]
+        filter_stride: # equal number of cnn layers
+        - [1, 1]
+        - [1, 1]
+        - [1, 1]
+        pool_size: # equal number of cnn layers
+        - [4, 4]
+        - [1, 2]
+        - [1, 2]
+        num_filters: 128
+        linear_num: 786 # hidden number of linear layer
+        cell_num: 128 # cell units of the lstm
+        hidden1: 64 # number of hidden units of fully connected layer
+        attention: false # whether to use attention, false mean use max-pooling
+        attention_size: 128 # attention_size
+        use_lstm_layer: false # whether to use lstm layer, false mean no lstm layer
+        use_dropout: true # whether to use bn, dropout layer
+        dropout_rate: 0.2
+        use_bn: true # whether to use bn, dropout layer
+      decoder:
+        name:
+      attention:
+        name:
+
+
+solver:
+  name: AsrSolver
+  quantization:
+    enable: false # whether to quantization model
+    quant_delay: 0 # Number of steps after which weights and activations are quantized during training
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  distilling:
+    enable: false
+    name : Teacher
+    loss : DistillationLoss
+    temperature: 5
+    alpha: 0.5
+    teacher_model: null # fronzen_graph.pb
+  optimizer:
+    name: adam
+    epochs: 5 # maximum epochs
+    loss: CTCLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.0001 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    clip_global_norm: 3.0 # clip global norm
+    multitask: False # whether is multi-task
+    early_stopping: # keras early stopping
+      enable: true
+      monitor: val_loss
+      min_delta: 0
+      patience: 5
+  metrics:
+    pos_label: 1 # int, same to sklearn
+    metrics_used : null
+    monitor_used : val_token_err
+    cals:
+    - name: AccuracyCal
+      arguments: null
+    - name: ConfusionMatrixCal
+      arguments: null
+    - name: PrecisionCal
+      arguments:
+        average: 'binary'
+    - name: RecallCal
+      arguments:
+        average: 'binary'
+    - name: F1ScoreCal
+      arguments:
+        average: 'binary'
+  postproc:
+      enbale: false
+      name: EmoPostProc
+      log_verbose: false
+      eval: true # compute metrics
+      infer: true  # get predict results
+      pred_path: null # None for `model_path`/infer, dumps infer output to this dir
+      thresholds:
+          - 0.5
+      smoothing:
+          enable: true
+          count: 2
+  saver:
+    model_path: "exp/asr-ctc/ckpt"
+    max_to_keep: 10
+    save_checkpoints_steps: 100
+    keep_checkpoint_every_n_hours: 10000
+    checkpoint_every: 100 # the step to save checkpoint
+    summary: false
+    save_summary_steps: 100
+    eval_on_dev_every_secs: 1
+    print_every: 10
+    resume_model_path: ""
+  run_config:
+    debug: false # use tfdbug
+    tf_random_seed: null # 0-2**32; null is None, try to read data from /dev/urandom if available or seed from the clock otherwise
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true
+    log_step_count_steps: 100 #The frequency, in number of global steps, that the global step/sec and the loss will be logged during training.
+  run_options:
+    trace_level: 3 # 0: no trace, 1: sotware trace, 2: hardware_trace, 3: full trace
+    inter_op_thread_pool: -1
+    report_tensor_allocations_upon_oom: true
+
+serving:
+  enable: false
+  name : Evaluate
+  model: null # saved model dir, ckpt dir, or frozen_model.pb
+  inputs: 'inputs:0'
+  outpus: 'softmax_output:0'
+

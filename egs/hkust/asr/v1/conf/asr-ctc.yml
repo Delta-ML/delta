@@ -13,7 +13,7 @@ data:
     - "dump/dev/deltafalse/data.json"
     segments: null
   task:
-    dummy: false 
+    dummy: false
     name: AsrSeqTask
     type: asr # asr, tts
     audio:
@@ -26,9 +26,15 @@ data:
       max_len: 100 # max length for target tokens
     vocab:
       type: char # char, bpe, wpm, word
-      size: 3653 # vocab size in vocab_file
+      size: 3655 # vocab size in vocab_file
       path: 'data/lang_1char/train_nodup_sp_units.txt' # path to vocab(default: 'vocab
-    batch_mode: true # ture, user control batch; false, `generate` will yeild one example 
+    batch:
+      batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
+      batch_frames_in: 0 # maximum number of input frames in a training batch
+      batch_frames_out: 0 # maximum number of output frames in a training batch
+      batch_frames_inout: 0 # maximum number of input+output frames in a training batch
+      batch_strategy: auto # strategy to count maximum size of batch(support 4 values: "auto", "seq", "frame", "bin")
+    batch_mode: true # ture, user control batch; false, `generate` will yeild one example
     num_parallel_calls: 10
     num_prefetch_batch: 2
     shuffle_buffer_size: 2000
@@ -44,34 +50,8 @@ model:
     structure:
       encoder:
         name:
-        filters: # equal number of cnn layers
-        - 128
-        - 512
-        - 512
-        filter_size: # equal number of cnn layers
-        - [5, 3]
-        - [5, 3]
-        - [5, 3]
-        filter_stride: # equal number of cnn layers
-        - [1, 1]
-        - [1, 1]
-        - [1, 1]
-        pool_size: # equal number of cnn layers
-        - [4, 4]
-        - [1, 2]
-        - [1, 2]
-        num_filters: 128
-        linear_num: 786 # hidden number of linear layer
-        cell_num: 128 # cell units of the lstm
-        hidden1: 64 # number of hidden units of fully connected layer
-        attention: false # whether to use attention, false mean use max-pooling
-        attention_size: 128 # attention_size
-        use_lstm_layer: false # whether to use lstm layer, false mean no lstm layer
-        use_dropout: true # whether to use bn, dropout layer
-        dropout_rate: 0.2
-        use_bn: true # whether to use bn, dropout layer
       decoder:
-        name: 
+        name:
       attention:
         name:
 
@@ -89,22 +69,17 @@ solver:
     enable: false # use average model
     var_avg_decay: 0.99 # the decay rate of varaibles
   distilling:
-    enable: false 
+    enable: false
     name : Teacher
     loss : DistillationLoss
     temperature: 5
     alpha: 0.5
-    teacher_model: null # fronzen_graph.pb 
+    teacher_model: null # fronzen_graph.pb
   optimizer:
     name: adam
     epochs: 5 # maximum epochs
-    batch_size: 8 # number of elements in a training batch
-    batch_bins: 0 # maximum number of bins (frames x dim) in a trainin batch
-    batch_frames_in: 0 # maximum number of input frames in a training batch
-    batch_frames_out: 0 # maximum number of output frames in a training batch
-    batch_frames_inout: 0 # maximum number of input+output frames in a training batch
-    batch_strategy: auto # strategy to count maximum size of batch(support 4 values: "auto", "seq", "frame", "bin")
-    loss: CTCLoss 
+    loss: CTCLoss
+    batch_size: 16 # number of elements in a training batch
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.0001 # learning rate of Adam optimizer
@@ -124,7 +99,7 @@ solver:
     monitor_used : val_token_err
     cals:
     - name: AccuracyCal
-      arguments: null 
+      arguments: null
     - name: ConfusionMatrixCal
       arguments: null
     - name: PrecisionCal
@@ -139,7 +114,7 @@ solver:
   postproc:
       enbale: false
       name: EmoPostProc
-      log_verbose: false 
+      log_verbose: false
       eval: true # compute metrics
       infer: true  # get predict results
       pred_path: null # None for `model_path`/infer, dumps infer output to this dir
@@ -174,7 +149,7 @@ solver:
     report_tensor_allocations_upon_oom: true
 
 serving:
-  enable: false 
+  enable: false
   name : Evaluate
   model: null # saved model dir, ckpt dir, or frozen_model.pb
   inputs: 'inputs:0'

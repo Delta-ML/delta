@@ -92,5 +92,5 @@ ${TEST_BIN}: $(TEST_OBJ) $(STATIC_LIB)
 
 .PHONY: clean
 clean:
-	-rm -r $(GENDIR)
-	-rm x_ops.so
+	-rm -rf $(GENDIR)
+	-rm -f x_ops.so
