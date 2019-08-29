@@ -1,7 +1,7 @@
 
 # DELTA-NN compile
 
-Deltann support tensorflow， tensorflow lite，and tensorflow serving。
+Deltann support tensorflow， tensorflow lite，and tensorflow serving.
 
 ## Tensorflow C++
 Build tensorflow for Linux :
@@ -178,7 +178,7 @@ cd delta/deltann && ./build.sh ios arm tflite
 
 ### Tailor tensorflow lite library
 
-There isn't an automatic way of doing this。You can edit tensorflow/lite/kernels/register.cc and tensorflow/lite/kernels/BUILD, delete some ops that you don't require.
+There isn't an automatic way of doing this. You can edit tensorflow/lite/kernels/register.cc and tensorflow/lite/kernels/BUILD, delete some ops that you don't require.
 
 Eg：delete lstm op if you don't require.
 
