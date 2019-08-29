@@ -5,7 +5,7 @@ stop_stage=100
 config_file=asr-ctc.yml
 
 source path.sh
-source utils/parse_options.sh || exit 1;
+source $MAIN_ROOT/utils/parse_options.sh || exit 1;
 
 # Set bash to 'debug' mode, it will exit on :
 # -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
