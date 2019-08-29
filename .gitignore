@@ -103,3 +103,5 @@ deltann/server/glide.lock
 deltann/server/vendor
 deltenn/server/exapmples/output
 deltann/server/dpl
+.bash_history
+.viminfo
