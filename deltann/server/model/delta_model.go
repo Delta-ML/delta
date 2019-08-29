@@ -65,28 +65,7 @@ func DeltaModelRun() error {
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
 
-	//for (int i = 0; i < out_num; ++i) {
-	//	int byte_size = DeltaGetOutputByteSize(inf, i);
-	//	fprintf(stderr, "The %d output byte size is %d\n", i, byte_size);
-	//
-	//	float* data = (float*)malloc(byte_size);
-	//	DeltaCopyToBuffer(inf, i, (void*)data, byte_size);
-	//
-	//	int num = byte_size / sizeof(float);
-	//	for (int j = 0; j < num; ++j) {
-	//		fprintf(stderr, "score is %f\n", data[j]);
-	//	}
-	//	free(data);
-	//}
-
-	//var data uint8 = 5
-	//
-	//cdata := C.malloc(C.size_t(unsafe.Sizeof(data)))
-	//*(*C.char)(cdata) = C.char(data)
-	//defer C.free(cdata)
-	//
-	//info := &C.info{size: C.int(unsafe.Sizeof(data)), data: cdata}
-	//C.test(info)
+	//TODO for outNum
 
 	return nil
 }
