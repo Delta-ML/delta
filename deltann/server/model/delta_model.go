@@ -22,9 +22,6 @@ package model
 #include <stdlib.h>
 #include <string.h>
 #include <c_api.h>
-//extern int DeltaGoInit(char* yamDeltaGoInitl_file);
-//extern int DeltaGoRun();
-//extern int DeltaGoDestroy();
 */
 import "C"
 
@@ -34,16 +31,15 @@ func DeltaModelInit(yaml string) error {
 	yamlFile := C.CString(yaml)
 	model := C.DeltaLoadModel(yamlFile)
 	inf = C.DeltaCreate(model)
-	//C.DeltaGoInit(yamlFile)
 	return nil
 }
 
 func DeltaModelRun() error {
-	//C.DeltaGoRun()
+	//TODO DeltaModelRun
 	return nil
 }
 
 func DeltaDestroy() error {
-	//C.DeltaGoDestroy()
+	//TODO DeltaDestroy
 	return nil
 }
