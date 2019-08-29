@@ -48,6 +48,11 @@ For Nvidia Driver Version: 418.67, CUDA Version: 10.1:
 conda install cudatoolkit==10.1.105
 conda install cudnn==7.6.0
 ```
+or 
+```shell
+conda install cudatoolkit==10.1
+conda install cudnn==7.6.0
+```
 
 For user in China, we can set conda mirror as below:
 
@@ -56,6 +61,11 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/f
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
 conda config --set show_channel_urls yes
 ```
+
+Other references:
+[conda-forge](https://github.com/conda-forge/conda-forge.github.io/issues/687)
+[tuna](https://github.com/tuna/issues/issues/507)
+
 
 ### Install Tensorflow
 
