@@ -275,8 +275,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
     self.config['data']['task']['suffix'] = '.npy'
     task = self.task_class(self.config, utils.TRAIN)
 
-    for inputs, label, filename, clip_id, soft_labels in task.generate_data(
-    ):
+    for inputs, label, filename, clip_id, soft_labels in task.generate_data():
       logging.info(
           "feat shape:{} \n labels:{} \nfilename:{} \nclip_id:{}\nsoft_labels:{}"
           .format(inputs.shape, label, filename, clip_id, soft_labels))

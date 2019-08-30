@@ -555,6 +555,7 @@ class SpeakerClsTask(SpeechTask):
     if mode == utils.TRAIN:
       data = data.shuffle(buffer_size=buffer_size)
       if self.uniform_resample:
+
         def class_func(inputs, labels, filenames, clip_ids, soft_labels):
           ''' Return the label of a sample tuple. '''
           return labels

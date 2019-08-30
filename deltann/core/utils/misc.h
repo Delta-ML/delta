@@ -24,10 +24,7 @@ limitations under the License.
 
 namespace delta {
 
-enum class DeltaStatus {
-  STATUS_OK = 0,
-  STATUS_ERROR = 1
-};
+enum class DeltaStatus { STATUS_OK = 0, STATUS_ERROR = 1 };
 
 enum class DataType {
   DELTA_NONE = 0,

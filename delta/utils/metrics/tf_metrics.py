@@ -32,7 +32,7 @@ def accuracy(logits, labels):
       predictions = tf.argmax(logits, axis=-1, output_type=tf.int64)
       labels = tf.cast(labels, tf.int64)
       return tf.reduce_mean(
-        tf.cast(tf.equal(predictions, labels), dtype=tf.float32))
+          tf.cast(tf.equal(predictions, labels), dtype=tf.float32))
 
 
 def confusion_matrix(logits, labels, num_class):

@@ -185,7 +185,7 @@ class SpeakerBaseRawModel(RawModel):
     '''
     assert_rank3 = tf.debugging.assert_rank(x, 3)
     with tf.control_dependencies([assert_rank3]):
-       x = tf.identity(x)
+      x = tf.identity(x)
 
     pooling_type = self.netconf['frame_pooling_type']
     if pooling_type == 'stats':
@@ -201,7 +201,7 @@ class SpeakerBaseRawModel(RawModel):
 
     assert_rank2 = tf.debugging.assert_rank(x, 2)
     with tf.control_dependencies([assert_rank2]):
-       x = tf.identity(x)
+      x = tf.identity(x)
 
     return x
 
@@ -273,9 +273,7 @@ class SpeakerBaseRawModel(RawModel):
         raise ValueError('Unsupported weight init type: %s' % (init_type))
 
       weights = tf.get_variable(
-          name='weights',
-          shape=logits_shape,
-          initializer=init)
+          name='weights', shape=logits_shape, initializer=init)
 
       if logits_type == 'linear':
         bias = tf.get_variable(
