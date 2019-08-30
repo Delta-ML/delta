@@ -17,7 +17,7 @@ package model
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../dpl/output/include
-#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann  -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm  -lstdc++  -lz -lpthread
+#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann  -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm -fPIC -O2  -lstdc++  -lz -lpthread
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,11 +40,11 @@ func DeltaModelInit(yaml string) error {
 	return nil
 }
 
-func DeltaModelRun() error {
+func DeltaModelRun(uText string) error {
 	inNum := C.int(1)
 	var ins C.Input
 
-	text := C.CString("I'm angry.")
+	text := C.CString(uText)
 	defer C.free(unsafe.Pointer(text))
 	ins.ptr = unsafe.Pointer(text)
 
@@ -65,7 +65,18 @@ func DeltaModelRun() error {
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
 
-	//TODO for outNum
+	for i := 0; i < int(outNum); i++ {
+
+		byteSize := C.DeltaGetOutputByteSize(inf, C.int(i))
+		data := (*C.float)(C.malloc(C.size_t(byteSize)))
+		C.DeltaCopyToBuffer(inf, C.int(i), unsafe.Pointer(data), byteSize)
+		num := byteSize / C.sizeof_float
+		for j := 0; j < int(num); j++ {
+			p := (*[1 << 30]C.float)(unsafe.Pointer(data))
+			glog.Infof("score is %f", p[j])
+		}
+		C.free(unsafe.Pointer(data))
+	}
 
 	return nil
 }

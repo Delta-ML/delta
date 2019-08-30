@@ -17,6 +17,10 @@ package core
 
 import (
 	. "delta/deltann/server/model"
+	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 const defaultPort = ":8004"
@@ -28,14 +32,17 @@ type DeltaOptions struct {
 	DeltaModelYaml     string
 }
 
+func init() {
+	listenSystemStatus()
+}
+
 func DeltaListen(opts DeltaOptions) error {
 
-	//TODO: load delta model
 	DeltaModelInit(opts.DeltaModelYaml)
 
 	//router := gin.Default()
 	//router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-	//	DeltaModelRun()
+	//DeltaModelRun("test")
 	//})
 	//
 	//dPort := opts.ServerPort
@@ -49,4 +56,24 @@ func DeltaListen(opts DeltaOptions) error {
 	//}
 
 	return nil
+}
+
+func listenSystemStatus() {
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	go func() {
+		for s := range c {
+			switch s {
+			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
+				fmt.Println("退出:", s)
+				DeltaDestroy()
+			case syscall.SIGUSR1:
+				fmt.Println("usr1", s)
+			case syscall.SIGUSR2:
+				fmt.Println("usr2", s)
+			default:
+				fmt.Println("其他信号:", s)
+			}
+		}
+	}()
 }
