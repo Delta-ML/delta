@@ -34,6 +34,7 @@ from delta.utils.decode import py_ctc
 from delta.utils import metrics as metrics_lib
 from delta.utils.solver.base_solver import Solver
 from delta.utils.register import registers
+from delta.utils.solver.utils.solver_utils import lastest_checkpoint
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 
@@ -65,6 +66,8 @@ class AsrSolver(Solver):
     self._metrics_used = [] if self._solver['metrics'][
         'metrics_used'] is None else self._solver['metrics']['metrics_used']
     self._model_path = self._solver['saver']['model_path']
+    self._model_load_type = self._solver['loader']['model_load_type']
+    self._init_epoch = self._solver['loader']['init_epoch']
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
     logging.info('lr : {}'.format(self._lr))
@@ -181,16 +184,25 @@ class AsrSolver(Solver):
       # data must be (features, labels), only using features as input
       self.model.build(input_shape=self.batch_input_shape[0])
 
-    # parallel and compile model
-    self.build(multi_gpu=(mode == utils.TRAIN))
-
-    if mode != utils.TRAIN:
-      model_path = Path(self._model_path).joinpath('best_model.ckpt')
+    assert self._model_load_type in ['best', 'lastest', 'no']
+    assert self._init_epoch in range(0, self._num_epochs)
+    if mode != utils.TRAIN or self._model_load_type != 'no':
+      model_path = None
+      if self._model_load_type == "best":
+        model_path = Path(self._model_path).joinpath('best_model.ckpt')
+      elif self._model_load_type == 'lastest':
+        file_name_pattern = 'model.{epoch:02d}-{monitor_used:.2f}.ckpt'
+        model_path = lastest_checkpoint(self._model_path, file_name_pattern)
+    
+      assert len(str(model_path)) > 0
       logging.info(f"{mode}: load model from: {model_path}")
       if self.model.built:
         self.model.load_weights(str(model_path), by_name=False)
       else:
         self._model = tf.keras.models.load_model(str(model_path))
+    
+    # parallel and compile model
+    self.build(multi_gpu=(mode == utils.TRAIN))
 
   def build(self, multi_gpu=False):
     ''' main entrypoint to build model '''
@@ -346,7 +358,7 @@ class AsrSolver(Solver):
         workers=1,
         use_multiprocessing=False,
         shuffle=True,
-        initial_epoch=0)
+        initial_epoch=self._init_epoch)
 
   def get_metric_func(self):
     ''' build metric function '''
@@ -424,7 +436,7 @@ class AsrSolver(Solver):
           workers=4,
           use_multiprocessing=False,
           shuffle=True,
-          initial_epoch=0)
+          initial_epoch=self._init_epoch)
       #save model
       # not work for subclassed model, using tf.keras.experimental.export_saved_model
       #self.save_model()

@@ -16,6 +16,8 @@
 """Solver utilities."""
 
 import os
+import re
+import numpy as np
 import tensorflow as tf
 from absl import logging
 
@@ -79,6 +81,22 @@ def save_infer_res(config, logits, preds):
       in_f.write(" ".join(["{:.3f}".format(num) for num in logit]) +
                  "\t{}\n".format(pred))
 
+def lastest_checkpoint(dir_name, file_name_pattern):
+  """Return the most recently checkpoint file matching file_name_pattern"""
+  file_name_regex = '^' + re.sub(r'{.*}', r'.*', file_name_pattern) + '$'
+
+  tf_checkpoint_file = tf.train.latest_checkpoint(dir_name)
+  if tf_checkpoint_file is not None and re.match(file_name_regex,
+                                                 os.path.basename(tf_checkpoint_file)):
+     return tf_checkpoint_file
+
+  file_list = [os.path.join(dir_name, file_name)
+               for file_name in os.listdir(dir_name)
+               if re.match(file_name_regex, file_name)]
+  file_time_list = [os.path.getmtime(single_file) for single_file in file_list]
+  file_sort_by_time = np.argsort(file_time_list)
+  lastest_file = file_list[file_sort_by_time[-1]] if len(file_sort_by_time) > 0 else ""
+  return lastest_file
 
 def run_metrics(config, y_preds, y_ground_truth, mode):
   """Run metrics for one output"""
