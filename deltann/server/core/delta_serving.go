@@ -65,14 +65,14 @@ func listenSystemStatus() {
 		for s := range c {
 			switch s {
 			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
-				fmt.Println("退出:", s)
+				fmt.Println("exit:", s)
 				DeltaDestroy()
 			case syscall.SIGUSR1:
 				fmt.Println("usr1", s)
 			case syscall.SIGUSR2:
 				fmt.Println("usr2", s)
 			default:
-				fmt.Println("其他信号:", s)
+				fmt.Println("other:", s)
 			}
 		}
 	}()
