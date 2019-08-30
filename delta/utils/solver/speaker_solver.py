@@ -58,11 +58,6 @@ class SpeakerSolver(EstimatorSolver):
         features={
             'inputs':
                 tf.placeholder(name="inputs", shape=shape, dtype=tf.float32),
-            'texts':
-                tf.placeholder(
-                    name="texts",
-                    shape=(None, taskconf['text']['max_text_len']),
-                    dtype=tf.int32)
-        },
+       },
         default_batch_size=None,
     )

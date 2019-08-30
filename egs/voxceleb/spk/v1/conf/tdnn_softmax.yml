@@ -52,16 +52,9 @@ data:
       cmvn: true # apply cmvn or generate cmvn
       cmvn_type: none # global, local, sliding
       cmvn_path: exp/delta_speaker/cmvn.npy # cmvn file
-    text:
-      enable: False
-      vocab_path: "" # path to vocab(default: 'vocab
-      vocab_size: 5004 # vocab size
-      max_text_len: 100 # max length for text
     classes:
       num: 6153
-      vocab:
-        normal: 0
-        conflict: 1
+      vocab: null
     num_parallel_calls: 12
     num_prefetch_batch: 2
     shuffle_buffer_size: 20000 # number of utterances to keep in shuffle buffer
