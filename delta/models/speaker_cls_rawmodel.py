@@ -47,7 +47,6 @@ class SpeakerBaseRawModel(RawModel):
     self.audioconf = self.taskconf['audio']
 
     self.attention = self.netconf['attention']
-    self.vocab_size = self.taskconf['text']['vocab_size']
     frame_per_sec = 1 / self.taskconf['audio']['winstep']
     self.input_len = self.taskconf['audio']['clip_size'] * frame_per_sec
     self.input_type = 'samples' if self.taskconf[
