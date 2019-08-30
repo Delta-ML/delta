@@ -27,7 +27,8 @@ def accuracy(logits, labels):
   '''
   with tf.name_scope('accuracy'):
     assert_rank = tf.assert_equal(tf.rank(logits), tf.rank(labels) + 1)
-    with tf.control_dependencies([assert_rank]):
+    assert_shape = tf.assert_equal(tf.shape(logits)[:-1], tf.shape(labels))
+    with tf.control_dependencies([assert_rank, assert_shape]):
       predictions = tf.argmax(logits, axis=-1, output_type=tf.int64)
       labels = tf.cast(labels, tf.int64)
       return tf.reduce_mean(

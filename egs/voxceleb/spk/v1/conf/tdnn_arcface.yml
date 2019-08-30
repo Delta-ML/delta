@@ -2,12 +2,12 @@
 data:
   train:
     paths:
-    - 'data/train_combined_no_sil_tr'
+    - 'data/train_combined_no_sil_train'
     segments:
     -
   eval:
     paths:
-    - 'data/train_combined_no_sil_cv'
+    - 'data/train_combined_no_sil_dev'
     segments:
     -
   infer:

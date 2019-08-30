@@ -113,13 +113,14 @@ class SpeakerBaseRawModel(RawModel):
     x: shape [batch, time, feat, channel]
     output: shape [b, t, f]
     '''
-    times_t = tf.shape(x)[1]
+    batch_t = tf.shape(x)[0]
+    time_t = tf.shape(x)[1]
     feat, channel = x.shape.as_list()[2:]
     linear_num = self.netconf['linear_num']
 
     if linear_num > 0:
       with tf.variable_scope('linear'):
-        x = tf.reshape(x, [-1, feat * channel])
+        x = tf.reshape(x, [batch_t * time_t, feat * channel])
 
         if self.netconf['use_dropout']:
           x = tf.layers.dropout(
@@ -133,10 +134,12 @@ class SpeakerBaseRawModel(RawModel):
           bn_name = 'bn_linear'
           x = tf.layers.batch_normalization(
               x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
+
+        x = tf.reshape(x, [batch_t, time_t, linear_num])
     else:
       logging.info('linear_num <= 0, only apply reshape.')
+      x = tf.reshape(x, [batch_t, time_t, feat * channel])
 
-    x = tf.reshape(x, [-1, times_t, feat * channel])
     return x
 
   def lstm_layer(self, x):
@@ -195,7 +198,6 @@ class SpeakerBaseRawModel(RawModel):
         x = mean
     else:
       raise ValueError('Unsupported frame_pooling_type: %s' % (pooling_type))
-    print('pooling layer', x.shape)
 
     assert_rank2 = tf.debugging.assert_rank(x, 2)
     with tf.control_dependencies([assert_rank2]):
@@ -211,6 +213,7 @@ class SpeakerBaseRawModel(RawModel):
       y = x
       use_bn = self.netconf['use_bn']
       remove_nonlin = self.netconf['remove_last_nonlinearity']
+
       for idx, hidden in enumerate(hidden_dims):
         last_layer = idx == (len(hidden_dims) - 1)
         y = common_layers.linear(
@@ -252,9 +255,11 @@ class SpeakerBaseRawModel(RawModel):
     if labels is None:
       # serving export mode, no need for logits
       return x
+
     output_num = self.taskconf['classes']['num']
     logits_type = self.netconf['logits_type']
     logits_shape = [x.shape[-1].value, output_num]
+
     with tf.variable_scope('logits'):
       init_type = self.netconf['logits_weight_init']['type']
       if init_type == 'truncated_normal':
@@ -266,10 +271,12 @@ class SpeakerBaseRawModel(RawModel):
         init = tf.contrib.layers.xavier_initializer(uniform=False)
       else:
         raise ValueError('Unsupported weight init type: %s' % (init_type))
+
       weights = tf.get_variable(
           name='weights',
           shape=logits_shape,
           initializer=init)
+
       if logits_type == 'linear':
         bias = tf.get_variable(
             name='bias',
