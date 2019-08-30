@@ -446,7 +446,7 @@ class SpeakerClsTask(SpeechTask):
     self.sampler.pad_chunks = False
 
     num_done = 0
-    for inputs, _, _, _, _, _ in \
+    for inputs, _, _, _, _ in \
         self.generate_data():
       # update stats
       if inputs.ndim == 3:
