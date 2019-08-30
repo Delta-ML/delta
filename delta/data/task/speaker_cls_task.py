@@ -531,11 +531,11 @@ class SpeakerClsTask(SpeechTask):
     output_types = (
         tf.float32,
         tf.int32,
-        tf.int32,
         tf.string,
         tf.int32,
         tf.float32,
     )
+    assert len(output_shapes) == len(output_types)
     return output_shapes, output_types
 
   def preprocess_batch(self, batch):
