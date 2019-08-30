@@ -17,27 +17,37 @@ package core
 
 import (
 	. "delta/deltann/server/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 const defaultPort = ":8004"
 
-// Options allows configuring the started agent.
+// Options
 type DeltaOptions struct {
 	ServerPort         string
 	ServerRelativePath string
 	DeltaModelYaml     string
 }
 
+func init() {
+	listenSystemStatus()
+}
+
 func DeltaListen(opts DeltaOptions) error {
 
-	//TODO: load delta model
-	DeltaModelInit(opts.DeltaModelYaml)
+	err := DeltaModelInit(opts.DeltaModelYaml)
+	if err != nil {
+		return err
+	}
 
 	router := gin.Default()
 	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-		DeltaModelRun()
+		DeltaModelRun("hello world")
 	})
 
 	dPort := opts.ServerPort
@@ -45,10 +55,30 @@ func DeltaListen(opts DeltaOptions) error {
 		dPort = defaultPort
 	}
 
-	err := router.Run(dPort)
+	err = router.Run(dPort)
 	if err != nil {
 		glog.Infof("delta serving init port  %s", dPort)
 	}
 
-	return err
+	return nil
+}
+
+func listenSystemStatus() {
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	go func() {
+		for s := range c {
+			switch s {
+			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
+				fmt.Println("exit:", s)
+				DeltaDestroy()
+			case syscall.SIGUSR1:
+				fmt.Println("usr1", s)
+			case syscall.SIGUSR2:
+				fmt.Println("usr2", s)
+			default:
+				fmt.Println("other:", s)
+			}
+		}
+	}()
 }

@@ -1,5 +1,5 @@
 #!/bin/sh
-go build -o delta-service  main.go
+GOOS=linux GOARCH=amd64 go build -o delta-service  main.go
 if [ -d output ]
 then
     rm -r output
