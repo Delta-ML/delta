@@ -359,8 +359,6 @@ class SpeakerClsTask(SpeechTask):
     else:
       self.feature_shape = (self.chunk_size_frames, self.feature_dims, 1)
     self.feature_shape = (None, self.feature_dims, 1)
-    # TODO: text input is useless
-    self.max_text_len = 10
 
     # TODO: not implemented
     self.uniform_resample = False
@@ -479,7 +477,7 @@ class SpeakerClsTask(SpeechTask):
       multiprocess: use multiprocessing. Default = True.
 
     Yields:
-      (inputs, texts, label, filename, clip_id, soft_label)
+      (inputs, label, filename, clip_id, soft_label)
     '''
     class_num = self.taskconf['classes']['num']
 
@@ -495,11 +493,10 @@ class SpeakerClsTask(SpeechTask):
         a tuple of feature, label and everything else for training.
       '''
       inputs, label, utt_key = sample
-      texts = np.array([0] * self.max_text_len)
       filename = utt_key
       clip_id = clip_id
       soft_label = np.zeros((1,))  # disabled for speaker model
-      return inputs, texts, label, filename, clip_id, soft_label
+      return inputs, label, filename, clip_id, soft_label
 
     if self.mode == utils.INFER:
       # Estimator.predict might cause multiprocessing to fail.
@@ -526,7 +523,6 @@ class SpeakerClsTask(SpeechTask):
   def feature_spec(self):
     output_shapes = (
         tf.TensorShape(self.feature_shape),  # audio_feat e.g. (3000, 40, 3)
-        tf.TensorShape([self.max_text_len]),  # text
         tf.TensorShape([]),  # label
         tf.TensorShape([]),  # filename
         tf.TensorShape([]),  # clip_id
@@ -559,19 +555,18 @@ class SpeakerClsTask(SpeechTask):
     if mode == utils.TRAIN:
       data = data.shuffle(buffer_size=buffer_size)
       if self.uniform_resample:
-
-        def class_func(inputs, texts, labels, filenames, clip_ids, soft_labels):
+        def class_func(inputs, labels, filenames, clip_ids, soft_labels):
           ''' Return the label of a sample tuple. '''
           return labels
+
         target_dist = tf.ones((self.num_class,), dtype=tf.float32) / \
                       self.num_class
         data = data.apply(
             tf.data.experimental.rejection_resample(class_func, target_dist))
 
-    def make_example(inputs, texts, labels, filenames, clip_ids, soft_labels):
+    def make_example(inputs, labels, filenames, clip_ids, soft_labels):
       features = {
           'inputs': inputs,
-          'texts': texts,
           'labels': labels,
           'filepath': filenames,
           'clipid': clip_ids,

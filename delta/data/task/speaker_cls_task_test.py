@@ -73,16 +73,9 @@ class SpeakerClsTaskTest(tf.test.TestCase):
           # cmvn
           cmvn: true # apply cmvn or generate cmvn
           cmvn_path: ./cmvn_speaker.npy # cmvn file
-        text:
-          enable: False
-          vocab_path: data/vocab/chars5004_attention.txt # path to vocab(default: 'vocab
-          vocab_size: 5004 # vocab size
-          max_text_len: 100 # max length for text
         classes:
           num: 2 
-          vocab:
-            normal: 0
-            conflict: 1
+          vocab: null
         num_parallel_calls: 12
         num_prefetch_batch: 2
         shuffle_buffer_size: 200000
@@ -282,11 +275,11 @@ class SpeakerClsTaskTest(tf.test.TestCase):
     self.config['data']['task']['suffix'] = '.npy'
     task = self.task_class(self.config, utils.TRAIN)
 
-    for inputs, texts, label, filename, clip_id, soft_labels in task.generate_data(
+    for inputs, label, filename, clip_id, soft_labels in task.generate_data(
     ):
       logging.info(
-          "feat shape:{} \ntext: {} \nlabels:{} \nfilename:{} \nclip_id:{}\nsoft_labels:{}"
-          .format(inputs.shape, texts, label, filename, clip_id, soft_labels))
+          "feat shape:{} \n labels:{} \nfilename:{} \nclip_id:{}\nsoft_labels:{}"
+          .format(inputs.shape, label, filename, clip_id, soft_labels))
       break
 
   #pylint: disable=too-many-locals

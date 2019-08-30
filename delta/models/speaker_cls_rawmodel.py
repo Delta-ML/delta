@@ -457,7 +457,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     return tf.maximum(0.0, x) + alpha * tf.minimum(0.0, x)
 
   def se_moudle(self, x, channels, reduction, name=''):
-    input = x
+    input_t = x
     x = tf.reduce_mean(x, [1, 2], name=name + '_avg', keep_dims=True)
     x = tf.layers.conv2d(
         x,
@@ -484,7 +484,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
         kernel_initializer=tf.contrib.layers.xavier_initializer(),
         bias_initializer=tf.zeros_initializer())
     x = tf.nn.sigmoid(x, name=name + '_1x1_up_sigmoid')
-    return tf.multiply(input, x, name=name + '_mul')
+    return tf.multiply(input_t, x, name=name + '_mul')
 
   def resnet_layer(self, x, in_channel, out_channel, stride, dim_match,
                    block_name):
