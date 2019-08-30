@@ -25,7 +25,7 @@ import (
 
 const defaultPort = ":8004"
 
-// Options allows configuring the started agent.
+// Options
 type DeltaOptions struct {
 	ServerPort         string
 	ServerRelativePath string
@@ -38,7 +38,10 @@ func init() {
 
 func DeltaListen(opts DeltaOptions) error {
 
-	DeltaModelInit(opts.DeltaModelYaml)
+	err := DeltaModelInit(opts.DeltaModelYaml)
+	if err != nil {
+		return err
+	}
 
 	//router := gin.Default()
 	//router.POST(opts.ServerRelativePath, func(context *gin.Context) {

@@ -25,6 +25,7 @@ package model
 */
 import "C"
 import (
+	"errors"
 	"github.com/golang/glog"
 	"unsafe"
 )
@@ -36,7 +37,13 @@ func DeltaModelInit(yaml string) error {
 	yamlFile := C.CString(yaml)
 	defer C.free(unsafe.Pointer(yamlFile))
 	model = C.DeltaLoadModel(yamlFile)
+	if model == nil {
+		return errors.New("deltaLoadModel failed")
+	}
 	inf = C.DeltaCreate(model)
+	if inf == nil {
+		return errors.New("deltaCreate failed")
+	}
 	return nil
 }
 
@@ -81,8 +88,7 @@ func DeltaModelRun(uText string) error {
 	return nil
 }
 
-func DeltaDestroy() error {
+func DeltaDestroy() {
 	C.DeltaDestroy(inf)
 	C.DeltaUnLoadModel(model)
-	return nil
 }
