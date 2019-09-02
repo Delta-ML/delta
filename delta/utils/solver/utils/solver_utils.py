@@ -92,17 +92,3 @@ def run_metrics(config, y_preds, y_ground_truth, mode):
   else:
     for key in sorted(metcs.keys()):
       logging.info(key + ":" + str(metcs[key]))
-
-
-class DatasetInitializerHook(tf.train.SessionRunHook):
-
-  def __init__(self, iterator, init_feed_dict):
-    self._iterator = iterator
-    self._init_feed_dict = init_feed_dict
-
-  def begin(self):
-    self._initializer = self._iterator.initializer
-
-  def after_create_session(self, session, coord):
-    del coord
-    session.run(self._initializer, self._init_feed_dict)

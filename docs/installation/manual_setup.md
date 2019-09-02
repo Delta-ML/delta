@@ -41,9 +41,19 @@ Same to [conda install](#conda-package-install).
 ### Install CUDA toolkit and CUDANN
 
 See [CUDA Compatibility](https://docs.nvidia.com/deploy/cuda-compatibility/) for `CUDA Toolkit and Compatible Driver Version`.
+See [cuDNN Support Matrix](https://docs.nvidia.com/deeplearning/sdk/cudnn-support-matrix/index.html) for `cuDNN For CUDA and NVIDIA Hardware`.
 
+For Nvidia Driver Version: 418.67, CUDA Version: 10.1:
 ```shell
-conda install cudatoolkit==10.0.130
+conda install cudatoolkit==10.1.168-0
+conda install cupti=10.1.168-0
+conda install cudnn==7.6.0
+```
+
+or 
+```shell
+conda install cudatoolkit==10.1
+conda install cupti==10.1
 conda install cudnn==7.6.0
 ```
 
@@ -55,11 +65,18 @@ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/m
 conda config --set show_channel_urls yes
 ```
 
+Other references:
+[conda-forge](https://github.com/conda-forge/conda-forge.github.io/issues/687)
+[tuna](https://github.com/tuna/issues/issues/507)
+
+
 ### Install Tensorflow
 
 ```shell
 pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple tensorflow-gpu==1.14.0
 ```
+
+For tensorflow 1.14.0, [make sure numpy version is 1.16.4](https://github.com/tensorflow/tensorflow/issues/31249).
 
 ### Install dependences
 

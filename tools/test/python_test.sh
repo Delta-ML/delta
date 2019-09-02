@@ -8,8 +8,10 @@ if [ -z $MAIN_ROOT ];then
   fi
 fi
 
+# generate mock data
 bash $MAIN_ROOT/tools/test/gen_mock_egs_data.sh
 
+# python unist test
 tmpfile=`mktemp /tmp/python_test.XXXXXX`
 
 find $MAIN_ROOT/delta -name *_test.py  &> $tmpfile
@@ -25,4 +27,10 @@ do
   fi
 done < $tmpfile
 
-exit $retcode
+if [ $retcode -ne 0 ]; then
+  exit $retcode
+fi
+
+# integration test
+bash $MAIN_ROOT/tools/test/integration_test.sh
+

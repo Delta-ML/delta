@@ -79,7 +79,7 @@ solver:
     name: adam
     epochs: 5 # maximum epochs
     loss: CTCLoss
-    batch_size: 16 # number of elements in a training batch
+    batch_size: 32 # number of elements in a training batch
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.0001 # learning rate of Adam optimizer
