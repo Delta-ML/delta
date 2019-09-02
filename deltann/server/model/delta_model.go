@@ -78,6 +78,7 @@ func DeltaModelRun(uText string) error {
 		data := (*C.float)(C.malloc(C.size_t(byteSize)))
 		C.DeltaCopyToBuffer(inf, C.int(i), unsafe.Pointer(data), byteSize)
 		num := byteSize / C.sizeof_float
+
 		for j := 0; j < int(num); j++ {
 			p := (*[1 << 30]C.float)(unsafe.Pointer(data))
 			glog.Infof("score is %f", p[j])

@@ -44,10 +44,13 @@ func DeltaListen(opts DeltaOptions) error {
 	if err != nil {
 		return err
 	}
-
+	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
 	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-		DeltaModelRun("hello world")
+		modelType := context.Param("type")
+		if modelType == "nlp" {
+			DeltaModelRun("hello world")
+		}
 	})
 
 	dPort := opts.ServerPort

@@ -24,7 +24,8 @@ import (
 func main() {
 	flag.Parse()
 	defer glog.Flush()
-	err := DeltaListen(DeltaOptions{":8004", "/api/model", "../dpl/output/conf/model.yaml"})
+	glog.Infof("start DeltaListen...")
+	err := DeltaListen(DeltaOptions{":8004", "/api/model/:type", "../dpl/output/conf/model.yaml"})
 	if err != nil {
 		glog.Fatalf("DeltaListen err %s", err.Error())
 	}
