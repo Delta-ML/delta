@@ -15,6 +15,7 @@
 # ==============================================================================
 ''' asr sovler based on Solver'''
 
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -34,7 +35,7 @@ from delta.utils.decode import py_ctc
 from delta.utils import metrics as metrics_lib
 from delta.utils.solver.base_solver import Solver
 from delta.utils.register import registers
-from delta.utils.solver.utils.solver_utils import lastest_checkpoint
+from delta.utils.solver.utils import solver_utils
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 
@@ -68,6 +69,9 @@ class AsrSolver(Solver):
     self._model_path = self._solver['saver']['model_path']
     self._model_load_type = self._solver['loader']['model_load_type']
     self._init_epoch = self._solver['loader']['init_epoch']
+    self._specified_model_file = self._solver['loader']['file_name']
+
+    self._checkpoint_file_pattern = 'model.{epoch:02d}-{monitor_used:.2f}.ckpt'
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
     logging.info('lr : {}'.format(self._lr))
@@ -184,23 +188,23 @@ class AsrSolver(Solver):
       # data must be (features, labels), only using features as input
       self.model.build(input_shape=self.batch_input_shape[0])
 
-    assert self._model_load_type in ['best', 'lastest', 'no']
     assert self._init_epoch in range(0, self._num_epochs)
-    if mode != utils.TRAIN or self._model_load_type != 'no':
-      model_path = None
-      if self._model_load_type == "best":
-        model_path = Path(self._model_path).joinpath('best_model.ckpt')
-      elif self._model_load_type == 'lastest':
-        file_name_pattern = 'model.{epoch:02d}-{monitor_used:.2f}.ckpt'
-        model_path = lastest_checkpoint(self._model_path, file_name_pattern)
-    
-      assert len(str(model_path)) > 0
-      logging.info(f"{mode}: load model from: {model_path}")
+    model_load_type, model_file_name = solver_utils.get_model_file(
+        dir_name=self._model_path,
+        file_name_pattern=self._checkpoint_file_pattern,
+        mode=mode,
+        model_load_type=self._model_load_type,
+        specified_model_file_name=self._specified_model_file)
+
+    logging.info("{}-{}: load model from {}"
+                 .format(mode, model_load_type, model_file_name))
+    if model_load_type != 'scratch':
+      assert os.path.exists(model_file_name)
       if self.model.built:
-        self.model.load_weights(str(model_path), by_name=False)
+        self.model.load_weights(str(model_file_name), by_name=False)
       else:
-        self._model = tf.keras.models.load_model(str(model_path))
-    
+        self._model = tf.keras.models.load_model(str(model_file_name))
+
     # parallel and compile model
     self.build(multi_gpu=(mode == utils.TRAIN))
 
@@ -279,9 +283,9 @@ class AsrSolver(Solver):
     callbacks.append(save_best_cb)
     logging.info(f"CallBack: Save Best Model")
 
-    # save checkpoint
-    save_ckpt = Path(self._model_path).joinpath('model.{epoch:02d}-{' +
-                                                monitor_used + ':.2f}.ckpt')
+    # save checkpoin
+    save_file_pattern = self._checkpoint_file_pattern.replace('monitor_used', monitor_used)
+    save_ckpt = Path(self._model_path).joinpath(save_file_pattern)
     save_ckpt_cb = ParallelModelCheckpoint(
         model=self.model,
         filepath=str(save_ckpt),

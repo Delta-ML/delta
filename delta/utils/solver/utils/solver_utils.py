@@ -17,10 +17,12 @@
 
 import os
 import re
+from pathlib import Path
 import numpy as np
 import tensorflow as tf
 from absl import logging
 
+from delta import utils
 from delta.utils import metrics
 
 
@@ -81,7 +83,51 @@ def save_infer_res(config, logits, preds):
       in_f.write(" ".join(["{:.3f}".format(num) for num in logit]) +
                  "\t{}\n".format(pred))
 
-def lastest_checkpoint(dir_name, file_name_pattern):
+def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified_model_file_name):
+  """Return model file according the specified model_load_type"""
+  if model_load_type is None:
+    logging.info("The values of model_load_type is not specified.")
+    model_load_type = "latest" if mode == utils.TRAIN else "best"
+    logging.info(
+        "For the {} command, model_load_type:{} is adopted.".format(mode, model_load_type))
+
+  #model_load_type can not be 'scratch' when performing EVAL or INFER command
+  if model_load_type == 'scratch' and mode != utils.TRAIN:
+    model_load_type = "best"
+    logging.info(
+        "The model_load_type cannot be scratch when performing {} command, and is changed to {}"
+        .format(mode, model_load_type))
+ 
+  assert model_load_type in ["best", "latest", "scratch", "specific"]
+
+  #get the path of model file according the specificed model_load_type
+  model_file_name = None
+  if model_load_type == "latest":
+    model_file_name = get_most_recently_modified_file_matching_pattern(dir_name, file_name_pattern)
+  elif model_load_type == "best":
+    model_file_name = Path(dir_name).joinpath('best_model.ckpt')
+  elif model_load_type == "specific":
+    if specified_model_file_name is None:
+      model_file_name = None
+    else:
+      model_file_name = Path(dir_name).joinpath(specified_model_file_name)
+
+  #verify the existence of the file
+  #model_file_name will be None when 
+  #     1.model_load_type=scratch
+  #    2.no model_file is found with model_load_type=latest
+  #    3.specified_model_file_name is None while model_load_type=specific
+  if model_file_name is None or not os.path.exists(model_file_name):
+    logging.info('No model file is found in {} with model_load_type={}'.format(dir_name,
+                                                                               model_load_type))
+    if mode == utils.TRAIN:
+      model_load_type = 'scratch'
+      model_file_name = None
+      logging.info('The model will be trained with model_load_type:scratch')
+
+  return model_load_type, model_file_name
+
+def get_most_recently_modified_file_matching_pattern(dir_name, file_name_pattern):
   """Return the most recently checkpoint file matching file_name_pattern"""
   file_name_regex = '^' + re.sub(r'{.*}', r'.*', file_name_pattern) + '$'
 
@@ -95,8 +141,8 @@ def lastest_checkpoint(dir_name, file_name_pattern):
                if re.match(file_name_regex, file_name)]
   file_time_list = [os.path.getmtime(single_file) for single_file in file_list]
   file_sort_by_time = np.argsort(file_time_list)
-  lastest_file = file_list[file_sort_by_time[-1]] if len(file_sort_by_time) > 0 else ""
-  return lastest_file
+  latest_file = file_list[file_sort_by_time[-1]] if file_sort_by_time.shape[0] > 0 else None
+  return latest_file
 
 def run_metrics(config, y_preds, y_ground_truth, mode):
   """Run metrics for one output"""
