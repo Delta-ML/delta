@@ -164,14 +164,16 @@ class SequenceCrossEntropyLoss(Loss):
     loss = mask_sequence_loss(logits, labels, input_length, label_length)
     return loss
 
+
 @registers.loss.register
 class FocalLoss(Loss):
+
   def __init__(self, config):
     super().__init__(config)
 
     self.gamma = 2
     if 'gamma' in self._config['solver']['optimizer']:
-        self.gamma = self._config['solver']['optimizer']['gamma']
+      self.gamma = self._config['solver']['optimizer']['gamma']
     assert self.gamma >= 0, 'gamma must greater than or equal to zero'
 
   def call(self,
@@ -185,7 +187,4 @@ class FocalLoss(Loss):
     del label_length
 
     return focal_loss(
-        logits=logits,
-        labels=labels,
-        gamma=self.gamma,
-        name='focal_loss')
+        logits=logits, labels=labels, gamma=self.gamma, name='focal_loss')

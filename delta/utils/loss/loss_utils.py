@@ -97,6 +97,7 @@ def ctc_lambda_loss(logits, labels, input_length, label_length, blank_index=0):
         ignore_longer_outputs_than_inputs=False)
   return batch_loss
 
+
 def ctc_data_transform(labels, logits, blank_index):
   '''
   data transform according blank_index
@@ -107,29 +108,29 @@ def ctc_data_transform(labels, logits, blank_index):
   num_class = logits.shape[2] - 1
   if blank_index > num_class:
     raise ValueError('blank_index must be less than or equal to num_class - 1')
-  
+
   if blank_index != num_class:
-    logits = tf.concat([logits[:, :, :blank_index],
-                        logits[:, :, blank_index + 1:],
-                        logits[:, :, blank_index:blank_index + 1]
-                       ], axis=2)
+    logits = tf.concat([
+        logits[:, :, :blank_index], logits[:, :, blank_index + 1:],
+        logits[:, :, blank_index:blank_index + 1]
+    ],
+                       axis=2)
 
   labels = tf.cast(labels, tf.int32)
   labels_idx = tf.where(tf.not_equal(labels, 0))
   labels_values = tf.gather_nd(labels, labels_idx)
   labels_num_class = tf.zeros_like(labels_values, dtype=tf.int32) + num_class
-  labels_values_change_blank = tf.where(tf.equal(labels_values, blank_index),
-                                        labels_num_class,
-                                        labels_values)
+  labels_values_change_blank = tf.where(
+      tf.equal(labels_values, blank_index), labels_num_class, labels_values)
   labels_values = tf.where(labels_values_change_blank < blank_index,
                            labels_values_change_blank,
                            labels_values_change_blank - 1)
   labels_shape = tf.cast(tf.shape(labels), dtype=tf.int64)
-  labels_sparse = tf.SparseTensor(indices=labels_idx,
-                                  values=labels_values,
-                                  dense_shape=labels_shape)
+  labels_sparse = tf.SparseTensor(
+      indices=labels_idx, values=labels_values, dense_shape=labels_shape)
 
   return labels_sparse, logits
+
 
 def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   '''
@@ -203,9 +204,9 @@ def arcface_loss(embedding,
     embedding = tf.div(embedding, embedding_norm, name='norm_embedding')
     if weights is None:
       weights = tf.get_variable(
-        name='weights',
-        shape=[embedding.shape[-1].value, out_num],
-        initializer=tf.contrib.layers.xavier_initializer(uniform=True))
+          name='weights',
+          shape=[embedding.shape[-1].value, out_num],
+          initializer=tf.contrib.layers.xavier_initializer(uniform=True))
     weights_norm = tf.norm(weights, axis=0, keep_dims=True)
     weights = tf.div(weights, weights_norm, name='norm_weights')
     # cos(theta+m)
@@ -240,27 +241,28 @@ def arcface_loss(embedding,
         name='arcface_loss_output')
   return output
 
+
 def focal_loss(logits, labels, gamma=2, name='focal_loss'):
-    """
+  """
     Focal loss for multi classification
     :param logits: A float32 tensor of shape [batch_size num_class].
     :param labels: A int32 tensor of shape [batch_size, num_class] or [batch_size].
     :param gamma: A scalar for focal loss gamma hyper-parameter.
     Returns: A tensor of the same shape as `lables`
     """
-    if len(labels.shape) == 1:
-        labels = tf.one_hot(labels, logits.shape[-1])
-    else:
-        labels = labels
-    labels = tf.to_float(labels)
+  if len(labels.shape) == 1:
+    labels = tf.one_hot(labels, logits.shape[-1])
+  else:
+    labels = labels
+  labels = tf.to_float(labels)
 
-    y_pred = tf.nn.softmax(logits, dim=-1)
-    L = -labels * ((1 - y_pred)**gamma) * tf.log(y_pred)
-    loss = tf.reduce_sum(L)
+  y_pred = tf.nn.softmax(logits, dim=-1)
+  L = -labels * ((1 - y_pred)**gamma) * tf.log(y_pred)
+  loss = tf.reduce_sum(L)
 
-    if tf.executing_eagerly():
-      tf.contrib.summary.scalar(name, loss)
-    else:
-      tf.summary.scalar(name, loss)
+  if tf.executing_eagerly():
+    tf.contrib.summary.scalar(name, loss)
+  else:
+    tf.summary.scalar(name, loss)
 
-    return loss
+  return loss

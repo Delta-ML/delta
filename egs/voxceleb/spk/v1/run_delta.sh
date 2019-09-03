@@ -36,16 +36,9 @@ if [ $stage -le 0 ] && [ $stop_stage -ge 0 ]; then
   subset_data_dir_tr_cv.py \
     --num-utt-cv 1000 \
     data/train_combined_no_sil \
-    data/train_combined_no_sil_tr \
-    data/train_combined_no_sil_cv
+    data/train_combined_no_sil_train \
+    data/train_combined_no_sil_dev
   echo "Making training and validation sets done."
-fi
-
-# not need stage 1 
-if [ $stage -le 1 ] && [ $stop_stage -ge 1 ]; then
-  echo "Computing CMVN stats ..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/$config_file
-  echo "Computing CMVN stats done."
 fi
 
 if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then

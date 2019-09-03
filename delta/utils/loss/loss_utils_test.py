@@ -40,13 +40,12 @@ class LossUtilTest(tf.test.TestCase):
     self.label_length = np.array([3, 2], dtype=np.int32)
     # test misclassified examples
     self.logits_2 = np.array([[10, 2, 3, 4, 5, 6], [2, 3, 10, 4, 5, 1]],
-                           dtype=np.float32)
+                             dtype=np.float32)
 
   def tearDown(self):
     ''' tear down '''
 
   def test_cross_entropy(self):
-
     ''' test cross entropy'''
     with self.cached_session():
       loss = loss_utils.cross_entropy(
@@ -57,8 +56,7 @@ class LossUtilTest(tf.test.TestCase):
       self.assertAllClose(loss.eval(), 0.0, rtol=1e-06, atol=1.5e-6)
 
       loss_2 = loss_utils.cross_entropy(
-          logits=tf.constant(self.logits_2),
-          labels=tf.constant(self.labels))
+          logits=tf.constant(self.logits_2), labels=tf.constant(self.labels))
       self.assertAllClose(loss_2.eval(), 6.5194526, rtol=1e-06, atol=1.5e-6)
 
       loss = loss_utils.cross_entropy(
@@ -147,64 +145,69 @@ class LossUtilTest(tf.test.TestCase):
                          the shape of labels: (B,T) = (1,3)
       '''
       inputs = np.asarray(
-            [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
-              [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
-              [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]],
-            dtype=np.float32)
+          [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
+            [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
+            [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]
+          ],
+          dtype=np.float32)
       labels = np.asarray([[1, 2, 3]], dtype=np.int64)
 
       blank_index = 0
-      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels,
-                                                                                     inputs,
-                                                                                     blank_index)
+      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
+          labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
       new_labels = [[0, 1, 2]]
-      new_inputs = [[[0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553, 0.633766],
-                     [0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436, 0.111121],
-                     [0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688, 0.0357786]]]
+      new_inputs = [
+          [[0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553, 0.633766],
+           [0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436, 0.111121],
+           [0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688, 0.0357786]]
+      ]
       self.assertAllEqual(labels_after_transform, new_labels)
       self.assertAllClose(inputs_after_transform, new_inputs)
 
       blank_index = 2
-      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels,
-                                                                                     inputs,
-                                                                                     blank_index)
+      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
+          labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
       new_labels = [[1, 4, 2]]
-      new_inputs = [[[0.633766, 0.221185, 0.0129757, 0.0142857, 0.0260553, 0.0917319],
-                     [0.111121, 0.588392, 0.0055756, 0.00569609, 0.010436, 0.278779],
-                     [0.0357786, 0.633813, 0.00249248, 0.00272882, 0.0037688, 0.321418]]]
+      new_inputs = [
+          [[0.633766, 0.221185, 0.0129757, 0.0142857, 0.0260553, 0.0917319],
+           [0.111121, 0.588392, 0.0055756, 0.00569609, 0.010436, 0.278779],
+           [0.0357786, 0.633813, 0.00249248, 0.00272882, 0.0037688, 0.321418]]
+      ]
       self.assertAllEqual(labels_after_transform, new_labels)
       self.assertAllClose(inputs_after_transform, new_inputs)
 
       blank_index = 5
-      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels,
-                                                                                     inputs,
-                                                                                     blank_index)
+      labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
+          labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
       new_labels = [[1, 2, 3]]
-      new_inputs = [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
-                     [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
-                     [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]]
+      new_inputs = [
+          [[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],
+           [0.111121, 0.588392, 0.278779, 0.0055756, 0.00569609, 0.010436],
+           [0.0357786, 0.633813, 0.321418, 0.00249248, 0.00272882, 0.0037688]]
+      ]
       self.assertAllEqual(labels_after_transform, new_labels)
       self.assertAllClose(inputs_after_transform, new_inputs)
 
       with self.assertRaises(ValueError) as valueErr:
         blank_index = -1
-        labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels,
-                                                                                       inputs,
-                                                                                       blank_index)
+        labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
+            labels, inputs, blank_index)
       the_exception = valueErr.exception
-      self.assertEqual(str(the_exception), 'blank_index must be greater than or equal to zero')
+      self.assertEqual(
+          str(the_exception),
+          'blank_index must be greater than or equal to zero')
 
-      
       with self.assertRaises(ValueError) as valueErr:
         blank_index = 10
-        labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(labels,
-                                                                                       inputs,
-                                                                                       blank_index)
+        labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
+            labels, inputs, blank_index)
       the_exception = valueErr.exception
-      self.assertEqual(str(the_exception), 'blank_index must be less than or equal to num_class - 1')
+      self.assertEqual(
+          str(the_exception),
+          'blank_index must be less than or equal to num_class - 1')
 
   def test_crf_loss(self):
     ''' test crf loss '''
@@ -246,17 +249,18 @@ class LossUtilTest(tf.test.TestCase):
       embeddings_tensor = tf.constant(embeddings)
       labels_tensor = tf.constant(labels)
 
-      output_true = np.asarray([[56.165283, 0., 0., 0.],
-                                [0., 56.165283, 0., 0.],
-                                [0., 0., 56.165283, 0.],
-                                [0., 0., 0., 56.165283]], dtype='float32')
-      output = loss_utils.arcface_loss(embeddings_tensor,
-                                       labels_tensor,
-                                       num_spks,
-                                       weights_tensor,
-                                       s=64.0,
-                                       m=0.5,
-                                       limit_to_pi=True)
+      output_true = np.asarray(
+          [[56.165283, 0., 0., 0.], [0., 56.165283, 0., 0.],
+           [0., 0., 56.165283, 0.], [0., 0., 0., 56.165283]],
+          dtype='float32')
+      output = loss_utils.arcface_loss(
+          embeddings_tensor,
+          labels_tensor,
+          num_spks,
+          weights_tensor,
+          s=64.0,
+          m=0.5,
+          limit_to_pi=True)
       self.assertAllClose(output.eval(), output_true)
 
   def test_focal_loss(self):
@@ -271,22 +275,17 @@ class LossUtilTest(tf.test.TestCase):
           label_length=None)
 
       fl_loss0 = loss_utils.focal_loss(
-          logits=tf.constant(logits),
-          labels=tf.constant(labels),
-          gamma = 0)
+          logits=tf.constant(logits), labels=tf.constant(labels), gamma=0)
 
       self.assertAllClose(fl_loss0.eval(), 0.407606, rtol=1e-06, atol=1e-6)
-      self.assertAllClose(fl_loss0.eval(), ce_loss.eval(), rtol=1e-07, atol=1e-7)
+      self.assertAllClose(
+          fl_loss0.eval(), ce_loss.eval(), rtol=1e-07, atol=1e-7)
 
       fl_loss2 = loss_utils.focal_loss(
-          logits=tf.constant(logits),
-          labels=tf.constant(labels),
-          gamma = 2)
+          logits=tf.constant(logits), labels=tf.constant(labels), gamma=2)
 
       fl_loss5 = loss_utils.focal_loss(
-          logits=tf.constant(logits),
-          labels=tf.constant(labels),
-          gamma = 5)
+          logits=tf.constant(logits), labels=tf.constant(labels), gamma=5)
 
       self.assertAllClose(fl_loss2.eval(), 0.045677, rtol=1e-06, atol=1e-6)
       self.assertAllClose(fl_loss5.eval(), 0.001713, rtol=1e-06, atol=1e-6)

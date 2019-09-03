@@ -180,11 +180,12 @@ def max_pool(x, ksize, strides):
 
 def linear(x, names, shapes, has_bias=True):
   """Linear Layer."""
+  assert len(shapes) == 2
   with tf.variable_scope(names):
     weights = tf.get_variable(
         name='weights',
         shape=shapes,
-        initializer=tf.truncated_normal_initializer(stddev=0.1))
+        initializer=tf.initializers.truncated_normal(stddev=0.1))
     if has_bias:
       bias = tf.get_variable(
           name='bias',

@@ -58,6 +58,6 @@ class SpeakerSolver(EstimatorSolver):
         features={
             'inputs':
                 tf.placeholder(name="inputs", shape=shape, dtype=tf.float32),
-       },
+        },
         default_batch_size=None,
     )

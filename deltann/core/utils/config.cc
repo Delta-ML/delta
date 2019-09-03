@@ -43,8 +43,7 @@ BaseConfig::BaseConfig(std::string path) : _file_path(path) {
     try {
       _global_config[path] = YAML::LoadFile(_file_path);
       LOG_INFO << "load config success";
-    }
-    catch (const YAML::Exception& e) {
+    } catch (const YAML::Exception& e) {
       LOG_FATAL << "Failed read yaml config file " << _file_path << ", "
                 << e.what();
     }
