@@ -56,7 +56,7 @@ class SpeakerPostProc(PostProc):
     self.stats = None
     self.confusion = None
 
-    self.outputs = ['embeddings', 'softmax']
+    self.outputs = ['embeddings']   # don't output softmax by default
     self.output_files = collections.defaultdict(dict)
     for output_level in ['utt', 'chunk']:
       for output_key in self.outputs:
