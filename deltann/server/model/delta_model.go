@@ -25,6 +25,7 @@ package model
 */
 import "C"
 import (
+	"encoding/json"
 	"errors"
 	"github.com/golang/glog"
 	"unsafe"
@@ -33,8 +34,23 @@ import (
 var inf C.InferHandel
 var model C.ModelHandel
 
-func DeltaModelInit(yaml string) error {
-	yamlFile := C.CString(yaml)
+type DeltaInterface interface {
+	DeltaModelInit() error
+	DeltaModelRun() error
+	DeltaDestroy()
+}
+
+type DeltaParam struct {
+	DeltaYaml string
+}
+
+type DeltaResponse struct {
+	Value   C.float
+	RawText string
+}
+
+func (dParam DeltaParam) DeltaModelInit() error {
+	yamlFile := C.CString(dParam.DeltaYaml)
 	defer C.free(unsafe.Pointer(yamlFile))
 	model = C.DeltaLoadModel(yamlFile)
 	if model == nil {
@@ -48,6 +64,7 @@ func DeltaModelInit(yaml string) error {
 }
 
 func DeltaModelRun(uText string) error {
+
 	inNum := C.int(1)
 	var ins C.Input
 
@@ -71,7 +88,7 @@ func DeltaModelRun(uText string) error {
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
-
+	var dynaArr []DeltaResponse
 	for i := 0; i < int(outNum); i++ {
 
 		byteSize := C.DeltaGetOutputByteSize(inf, C.int(i))
@@ -82,10 +99,18 @@ func DeltaModelRun(uText string) error {
 		for j := 0; j < int(num); j++ {
 			p := (*[1 << 30]C.float)(unsafe.Pointer(data))
 			glog.Infof("score is %f", p[j])
+			t := DeltaResponse{p[j], uText}
+			dynaArr = append(dynaArr, t)
 		}
 		C.free(unsafe.Pointer(data))
 	}
 
+	pagesJson, err := json.Marshal(dynaArr)
+	if err != nil {
+		glog.Infof("Cannot encode to JSON %s ", err.Error())
+		return err
+	}
+	glog.Infof("Success encode to JSON %s ", pagesJson)
 	return nil
 }
 

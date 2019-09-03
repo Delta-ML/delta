@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,23 +35,39 @@ type DeltaOptions struct {
 	DeltaModelYaml     string
 }
 
+// Binding from JSON
+type DeltaRequest struct {
+	DeltaType             string `form:"delta_type" json:"delta_type" binding:"required"`
+	DeltaRawText          string `form:"delta_raw_text" json:"delta_raw_text"`
+	DeltaModelInputSize   int    `form:"delta_model_input_size" json:"delta_model_input_size"  binding:"required"`
+	DeltaModelInputName   string `form:"delta_model_input_name" json:"delta_model_input_name"  binding:"required"`
+	DeltaModelInputNumber int    `form:"delta_model_input_number" json:"delta_model_input_number"  binding:"required"`
+	DeltaModelGraphName   string `form:"delta_model_graph_name" json:"delta_model_graph_name"  binding:"required"`
+}
+
+var deltaInterface DeltaInterface
+
 func init() {
 	listenSystemStatus()
 }
 
 func DeltaListen(opts DeltaOptions) error {
-
-	err := DeltaModelInit(opts.DeltaModelYaml)
+	dParams := DeltaParam{opts.DeltaModelYaml}
+	err := dParams.DeltaModelInit()
 	if err != nil {
 		return err
 	}
 	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
 	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-		modelType := context.Param("type")
-		if modelType == "nlp" {
-			DeltaModelRun("hello world")
+
+		var json DeltaRequest
+		if err := context.ShouldBindJSON(&json); err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "DeltaRequest information is not complete"})
+			return
 		}
+
+		DeltaModelRun(json.DeltaRawText)
 	})
 
 	dPort := opts.ServerPort

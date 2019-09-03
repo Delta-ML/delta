@@ -104,5 +104,6 @@ deltann/server/dpl
 deltann/server/examples/main
 deltann/server/examples/delta-service
 deltann/server/examples/log/
+deltann/server/examples/nohup.out
 .bash_history
 .viminfo
