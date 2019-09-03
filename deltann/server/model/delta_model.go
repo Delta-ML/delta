@@ -45,8 +45,8 @@ type DeltaParam struct {
 }
 
 type DeltaResponse struct {
-	Value   C.float
 	RawText string
+	Value   C.float
 }
 
 func (dParam DeltaParam) DeltaModelInit() error {
@@ -63,7 +63,7 @@ func (dParam DeltaParam) DeltaModelInit() error {
 	return nil
 }
 
-func DeltaModelRun(uText string) error {
+func DeltaModelRun(uText string) (string, error) {
 
 	inNum := C.int(1)
 	var ins C.Input
@@ -99,7 +99,7 @@ func DeltaModelRun(uText string) error {
 		for j := 0; j < int(num); j++ {
 			p := (*[1 << 30]C.float)(unsafe.Pointer(data))
 			glog.Infof("score is %f", p[j])
-			t := DeltaResponse{p[j], uText}
+			t := DeltaResponse{uText, p[j]}
 			dynaArr = append(dynaArr, t)
 		}
 		C.free(unsafe.Pointer(data))
@@ -108,10 +108,10 @@ func DeltaModelRun(uText string) error {
 	pagesJson, err := json.Marshal(dynaArr)
 	if err != nil {
 		glog.Infof("Cannot encode to JSON %s ", err.Error())
-		return err
+		return "", err
 	}
 	glog.Infof("Success encode to JSON %s ", pagesJson)
-	return nil
+	return string(pagesJson), nil
 }
 
 func DeltaDestroy() {

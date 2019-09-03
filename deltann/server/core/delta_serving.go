@@ -66,8 +66,12 @@ func DeltaListen(opts DeltaOptions) error {
 			context.JSON(http.StatusBadRequest, gin.H{"error": "DeltaRequest information is not complete"})
 			return
 		}
-
-		DeltaModelRun(json.DeltaRawText)
+		modelResult, err := DeltaModelRun(json.DeltaRawText)
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{"outputs": modelResult})
 	})
 
 	dPort := opts.ServerPort
