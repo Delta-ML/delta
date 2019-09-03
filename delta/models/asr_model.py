@@ -183,7 +183,7 @@ class CTCAsrModel(RawModel):
 
 
 @registers.model.register
-class CTCRefAsrModel(CTCAsrModel):
+class CTC5BlstmAsrModel(CTCAsrModel):
   '''
   CTC ASR Model
   reference: https://www.cs.cmu.edu/~ymiao/pub/icassp2016_ctc.pdf

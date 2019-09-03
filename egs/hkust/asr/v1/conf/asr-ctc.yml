@@ -44,7 +44,7 @@ data:
     num_batches: 0 # for debugging
 
 model:
-  name: CTCAsrModel
+  name: CTC5BlstmAsrModel
   type: keras # raw, keras or eager model
   net:
     structure:
@@ -77,9 +77,9 @@ solver:
     teacher_model: null # fronzen_graph.pb
   optimizer:
     name: adam
-    epochs: 5 # maximum epochs
+    epochs: 20 # maximum epochs
     loss: CTCLoss
-    batch_size: 32 # number of elements in a training batch
+    batch_size: 64  # number of elements in a training batch
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.0001 # learning rate of Adam optimizer
