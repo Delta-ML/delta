@@ -76,7 +76,7 @@ function infer_one_set() {
     sed \
       -e "s%__INFER_PATH__%$data_dir/split$test_nj/$idx%" \
       -e "s%pred_path:.*%pred_path: $output_dir/split$test_nj/$idx%" \
-      conf/${config_file} > exp/conf/${config_file}.$idx.yml
+      conf/${config_file} > conf/${config_file}.$idx.yml
     if "$test_use_gpu"
     then
       gpu_idx=$((idx-1))
@@ -84,7 +84,7 @@ function infer_one_set() {
       gpu_idx=
     fi
     CUDA_VISIBLE_DEVICES="$gpu_idx" \
-      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config exp/conf/${config_file}.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
+      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config conf/${config_file}.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
   done
 
   wait
