@@ -84,8 +84,12 @@ class EstimatorSolver(ABCEstimatorSolver):
 
       if mode == utils.INFER:
         softmax = tf.nn.softmax(logits, name='softmax_output')
+        if self.config['solver']['postproc'].get('output_softmax', False):
+          softmax_fetch = softmax
+        else:
+          softmax_fetch = None
         predictions = self.get_infer_predictions(
-            features, softmax, alpha=alignment, extra_outputs=extra_outputs)
+            features, softmax_fetch, alpha=alignment, extra_outputs=extra_outputs)
         return tf.estimator.EstimatorSpec( #pylint: disable=no-member
             mode=mode,
             predictions=predictions,
@@ -312,17 +316,20 @@ class EstimatorSolver(ABCEstimatorSolver):
     '''
     Get prediction results for postprocessing at inference time.
     Args:
+      softmax: None if you don't want softmax output.
       extra_outputs: optional extra outputs from model() other than logits.
     '''
-    predictions = {"softmax": softmax}
+    predictions = {}
+    if softmax:
+      predictions['softmax'] = softmax
     if alpha:
-      predictions.update({
-          "alignment": alpha,
-      })
+      predictions['alignment'] = alpha
+    if extra_outputs:
+      predictions.update(extra_outputs)
+    if len(predictions) == 0:
+      logging.warning('No output found in predictions.')
     predictions.update(features)
     predictions.pop('audio', None)
-    if extra_outputs is not None:
-      predictions.update(extra_outputs)
 
     logging.info('predictions: {}'.format(predictions))
     return predictions
