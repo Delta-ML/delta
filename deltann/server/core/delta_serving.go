@@ -45,6 +45,11 @@ type DeltaRequest struct {
 	DeltaModelGraphName   string `form:"delta_model_graph_name" json:"delta_model_graph_name"  binding:"required"`
 }
 
+const (
+	DeltaNlp = "nlp"
+	DeltaAsr = "asr"
+)
+
 var deltaInterface DeltaInterface
 
 func init() {
@@ -66,12 +71,21 @@ func DeltaListen(opts DeltaOptions) error {
 			context.JSON(http.StatusBadRequest, gin.H{"error": "DeltaRequest information is not complete"})
 			return
 		}
-		modelResult, err := DeltaModelRun(json.DeltaRawText)
-		if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+
+		switch json.DeltaType {
+		case DeltaNlp:
+			modelResult, err := DeltaModelRun(json.DeltaRawText)
+			if err != nil {
+				context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			context.JSON(http.StatusOK, gin.H{"outputs": modelResult})
+		case DeltaAsr:
+			context.JSON(http.StatusBadRequest, gin.H{"error": "Coming soon"})
+		default:
+			context.JSON(http.StatusBadRequest, gin.H{"error": "Delta does not support current data types"})
 		}
-		context.JSON(http.StatusOK, gin.H{"outputs": modelResult})
+
 	})
 
 	dPort := opts.ServerPort
