@@ -210,10 +210,12 @@ def attention(inputs, attention_size, time_major=False, return_alphas=False):
   hidden_size = inputs.shape[2].value  # D value - hidden size of the RNN layer
 
   # Trainable parameters
-  W_omega = tf.get_variable(
-      tf.random_normal([hidden_size, attention_size], stddev=0.1))
-  b_omega = tf.get_variable(tf.random_normal([attention_size], stddev=0.1))
-  u_omega = tf.get_variable(tf.random_normal([attention_size, 1], stddev=0.1))
+  W_omega = tf.get_variable(name='W_omega',
+      initializer=tf.random_normal([hidden_size, attention_size], stddev=0.1))
+  b_omega = tf.get_variable(name='b_omega',
+      initializer=tf.random_normal([attention_size], stddev=0.1))
+  u_omega = tf.get_variable(name='u_omega',
+      initializer=tf.random_normal([attention_size, 1], stddev=0.1))
 
   # Applying fully connected layer with non-linear activation to each of the B*T timestamps;
   #  the shape of `v` is (B,T,D)*(D,A)=(B,T,A), where A=attention_size
@@ -252,8 +254,8 @@ def attention(inputs, attention_size, time_major=False, return_alphas=False):
 def embedding_look_up(text_inputs, vocab_size, embedding_size):
   """Embedding layer."""
   with tf.variable_scope("embedding"):
-    W = tf.get_variable(
-        tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0), "W")
+    W = tf.get_variable(name='W',
+        initializer=tf.random_uniform([vocab_size, embedding_size], -1.0, 1.0))
     embedding_chars = tf.nn.embedding_lookup(W, text_inputs)
     embedding_chars_expanded = tf.expand_dims(embedding_chars, -1)
   return embedding_chars_expanded
@@ -272,8 +274,10 @@ def conv_pool(embedded_chars_expanded, filter_sizes, embedding_size,
     with tf.variable_scope("conv-maxpool-%s" % filter_size):
       # Convolution Layer
       filter_shape = [filter_size, embedding_size, 1, num_filters]
-      W = tf.get_variable(tf.truncated_normal(filter_shape, stddev=0.1), "W")
-      b = tf.get_variable(tf.constant(0.1, shape=[num_filters]), "b")
+      W = tf.get_variable(name='W',
+          initializer=tf.truncated_normal(filter_shape, stddev=0.1))
+      b = tf.get_variable(name='b',
+          initializer=tf.constant(0.1, shape=[num_filters]))
       conv = tf.nn.conv2d(
           embedded_chars_expanded,
           W,
