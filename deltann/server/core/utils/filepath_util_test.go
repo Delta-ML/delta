@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-package core
+package utils
 
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestDeltaServing(t *testing.T) {
-	err := DeltaListen(DeltaOptions{":8004", "/api/model", "../dpl/output/conf/model.yaml"})
-	assert.NoError(t, err)
+func TestGetProjectPath(t *testing.T) {
+	pPath := GetProjectPath("./")
+	assert.NotEqual(t, "", pPath)
 }
