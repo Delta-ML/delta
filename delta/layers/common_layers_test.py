@@ -40,14 +40,49 @@ class LossUtilTest(tf.test.TestCase):
   def test_splice_layer(self):
     '''test splice layer'''
     inputs = tf.reshape(tf.range(15), shape=[1, 5, 3])
+    context = [0, 1]
+    output = cl.splice_layer(inputs, 'splice', context)
+    output_true = tf.constant([[[0,  1,  2,  3,  4,  5],
+				[3,  4,  5,  6,  7,  8],
+				[6,  7,  8,  9, 10, 11],
+				[9, 10, 11, 12, 13, 14],
+				[12,13, 14, 12, 13, 14]]])
+    self.assertAllEqual(output, output_true)
+
+    context = [-1, 0, 1]
+    output = cl.splice_layer(inputs, 'splice', context)
+    output_true = tf.constant([[[0,  1,  2,  0,  1,  2,  3,  4,  5],
+				[0,  1,  2,  3,  4,  5,  6,  7,  8],
+				[3,  4,  5,  6,  7,  8,  9, 10, 11],
+				[6,  7,  8,  9, 10, 11, 12, 13, 14],
+				[9, 10, 11, 12, 13, 14, 12, 13, 14]]])
+    self.assertAllEqual(output, output_true)
+
+    context = [0, 1, 3]
+    output = cl.splice_layer(inputs, 'splice', context)
+    output_true = tf.constant([[[0,  1,  2,  3,  4,  5,  9, 10, 11],
+				[3,  4,  5,  6,  7,  8, 12, 13, 14],
+				[6,  7,  8,  9, 10, 11, 12, 13, 14],
+				[9, 10, 11, 12, 13, 14, 12, 13, 14],
+				[12, 13, 14, 12, 13, 14, 12, 13, 14]]])
+    self.assertAllEqual(output, output_true)
+
     context = [1, 3]
     output = cl.splice_layer(inputs, 'splice', context)
     output_true = tf.constant([[[3, 4, 5, 9, 10, 11],
-			  [6, 7, 8, 12, 13, 14],
-			  [9, 10, 11, 12, 13, 14],
-			  [12, 13, 14, 12, 13, 14],
-			  [12, 13, 14, 12, 13, 14]]])
+				[6, 7, 8, 12, 13, 14],
+				[9, 10, 11, 12, 13, 14],
+				[12, 13, 14, 12, 13, 14],
+				[12, 13, 14, 12, 13, 14]]])
+    self.assertAllEqual(output, output_true)
 
+    context = [1, 2, 3]
+    output = cl.splice_layer(inputs, 'splice', context)
+    output_true = tf.constant([[[3,  4,  5,  6,  7,  8,  9, 10, 11],
+				[6,  7,  8,  9, 10, 11, 12, 13, 14],
+				[9, 10, 11, 12, 13, 14, 12, 13, 14],
+				[12, 13, 14, 12, 13, 14, 12, 13, 14],
+				[12, 13, 14, 12, 13, 14, 12, 13, 14]]])
     self.assertAllEqual(output, output_true)
 
   def test_tdnn(self):
