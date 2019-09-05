@@ -258,7 +258,8 @@ def focal_loss(logits, labels, alpha, gamma=2, name='focal_loss'):
   labels = tf.to_float(labels)
 
   y_pred = tf.nn.softmax(logits, dim=-1)
-  L = -labels * ((1 - y_pred)**gamma) * tf.log(y_pred) * alpha
+  L = -labels * tf.log(y_pred)
+  L *= alpha * ((1 - y_pred)**gamma)
   loss = tf.reduce_sum(L)
 
   if tf.executing_eagerly():

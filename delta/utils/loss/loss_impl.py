@@ -175,7 +175,7 @@ class FocalLoss(Loss):
     if 'alpha' in self._config['data']['task']['classes']
       self.alpha = self._config['data']['task']['classes']['alpha']
       assert len(self.alpha) == class_num, 'alpha len is not equal to class_num'
-      self.alpha = tf.nn.softmax(tf.reciprocal(alpha))
+      self.alpha = tf.constant(self.alpha)
     else:
       self.alpha = tf.ones([class_num])
 
