@@ -18,6 +18,8 @@
 import abc
 import tensorflow as tf
 
+from delta.utils.hparam import HParams
+
 class ABCFrontend(metaclass=abc.ABCMeta):
   ''' abstract of Frontend '''
   def __init__(self, config):
