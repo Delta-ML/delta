@@ -172,7 +172,7 @@ class FocalLoss(Loss):
     super().__init__(config)
 
     class_num = self._config['data']['task']['classes']['num']
-    if 'alpha' in self._config['data']['task']['classes']
+    if 'alpha' in self._config['data']['task']['classes']:
       self.alpha = self._config['data']['task']['classes']['alpha']
       assert len(self.alpha) == class_num, 'alpha len is not equal to class_num'
       self.alpha = tf.constant(self.alpha)
