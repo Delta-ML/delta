@@ -196,12 +196,10 @@ solver:
       eval: true # compute metrics
       infer: true  # get predict results
       pred_path: null # None for `model_path`/infer, dumps infer output to this dir
-      output_softmax: False # output softmax
-      thresholds:
-          - 0.5
-      smoothing:
-          enable: true
-          count: 2
+      output_nodes:  # model outputs to save, e.g. softmax, embeddings
+        - "embeddings"
+      output_levels: # which level outputs to save, e.g. utt, chunck
+        - "utt"
   saver:
     model_path: "exp/delta_speaker/ckpt"
     max_to_keep: 10

@@ -24,28 +24,21 @@ class TFMetricUtilsTest(tf.test.TestCase):
 
   def test_accuracy(self):
     ''' test accuracy'''
-    logits = tf.constant([[0.1, 0.2, 0.7],
-			[0.5, 0.2, 0.3],
-			[0.2, 0.2, 0.6]])
+    logits = tf.constant([[0.1, 0.2, 0.7], [0.5, 0.2, 0.3], [0.2, 0.2, 0.6]])
     labels = tf.constant([2, 0, 1])
     output = tf_metrics.accuracy(logits, labels)
     self.assertAllClose(output, 0.6666667)
 
   def test_confusion_matrix(self):
     '''test confusion matrix'''
-    logits = tf.constant([[0.1, 0.2, 0.7],
-			[0.5, 0.2, 0.3],
-			[0.6, 0.1, 0.3],
-			[0.2, 0.3, 0.5],
-			[0.2, 0.5, 0.3],
-			[0.2, 0.2, 0.6]])
+    logits = tf.constant([[0.1, 0.2, 0.7], [0.5, 0.2, 0.3], [0.6, 0.1, 0.3],
+                          [0.2, 0.3, 0.5], [0.2, 0.5, 0.3], [0.2, 0.2, 0.6]])
     labels = tf.constant([2, 0, 0, 2, 1, 1])
     num_class = 3
     output = tf_metrics.confusion_matrix(logits, labels, num_class)
-    output_true = tf.constant([[2, 0, 0],
-				[0, 1, 1],
-				[0, 0, 2]])
+    output_true = tf.constant([[2, 0, 0], [0, 1, 1], [0, 0, 2]])
     self.assertAllEqual(output, output_true)
+
 
 if __name__ == "__main__":
   tf.test.main()
