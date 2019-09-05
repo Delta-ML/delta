@@ -16,6 +16,7 @@
 ''' base interface of Frontend '''
 
 import abc
+import tensorflow as tf
 
 class ABCFrontend(metaclass=abc.ABCMeta):
   ''' abstract of Frontend '''
@@ -39,16 +40,16 @@ class BaseFrontend(ABCFrontend):
     ''' config property '''
     return self._config
 
-  @classmethd
+  @classmethod
   def params(self, config=None):
     ''' set params '''
     hparams = HParams(name=self.__class__.__name__)
-    return hparams.value() 	
+    return hparams.value()
 
   def __call__(self, *args, **kwargs):
     ''' call '''
     name = kwargs.get('name')
-    if name is not None
+    if name is not None:
       with tf.name_scope(name):
         return self.call(*args, **kwargs)
     else:
