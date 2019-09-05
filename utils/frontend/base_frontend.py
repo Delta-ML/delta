@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' base interface of loss '''
+''' base interface of Frontend '''
+
 import abc
 
 class ABCFrontend(metaclass=abc.ABCMeta):
