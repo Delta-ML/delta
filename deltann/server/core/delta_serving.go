@@ -16,6 +16,7 @@ limitations under the License.
 package core
 
 import (
+	"delta/deltann/server/core/conf"
 	. "delta/deltann/server/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -30,9 +31,9 @@ const defaultPort = ":8004"
 
 // Options
 type DeltaOptions struct {
-	ServerPort         string
-	ServerRelativePath string
-	DeltaModelYaml     string
+	ServerPort     string
+	ServerType     string
+	DeltaModelYaml string
 }
 
 // Binding from JSON
@@ -57,6 +58,7 @@ func init() {
 }
 
 func DeltaListen(opts DeltaOptions) error {
+	conf.SetConfPath(opts.DeltaModelYaml)
 	dParams := DeltaParam{opts.DeltaModelYaml}
 	err := dParams.DeltaModelInit()
 	if err != nil {
@@ -64,7 +66,13 @@ func DeltaListen(opts DeltaOptions) error {
 	}
 	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
-	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
+
+	relativePath := "/v"
+	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Version + "/models/"
+	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Local.ModelType + "/versions/"
+	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
+
+	router.POST(relativePath, func(context *gin.Context) {
 
 		var json DeltaRequest
 		if err := context.ShouldBindJSON(&json); err != nil {
@@ -93,11 +101,11 @@ func DeltaListen(opts DeltaOptions) error {
 		dPort = defaultPort
 	}
 
-	err = router.Run(dPort)
+	err = router.Run(":" + dPort)
 	if err != nil {
 		glog.Infof("delta serving init port  %s", dPort)
 	}
-
+	glog.Infof("delta serving start port  %s  path %s", dPort, relativePath)
 	return nil
 }
 

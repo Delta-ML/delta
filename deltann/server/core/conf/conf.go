@@ -16,37 +16,69 @@ limitations under the License.
 package conf
 
 import (
-	"delta/deltann/server/core/utils"
-	"flag"
-	"fmt"
 	"github.com/golang/glog"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"path/filepath"
 )
 
-type envConfig struct {
-	Port string `yaml:"port"`
-	Env  string `yaml:"env"`
+type DeltaConfig struct {
+	Model   DeltaModel   `yaml:"model"`
+	RunTime DeltaRunTime `yaml:"runtime"`
 }
 
-type AppConf struct {
-	Env envConfig `yaml:"envConfig"`
+type DeltaModel struct {
+	CustomOpsPath string        `yaml:"custom_ops_path"`
+	Graph         []DeltaGraphs `yaml:"graphs"`
 }
 
-var AppConfig AppConf
-var Profile = flag.String("profile", "develop", "deploy environment")
+type DeltaGraphs struct {
+	Id      int           `yaml:"id"`
+	Name    string        `yaml:"name"`
+	Engine  string        `yaml:"engine"`
+	Version string        `yaml:"version"`
+	Local   DeltaLocal    `yaml:"local"`
+	Remote  DeltaRemote   `yaml:"remote"`
+	Inputs  []DeltaInputs `yaml:"inputs"`
+	Outputs []DeltaInputs `yaml:"outputs"`
+}
 
-func init() {
-	flag.Parse()
+type DeltaLocal struct {
+	Path      string `yaml:"path"`
+	ModelType string `yaml:"model_type"`
+}
 
-	ymlFile, err := ioutil.ReadFile(filepath.Join(utils.GetProjectPath(*Profile), fmt.Sprintf("configurations/conf.%s.yml", *Profile)))
+type DeltaRemote struct {
+	ModelName string `yaml:"model_name"`
+	Host      string `yaml:"host"`
+	Port      string `yaml:"port"`
+}
+
+type DeltaInputs struct {
+	Id    int    `yaml:"id"`
+	Name  string `yaml:"name"`
+	Shape []int  `yaml:"shape"`
+	Dtype string `yaml:"dtype"`
+}
+
+type DeltaOutputs struct {
+	Id    int    `yaml:"id"`
+	Name  string `yaml:"name"`
+	Dtype string `yaml:"dtype"`
+}
+
+type DeltaRunTime struct {
+	NumThreads string `yaml:"num_threads"`
+}
+
+var DeltaConf DeltaConfig
+
+func SetConfPath(confPath string) {
+	ymlFile, err := ioutil.ReadFile(confPath)
 	if err != nil {
 		glog.Fatalf("read the confg file err! %s", err.Error())
 	}
-	err = yaml.Unmarshal(ymlFile, &AppConfig)
+	err = yaml.Unmarshal(ymlFile, &DeltaConf)
 	if err != nil {
 		glog.Fatalf("the config file is not yaml format %s", err.Error())
 	}
-
 }

@@ -6,7 +6,6 @@ then
 fi
 mkdir -p output/log
 cp delta-service output
-cp -r configurations output
 cp control.sh output
 
 
