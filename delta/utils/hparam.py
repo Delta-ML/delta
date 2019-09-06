@@ -407,6 +407,7 @@ class HParams(object):
     # or the type of the list elements for multidimensional hyperparameters.
     # The bool value is True if the value is a list, False otherwise.
     self._hparam_types = {}
+    assert 'cls' in kwargs
     for name, value in six.iteritems(kwargs):
       self.add_hparam(name, value)
 
@@ -508,6 +509,22 @@ class HParams(object):
     """
     for name, value in values_dict.items():
       self.set_hparam(name, value)
+    return self
+
+  def parse_dict(self, values_dict):
+    """Add new hyperparameter values, parsing new values from a dictionary.
+
+    Args:
+      values_dict: Dictionary of name:value pairs.
+
+    Returns:
+      The `HParams` instance.
+
+    Raises:
+      ValueError: If `values_dict` cannot be parsed.
+    """
+    for name, value in values_dict.items():
+      self.add_hparam(name, value)
     return self
 
   @deprecation.deprecated(None, 'Use `override_from_dict`.')
@@ -629,3 +646,8 @@ class HParams(object):
 
     suffix = 'list' if is_list else 'value'
     return '_'.join([typename, suffix])
+
+  def instantiate(self):
+    assert self.cls is not None
+    print(self.cls)
+    return self.cls(self)

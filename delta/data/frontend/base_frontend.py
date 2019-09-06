@@ -46,7 +46,7 @@ class BaseFrontend(ABCFrontend):
   def params(self, config=None):
     ''' set params '''
     hparams = HParams(name=self.__class__.__name__)
-    return hparams.value()
+    return hparams.values()
 
   def __call__(self, *args, **kwargs):
     ''' call '''
