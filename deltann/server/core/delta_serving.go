@@ -17,17 +17,17 @@ package core
 
 import (
 	"delta/deltann/server/core/conf"
+	"delta/deltann/server/core/handel"
 	. "delta/deltann/server/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-const defaultPort = ":8004"
+const defaultPort = "8004"
 
 // Options
 type DeltaOptions struct {
@@ -35,21 +35,6 @@ type DeltaOptions struct {
 	ServerType     string
 	DeltaModelYaml string
 }
-
-// Binding from JSON
-type DeltaRequest struct {
-	DeltaType             string `form:"delta_type" json:"delta_type" binding:"required"`
-	DeltaRawText          string `form:"delta_raw_text" json:"delta_raw_text"`
-	DeltaModelInputSize   int    `form:"delta_model_input_size" json:"delta_model_input_size"  binding:"required"`
-	DeltaModelInputName   string `form:"delta_model_input_name" json:"delta_model_input_name"  binding:"required"`
-	DeltaModelInputNumber int    `form:"delta_model_input_number" json:"delta_model_input_number"  binding:"required"`
-	DeltaModelGraphName   string `form:"delta_model_graph_name" json:"delta_model_graph_name"  binding:"required"`
-}
-
-const (
-	DeltaNlp = "nlp"
-	DeltaAsr = "asr"
-)
 
 var deltaInterface DeltaInterface
 
@@ -67,34 +52,11 @@ func DeltaListen(opts DeltaOptions) error {
 	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
 
-	relativePath := "/v"
-	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Version + "/models/"
+	relativePath := "/v1/models/"
 	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Local.ModelType + "/versions/"
 	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
 
-	router.POST(relativePath, func(context *gin.Context) {
-
-		var json DeltaRequest
-		if err := context.ShouldBindJSON(&json); err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"error": "DeltaRequest information is not complete"})
-			return
-		}
-
-		switch json.DeltaType {
-		case DeltaNlp:
-			modelResult, err := DeltaModelRun(json.DeltaRawText)
-			if err != nil {
-				context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-			context.JSON(http.StatusOK, gin.H{"outputs": modelResult})
-		case DeltaAsr:
-			context.JSON(http.StatusBadRequest, gin.H{"error": "Coming soon"})
-		default:
-			context.JSON(http.StatusBadRequest, gin.H{"error": "Delta does not support current data types"})
-		}
-
-	})
+	router.POST(relativePath, handel.DeltaPredictHandler)
 
 	dPort := opts.ServerPort
 	if dPort == "" {

@@ -25,6 +25,7 @@ package model
 */
 import "C"
 import (
+	"delta/deltann/server/core/conf"
 	"encoding/json"
 	"errors"
 	"github.com/golang/glog"
@@ -45,8 +46,7 @@ type DeltaParam struct {
 }
 
 type DeltaResponse struct {
-	RawText string
-	Value   []C.float
+	Value []C.float
 }
 
 func (dParam DeltaParam) DeltaModelInit() error {
@@ -63,22 +63,31 @@ func (dParam DeltaParam) DeltaModelInit() error {
 	return nil
 }
 
-func DeltaModelRun(uText string) (string, error) {
+func DeltaModelRun(valueInputs interface{}) (string, error) {
 
-	inNum := C.int(1)
+	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
 	var ins C.Input
 
-	text := C.CString(uText)
-	defer C.free(unsafe.Pointer(text))
-	ins.ptr = unsafe.Pointer(text)
+	switch t := valueInputs.(type) {
+	case string:
+		cdata := C.CString(valueInputs.(string))
+		defer C.free(unsafe.Pointer(cdata))
+		ins.ptr = unsafe.Pointer(cdata)
+	case int:
+
+	case float32:
+
+	default:
+		glog.Infof("unexpected type %T", t)
+	}
 
 	ins.size = 1
 
-	inputName := C.CString("input_sentence")
+	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
 	defer C.free(unsafe.Pointer(inputName))
 	ins.input_name = inputName
 
-	graphName := C.CString("default")
+	graphName := C.CString(conf.DeltaConf.Model.Graph[0].Name)
 	defer C.free(unsafe.Pointer(graphName))
 	ins.graph_name = graphName
 
@@ -103,7 +112,7 @@ func DeltaModelRun(uText string) (string, error) {
 		}
 		C.free(unsafe.Pointer(data))
 	}
-	t := DeltaResponse{uText, dynaArr}
+	t := DeltaResponse{dynaArr}
 	pagesJson, err := json.Marshal(t)
 	if err != nil {
 		glog.Infof("Cannot encode to JSON %s ", err.Error())
