@@ -1,0 +1,54 @@
+# Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+''' Fbank '''
+
+import abc
+import numpy as np
+import tensorflow as tf
+from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
+
+from delta.data.frontend.base_frontend import BaseFrontend
+from delta.utils.hparam import HParams
+
+class Readwav(BaseFrontend):
+
+  def __init__(self, config:dict):
+   super().__init__(config)
+
+  @classmethod
+  def params(cls, config=None):
+    ''' set params '''
+    audio_channels = 1
+
+    if config is not None:
+      taskconf = config['data']['task']
+      audioconf = taskconf['audio']
+      audio_channels = audioconf['audio_channels'],
+
+    hparams = HParams(cls=cls)
+    hparams.add_hparam('audio_channels', audio_channels)
+
+    return hparams
+
+  def call(self, wavfile):
+    ''' samples of shape [nsample] '''
+    params = params=super().config
+    contents = tf.read_file(wavfile)
+    waveforms = contrib_audio.decode_wav(
+        contents,
+        desired_channels=params.audio_channels,
+    )
+    return tf.squeeze(waveforms.audio, axis=-1)

@@ -69,4 +69,4 @@ class FBank(BaseFrontend):
     return hparams
 
   def call(self, inputs):
-    return extract_feature(inputs, params=super().config)
+    return extract_feature(inputs, params=self.config)
