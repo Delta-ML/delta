@@ -72,24 +72,6 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 	var ins C.Input
 
 	floatbytes := CopyValueToByte(valueInputs)
-
-	//switch t := valueInputs.(type) {
-	//case string:
-	//	cdata := C.CString(valueInputs.(string))
-	//	defer C.free(unsafe.Pointer(cdata))
-	//	ins.ptr = unsafe.Pointer(cdata)
-	//case int32:
-	//	i := valueInputs.(int32)
-	//	valptr = uintptr(unsafe.Pointer(&i))
-	//	slice = make([]byte, unsafe.Sizeof(i))
-	//case float32:
-	//	f := valueInputs.(float32)
-	//	valptr = uintptr(unsafe.Pointer(&f))
-	//	slice = make([]byte, unsafe.Sizeof(f))
-	//default:
-	//	glog.Infof("unexpected type %T", t)
-	//}
-
 	ins.ptr = ByteSliceToCArray(floatbytes)
 	ins.size = 1
 
