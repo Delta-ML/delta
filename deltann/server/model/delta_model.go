@@ -22,13 +22,16 @@ package model
 #include <stdlib.h>
 #include <string.h>
 #include <c_api.h>
+typedef unsigned char UBYTE;
 */
 import "C"
 import (
 	"delta/deltann/server/core/conf"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/golang/glog"
+	"os"
 	"unsafe"
 )
 
@@ -68,19 +71,26 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
 	var ins C.Input
 
-	switch t := valueInputs.(type) {
-	case string:
-		cdata := C.CString(valueInputs.(string))
-		defer C.free(unsafe.Pointer(cdata))
-		ins.ptr = unsafe.Pointer(cdata)
-	case int:
+	floatbytes := CopyValueToByte(valueInputs)
 
-	case float32:
+	//switch t := valueInputs.(type) {
+	//case string:
+	//	cdata := C.CString(valueInputs.(string))
+	//	defer C.free(unsafe.Pointer(cdata))
+	//	ins.ptr = unsafe.Pointer(cdata)
+	//case int32:
+	//	i := valueInputs.(int32)
+	//	valptr = uintptr(unsafe.Pointer(&i))
+	//	slice = make([]byte, unsafe.Sizeof(i))
+	//case float32:
+	//	f := valueInputs.(float32)
+	//	valptr = uintptr(unsafe.Pointer(&f))
+	//	slice = make([]byte, unsafe.Sizeof(f))
+	//default:
+	//	glog.Infof("unexpected type %T", t)
+	//}
 
-	default:
-		glog.Infof("unexpected type %T", t)
-	}
-
+	ins.ptr = ByteSliceToCArray(floatbytes)
 	ins.size = 1
 
 	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
@@ -125,4 +135,45 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 func DeltaDestroy() {
 	C.DeltaDestroy(inf)
 	C.DeltaUnLoadModel(model)
+}
+
+func CopyValueToByte(value interface{}) []byte {
+	var valptr uintptr
+	var slice []byte
+
+	switch t := value.(type) {
+	case int32:
+		i := value.(int32)
+		valptr = uintptr(unsafe.Pointer(&i))
+		slice = make([]byte, unsafe.Sizeof(i))
+	case float32:
+		f := value.(float32)
+		valptr = uintptr(unsafe.Pointer(&f))
+		slice = make([]byte, unsafe.Sizeof(f))
+	case string:
+		f := value.(string)
+		valptr = uintptr(unsafe.Pointer(&f))
+		slice = make([]byte, unsafe.Sizeof(f))
+	default:
+		fmt.Fprintf(os.Stderr, "Unsupported type: %T\n", t)
+	}
+
+	for i := 0; i < len(slice); i++ {
+		slice[i] = byte(*(*byte)(unsafe.Pointer(valptr)))
+		valptr++
+	}
+
+	return slice
+}
+
+func ByteSliceToCArray(byteSlice []byte) unsafe.Pointer {
+	var array = unsafe.Pointer(C.calloc(C.size_t(len(byteSlice)), 1))
+	var arrayptr = uintptr(array)
+
+	for i := 0; i < len(byteSlice); i++ {
+		*(*C.UBYTE)(unsafe.Pointer(arrayptr)) = C.UBYTE(byteSlice[i])
+		arrayptr++
+	}
+
+	return array
 }
