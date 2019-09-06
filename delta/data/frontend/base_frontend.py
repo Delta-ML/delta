@@ -34,7 +34,7 @@ class ABCFrontend(metaclass=abc.ABCMeta):
 class BaseFrontend(ABCFrontend):
   ''' wappwer of abstrcat Frontend'''
 
-  def __init__(self, config):
+  def __init__(self, config:dict):
     self._config = config
 
   @property
@@ -43,10 +43,10 @@ class BaseFrontend(ABCFrontend):
     return self._config
 
   @classmethod
-  def params(self, config=None):
+  def params(cls, config=None):
     ''' set params '''
-    hparams = HParams(name=self.__class__.__name__)
-    return hparams.values()
+    hparams = HParams(name=cls.__class__.__name__)
+    return None
 
   def __call__(self, *args, **kwargs):
     ''' call '''

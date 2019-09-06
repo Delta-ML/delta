@@ -24,7 +24,8 @@ class HParamsTest(tf.test.TestCase):
   ''' HParams unittest '''
 
   def test_hparams(self):
-    hparams = HParams(name='fbank', n_mels=40)
+    hparams = HParams(cls=self.__class__, name='fbank', n_mels=40)
+    hparams.del_hparam('cls')
     self.assertEqual(hparams.name, 'fbank')
     self.assertEqual(hparams.n_mels, 40)
     self.assertDictEqual(hparams.values(), {'name': 'fbank', 'n_mels': 40})
