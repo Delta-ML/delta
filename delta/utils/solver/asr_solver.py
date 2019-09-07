@@ -25,10 +25,13 @@ import tensorflow as tf
 #pylint: disable=import-error
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras import backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Lambda
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import CSVLogger
 from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.experimental import export_saved_model
 
 from delta import utils
 from delta.utils.decode import py_ctc
@@ -38,7 +41,7 @@ from delta.utils.register import registers
 from delta.utils.solver.utils import solver_utils
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
-
+from delta.utils.decode.tf_ctc import ctc_greedy_decode
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
 @registers.solver.register
@@ -484,4 +487,34 @@ class AsrSolver(Solver):
 
   def export_model(self):
     '''export saved_model'''
-    raise NotImplementedError()
+    mode = utils.EVAL 
+    self.model_fn(mode=mode)
+    assert self._built
+
+    input_feat = self.model.get_layer('inputs').input
+    input_length = self.model.get_layer('input_length').input
+
+    def ctc_greedy_decode_lambda_func(args):
+      y_pred, input_length = args
+      input_length = tf.cast(input_length, dtype=tf.int32)
+      decode_result, _ = ctc_greedy_decode(logits=y_pred,
+                                           sequence_length=input_length,
+                                           merge_repeated=True,
+                                           blank_id=None)
+      return decode_result
+
+    model_outputs = self.model.get_layer('outputs').output
+    greedy_decode = Lambda(
+        ctc_greedy_decode_lambda_func, output_shape=(),
+        name='greedy_decode')([model_outputs, input_length])
+
+    model_to_export = Model(inputs=[input_feat, input_length],
+                            outputs=greedy_decode)
+
+    model_export_path = os.path.join(self._model_path, "model_export")
+    export_saved_model(model=model_to_export,
+                       saved_model_path=model_export_path,
+                       custom_objects=None,
+                       as_text=False,
+                       input_signature=None,
+                       serving_only=False)
