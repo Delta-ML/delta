@@ -371,12 +371,12 @@ class YFOptimizer(object):
   def update_hyper_param(self):
     assign_hyper_ops = []
     self._mu = tf.identity(
-        tf.cond(
-            self._do_tune, lambda: self.get_mu_tensor(), lambda: self._mu_var))
+        tf.cond(self._do_tune, lambda: self.get_mu_tensor(),
+                lambda: self._mu_var))
     with tf.control_dependencies([self._mu]):
       self._lr = tf.identity(
-          tf.cond(self._do_tune, lambda: self.get_lr_tensor(), lambda: self.
-                  _lr_var))
+          tf.cond(self._do_tune, lambda: self.get_lr_tensor(),
+                  lambda: self._lr_var))
 
     with tf.control_dependencies([self._mu, self._lr]):
       if self._use_unsmoothed_lr_mu:
@@ -407,8 +407,8 @@ class YFOptimizer(object):
     if self._use_adapt_grad_clip:
       thresh = tf.cond(
           self._do_tune, lambda: tf.sqrt(self._stat_protect_fac * self.
-                                         _adapt_grad_clip_thresh**2), lambda: tf
-          .to_float(tf.constant(LARGE_FLOAT_VAL)))
+                                         _adapt_grad_clip_thresh**2),
+          lambda: tf.to_float(tf.constant(LARGE_FLOAT_VAL)))
       self._grads, self._grads_norm = tf.clip_by_global_norm(
           self._grads, thresh)
 
@@ -427,8 +427,8 @@ class YFOptimizer(object):
           thresh = tf.cond(
               tf.greater(
                   tf.global_norm(self._grads), self._adapt_grad_clip_thresh),
-              lambda: self._adapt_grad_clip_target_val, lambda: tf.to_float(
-                  tf.constant(LARGE_FLOAT_VAL)))
+              lambda: self._adapt_grad_clip_target_val,
+              lambda: tf.to_float(tf.constant(LARGE_FLOAT_VAL)))
           self._grads, self._grads_norm = tf.clip_by_global_norm(
               self._grads, thresh)
 

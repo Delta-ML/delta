@@ -25,10 +25,7 @@ extern "C" {
 
 #define MAX_NAME_SIZE 30
 
-typedef enum {
-  kDeltaOk = 0,
-  kDeltaError = 1
-} DeltaStatus;
+typedef enum { kDeltaOk = 0, kDeltaError = 1 } DeltaStatus;
 
 typedef struct {
   const void* ptr;

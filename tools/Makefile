@@ -44,7 +44,7 @@ nlp_zh: cppjieba.done
 
 extra: nkf.done sentencepiece.done mecab.done moses.done
 
-PIP_INSTALL=pip3 --no-cache-dir install
+PIP_INSTALL=python3 -m pip --no-cache-dir install
 
 APT_INSTALL=apt-get install -y --no-install-recommends
 

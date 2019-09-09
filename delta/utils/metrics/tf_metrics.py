@@ -18,11 +18,21 @@ import tensorflow as tf
 
 
 def accuracy(logits, labels):
-  ''' accuracy candies '''
-  predictions = tf.argmax(logits, axis=-1, output_type=tf.int64)
-  labels = tf.cast(labels, tf.int64)
-  return tf.reduce_mean(
-      tf.cast(tf.equal(predictions, labels), dtype=tf.float32))
+  ''' accuracy candies
+  params:
+    logits: [B, ..., D]
+    labels: [B, ...]
+  return:
+    accuracy tensor
+  '''
+  with tf.name_scope('accuracy'):
+    assert_rank = tf.assert_equal(tf.rank(logits), tf.rank(labels) + 1)
+    assert_shape = tf.assert_equal(tf.shape(logits)[:-1], tf.shape(labels))
+    with tf.control_dependencies([assert_rank, assert_shape]):
+      predictions = tf.argmax(logits, axis=-1, output_type=tf.int64)
+      labels = tf.cast(labels, tf.int64)
+      return tf.reduce_mean(
+          tf.cast(tf.equal(predictions, labels), dtype=tf.float32))
 
 
 def confusion_matrix(logits, labels, num_class):

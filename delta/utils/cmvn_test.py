@@ -154,5 +154,6 @@ class CmvnTest(tf.test.TestCase):
     with self.session(use_gpu=False, force_gpu=False):
       self.assertAllClose(feat_out.eval(), feat_true)
 
+
 if __name__ == '__main__':
   tf.test.main()
