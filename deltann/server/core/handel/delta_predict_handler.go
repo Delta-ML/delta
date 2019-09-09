@@ -16,7 +16,7 @@ limitations under the License.
 package handel
 
 import (
-	. "delta/deltann/server/model"
+	. "delta/deltann/server/core/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

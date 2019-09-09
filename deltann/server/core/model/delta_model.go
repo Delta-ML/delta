@@ -16,8 +16,8 @@ limitations under the License.
 package model
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/../dpl/output/include
-#cgo LDFLAGS: -L${SRCDIR}/../dpl/output/lib/deltann  -ldeltann  -L${SRCDIR}/../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../dpl/output/lib/custom_ops -lx_ops  -lm -fPIC -O2  -lstdc++  -lz -lpthread
+#cgo CFLAGS: -I${SRCDIR}/../../dpl/output/include
+#cgo LDFLAGS: -L${SRCDIR}/../../dpl/output/lib/deltann  -ldeltann  -L${SRCDIR}/../../dpl/output/lib/tensorflow -ltensorflow_cc -ltensorflow_framework -L${SRCDIR}/../../dpl/output/lib/custom_ops -lx_ops  -lm -fPIC -O2  -lstdc++  -lz -lpthread
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

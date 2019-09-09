@@ -18,7 +18,7 @@ package core
 import (
 	"delta/deltann/server/core/conf"
 	"delta/deltann/server/core/handel"
-	. "delta/deltann/server/model"
+	. "delta/deltann/server/core/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"

@@ -217,7 +217,7 @@ Please cite this [paper](https://arxiv.org/abs/1908.01853) when referencing DELT
          {Gao}, Yonghu and {Guo}, Tingwei and {Zhang}, Yi and {He}, Yahao and
          {Ma}, Baochang and {Zhou}, Yulong and {Zhang}, Kangli and {Liu}, Chao and
          {Lyu}, Ying and {Wang}, Chenxi and {Gong}, Cheng and {Wang}, Yunbo and
-         {Zou}, Wei and {Song}, Hui and {Li}, Xiangang},
+         {Zou}, Wei and {Song}, Hui and {Li}, Xiangang and {Jia}, Zhaoyang},
        title = "{DELTA: A DEep learning based Language Technology plAtform}",
        journal = {arXiv e-prints},
        year = "2019",
