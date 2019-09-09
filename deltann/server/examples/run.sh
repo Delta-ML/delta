@@ -1,1 +1,1 @@
-./delta-service -log_dir=log -alsologtostderr
+nohup ./delta-service -log_dir=log -alsologtostderr &

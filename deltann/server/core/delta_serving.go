@@ -16,6 +16,8 @@ limitations under the License.
 package core
 
 import (
+	"delta/deltann/server/core/conf"
+	"delta/deltann/server/core/handel"
 	. "delta/deltann/server/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -25,41 +27,49 @@ import (
 	"syscall"
 )
 
-const defaultPort = ":8004"
+const defaultPort = "8004"
 
 // Options
 type DeltaOptions struct {
-	ServerPort         string
-	ServerRelativePath string
-	DeltaModelYaml     string
+	ServerPort     string
+	ServerType     string
+	DeltaModelYaml string
 }
+
+var deltaInterface DeltaInterface
 
 func init() {
 	listenSystemStatus()
 }
 
 func DeltaListen(opts DeltaOptions) error {
-
-	err := DeltaModelInit(opts.DeltaModelYaml)
+	conf.SetConfPath(opts.DeltaModelYaml)
+	dParams := DeltaParam{opts.DeltaModelYaml}
+	err := dParams.DeltaModelInit()
 	if err != nil {
 		return err
 	}
-
+	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
-	router.POST(opts.ServerRelativePath, func(context *gin.Context) {
-		DeltaModelRun("hello world")
-	})
+
+	relativePathRoot := "/v1/models/" + conf.DeltaConf.Model.Graph[0].Local.ModelType
+	relativePathFull := relativePathRoot + "/versions/"
+	relativePathFull = relativePathFull + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
+
+	router.POST(relativePathFull, handel.DeltaPredictHandler)
+	router.POST(relativePathRoot, handel.DeltaModelHandler)
 
 	dPort := opts.ServerPort
 	if dPort == "" {
 		dPort = defaultPort
 	}
 
-	err = router.Run(dPort)
+	err = router.Run(":" + dPort)
 	if err != nil {
 		glog.Infof("delta serving init port  %s", dPort)
 	}
-
+	glog.Infof("delta serving DeltaPredictHandler port  %s  path %s", dPort, relativePathFull)
+	glog.Infof("delta serving DeltaModelHandler port  %s  path %s", dPort, relativePathRoot)
 	return nil
 }
 

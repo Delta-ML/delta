@@ -22,9 +22,14 @@ package model
 #include <stdlib.h>
 #include <string.h>
 #include <c_api.h>
+typedef unsigned char UBYTE;
 */
 import "C"
 import (
+	"bytes"
+	"delta/deltann/server/core/conf"
+	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"github.com/golang/glog"
 	"unsafe"
@@ -33,8 +38,18 @@ import (
 var inf C.InferHandel
 var model C.ModelHandel
 
-func DeltaModelInit(yaml string) error {
-	yamlFile := C.CString(yaml)
+type DeltaInterface interface {
+	DeltaModelInit() error
+	DeltaModelRun() error
+	DeltaDestroy()
+}
+
+type DeltaParam struct {
+	DeltaYaml string
+}
+
+func (dParam DeltaParam) DeltaModelInit() error {
+	yamlFile := C.CString(dParam.DeltaYaml)
 	defer C.free(unsafe.Pointer(yamlFile))
 	model = C.DeltaLoadModel(yamlFile)
 	if model == nil {
@@ -47,48 +62,86 @@ func DeltaModelInit(yaml string) error {
 	return nil
 }
 
-func DeltaModelRun(uText string) error {
-	inNum := C.int(1)
+func DeltaModelRun(valueInputs interface{}) (string, error) {
+
+	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
 	var ins C.Input
 
-	text := C.CString(uText)
-	defer C.free(unsafe.Pointer(text))
-	ins.ptr = unsafe.Pointer(text)
+	switch t := valueInputs.(type) {
+	case string:
+		deltaPtr := C.CString(valueInputs.(string))
+		defer C.free(unsafe.Pointer(deltaPtr))
+		ins.ptr = unsafe.Pointer(deltaPtr)
+		ins.size = C.int(len(valueInputs.(string)))
 
-	ins.size = 1
+	case int:
+		//TODO
 
-	inputName := C.CString("input_sentence")
+	case float32:
+		//TODO
+
+	case []string:
+		//TODO
+
+	case []float32:
+		//TODO
+
+	case []int:
+		//TODO
+
+	default:
+		_ = t
+
+	}
+
+	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
 	defer C.free(unsafe.Pointer(inputName))
 	ins.input_name = inputName
 
-	graphName := C.CString("default")
+	graphName := C.CString(conf.DeltaConf.Model.Graph[0].Name)
 	defer C.free(unsafe.Pointer(graphName))
 	ins.graph_name = graphName
-
-	glog.Infof("ins %s", ins)
 
 	C.DeltaSetInputs(inf, &ins, inNum)
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
-
+	var dynaArr []C.float
+	var data *C.float
 	for i := 0; i < int(outNum); i++ {
 
 		byteSize := C.DeltaGetOutputByteSize(inf, C.int(i))
-		data := (*C.float)(C.malloc(C.size_t(byteSize)))
+		data = (*C.float)(C.malloc(C.size_t(byteSize)))
 		C.DeltaCopyToBuffer(inf, C.int(i), unsafe.Pointer(data), byteSize)
 		num := byteSize / C.sizeof_float
+
 		for j := 0; j < int(num); j++ {
 			p := (*[1 << 30]C.float)(unsafe.Pointer(data))
 			glog.Infof("score is %f", p[j])
+			dynaArr = append(dynaArr, p[j])
 		}
-		C.free(unsafe.Pointer(data))
 	}
-
-	return nil
+	defer C.free(unsafe.Pointer(data))
+	pagesJson, err := json.Marshal(dynaArr)
+	if err != nil {
+		glog.Infof("Cannot encode to JSON %s ", err.Error())
+		return "", err
+	}
+	glog.Infof("Success encode to JSON %s ", pagesJson)
+	return string(pagesJson), nil
 }
 
 func DeltaDestroy() {
 	C.DeltaDestroy(inf)
 	C.DeltaUnLoadModel(model)
+}
+
+func GetBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

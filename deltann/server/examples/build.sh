@@ -4,9 +4,10 @@ if [ -d output ]
 then
     rm -r output
 fi
-mkdir -p output/log
-cp delta-service output
-cp -r configurations output
-cp control.sh output
+mkdir -p output/delta-service/log
+cp -R  ../dpl output
+cp delta-service output/delta-service
+cp control.sh output/delta-service
+cp run.sh output/delta-service
 
 
