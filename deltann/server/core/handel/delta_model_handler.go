@@ -16,29 +16,32 @@ limitations under the License.
 package handel
 
 import (
-	. "delta/deltann/server/model"
+	"delta/deltann/server/core/conf"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/glog"
 	"net/http"
 )
 
-// Binding from JSON
-type DeltaRequest struct {
-	DeltaSignatureName string        `form:"signature_name" json:"signature_name" `
-	DeltaInstances     []interface{} `form:"instances" json:"instances" `
-	DeltaInputs        interface{}   `form:"inputs" json:"inputs" `
+type ModelVersion struct {
+	Version string      `json:"version"`
+	State   string      `json:"state"`
+	Status  ModelStatus `json:"status"`
 }
 
-func DeltaPredictHandler(context *gin.Context) {
-	var json DeltaRequest
-	if err := context.ShouldBindJSON(&json); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "DeltaRequest information is not complete"})
-		return
-	}
+type ModelStatus struct {
+	ErrorCode    string `json:"error_code"`
+	ErrorMessage string `json:"error_message"`
+}
 
-	modelResult, err := DeltaModelRun(json.DeltaInputs)
+func DeltaModelHandler(context *gin.Context) {
+
+	modelVersion := &ModelVersion{conf.DeltaConf.Model.Graph[0].Version, "AVAILABLE", ModelStatus{"OK", ""}}
+	pagesJson, err := json.Marshal(modelVersion)
 	if err != nil {
+		glog.Infof("Cannot encode to JSON %s ", err.Error())
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	context.JSON(http.StatusOK, gin.H{"predictions": modelResult})
+	context.JSON(http.StatusOK, gin.H{"model_version_status": string(pagesJson)})
 }

@@ -52,11 +52,12 @@ func DeltaListen(opts DeltaOptions) error {
 	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
 
-	relativePath := "/v1/models/"
-	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Local.ModelType + "/versions/"
-	relativePath = relativePath + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
+	relativePathRoot := "/v1/models/" + conf.DeltaConf.Model.Graph[0].Local.ModelType
+	relativePathFull := relativePathRoot + "/versions/"
+	relativePathFull = relativePathFull + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
 
-	router.POST(relativePath, handel.DeltaPredictHandler)
+	router.POST(relativePathFull, handel.DeltaPredictHandler)
+	router.POST(relativePathRoot, handel.DeltaModelHandler)
 
 	dPort := opts.ServerPort
 	if dPort == "" {
@@ -67,7 +68,8 @@ func DeltaListen(opts DeltaOptions) error {
 	if err != nil {
 		glog.Infof("delta serving init port  %s", dPort)
 	}
-	glog.Infof("delta serving start port  %s  path %s", dPort, relativePath)
+	glog.Infof("delta serving DeltaPredictHandler port  %s  path %s", dPort, relativePathFull)
+	glog.Infof("delta serving DeltaModelHandler port  %s  path %s", dPort, relativePathRoot)
 	return nil
 }
 

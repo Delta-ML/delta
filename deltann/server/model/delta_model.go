@@ -26,12 +26,12 @@ typedef unsigned char UBYTE;
 */
 import "C"
 import (
+	"bytes"
 	"delta/deltann/server/core/conf"
+	"encoding/gob"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/golang/glog"
-	"os"
 	"unsafe"
 )
 
@@ -46,10 +46,6 @@ type DeltaInterface interface {
 
 type DeltaParam struct {
 	DeltaYaml string
-}
-
-type DeltaResponse struct {
-	Value []C.float
 }
 
 func (dParam DeltaParam) DeltaModelInit() error {
@@ -71,9 +67,11 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
 	var ins C.Input
 
-	floatbytes := CopyValueToByte(valueInputs)
-	ins.ptr = ByteSliceToCArray(floatbytes)
-	ins.size = 1
+	//ins := PatchData(valueInputs, insC)
+	deltaPtr := C.CString(valueInputs.(string))
+	defer C.free(unsafe.Pointer(deltaPtr))
+	ins.ptr = unsafe.Pointer(deltaPtr)
+	ins.size = C.int(len(valueInputs.(string)))
 
 	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
 	defer C.free(unsafe.Pointer(inputName))
@@ -83,17 +81,16 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 	defer C.free(unsafe.Pointer(graphName))
 	ins.graph_name = graphName
 
-	glog.Infof("ins %s", ins)
-
 	C.DeltaSetInputs(inf, &ins, inNum)
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
 	var dynaArr []C.float
+	var data *C.float
 	for i := 0; i < int(outNum); i++ {
 
 		byteSize := C.DeltaGetOutputByteSize(inf, C.int(i))
-		data := (*C.float)(C.malloc(C.size_t(byteSize)))
+		data = (*C.float)(C.malloc(C.size_t(byteSize)))
 		C.DeltaCopyToBuffer(inf, C.int(i), unsafe.Pointer(data), byteSize)
 		num := byteSize / C.sizeof_float
 
@@ -102,10 +99,9 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 			glog.Infof("score is %f", p[j])
 			dynaArr = append(dynaArr, p[j])
 		}
-		C.free(unsafe.Pointer(data))
 	}
-	t := DeltaResponse{dynaArr}
-	pagesJson, err := json.Marshal(t)
+	defer C.free(unsafe.Pointer(data))
+	pagesJson, err := json.Marshal(dynaArr)
 	if err != nil {
 		glog.Infof("Cannot encode to JSON %s ", err.Error())
 		return "", err
@@ -119,43 +115,36 @@ func DeltaDestroy() {
 	C.DeltaUnLoadModel(model)
 }
 
-func CopyValueToByte(value interface{}) []byte {
-	var valptr uintptr
-	var slice []byte
-
+func PatchData(value interface{}, ins C.Input) C.Input {
+	insC := ins
 	switch t := value.(type) {
-	case int32:
-		i := value.(int32)
-		valptr = uintptr(unsafe.Pointer(&i))
-		slice = make([]byte, unsafe.Sizeof(i))
-	case float32:
-		f := value.(float32)
-		valptr = uintptr(unsafe.Pointer(&f))
-		slice = make([]byte, unsafe.Sizeof(f))
 	case string:
-		f := value.(string)
-		valptr = uintptr(unsafe.Pointer(&f))
-		slice = make([]byte, unsafe.Sizeof(f))
+		valueInputs := value.(string)
+		deltaPtr := C.CString(valueInputs)
+		insC.ptr = unsafe.Pointer(deltaPtr)
+		insC.size = C.int(len(valueInputs))
+		return ins
 	default:
-		fmt.Fprintf(os.Stderr, "Unsupported type: %T\n", t)
+		glog.Infof("patchData type: %T", t)
+		bData, err := GetBytes(value)
+		if err != nil {
+			return insC
+		}
+		deltaPtr := C.CBytes(bData)
+		defer C.free(unsafe.Pointer(deltaPtr))
+		insC.ptr = deltaPtr
+		insC.size = C.int(len(bData))
+		return insC
 	}
 
-	for i := 0; i < len(slice); i++ {
-		slice[i] = byte(*(*byte)(unsafe.Pointer(valptr)))
-		valptr++
-	}
-
-	return slice
 }
 
-func ByteSliceToCArray(byteSlice []byte) unsafe.Pointer {
-	var array = unsafe.Pointer(C.calloc(C.size_t(len(byteSlice)), 1))
-	var arrayptr = uintptr(array)
-
-	for i := 0; i < len(byteSlice); i++ {
-		*(*C.UBYTE)(unsafe.Pointer(arrayptr)) = C.UBYTE(byteSlice[i])
-		arrayptr++
+func GetBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
 	}
-
-	return array
+	return buf.Bytes(), nil
 }
