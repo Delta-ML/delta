@@ -45,7 +45,7 @@ class Readwav(BaseFrontend):
 
   def call(self, wavfile):
     ''' samples of shape [nsample] '''
-    params = params=super().config
+    params = self.config
     contents = tf.read_file(wavfile)
     waveforms = contrib_audio.decode_wav(
         contents,
