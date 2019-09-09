@@ -114,7 +114,7 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified
   if model_load_type == "specific":
     model_file_name = Path(dir_name).joinpath(specified_model_file_name)
     #the value of model_load_type will be changed to latest when specified_model_file_name is None
-    if not os.path.exists(model_file_name):
+    if not model_file_name.exists():
       model_load_type = "latest"
       logging.warning(
           "The specified model file {} is not exist, model_load_type:{} is adopted"
@@ -129,7 +129,7 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified
   #model_file_name will be None when 
   #     1.model_load_type=scratch
   #     2.no model_file is found with model_load_type=latest
-  if model_file_name is None or not os.path.exists(model_file_name):
+  if model_file_name is None or not model_file_name.exists():
     logging.warning('No model file is found in {} with model_load_type={}'.format(dir_name,
                                                                                   model_load_type))
     if mode == utils.TRAIN:
@@ -147,13 +147,13 @@ def get_most_recently_modified_file_matching_pattern(dir_name, file_name_pattern
 
   tf_checkpoint_file = tf.train.latest_checkpoint(dir_name)
   if tf_checkpoint_file is not None and re.match(file_name_regex,
-                                                 os.path.basename(tf_checkpoint_file)):
+                                                 tf_checkpoint_file.name):
      return tf_checkpoint_file
 
-  file_list = [os.path.join(dir_name, file_name)
-               for file_name in os.listdir(dir_name)
+  file_list = [Path(dir_name).joinpath(file_name)
+               for file_name in dir_name.iterdir()
                if re.match(file_name_regex, file_name)]
-  file_time_list = [os.path.getmtime(single_file) for single_file in file_list]
+  file_time_list = [single_file.stat().st_mtime for single_file in file_list]
   file_sort_by_time = np.argsort(file_time_list)
   latest_file = file_list[file_sort_by_time[-1]] if file_sort_by_time.shape[0] > 0 else None
   return latest_file

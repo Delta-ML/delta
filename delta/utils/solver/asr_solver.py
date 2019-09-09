@@ -15,7 +15,6 @@
 # ==============================================================================
 ''' asr sovler based on Solver'''
 
-import os
 from pathlib import Path
 from datetime import datetime
 
@@ -486,7 +485,7 @@ class AsrSolver(Solver):
 
   def export_model(self):
     '''export saved_model'''
-    mode = utils.EVAL 
+    mode = utils.INFER
     self.model_fn(mode=mode)
     assert self._built
 
@@ -510,9 +509,9 @@ class AsrSolver(Solver):
     model_to_export = Model(inputs=[input_feat, input_length],
                             outputs=greedy_decode)
 
-    model_export_path = os.path.join(self._model_path, "model_export")
+    model_export_path = Path(self._model_path).joinpath("export")
     export_saved_model(model=model_to_export,
-                       saved_model_path=model_export_path,
+                       saved_model_path=str(model_export_path),
                        custom_objects=None,
                        as_text=False,
                        input_signature=None,
