@@ -202,7 +202,6 @@ class AsrSolver(Solver):
     logging.info("{}-{}: load model from {}"
                  .format(mode, model_load_type, model_file_name))
     if model_load_type != 'scratch':
-      assert os.path.exists(model_file_name)
       if self.model.built:
         self.model.load_weights(str(model_file_name), by_name=False)
       else:
@@ -286,7 +285,7 @@ class AsrSolver(Solver):
     callbacks.append(save_best_cb)
     logging.info(f"CallBack: Save Best Model")
 
-    # save checkpoin
+    # save checkpoint
     save_file_pattern = self._checkpoint_file_pattern.replace('monitor_used', monitor_used)
     save_ckpt = Path(self._model_path).joinpath(save_file_pattern)
     save_ckpt_cb = ParallelModelCheckpoint(
