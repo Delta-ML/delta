@@ -67,11 +67,32 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
 	var ins C.Input
 
-	//ins := PatchData(valueInputs, insC)
-	deltaPtr := C.CString(valueInputs.(string))
-	defer C.free(unsafe.Pointer(deltaPtr))
-	ins.ptr = unsafe.Pointer(deltaPtr)
-	ins.size = C.int(len(valueInputs.(string)))
+	switch t := valueInputs.(type) {
+	case string:
+		deltaPtr := C.CString(valueInputs.(string))
+		defer C.free(unsafe.Pointer(deltaPtr))
+		ins.ptr = unsafe.Pointer(deltaPtr)
+		ins.size = C.int(len(valueInputs.(string)))
+
+	case int:
+		//TODO
+
+	case float32:
+		//TODO
+
+	case []string:
+		//TODO
+
+	case []float32:
+		//TODO
+
+	case []int:
+		//TODO
+
+	default:
+		_ = t
+
+	}
 
 	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
 	defer C.free(unsafe.Pointer(inputName))
@@ -113,30 +134,6 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 func DeltaDestroy() {
 	C.DeltaDestroy(inf)
 	C.DeltaUnLoadModel(model)
-}
-
-func PatchData(value interface{}, ins C.Input) C.Input {
-	insC := ins
-	switch t := value.(type) {
-	case string:
-		valueInputs := value.(string)
-		deltaPtr := C.CString(valueInputs)
-		insC.ptr = unsafe.Pointer(deltaPtr)
-		insC.size = C.int(len(valueInputs))
-		return ins
-	default:
-		glog.Infof("patchData type: %T", t)
-		bData, err := GetBytes(value)
-		if err != nil {
-			return insC
-		}
-		deltaPtr := C.CBytes(bData)
-		defer C.free(unsafe.Pointer(deltaPtr))
-		insC.ptr = deltaPtr
-		insC.size = C.int(len(bData))
-		return insC
-	}
-
 }
 
 func GetBytes(key interface{}) ([]byte, error) {
