@@ -439,24 +439,24 @@ REGISTER_OP("DeltaDelta")
     .Attr("order: int = 2")
     .Attr("window: int = 2")
     .SetShapeFn([](InferenceContext* c) {
-       int order;
-       TF_RETURN_IF_ERROR(c->GetAttr("order", &order));
+      int order;
+      TF_RETURN_IF_ERROR(c->GetAttr("order", &order));
 
-       ShapeHandle feat;
-       TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 2, &feat));
+      ShapeHandle feat;
+      TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 2, &feat));
 
-       DimensionHandle nframe = c->Dim(feat, 0);
-       DimensionHandle nfeat = c->Dim(feat, 1);
+      DimensionHandle nframe = c->Dim(feat, 0);
+      DimensionHandle nfeat = c->Dim(feat, 1);
 
-       DimensionHandle out_feat;
-       TF_RETURN_IF_ERROR(c->Multiply(nfeat, order + 1, &out_feat));
+      DimensionHandle out_feat;
+      TF_RETURN_IF_ERROR(c->Multiply(nfeat, order + 1, &out_feat));
 
-       // int input_len = c->Value(nfeat);
-       // int output_len = input_len * (order + 1);
-       // DimensionHandle out_feat = c->MakeDim(output_len);
-       c->set_output(0, c->Matrix(nframe, out_feat));
-       return Status::OK();
-     })
+      // int input_len = c->Value(nfeat);
+      // int output_len = input_len * (order + 1);
+      // DimensionHandle out_feat = c->MakeDim(output_len);
+      c->set_output(0, c->Matrix(nframe, out_feat));
+      return Status::OK();
+    })
     .Doc(R"doc(
 Add deltas (typically to raw mfcc or plp features).
 features: A matrix of shape [nframe, feat_dim].

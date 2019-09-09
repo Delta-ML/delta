@@ -113,24 +113,33 @@ class SpeakerBaseRawModel(RawModel):
     x: shape [batch, time, feat, channel]
     output: shape [b, t, f]
     '''
-    times_t = tf.shape(x)[1]
+    batch_t = tf.shape(x)[0]
+    time_t = tf.shape(x)[1]
     feat, channel = x.shape.as_list()[2:]
     linear_num = self.netconf['linear_num']
+
     if linear_num > 0:
       with tf.variable_scope('linear'):
-        x = tf.reshape(x, [-1, feat * channel])
+        x = tf.reshape(x, [batch_t * time_t, feat * channel])
+
         if self.netconf['use_dropout']:
           x = tf.layers.dropout(
               x, self.netconf['dropout_rate'], training=self.train)
+
         x = common_layers.linear(x, 'linear1', [feat * channel, linear_num])
+
         x = tf.nn.relu(x)
+
         if self.netconf['use_bn']:
           bn_name = 'bn_linear'
           x = tf.layers.batch_normalization(
               x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
+
+        x = tf.reshape(x, [batch_t, time_t, linear_num])
     else:
       logging.info('linear_num <= 0, only apply reshape.')
-      x = tf.reshape(x, [-1, times_t, feat * channel])
+      x = tf.reshape(x, [batch_t, time_t, feat * channel])
+
     return x
 
   def lstm_layer(self, x):
@@ -168,23 +177,32 @@ class SpeakerBaseRawModel(RawModel):
   def pooling_layer(self, x):
     '''
       Add a pooling layer across the whole utterance.
-      Input: [NHW]
-        --> Reduce along H
+      Input: [B, T, D]
+        --> Reduce along T
 
-      Statistics pooling output: [N, W * 2]
-      Average pooling output: [N, W]
+      Statistics pooling output: [B, D * 2]
+      Average pooling output: [B, D]
     '''
+    assert_rank3 = tf.debugging.assert_rank(x, 3)
+    with tf.control_dependencies([assert_rank3]):
+      x = tf.identity(x)
+
     pooling_type = self.netconf['frame_pooling_type']
     if pooling_type == 'stats':
-      with tf.variable_scope('stats_pooling'):
+      with tf.name_scope('stats_pooling'):
         mean, var = tf.nn.moments(x, 1)
         x = tf.concat([mean, tf.sqrt(var + 1e-6)], 1)
     elif pooling_type == 'average':
-      with tf.variable_scope('average_pooling'):
+      with tf.name_scope('average_pooling'):
         mean, _ = tf.nn.moments(x, 1)
         x = mean
     else:
       raise ValueError('Unsupported frame_pooling_type: %s' % (pooling_type))
+
+    assert_rank2 = tf.debugging.assert_rank(x, 2)
+    with tf.control_dependencies([assert_rank2]):
+      x = tf.identity(x)
+
     return x
 
   def dense_layer(self, x):
@@ -195,6 +213,7 @@ class SpeakerBaseRawModel(RawModel):
       y = x
       use_bn = self.netconf['use_bn']
       remove_nonlin = self.netconf['remove_last_nonlinearity']
+
       for idx, hidden in enumerate(hidden_dims):
         last_layer = idx == (len(hidden_dims) - 1)
         y = common_layers.linear(
@@ -236,9 +255,11 @@ class SpeakerBaseRawModel(RawModel):
     if labels is None:
       # serving export mode, no need for logits
       return x
+
     output_num = self.taskconf['classes']['num']
     logits_type = self.netconf['logits_type']
     logits_shape = [x.shape[-1].value, output_num]
+
     with tf.variable_scope('logits'):
       init_type = self.netconf['logits_weight_init']['type']
       if init_type == 'truncated_normal':
@@ -250,10 +271,10 @@ class SpeakerBaseRawModel(RawModel):
         init = tf.contrib.layers.xavier_initializer(uniform=False)
       else:
         raise ValueError('Unsupported weight init type: %s' % (init_type))
+
       weights = tf.get_variable(
-          name='weights',
-          shape=logits_shape,
-          initializer=init)
+          name='weights', shape=logits_shape, initializer=init)
+
       if logits_type == 'linear':
         bias = tf.get_variable(
             name='bias',
@@ -434,7 +455,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     return tf.maximum(0.0, x) + alpha * tf.minimum(0.0, x)
 
   def se_moudle(self, x, channels, reduction, name=''):
-    input = x
+    input_t = x
     x = tf.reduce_mean(x, [1, 2], name=name + '_avg', keep_dims=True)
     x = tf.layers.conv2d(
         x,
@@ -461,7 +482,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
         kernel_initializer=tf.contrib.layers.xavier_initializer(),
         bias_initializer=tf.zeros_initializer())
     x = tf.nn.sigmoid(x, name=name + '_1x1_up_sigmoid')
-    return tf.multiply(input, x, name=name + '_mul')
+    return tf.multiply(input_t, x, name=name + '_mul')
 
   def resnet_layer(self, x, in_channel, out_channel, stride, dim_match,
                    block_name):

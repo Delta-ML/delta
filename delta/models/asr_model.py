@@ -119,42 +119,42 @@ class CTCAsrModel(RawModel):
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
         CuDNNLSTM(
-        units=512,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm'))(
-            x)
+            units=512,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm'))(
+                x)
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
         CuDNNLSTM(
-        512,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm1'))(
-            x)
+            512,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm1'))(
+                x)
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
         CuDNNLSTM(
-        512,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm2'))(
-            x)
+            512,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm2'))(
+                x)
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
         CuDNNLSTM(
-        512,
-        kernel_initializer='glorot_uniform',
-        bias_initializer='random_normal',
-        return_sequences=True,
-        name='lstm3'))(
-            x) 
+            512,
+            kernel_initializer='glorot_uniform',
+            bias_initializer='random_normal',
+            return_sequences=True,
+            name='lstm3'))(
+                x)
 
     x = TimeDistributed(Dense(1024, activation='relu'))(x)
     x = TimeDistributed(Dropout(0.5))(x)
@@ -183,7 +183,7 @@ class CTCAsrModel(RawModel):
 
 
 @registers.model.register
-class CTCRefAsrModel(CTCAsrModel):
+class CTC5BlstmAsrModel(CTCAsrModel):
   '''
   CTC ASR Model
   reference: https://www.cs.cmu.edu/~ymiao/pub/icassp2016_ctc.pdf

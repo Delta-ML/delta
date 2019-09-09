@@ -107,7 +107,7 @@ class RawSolver(Solver):
     """Get the path of the checkpoint of the model."""
     model_path = ""
     if "{}_model_path".format(mode) in self.config["solver"]["saver"]:
-      model_path = self.config["saver"]["{}_model_path".format(mode)]
+      model_path = self.config["solver"]["saver"]["{}_model_path".format(mode)]
     if model_path == "":
       model_path = self.get_generated_model_path()
     return model_path

@@ -192,7 +192,7 @@ For more details, please refer to [released models](docs/released_models.md).
 
 | Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
 |---|---|---|---|---|---|---|
-| Speech recognition | CTC |  |  |  |  |  |
+| Speech recognition | CTC | HKUST | CER | 36.49 | 38.67 | Miao et al. (2016) |
 | Speaker verfication | TDNN | VoxCeleb | EER | 3.028 | 3.138 | Kaldi |
 | Emotion recognition | ResNet | IEMOCAP | Acc | 59.15 | 56.10 | Neumann and Vu (2017) |
 | Emotion recognition | RNN-mean pool | IEMOCAP | Acc | 65.23 | 56.90 | Mirsamadi et al. (2017) |

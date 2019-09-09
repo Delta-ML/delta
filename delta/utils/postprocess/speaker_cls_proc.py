@@ -42,6 +42,7 @@ class SpeakerPostProc(PostProc):
     super().__init__(config)
 
     postconf = self.config['solver']['postproc']
+
     output_dir = postconf['pred_path']
     self.output_dir = output_dir if output_dir else os.path.join(
         self.config['solver']['saver']['model_path'], 'infer')
@@ -56,9 +57,17 @@ class SpeakerPostProc(PostProc):
     self.stats = None
     self.confusion = None
 
-    self.outputs = ['embeddings', 'softmax']
+    # e.g.["embeddings", "softmax"]
+    self.outputs = postconf['output_nodes']
+    assert 'embeddings' in self.outputs
+
     self.output_files = collections.defaultdict(dict)
-    for output_level in ['utt', 'chunk']:
+
+    # e.g. ["utt", "chuck"]
+    self.output_levels = postconf['output_levels']
+    assert 'utt' in self.output_levels
+
+    for output_level in self.output_levels:
       for output_key in self.outputs:
         output_file_name = '%s_%s.txt' % (output_level, output_key)
         self.output_files[output_level][output_key] = \
@@ -74,9 +83,10 @@ class SpeakerPostProc(PostProc):
     last_utt_chunk_outputs = {}
     for output_key in self.outputs:
       last_utt_chunk_outputs[output_key] = []
+
     if self.infer:
       file_pointers = collections.defaultdict(dict)
-      for output_level in ['utt', 'chunk']:
+      for output_level in self.output_levels:
         for output_key in self.outputs:
           file_pointers[output_level][output_key] = \
               open(self.output_files[output_level][output_key], 'w')
@@ -105,8 +115,9 @@ class SpeakerPostProc(PostProc):
           chunk_output = clip[output_key]
           if self.infer:
             formatted_output = format_kaldi_vector(chunk_output)
-            file_pointers['chunk'][output_key].write(
-                '%s %s\n' % (chunk_key, formatted_output))
+            if 'chuck' in self.output_levels:
+              file_pointers['chunk'][output_key].write(
+                  '%s %s\n' % (chunk_key, formatted_output))
 
           embeddings = last_utt_chunk_outputs[output_key]
           # Check if an utterance is over.
@@ -118,8 +129,9 @@ class SpeakerPostProc(PostProc):
               utt_embedding = np.average(embeddings, axis=0)
               if self.infer:
                 formatted_output = format_kaldi_vector(utt_embedding)
-                file_pointers['utt'][output_key].write(
-                    '%s %s\n' % (last_utt_key, formatted_output))
+                if 'utt' in self.output_levels:
+                  file_pointers['utt'][output_key].write(
+                      '%s %s\n' % (last_utt_key, formatted_output))
 
             # Start a new utterance.
             embeddings.clear()
@@ -141,11 +153,12 @@ class SpeakerPostProc(PostProc):
       utt_embedding = np.average(embeddings, axis=0)
       if self.infer:
         formatted_output = format_kaldi_vector(utt_embedding)
-        file_pointers['utt'][output_key].write('%s %s\n' %
-                                               (last_utt_key, formatted_output))
+        if 'utt' in self.output_levels:
+          file_pointers['utt'][output_key].write(
+              '%s %s\n' % (last_utt_key, formatted_output))
 
     if self.infer:
-      for output_level in ['utt', 'chunk']:
+      for output_level in self.output_levels:
         for output_key in self.outputs:
           file_pointers[output_level][output_key].close()
 
