@@ -39,24 +39,31 @@ Please follow [Contributing Guide](https://git.xiaojukeji.com/speech-nlu/nlu-ml/
   	*Currently support window\_length = 30ms and frame\_length = 10ms for perfect reconstruction.*
 * Synthesis filter bank (SFB)
 
+The specific interfaces of feature functions are shown below：
+![Speech Features](imags/speech_features.png)
+
 ## Comparsion with KALDI
 Extracted features are compared to existing KALDI features.
 
 1. Pitch
 
-   ![](⁩⁩imags/pitch_compare.png)
+	![Pitch](imags/pitch_compare.png)
+
 
 2. Log power spectrum
 
-   ![](imags/log_spectrum_compare.png⁩)
+	![Log power spectrum](imags/log_spectrum_compare.png)
+
 
 3. Cepstrum / MFCC
 
-	![](⁩⁩imags/mfcc_compare.png⁩)
+	![Cepstrum / MFCC](imags/mfcc_compare.png)
+
 
 4. PLP
 
-   ![](⁩⁩imags/plp_compare.png⁩)
+    ![PLP](imags/plp_compare.png)
+
  
 ## Reference
 
