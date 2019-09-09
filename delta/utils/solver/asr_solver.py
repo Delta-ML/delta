@@ -505,7 +505,7 @@ class AsrSolver(Solver):
     model_outputs = self.model.get_layer('outputs').output
     greedy_decode = Lambda(
         ctc_greedy_decode_lambda_func, output_shape=(),
-        name='greedy_decode')([model_outputs, input_length])
+        name='decode')([model_outputs, input_length])
 
     model_to_export = Model(inputs=[input_feat, input_length],
                             outputs=greedy_decode)

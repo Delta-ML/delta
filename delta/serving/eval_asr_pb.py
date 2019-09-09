@@ -38,7 +38,7 @@ class ASREvaluate(FrozenModel):
 
     self.inputs = self.graph.get_tensor_by_name('inputs:0')
     self.input_length = self.graph.get_tensor_by_name('input_length:0')
-    self.pred_valid = self.graph.get_tensor_by_name('greedy_decode/SparseToDense:0')
+    self.pred_valid = self.graph.get_tensor_by_name('decode/outputs:0')
 
   @property
   def config(self):
