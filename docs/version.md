@@ -11,5 +11,5 @@ Version No.
 | Beta | 0.7 | integration test  | v0.0.7.2 |
 | RC1 | 0.8 | stress test  | v0.0.8.1 |
 | RC2 | 0.9 |  AB-test, evaluate gains  | v0.0.9.0 |
-| Release | 1.0 |  production  | v0.0.1.0 |
+| Release | 1.0 |  production  | v0.1.0.0 |
 
