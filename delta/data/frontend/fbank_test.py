@@ -24,11 +24,14 @@ class FBankTest(tf.test.TestCase):
 
   def test_fbank(self):
    '''test fbank'''
+   time = 2
+   sr = 16000
+   channel = 1
    fbank = FBank.params().instantiate()
-   inputs = tf.random.uniform([2, 16000], minval= -1000, maxval=1000, dtype=tf.dtypes.float32)
+   inputs = tf.random.uniform([time*sr, channel], minval= -1, maxval=1, dtype=tf.dtypes.float32)
    x = fbank.call(inputs)
-   shape = [2, 100, 40, 3]
-   self.assertAllEqual(x.shape, shape)
+   shape = [198, 40]
+   self.assertAllEqual(tf.shape(x), shape)
 
 if __name__ == '__main__':
   tf.test.main()
