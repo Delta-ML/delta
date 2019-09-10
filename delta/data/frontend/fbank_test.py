@@ -13,25 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' Fbank test'''
 
 import tensorflow as tf
+import os
+from pathlib import Path
+from delta.data.frontend.read_wav import ReadWav
+from delta.data.frontend.fbank import Fbank
+import librosa
 
-from delta.data.frontend.fbank import FBank
-
-class FBankTest(tf.test.TestCase):
-  ''' HParams unittest '''
+class FbankTest(tf.test.TestCase):
 
   def test_fbank(self):
-   '''test fbank'''
-   time = 2
-   sr = 16000
-   channel = 1
-   fbank = FBank.params().instantiate()
-   inputs = tf.random.uniform([time*sr, channel], minval= -1, maxval=1, dtype=tf.dtypes.float32)
-   x = fbank.call(inputs)
-   shape = [198, 40]
-   self.assertAllEqual(tf.shape(x), shape)
+    wav_path = str(
+      Path(os.environ['MAIN_ROOT']).joinpath('delta/data/frontend/p232_216.wav')
+    )
+    read_wav = ReadWav.params().instantiate()
+    input_data, sample_rate = read_wav.call(wav_path)
+    fbank = Fbank.params().instantiate()
+    fbank_test = fbank.call(input_data, sample_rate)
+
+    sess = tf.compat.v1.Session()
+    fbank_test1 = sess.run(fbank_test)
+
+    print(fbank_test1.shape)
 
 if __name__ == '__main__':
   tf.test.main()
