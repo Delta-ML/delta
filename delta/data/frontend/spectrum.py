@@ -33,33 +33,25 @@ class Spectrum(BaseFrontend):
     frame_length = 0.010
     output_type = 1
 
-    if config is not None:
-      taskconf = config['data']['task']
-      audioconf = taskconf['audio']
-      window_length = audioconf['window_length']
-      frame_length = audioconf['frame_length']
-      output_type = audioconf['output_type']
-
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
     hparams.add_hparam('frame_length', frame_length)
     hparams.add_hparam('output_type', output_type)
 
+    if config is not None:
+      hparams.override_from_dict(config)
+
     return hparams
 
   def call(self, audio_data, sample_rate):
     p = self.config
-    with tf.name_scope('feature_extractor'):
+    with tf.name_scope('spectrum'):
+
       spectrum = py_x_ops.spectrum(
         audio_data,
         sample_rate,
         window_length=p.window_length,
-        frame_length = p.frame_length,
-        output_type = p.output_type)
+        frame_length=p.frame_length,
+        output_type=p.output_type)
+
     return spectrum
-
-
-
-
-
-

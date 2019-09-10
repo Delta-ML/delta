@@ -41,7 +41,7 @@ class Cepstrum(BaseFrontend):
     hparams.add_hparam('tag_ceps_mean_norm', tag_ceps_mean_norm)
 
     if config is not None:
-      hparams.parse(config)
+      hparams.override_from_dict(config)
 
     return hparams
 
@@ -49,7 +49,7 @@ class Cepstrum(BaseFrontend):
 
     p = self.config
 
-    with tf.name_scope('feature_extractor'):
+    with tf.name_scope('cepstrum'):
 
       cepstrum = py_x_ops.cepstrum(
         audio_data,
@@ -60,13 +60,3 @@ class Cepstrum(BaseFrontend):
         tag_ceps_mean_norm=p.tag_ceps_mean_norm)
 
     return cepstrum
-
-
-
-
-
-
-
-
-
-

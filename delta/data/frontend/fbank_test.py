@@ -30,7 +30,7 @@ class FbankTest(tf.test.TestCase):
     read_wav = ReadWav.params().instantiate()
     input_data, sample_rate = read_wav.call(wav_path)
     fbank = Fbank.params().instantiate()
-    fbank_test = fbank.call(input_data, sample_rate)
+    fbank_test = fbank(input_data, sample_rate)
 
     sess = tf.compat.v1.Session()
     fbank_test1 = sess.run(fbank_test)

@@ -46,7 +46,7 @@ class Pitch(BaseFrontend):
   def call(self, audio_data, sample_rate):
 
     p = self.config
-    with tf.name_scope('feature_extractor'):
+    with tf.name_scope('pitch'):
       pitch = py_x_ops.pitch(
           audio_data,
           sample_rate,

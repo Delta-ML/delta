@@ -29,7 +29,7 @@ class SpectrumTest(tf.test.TestCase):
     read_wav = ReadWav.params().instantiate()
     input_data, sample_rate = read_wav.call(wav_path)
     spectrum = Spectrum.params().instantiate()
-    spectrum_test = spectrum.call(input_data, sample_rate)
+    spectrum_test = spectrum(input_data, sample_rate)
 
     sess = tf.compat.v1.Session()
     spectrum_test1 = sess.run(spectrum_test)

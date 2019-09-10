@@ -31,8 +31,8 @@ class CepstrumTest(tf.test.TestCase):
     with self.session():
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav.call(wav_path)
-      cepstrum = Cepstrum.params().instantiate()
-      cepstrum_test = cepstrum.call(input_data, sample_rate)
+      cepstrum = Cepstrum.params({'window_length':0.025}).instantiate()
+      cepstrum_test = cepstrum(input_data, sample_rate)
 
       output_true = np.array(
         [[0.525808, 0.579537, 0.159656, 0.014726, -0.1866810],

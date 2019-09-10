@@ -34,25 +34,20 @@ class Fbank(BaseFrontend):
     lower_frequency_limit = 20
     filterbank_channel_count = 40
 
-    if config is not None:
-      if config['upper_frequency_limit'] is not None:
-        upper_frequency_limit = config['upper_frequency_limit']
-      if config['lower_frequency_limit'] is not None:
-        lower_frequency_limit = config['lower_frequency_limit']
-      if config['filterbank_channel_count'] is not None:
-        filterbank_channel_count = config['filterbank_channel_count']
-
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
     hparams.add_hparam('lower_frequency_limit', lower_frequency_limit)
     hparams.add_hparam('filterbank_channel_count', filterbank_channel_count)
+
+    if config is not None:
+      hparams.override_from_dict(config)
 
     return hparams
 
   def call(self, audio_data, sample_rate):
     p = self.config
 
-    with tf.name_scope('feature_extractor'):
+    with tf.name_scope('fbank'):
 
       spect = Spectrum.params().instantiate()
       spectrum = spect.call(audio_data, sample_rate)
