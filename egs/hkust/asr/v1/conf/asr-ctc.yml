@@ -134,6 +134,10 @@ solver:
     eval_on_dev_every_secs: 1
     print_every: 10
     resume_model_path: ""
+  loader:
+    model_load_type: null #restore which kind of model(support 4 values: "best", "lastest", "scratch", "specific")
+    init_epoch: 0 #epoch at which to start training(range from 0 to solver.optimizer.epochs)
+    file_name: null
   run_config:
     debug: false # use tfdbug
     tf_random_seed: null # 0-2**32; null is None, try to read data from /dev/urandom if available or seed from the clock otherwise
@@ -149,9 +153,10 @@ solver:
     report_tensor_allocations_upon_oom: true
 
 serving:
-  enable: false
+  enable: true
   name : Evaluate
-  model: null # saved model dir, ckpt dir, or frozen_model.pb
+  model: "exp/asr-ctc/ckpt/export" # saved model dir, ckpt dir, or frozen_model.pb
   inputs: 'inputs:0'
-  outpus: 'softmax_output:0'
+  input_length: 'input_length:0'
+  outputs: 'decode/outputs:0'
 

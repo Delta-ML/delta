@@ -160,7 +160,7 @@ class CTCAsrModel(RawModel):
     x = TimeDistributed(Dropout(0.5))(x)
 
     # Output layer with softmax
-    x = TimeDistributed(Dense(self._vocab_size))(x)
+    x = TimeDistributed(Dense(self._vocab_size), name="outputs")(x)
 
     input_length = Input(name='input_length', shape=[], dtype='int64')
     labels = Input(name='targets', shape=[None], dtype='int32')

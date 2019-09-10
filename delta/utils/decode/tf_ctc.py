@@ -75,7 +75,7 @@ def ctc_greedy_decode(logits,
   with tf.control_dependencies(deps):
     decode_result, probs = tf.nn.ctc_greedy_decoder(
         logits, sequence_len, merge_repeated=merge_repeated)
-    decode_result = tf.sparse_tensor_to_dense(decode_result[0])
+    decode_result = tf.sparse_tensor_to_dense(decode_result[0], name="outputs")
   return decode_result, probs
 
 
