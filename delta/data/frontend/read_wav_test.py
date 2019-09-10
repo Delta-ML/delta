@@ -13,35 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' read wav test'''
-import tempfile
-import numpy as np
-from scipy.io import wavfile 
 
 import tensorflow as tf
+import os
+from pathlib import Path
+from delta.data.frontend.read_wav import ReadWav
+import librosa
 
-from delta.data.frontend.read_wav import Readwav 
-
-class ReadwavTest(tf.test.TestCase):
-  ''' HParams unittest '''
+class ReadWavTest(tf.test.TestCase):
 
   def test_read_wav(self):
-    '''test read wav'''
-
-    time = 2
-    sr = 16000
-    def write_wav_file():
-      _, wavefile = tempfile.mkstemp('.wav')
-      data = np.random.randint(-32768, 32767, time*sr, dtype=np.int16)
-      wavfile.write(wavefile, sr, data)
-      return wavefile
-
-    wavefile = write_wav_file()
-    read_wav = Readwav.params().instantiate()
-    waveforms = read_wav.call(wavefile)
-    
-    shape = [time*sr]
-    self.assertAllEqual(tf.shape(waveforms), shape)
+    wav_path = str(
+      Path(os.environ['MAIN_ROOT']).joinpath('delta/data/frontend/p232_216.wav')
+    )
+    read_wav = ReadWav.params().instantiate()
+    input_data, sample_rate = read_wav.call(wav_path)
+    sess = tf.Session()
+    audio_data = sess.run(input_data)
+    sample_rate1 = sess.run(sample_rate)
+    audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
+    self.assertAllClose(audio_data, audio_data_true)
+    self.assertAllClose(sample_rate1, sample_rate_true)
 
 if __name__ == '__main__':
   tf.test.main()
