@@ -25,8 +25,7 @@ class SpectrumTest(tf.test.TestCase):
 
   def test_spectrum(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/data/frontend/p232_216.wav')
-    )
+        Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
     read_wav = ReadWav.params().instantiate()
     input_data, sample_rate = read_wav.call(wav_path)
     spectrum = Spectrum.params().instantiate()
@@ -37,6 +36,7 @@ class SpectrumTest(tf.test.TestCase):
     audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
     spectrum_true = librosa.stft(audio_data_true, n_fft=512, hop_length=160, win_length=400, window='hamm')
     print(spectrum_true.shape)
+    # Because our algorithm pre-emphasized the audio_data, two spectrums are different.
     self.assertAllClose(spectrum_test1.transpose()[:, 0:10], spectrum_true[:, 0:10])
 
 if __name__ == '__main__':

@@ -24,8 +24,8 @@ class ReadWavTest(tf.test.TestCase):
 
   def test_read_wav(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/data/frontend/p232_216.wav')
-    )
+      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+
     read_wav = ReadWav.params().instantiate()
     input_data, sample_rate = read_wav.call(wav_path)
     sess = tf.Session()
