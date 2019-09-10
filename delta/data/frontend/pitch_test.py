@@ -30,7 +30,7 @@ class PitchTest(tf.test.TestCase):
     with self.session():
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav.call(wav_path)
-      pitch = Pitch.params().instantiate()
+      pitch = Pitch.params('window_length=0.025, frame_length=0.010').instantiate()
       pitch_test = pitch.call(input_data, sample_rate)
 
       output_true = np.array([

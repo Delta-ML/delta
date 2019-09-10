@@ -33,18 +33,13 @@ class Pitch(BaseFrontend):
     frame_length = 0.010
     thres_autoc = 0.3
 
-    if config is not None:
-      if config['window_length'] is not None:
-        window_length = config['window_length']
-      if config['frame_length'] is not None:
-        frame_length = config['frame_length']
-      if config['thres_autoc'] is not None:
-        thres_autoc = config['thres_autoc']
-
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
     hparams.add_hparam('frame_length', frame_length)
     hparams.add_hparam('thres_autoc', thres_autoc)
+
+    if config is not None:
+      hparams.parse(config)
 
     return hparams
 
