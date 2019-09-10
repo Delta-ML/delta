@@ -404,10 +404,11 @@ class EstimatorSolver(ABCEstimatorSolver):
     nclass = self.config['data']['task']['classes']['num']
     # https://github.com/tensorflow/estimator/blob/master/tensorflow_estimator/python/estimator/canned/metric_keys.py
     if nclass == 2:
-      default_key=metric_keys.MetricKeys.AUC
+      default_key = metric_keys.MetricKeys.AUC
     else:
-      default_key=metric_keys.MetricKeys.ACCURACY
-    compare_fn=functools.partial(utils.metric_smaller, default_key=default_key)
+      default_key = metric_keys.MetricKeys.ACCURACY
+    compare_fn = functools.partial(
+        utils.metric_smaller, default_key=default_key)
     logging.info("Using {default_key} metric for best exporter")
 
     eval_spec = tf.estimator.EvalSpec(
@@ -422,7 +423,6 @@ class EstimatorSolver(ABCEstimatorSolver):
                 ),
                 assets_extra=None,
                 as_text=False),
-
             tf.estimator.BestExporter(
                 name='best_exporter',
                 serving_input_receiver_fn=self.create_serving_input_receiver_fn(

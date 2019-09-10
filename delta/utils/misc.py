@@ -229,7 +229,9 @@ def generate_synthetic_data(input_shape,
   return tf.data.Dataset.from_tensors(element).repeat(nepoch)
 
 
-def metric_smaller(best_eval_result, current_eval_result, default_key=metric_keys.MetricKeys.AUC):
+def metric_smaller(best_eval_result,
+                   current_eval_result,
+                   default_key=metric_keys.MetricKeys.AUC):
   """Compares two evaluation results and returns true if the 2nd one is smaller.
               Both evaluation results should have the values for MetricKeys.LOSS, which are
               used for comparison.
