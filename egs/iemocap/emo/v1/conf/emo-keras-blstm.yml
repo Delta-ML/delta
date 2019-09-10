@@ -2,20 +2,20 @@
 data:
   train:
     paths:
-    - "data/dump/impro/train"
+    - "data/dump/all/train"
     segments:
   eval:
     paths:
-    - "data/dump/impro/eval"
+    - "data/dump/all/eval"
     segments:
   infer:
     paths:
-    - "data/dump/impro/eval"
+    - "data/dump/all/eval"
     segments:
   task:
     name: IEmoCapTask 
     suffix: .npy # file suffix
-    subset: 'impro' #impro, script, all
+    subset: 'all' #impro, script, all
     audio:
       dry_run: false # not save feat
       # params
