@@ -45,14 +45,8 @@ class BaseFrontend(ABCFrontend):
   @classmethod
   def params(cls, config=None):
     ''' set params '''
-    hparams = HParams(name=cls.__class__.__name__)
-    return None
+    raise NotImplementedError()
 
   def __call__(self, *args, **kwargs):
     ''' call '''
-    name = kwargs.get('name')
-    if name is not None:
-      with tf.name_scope(name):
-        return self.call(*args, **kwargs)
-    else:
-      raise ValueError("Error, name is not exit.")
+    return self.call(*args, **kwargs)
