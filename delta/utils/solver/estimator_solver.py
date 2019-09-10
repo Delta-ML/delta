@@ -15,6 +15,7 @@
 # ==============================================================================
 ''' Estimator base class for classfication '''
 import os
+import functools
 from absl import logging
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
