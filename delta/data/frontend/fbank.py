@@ -34,17 +34,13 @@ class Fbank(BaseFrontend):
     lower_frequency_limit = 20
     filterbank_channel_count = 40
 
-    if config is not None:
-      taskconf = config['data']['task']
-      audioconf = taskconf['audio']
-      upper_frequency_limit = audioconf['upper_frequency_limit']
-      lower_frequency_limit = audioconf['lower_frequency_limit']
-      filterbank_channel_count = audioconf['filterbank_channel_count']
-
     hparams = HParams(cls=cls)
-    hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
-    hparams.add_hparam('lower_frequency_limit', lower_frequency_limit)
-    hparams.add_hparam('filterbank_channel_count', filterbank_channel_count)
+    if config is not None:
+      hparams.parse_dict(config)
+    else:
+      hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
+      hparams.add_hparam('lower_frequency_limit', lower_frequency_limit)
+      hparams.add_hparam('filterbank_channel_count', filterbank_channel_count)
 
     return hparams
 
