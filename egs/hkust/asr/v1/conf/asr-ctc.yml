@@ -153,9 +153,10 @@ solver:
     report_tensor_allocations_upon_oom: true
 
 serving:
-  enable: false
+  enable: true
   name : Evaluate
-  model: null # saved model dir, ckpt dir, or frozen_model.pb
+  model: "exp/asr-ctc/ckpt/export" # saved model dir, ckpt dir, or frozen_model.pb
   inputs: 'inputs:0'
-  outpus: 'softmax_output:0'
+  input_length: 'input_length:0'
+  outputs: 'decode/outputs:0'
 

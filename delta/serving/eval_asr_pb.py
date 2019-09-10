@@ -36,9 +36,9 @@ class ASREvaluate(FrozenModel):
     model = config['serving']['model']
     super().__init__(model, gpu_str='0')
 
-    self.inputs = self.graph.get_tensor_by_name('inputs:0')
-    self.input_length = self.graph.get_tensor_by_name('input_length:0')
-    self.pred_valid = self.graph.get_tensor_by_name('decode/outputs:0')
+    self.inputs = self.graph.get_tensor_by_name(config['serving']['inputs'])
+    self.input_length = self.graph.get_tensor_by_name(config['serving']['input_length'])
+    self.pred_valid = self.graph.get_tensor_by_name(config['serving']['outputs'])
 
   @property
   def config(self):
@@ -119,7 +119,7 @@ def main(_):
 
 def define_flags():
   ''' define flags for evaluator'''
-  app.flags.DEFINE_string('config', '../../egs/hkust/asr/v1/conf/asr-ctc.yml', help='config path')
+  app.flags.DEFINE_string('config', 'conf/asr-ctc.yml', help='config path')
   app.flags.DEFINE_string('mode', 'eval', 'eval, infer, eval_and_infer')
   app.flags.DEFINE_string('gpu', '0', 'gpu number')
 

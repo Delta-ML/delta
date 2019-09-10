@@ -200,7 +200,7 @@ class AsrSolver(Solver):
 
     logging.info("{}-{}: load model from {}"
                  .format(mode, model_load_type, model_file_name))
-    if model_load_type != 'scratch':
+    if model_file_name is not None:
       if self.model.built:
         self.model.load_weights(str(model_file_name), by_name=False)
       else:
