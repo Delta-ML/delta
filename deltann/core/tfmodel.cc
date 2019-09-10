@@ -55,7 +55,7 @@ using tensorflow::SessionOptions;
 TFModel::TFModel(ModelMeta model_meta, int num_threads)
     : BaseModel(model_meta, num_threads) {
   load_from_saved_model();
-  // TODO: load frozen graph
+  // TODO(gaoyonghu): load frozen graph
   // load_from_frozen_graph();
 }
 

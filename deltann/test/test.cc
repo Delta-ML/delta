@@ -29,14 +29,14 @@ int main(int argc, char** argv) {
   int in_num = 2;
   Input ins[2];
   int text = 1;
-  ins[0].ptr = (void*)(&text);
+  ins[0].ptr = reinterpret_cast<void*>(&text);
   ins[0].size = 1;
   ins[0].input_name = "texts";
   ins[0].graph_name = "emotion";
 
   int size = 3000 * 40 * 3;
-  float* buffer = (float*)malloc(size * sizeof(float));
-  ins[1].ptr = (void*)buffer;
+  float* buffer = reinterpret_cast<float*>(malloc(size * sizeof(float)));
+  ins[1].ptr = reinterpret_cast<void*>(buffer);
   ins[1].size = size;
 
   ins[1].input_name = "inputs";
@@ -57,8 +57,8 @@ int main(int argc, char** argv) {
     int byte_size = DeltaGetOutputByteSize(inf, i);
     fprintf(stderr, "The %d output byte size is %d\n", i, byte_size);
 
-    float* data = (float*)malloc(byte_size);
-    DeltaCopyToBuffer(inf, i, (void*)data, byte_size);
+    float* data = reinterpret_cast<float*>(malloc(byte_size));
+    DeltaCopyToBuffer(inf, i, reinterpret_cast<void*>(data), byte_size);
 
     int num = byte_size / sizeof(float);
     for (int j = 0; j < num; ++j) {

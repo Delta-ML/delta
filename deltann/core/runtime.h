@@ -112,22 +112,26 @@ DeltaStatus load_models(const RuntimeConfig& rt_cfg,
       if (EngineType::DELTA_EIGINE_TF == _global_engines[engine_type]) {
         LOG_INFO << "User engine tf";
         model = new TFModel(model_meta, num_threads);
-      } else
 #endif
-          if (EngineType::DELTA_EIGINE_TFTRT == _global_engines[engine_type]) {
+
+      } else if (EngineType::DELTA_EIGINE_TFTRT ==
+                _global_engines[engine_type]) {
         LOG_INFO << "User engine tftrt";
+
 #ifdef USE_TFLITE
       } else if (EngineType::DELTA_EIGINE_TFLITE ==
                  _global_engines[engine_type]) {
         LOG_INFO << "User engine tf lite";
         model = new TFLiteModel(model_meta, num_threads);
 #endif
+
 #ifdef USE_TF_SERVING
       } else if (EngineType::DELTA_EIGINE_TFSERVING ==
                  _global_engines[engine_type]) {
         LOG_INFO << "User engine TFSERVING";
         model = new TFServingModel(model_meta, num_threads);
 #endif
+
       } else if (EngineType::DELTA_EIGINE_SERVING ==
                  _global_engines[engine_type]) {
         LOG_FATAL << "Not support now SERVING";
@@ -151,7 +155,7 @@ DeltaStatus load_models(const RuntimeConfig& rt_cfg,
 // run graph
 class Runtime {
  public:
-  explicit Runtime(RuntimeConfig& rt_cfg)
+  explicit Runtime(const RuntimeConfig& rt_cfg)
       : _rt_cfg(rt_cfg), _graphs(rt_cfg.graphs()) {}
 
   virtual ~Runtime() {
