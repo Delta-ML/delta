@@ -18,6 +18,7 @@ import os
 from absl import logging
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
+from tensorflow.python.estimator.canned import metric_keys
 # See: tensorboard/tensorboard/plugins/pr_curve/README.md
 # Note: tf.contrib.metrics.streaming_curve_points will only produce a series of points
 #  which won't be displayed by Tensorboard.
@@ -400,6 +401,15 @@ class EstimatorSolver(ABCEstimatorSolver):
         input_fn=self.input_fn(utils.TRAIN), max_steps=None, hooks=None)
 
     #pylint: disable=no-member
+    nclass = self.config['data']['task']['classes']['num']
+    # https://github.com/tensorflow/estimator/blob/master/tensorflow_estimator/python/estimator/canned/metric_keys.py
+    if nclass == 2:
+      default_key=metric_keys.MetricKeys.AUC
+    else:
+      default_key=metric_keys.MetricKeys.ACCURACY
+    compare_fn=functools.partial(utils.metric_smaller, default_key=default_key)
+    logging.info("Using {default_key} metric for best exporter")
+
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self.input_fn(utils.EVAL),
         steps=None,
@@ -412,12 +422,13 @@ class EstimatorSolver(ABCEstimatorSolver):
                 ),
                 assets_extra=None,
                 as_text=False),
+
             tf.estimator.BestExporter(
                 name='best_exporter',
                 serving_input_receiver_fn=self.create_serving_input_receiver_fn(
                 ),
                 event_file_pattern='eval/*.tfevents.*',
-                compare_fn=utils.auc_smaller,
+                compare_fn=compare_fn,
                 assets_extra=None,
                 as_text=False,
                 exports_to_keep=1,
