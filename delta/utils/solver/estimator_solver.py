@@ -246,8 +246,10 @@ class EstimatorSolver(ABCEstimatorSolver):
 
   def get_eval_hooks(self, labels, logits):
     ''' lables: [batch]
-            logits: [batch, num_classes]
-        '''
+        logits: [batch, num_classes]
+    '''
+    nclass = self.config['data']['task']['classes']['num']
+
     eval_hooks = []
     metric_tensor = {}
     with tf.variable_scope('metrics'):
@@ -259,39 +261,42 @@ class EstimatorSolver(ABCEstimatorSolver):
           'accuracy':
               tf.metrics.accuracy(
                   labels=true_label, predictions=pred_label, weights=None),
-          'auc':
-              tf.metrics.auc(
-                  labels=true_label,
-                  predictions=softmax[:, -1],
-                  num_thresholds=20,
-                  curve='ROC',
-                  summation_method='trapezoidal'),
-          'precision':
-              tf.metrics.precision(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'recall':
-              tf.metrics.recall(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'tp':
-              tf.metrics.true_positives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'fn':
-              tf.metrics.false_negatives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'fp':
-              tf.metrics.false_positives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'tn':
-              tf.metrics.true_negatives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'pr_curve_eval':
-              pr_summary.streaming_op(
-                  name='pr_curve_eval',
-                  labels=true_label_bool,
-                  predictions=softmax[:, -1],
-                  num_thresholds=50,
-                  weights=None)
       }
+      if nclass == 2:
+        eval_metrics_ops.update({
+            'auc':
+                tf.metrics.auc(
+                    labels=true_label,
+                    predictions=softmax[:, -1],
+                    num_thresholds=20,
+                    curve='ROC',
+                    summation_method='trapezoidal'),
+            'precision':
+                tf.metrics.precision(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'recall':
+                tf.metrics.recall(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'tp':
+                tf.metrics.true_positives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'fn':
+                tf.metrics.false_negatives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'fp':
+                tf.metrics.false_positives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'tn':
+                tf.metrics.true_negatives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'pr_curve_eval':
+                pr_summary.streaming_op(
+                    name='pr_curve_eval',
+                    labels=true_label_bool,
+                    predictions=softmax[:, -1],
+                    num_thresholds=50,
+                    weights=None)
+        })
 
     metric_tensor.update({key: val[0] for key, val in eval_metrics_ops.items()})
     metric_hook = tf.train.LoggingTensorHook(
