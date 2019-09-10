@@ -13,20 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' Fbank '''
 
-import abc
-import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
-from delta.data.frontend.base_frontend import BaseFrontend
+from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
+from delta.data.frontend.base_frontend import BaseFrontend
 
-class Readwav(BaseFrontend):
+class ReadWav(BaseFrontend):
 
   def __init__(self, config:dict):
-   super().__init__(config)
+    super().__init__(config)
 
   @classmethod
   def params(cls, config=None):
@@ -36,7 +34,8 @@ class Readwav(BaseFrontend):
     if config is not None:
       taskconf = config['data']['task']
       audioconf = taskconf['audio']
-      audio_channels = audioconf['audio_channels'],
+      audio_channels = audioconf['audio_channels']
+
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('audio_channels', audio_channels)
@@ -44,11 +43,14 @@ class Readwav(BaseFrontend):
     return hparams
 
   def call(self, wavfile):
-    ''' samples of shape [nsample] '''
     params = self.config
     contents = tf.read_file(wavfile)
     waveforms = contrib_audio.decode_wav(
-        contents,
-        desired_channels=params.audio_channels,
+      contents,
+      desired_channels=params.audio_channels
     )
-    return tf.squeeze(waveforms.audio, axis=-1)
+
+    return tf.squeeze(waveforms.audio, axis=-1), tf.to_float(waveforms.sample_rate)
+
+
+
