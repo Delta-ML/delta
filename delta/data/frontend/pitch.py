@@ -39,30 +39,19 @@ class Pitch(BaseFrontend):
     hparams.add_hparam('thres_autoc', thres_autoc)
 
     if config is not None:
-      hparams.parse(config)
+      hparams.override_from_dict(config)
 
     return hparams
 
   def call(self, audio_data, sample_rate):
+
     p = self.config
-
     with tf.name_scope('feature_extractor'):
-
       pitch = py_x_ops.pitch(
-        audio_data,
-        sample_rate,
-        window_length=p.window_length,
-        frame_length=p.frame_length,
-        thres_autoc=p.thres_autoc)
+          audio_data,
+          sample_rate,
+          window_length=p.window_length,
+          frame_length=p.frame_length,
+          thres_autoc=p.thres_autoc)
 
     return pitch
-
-
-
-
-
-
-
-
-
-
