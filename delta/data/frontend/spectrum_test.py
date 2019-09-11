@@ -19,25 +19,30 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.spectrum import Spectrum
-import librosa
+import numpy as np
 
 class SpectrumTest(tf.test.TestCase):
 
   def test_spectrum(self):
     wav_path = str(
         Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
-    read_wav = ReadWav.params().instantiate()
-    input_data, sample_rate = read_wav.call(wav_path)
-    spectrum = Spectrum.params().instantiate()
-    spectrum_test = spectrum(input_data, sample_rate)
 
-    sess = tf.compat.v1.Session()
-    spectrum_test1 = sess.run(spectrum_test)
-    audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
-    spectrum_true = librosa.stft(audio_data_true, n_fft=512, hop_length=160, win_length=400, window='hamm')
-    print(spectrum_true.shape)
-    # Because our algorithm pre-emphasized the audio_data, two spectrums are different.
-    self.assertAllClose(spectrum_test1.transpose()[:, 0:10], spectrum_true[:, 0:10])
+    with self.session():
+      read_wav = ReadWav.params().instantiate()
+      input_data, sample_rate = read_wav(wav_path)
+
+      spectrum = Spectrum.params({'window_length':0.025}).instantiate()
+      spectrum_test = spectrum(input_data, sample_rate)
+
+      output_true = np.array(
+        [[-16.863441, -16.910473, -17.077059, -16.371634, -16.845686],
+         [-17.922068, -20.396345, -19.396944, -17.331493, -16.118851],
+         [-17.017776, -17.551350, -20.332376, -17.403994, -16.617926],
+         [-19.873854, -17.644503, -20.679525, -17.093716, -16.535091],
+         [-17.074402, -17.295971, -16.896650, -15.995432, -16.560730]])
+
+      self.assertEqual(tf.rank(spectrum_test).eval(), 2)
+      self.assertAllClose(spectrum_test.eval()[4:9, 4:9], output_true)
 
 if __name__ == '__main__':
   tf.test.main()

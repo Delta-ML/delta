@@ -31,7 +31,7 @@ class Spectrum(BaseFrontend):
 
     window_length = 0.025
     frame_length = 0.010
-    output_type = 1
+    output_type = 2
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
