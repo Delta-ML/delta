@@ -32,7 +32,7 @@ class ABCFrontend(metaclass=abc.ABCMeta):
 
 
 class BaseFrontend(ABCFrontend):
-  ''' wappwer of abstrcat Frontend'''
+  ''' wrapper of abstrcat Frontend'''
 
   def __init__(self, config:dict):
     self._config = config
