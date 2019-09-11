@@ -27,3 +27,18 @@ if [ $stage -le 0 ] && [ $stop_stage -ge 0 ]; then
   echo "Train and Eval Done."
 fi
 
+if [ $stage -le 1 ] && [ $stop_stage -ge 1 ]; then
+  echo "Export Model..."
+  python3 -u $MAIN_ROOT/delta/main.py --config conf/$config_file --cmd export_model
+  echo "Export Model Done."
+fi
+
+if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
+  echo "Inspect Saved Model..."
+  ckpt_dir=exp/asr-ctc/ckpt
+  saved_model_dir=$ckpt_dir/export
+  inspect_saved_model.sh $saved_model_dir
+  echo "Inspect Saved Model Done."
+fi
+
+
