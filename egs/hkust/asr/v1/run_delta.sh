@@ -41,4 +41,8 @@ if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
   echo "Inspect Saved Model Done."
 fi
 
-
+if [ $stage -le 3 ] && [ $stop_stage -ge 3 ]; then
+  echo "Eval with Saved Model..."
+  python3 $MAIN_ROOT/delta/serving/eval_asr_pb.py --config conf/$config_file --mode eval --gpu 0
+  echo "Eval with Saved Model Done."
+fi
