@@ -20,7 +20,7 @@ from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
-class Framepow(BaseFrontend):
+class Synthfiltbank(BaseFrontend):
 
   def __init__(self, config:dict):
     super().__init__(config)
@@ -28,8 +28,7 @@ class Framepow(BaseFrontend):
   @classmethod
   def params(cls, config=None):
     ''' set params '''
-
-    window_length = 0.025
+    window_length = 0.030
     frame_length = 0.010
 
     hparams = HParams(cls=cls)
@@ -41,14 +40,15 @@ class Framepow(BaseFrontend):
 
     return hparams
 
-  def call(self, audio_data, sample_rate):
+  def call(self, power_spectrum, phase_spectrum, sample_rate):
 
     p = self.config
-    with tf.name_scope('framepow'):
-      framepow = py_x_ops.frame_pow(
-          audio_data,
+    with tf.name_scope('synthfiltbank'):
+      audio_data = py_x_ops.synthfiltbank(
+          power_spectrum,
+          phase_spectrum,
           sample_rate,
           window_length=p.window_length,
           frame_length=p.frame_length)
 
-    return framepow
+    return audio_data

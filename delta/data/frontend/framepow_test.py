@@ -30,7 +30,7 @@ class FramepowTest(tf.test.TestCase):
 
     with self.session():
       read_wav = ReadWav.params().instantiate()
-      input_data, sample_rate = read_wav.call(wav_path)
+      input_data, sample_rate = read_wav(wav_path)
 
       framepow = Framepow.params({'window_length': 0.025, 'frame_length': 0.010}).instantiate()
       framepow_test = framepow(input_data, sample_rate)

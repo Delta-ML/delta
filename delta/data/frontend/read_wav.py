@@ -17,7 +17,6 @@
 import tensorflow as tf
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
-from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
@@ -31,26 +30,19 @@ class ReadWav(BaseFrontend):
     ''' set params '''
     audio_channels = 1
 
-    if config is not None:
-      taskconf = config['data']['task']
-      audioconf = taskconf['audio']
-      audio_channels = audioconf['audio_channels']
-
-
     hparams = HParams(cls=cls)
     hparams.add_hparam('audio_channels', audio_channels)
+
+    if config is not None:
+      hparams.override_from_dict(config)
 
     return hparams
 
   def call(self, wavfile):
     params = self.config
-    contents = tf.read_file(wavfile)
+    contents = tf.io.read_file(wavfile)
     waveforms = contrib_audio.decode_wav(
       contents,
-      desired_channels=params.audio_channels
-    )
+      desired_channels=params.audio_channels)
 
-    return tf.squeeze(waveforms.audio, axis=-1), tf.to_float(waveforms.sample_rate)
-
-
-
+    return tf.squeeze(waveforms.audio, axis=-1), tf.cast(waveforms.sample_rate, dtype=float)

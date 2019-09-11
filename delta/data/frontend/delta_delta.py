@@ -15,25 +15,31 @@
 # ==============================================================================
 
 import tensorflow as tf
-import os
-from pathlib import Path
-from delta.data.frontend.read_wav import ReadWav
-import librosa
 
-class ReadWavTest(tf.test.TestCase):
+from delta.layers.ops import py_x_ops
+from delta.utils.hparam import HParams
+from delta.data.frontend.base_frontend import BaseFrontend
 
-  def test_read_wav(self):
-    wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+class Delta_delta(BaseFrontend):
 
-    read_wav = ReadWav.params().instantiate()
-    input_data, sample_rate = read_wav(wav_path)
-    sess = tf.Session()
-    audio_data = sess.run(input_data)
-    sample_rate1 = sess.run(sample_rate)
-    audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
-    self.assertAllClose(audio_data, audio_data_true)
-    self.assertAllClose(sample_rate1, sample_rate_true)
+  def __init__(self, config:dict):
+    super().__init__(config)
 
-if __name__ == '__main__':
-  tf.test.main()
+  @classmethod
+  def params(cls, config=None):
+    ''' set params '''
+
+    hparams = HParams(cls=cls)
+
+    return hparams
+
+  def call(self, feat, order, window):
+
+    p = self.config
+    with tf.name_scope('delta_delta'):
+      delta_delta = py_x_ops.delta_delta(
+        feat,
+        order,
+        window)
+
+    return delta_delta
