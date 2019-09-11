@@ -59,6 +59,7 @@ class ASREvaluate(FrozenModel):
       next_element = iterator.get_next()
 
     target_seq_list, predict_seq_list = [], []
+    num_input_samples, num_processed_samples = 0, 0
     try:
       while True:
         batch += 1
@@ -68,12 +69,16 @@ class ASREvaluate(FrozenModel):
         inputs = features["inputs"]
         input_length = features["input_length"]
         y_true_valid = features["targets"]
+        num_input_samples += input_length.shape[0]
+        logging.info('The size of the INFER Set increased to {}'.format(num_input_samples))
 
         validate_feed = {
             self.inputs: inputs,
             self.input_length: input_length
         }
         y_pred_valid = self.sess.run(self.pred_valid, feed_dict=validate_feed)
+        num_processed_samples += y_pred_valid.shape[0]
+        logging.info('A total of {} samples has been successfully processed'.format(num_processed_samples))
 
         target_seq_list.extend(y_true_valid.tolist())
         predict_seq_list.extend(y_pred_valid.tolist())
@@ -121,6 +126,7 @@ def define_flags():
   ''' define flags for evaluator'''
   app.flags.DEFINE_string('config', 'conf/asr-ctc.yml', help='config path')
   app.flags.DEFINE_string('mode', 'eval', 'eval, infer, eval_and_infer')
+  # The GPU devices which are visible for current process
   app.flags.DEFINE_string('gpu', '0', 'gpu number')
 
 
