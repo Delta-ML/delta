@@ -150,9 +150,9 @@ def get_most_recently_modified_file_matching_pattern(dir_name, file_name_pattern
                                                  tf_checkpoint_file.name):
      return tf_checkpoint_file
 
-  file_list = [Path(dir_name).joinpath(file_name)
+  file_list = [file_name
                for file_name in Path(dir_name).iterdir()
-               if re.match(file_name_regex, str(file_name))]
+               if re.match(file_name_regex, file_name.name)]
   file_time_list = [single_file.stat().st_mtime for single_file in file_list]
   file_sort_by_time = np.argsort(file_time_list)
   latest_file = file_list[file_sort_by_time[-1]] if file_sort_by_time.shape[0] > 0 else None
