@@ -581,4 +581,4 @@ class SpeakerClsTask(SpeechTask):
       batch_size = 1
     return data.map(make_example, num_parallel_calls=10).\
                 batch(batch_size, drop_remainder=False).\
-                prefetch(tf.contrib.data.AUTOTUNE)
+                prefetch(tf.data.experimental.AUTOTUNE)

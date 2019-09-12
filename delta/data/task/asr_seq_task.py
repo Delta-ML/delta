@@ -287,7 +287,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
             drop_remainder=True if mode == utils.TRAIN else False)  #pylint: disable=simplifiable-if-expression
 
     ds = ds.map(_make_example)
-    ds = ds.prefetch(tf.contrib.data.AUTOTUNE)
+    ds = ds.prefetch(tf.data.experimental.AUTOTUNE)
     return ds
 
   def batch_input_shape(self):

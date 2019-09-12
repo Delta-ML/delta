@@ -153,4 +153,4 @@ class KwsClsTask(SpeechTask):
     return ds.apply(
         tf.data.experimental.map_and_batch(
             make_sample, batch_size,
-            drop_remainder=False)).prefetch(tf.contrib.data.AUTOTUNE)
+            drop_remainder=False)).prefetch(tf.data.experimental.AUTOTUNE)
