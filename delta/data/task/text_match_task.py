@@ -17,7 +17,7 @@
 
 import collections
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_match_raw_data

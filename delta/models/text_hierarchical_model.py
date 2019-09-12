@@ -17,7 +17,7 @@
 
 import pickle
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 import delta.utils as utils
 import delta.layers

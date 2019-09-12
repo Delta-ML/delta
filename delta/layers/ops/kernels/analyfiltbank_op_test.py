@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers.ops import py_x_ops
 from delta.data import feat as feat_lib

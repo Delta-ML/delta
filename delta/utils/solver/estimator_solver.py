@@ -17,7 +17,7 @@
 import os
 import functools
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
 from tensorflow.python.estimator.canned import metric_keys
 # See: tensorboard/tensorboard/plugins/pr_curve/README.md

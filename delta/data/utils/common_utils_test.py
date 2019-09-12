@@ -18,7 +18,7 @@
 import os
 from pathlib import Path
 import tempfile
-import tensorflow as tf
+import delta.compat as tf
 import numpy as np
 from delta import utils
 from delta.data.utils.common_utils import load_seq_label_raw_data

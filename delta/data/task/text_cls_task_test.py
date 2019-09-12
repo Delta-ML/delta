@@ -20,7 +20,7 @@ import os
 from pathlib import Path
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 # delta
 from delta import utils

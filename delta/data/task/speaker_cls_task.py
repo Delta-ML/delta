@@ -18,7 +18,7 @@ import random
 import multiprocessing as mp
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 import kaldiio
 
 from delta import utils

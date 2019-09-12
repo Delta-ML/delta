@@ -16,7 +16,7 @@
 """Sequence model for text classification."""
 
 import pickle
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta import layers

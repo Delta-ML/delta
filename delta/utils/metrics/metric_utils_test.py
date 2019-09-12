@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' metrics utils unittest '''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.metrics import metric_utils
 

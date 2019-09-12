@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' loss implementation function '''
 import math
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 

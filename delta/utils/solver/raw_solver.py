@@ -18,7 +18,7 @@
 import re
 import math
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.utils.solver.base_solver import Solver

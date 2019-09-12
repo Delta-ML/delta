@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' asr ctc model '''
-import tensorflow as tf
+import delta.compat as tf
 #pylint: disable=import-error,unused-import
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model

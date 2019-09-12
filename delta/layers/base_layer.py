@@ -15,7 +15,7 @@
 # ==============================================================================
 """Base class for layer."""
 
-import tensorflow as tf
+import delta.compat as tf
 
 
 class Layer(tf.keras.layers.Layer):

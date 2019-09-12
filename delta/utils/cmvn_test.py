@@ -16,7 +16,7 @@
 ''' CMVN unittest'''
 import os
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 

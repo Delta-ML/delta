@@ -17,7 +17,7 @@
 import functools
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 import scipy.signal
 #pylint: disable=ungrouped-imports,no-name-in-module
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio

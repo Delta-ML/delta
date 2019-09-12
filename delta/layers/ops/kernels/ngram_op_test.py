@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' ngram op unittest'''
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.layers.ops import py_x_ops

@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' ctc tensorflow decoder '''
 
-import tensorflow as tf
+import delta.compat as tf
 
 
 def ctc_decode_data_prepare(logits, sequence_length, blank_id=None):

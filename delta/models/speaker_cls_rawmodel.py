@@ -18,7 +18,7 @@ A series of models for speaker classification.
 '''
 import math
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 import tensorflow.keras.layers as keras_layers
 
 from delta import utils

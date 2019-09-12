@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' kws solver based on EstimatorSolver'''
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils import metrics
 from delta.utils.register import registers

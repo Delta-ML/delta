@@ -26,7 +26,7 @@ from collections import defaultdict
 import librosa
 import numpy as np
 import pandas as pd
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from sklearn.model_selection import train_test_split
 

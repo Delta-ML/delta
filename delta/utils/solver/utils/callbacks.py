@@ -17,7 +17,7 @@
 
 from absl import logging
 
-import tensorflow as tf
+import delta.compat as tf
 #pylint: disable=import-error
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.callbacks import ModelCheckpoint

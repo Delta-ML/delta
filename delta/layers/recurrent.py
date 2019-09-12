@@ -16,7 +16,7 @@
 """Recurrent neural network layers."""
 
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 import delta
 from delta.layers.base_layer import Layer

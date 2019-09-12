@@ -18,7 +18,7 @@ import numpy as np
 from absl import logging
 
 #pylint: disable=no-name-in-module
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta import utils

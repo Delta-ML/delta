@@ -18,7 +18,7 @@ import librosa
 from absl import logging
 
 #pylint: disable=no-name-in-module
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.python.keras.utils import losses_utils
 
 from delta import utils

@@ -15,16 +15,16 @@
 # ==============================================================================
 ''' python custom ops '''
 
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 #pylint: disable=invalid-name
 
-path = tf.compat.v1.resource_loader.get_path_to_datafile('x_ops.so')
+path = tf.resource_loader.get_path_to_datafile('x_ops.so')
 logging.info('x_ops.so path:{}'.format(path))
 
 gen_x_ops = tf.load_op_library(
-    tf.compat.v1.resource_loader.get_path_to_datafile('x_ops.so'))
+    tf.resource_loader.get_path_to_datafile('x_ops.so'))
 
 pitch = gen_x_ops.pitch
 frame_pow = gen_x_ops.frame_pow

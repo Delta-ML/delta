@@ -15,7 +15,7 @@
 # ==============================================================================
 """Common layers test."""
 
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 import common_layers as cl

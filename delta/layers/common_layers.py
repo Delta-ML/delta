@@ -15,7 +15,7 @@
 # ==============================================================================
 """Common layers."""
 
-import tensorflow as tf
+import delta.compat as tf
 import tensorflow.contrib.slim as slim  #pylint: disable=no-name-in-module
 from absl import logging
 

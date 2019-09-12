@@ -16,7 +16,7 @@
 ''' kws task unittest'''
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta import utils

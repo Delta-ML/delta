@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' tf metrics utils unittest '''
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.metrics import tf_metrics
 

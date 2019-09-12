@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 import tempfile
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.utils import metrics

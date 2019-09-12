@@ -15,7 +15,7 @@
 # ==============================================================================
 """Hooks"""
 
-import tensorflow as tf
+import delta.compat as tf
 
 
 class DatasetInitializerHook(tf.train.SessionRunHook):

@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' emotion crnn model support multi-modal'''
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.layers import common_layers

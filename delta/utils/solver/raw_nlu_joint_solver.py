@@ -18,7 +18,7 @@
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation, no-name-in-module
 
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.contrib.crf import crf_decode
 
 from delta.utils.register import registers

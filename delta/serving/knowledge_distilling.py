@@ -15,7 +15,7 @@
 # ==============================================================================
 '''Teacher module'''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.serving.base_frozen_model import FrozenModel
 from delta.utils.register import registers

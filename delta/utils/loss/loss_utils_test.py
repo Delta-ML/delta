@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' loss implementation function unittest '''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.utils.loss import loss_utils

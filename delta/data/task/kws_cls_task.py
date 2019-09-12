@@ -17,7 +17,7 @@
 # data format see: docs/data/kws.md
 import struct
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.utils.register import registers

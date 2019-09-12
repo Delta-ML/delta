@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 import h5py
 import kaldiio
 from absl import logging
