@@ -27,15 +27,13 @@ class FbankTest(tf.test.TestCase):
     wav_path = str(
       Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
-    read_wav = ReadWav.params().instantiate()
-    input_data, sample_rate = read_wav.call(wav_path)
-    fbank = Fbank.params().instantiate()
-    fbank_test = fbank(input_data, sample_rate)
+    with self.session():
+      read_wav = ReadWav.params().instantiate()
+      input_data, sample_rate = read_wav.call(wav_path)
+      fbank = Fbank.params().instantiate()
+      fbank_test = fbank(input_data, sample_rate)
 
-    sess = tf.compat.v1.Session()
-    fbank_test1 = sess.run(fbank_test)
-
-    print(fbank_test1.shape)
+      self.assertEqual(tf.rank(fbank_test).eval(), 3)
 
 if __name__ == '__main__':
   tf.test.main()
