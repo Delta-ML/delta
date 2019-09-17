@@ -49,8 +49,10 @@ class Fbank(BaseFrontend):
 
     with tf.name_scope('fbank'):
 
-      spect = Spectrum.params().instantiate()
-      spectrum = spect.call(audio_data, sample_rate)
+      spectrum = py_x_ops.spectrum(
+        audio_data,
+        sample_rate,
+        output_type=1)
 
       spectrum = tf.expand_dims(spectrum, 0)
       sample_rate = tf.to_int32(sample_rate)
