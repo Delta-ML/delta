@@ -29,9 +29,9 @@ int main(int argc, char** argv) {
 
   int in_num = 1;
   Input ins[1];
-  const char* text = "I'm angry.";
+  const char* text = "懂了客服";
   ins[0].ptr = (void*)(&text);
-  ins[0].size = 1;
+  ins[0].size = sizeof(text);
   ins[0].input_name = "input_sentence";
   ins[0].graph_name = "default";
 

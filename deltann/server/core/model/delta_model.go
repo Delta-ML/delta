@@ -22,7 +22,6 @@ package model
 #include <stdlib.h>
 #include <string.h>
 #include <c_api.h>
-typedef unsigned char UBYTE;
 */
 import "C"
 import (
@@ -35,7 +34,6 @@ import (
 	"unsafe"
 )
 
-var inf C.InferHandel
 var model C.ModelHandel
 
 type DeltaInterface interface {
@@ -55,14 +53,25 @@ func (dParam DeltaParam) DeltaModelInit() error {
 	if model == nil {
 		return errors.New("deltaLoadModel failed")
 	}
-	inf = C.DeltaCreate(model)
-	if inf == nil {
-		return errors.New("deltaCreate failed")
-	}
+
 	return nil
 }
 
-func DeltaModelRun(valueInputs interface{}) (string, error) {
+func DeltaCreateHandel() (unsafe.Pointer, error) {
+	deltaInf := C.DeltaCreate(model)
+	if deltaInf == nil {
+		return nil, errors.New("deltaCreate failed")
+	}
+	return unsafe.Pointer(deltaInf), nil
+}
+
+func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error) {
+
+	inf := *(*C.InferHandel)(unsafe.Pointer(&cInf))
+
+	if inf == nil {
+		return "", nil
+	}
 
 	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
 	var ins C.Input
@@ -72,7 +81,7 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 		deltaPtr := C.CString(valueInputs.(string))
 		defer C.free(unsafe.Pointer(deltaPtr))
 		ins.ptr = unsafe.Pointer(deltaPtr)
-		ins.size = C.int(len(valueInputs.(string)))
+		ins.size = C.int(len(valueInputs.(string)) + 1)
 
 	case int:
 		//TODO
@@ -131,8 +140,12 @@ func DeltaModelRun(valueInputs interface{}) (string, error) {
 	return string(pagesJson), nil
 }
 
-func DeltaDestroy() {
+func DeltaDestroyHandel(cInf unsafe.Pointer) {
+	inf := *(*C.InferHandel)(unsafe.Pointer(&cInf))
 	C.DeltaDestroy(inf)
+}
+
+func DeltaDestroyModel() {
 	C.DeltaUnLoadModel(model)
 }
 
