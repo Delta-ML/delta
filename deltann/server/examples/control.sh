@@ -6,7 +6,7 @@ conf=""
 action=$1
 case $action in
 "start" )
-    exec "./$app"  -profile "online"
+    exec "./$app"  -log_dir=./log -alsologtostderr=true  -port "8004" -yaml "../dpl/output/conf/model.yaml"  -type "classify"
     ;;
 * )
     echo "unknow command"
