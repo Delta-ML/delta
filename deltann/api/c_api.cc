@@ -15,6 +15,7 @@ limitations under the License.
 ==============================================================================*/
 
 #include <string>
+#include <vector>
 
 #include "api/c_api.h"
 #include "core/runtime.h"

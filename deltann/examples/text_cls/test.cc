@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
   int in_num = 1;
   Input ins[1];
   const char* text = "I'm angry.";
-  ins[0].ptr = (void*)(&text);
+  ins[0].ptr = reinterpret_cast<void*>(&text);
   ins[0].size = sizeof(text) + 1;
   ins[0].input_name = "input_sentence";
   ins[0].graph_name = "default";
@@ -45,8 +45,8 @@ int main(int argc, char** argv) {
     int byte_size = DeltaGetOutputByteSize(inf, i);
     fprintf(stderr, "The %d output byte size is %d\n", i, byte_size);
 
-    float* data = (float*)malloc(byte_size);
-    DeltaCopyToBuffer(inf, i, (void*)data, byte_size);
+    float* data = reinterpret_cast<float*>(malloc(byte_size));
+    DeltaCopyToBuffer(inf, i, reinterpret_cast<void*>(data), byte_size);
 
     int num = byte_size / sizeof(float);
     for (int j = 0; j < num; ++j) {

@@ -24,19 +24,23 @@ import tensorflow as tf
 #pylint: disable=import-error
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras import backend as K
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Lambda
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import CSVLogger
 from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.experimental import export_saved_model
 
 from delta import utils
 from delta.utils.decode import py_ctc
 from delta.utils import metrics as metrics_lib
 from delta.utils.solver.base_solver import Solver
 from delta.utils.register import registers
+from delta.utils.solver.utils import solver_utils
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
-
+from delta.utils.decode.tf_ctc import ctc_greedy_decode
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
 @registers.solver.register
@@ -65,6 +69,11 @@ class AsrSolver(Solver):
     self._metrics_used = [] if self._solver['metrics'][
         'metrics_used'] is None else self._solver['metrics']['metrics_used']
     self._model_path = self._solver['saver']['model_path']
+    self._model_load_type = self._solver['loader']['model_load_type']
+    self._init_epoch = self._solver['loader']['init_epoch']
+    self._specified_model_file = self._solver['loader']['file_name']
+
+    self._checkpoint_file_pattern = 'model.{epoch:02d}-{monitor_used:.2f}.ckpt'
 
     logging.info('num_epochs : {}'.format(self._num_epochs))
     logging.info('lr : {}'.format(self._lr))
@@ -181,16 +190,24 @@ class AsrSolver(Solver):
       # data must be (features, labels), only using features as input
       self.model.build(input_shape=self.batch_input_shape[0])
 
+    assert self._init_epoch in range(0, self._num_epochs)
+    model_load_type, model_file_name = solver_utils.get_model_file(
+        dir_name=self._model_path,
+        file_name_pattern=self._checkpoint_file_pattern,
+        mode=mode,
+        model_load_type=self._model_load_type,
+        specified_model_file_name=self._specified_model_file)
+
+    logging.info("{}-{}: load model from {}"
+                 .format(mode, model_load_type, model_file_name))
+    if model_file_name is not None:
+      if self.model.built:
+        self.model.load_weights(str(model_file_name), by_name=False)
+      else:
+        self._model = tf.keras.models.load_model(str(model_file_name))
+
     # parallel and compile model
     self.build(multi_gpu=(mode == utils.TRAIN))
-
-    if mode != utils.TRAIN:
-      model_path = Path(self._model_path).joinpath('best_model.ckpt')
-      logging.info(f"{mode}: load model from: {model_path}")
-      if self.model.built:
-        self.model.load_weights(str(model_path), by_name=False)
-      else:
-        self._model = tf.keras.models.load_model(str(model_path))
 
   def build(self, multi_gpu=False):
     ''' main entrypoint to build model '''
@@ -268,8 +285,8 @@ class AsrSolver(Solver):
     logging.info(f"CallBack: Save Best Model")
 
     # save checkpoint
-    save_ckpt = Path(self._model_path).joinpath('model.{epoch:02d}-{' +
-                                                monitor_used + ':.2f}.ckpt')
+    save_file_pattern = self._checkpoint_file_pattern.replace('monitor_used', monitor_used)
+    save_ckpt = Path(self._model_path).joinpath(save_file_pattern)
     save_ckpt_cb = ParallelModelCheckpoint(
         model=self.model,
         filepath=str(save_ckpt),
@@ -346,7 +363,7 @@ class AsrSolver(Solver):
         workers=1,
         use_multiprocessing=False,
         shuffle=True,
-        initial_epoch=0)
+        initial_epoch=self._init_epoch)
 
   def get_metric_func(self):
     ''' build metric function '''
@@ -424,7 +441,7 @@ class AsrSolver(Solver):
           workers=4,
           use_multiprocessing=False,
           shuffle=True,
-          initial_epoch=0)
+          initial_epoch=self._init_epoch)
       #save model
       # not work for subclassed model, using tf.keras.experimental.export_saved_model
       #self.save_model()
@@ -468,4 +485,34 @@ class AsrSolver(Solver):
 
   def export_model(self):
     '''export saved_model'''
-    raise NotImplementedError()
+    mode = utils.INFER
+    self.model_fn(mode=mode)
+    assert self._built
+
+    input_feat = self.model.get_layer('inputs').input
+    input_length = self.model.get_layer('input_length').input
+
+    def ctc_greedy_decode_lambda_func(args):
+      y_pred, input_length = args
+      input_length = tf.cast(input_length, dtype=tf.int32)
+      decode_result, _ = ctc_greedy_decode(logits=y_pred,
+                                           sequence_length=input_length,
+                                           merge_repeated=True,
+                                           blank_id=None)
+      return decode_result
+
+    model_outputs = self.model.get_layer('outputs').output
+    greedy_decode = Lambda(
+        ctc_greedy_decode_lambda_func, output_shape=(),
+        name='decode')([model_outputs, input_length])
+
+    model_to_export = Model(inputs=[input_feat, input_length],
+                            outputs=greedy_decode)
+
+    model_export_path = Path(self._model_path).joinpath("export")
+    export_saved_model(model=model_to_export,
+                       saved_model_path=str(model_export_path),
+                       custom_objects=None,
+                       as_text=False,
+                       input_signature=None,
+                       serving_only=False)
