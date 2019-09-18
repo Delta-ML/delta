@@ -52,13 +52,13 @@ class DecodeUtilTest(tf.test.TestCase):
           tf.constant(self.logits),
           tf.constant(self.sequence_lens),
           merge_repeated=True)
-      self.assertAllEqual(decode_result.eval(), [[0, 2], [0, 0]])
+      self.assertAllEqual(decode_result.eval(), [[1, 3], [1, 0]])
 
       decode_result, _ = tf_ctc.ctc_greedy_decode(
           tf.constant(self.logits),
           tf.constant(self.sequence_lens),
           merge_repeated=False)
-      self.assertAllEqual(decode_result.eval(), [[0, 0, 0, 2], [0, 0, 0, 0]])
+      self.assertAllEqual(decode_result.eval(), [[1, 1, 1, 3], [1, 1, 1, 0]])
 
   def test_ctc_beam_search_decode(self):
     ''' ctc tensorflow beam search unittest'''
@@ -69,8 +69,7 @@ class DecodeUtilTest(tf.test.TestCase):
           tf.constant(self.sequence_lens),
           beam_width=1,
           top_paths=1)
-      self.assertAllEqual(decode_result[0].eval(), [[0], [0]])
-
+      self.assertAllEqual(decode_result[0].eval(), [[1], [1]])
 
 if __name__ == '__main__':
   tf.test.main()
