@@ -115,7 +115,7 @@ DeltaStatus load_models(const RuntimeConfig& rt_cfg,
 #endif
 
       } else if (EngineType::DELTA_EIGINE_TFTRT ==
-                _global_engines[engine_type]) {
+                 _global_engines[engine_type]) {
         LOG_INFO << "User engine tftrt";
 
 #ifdef USE_TFLITE
