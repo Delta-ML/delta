@@ -62,8 +62,10 @@ func DeltaListen(opts DeltaOptions) error {
 	router := gin.Default()
 	if opts.Debug {
 		pprof.Register(router)
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
 	}
-	//gin.SetMode(gin.ReleaseMode)
 	relativePathRoot := "/v1/models/" + conf.DeltaConf.Model.Graph[0].Local.ModelType
 	relativePathFull := relativePathRoot + "/versions/"
 	relativePathFull = relativePathFull + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
