@@ -25,6 +25,8 @@ class Fbank(BaseFrontend):
 
   def __init__(self, config:dict):
     super().__init__(config)
+    self.spect = Spectrum(config)
+
 
   @classmethod
   def params(cls, config=None):
@@ -33,11 +35,17 @@ class Fbank(BaseFrontend):
     upper_frequency_limit = 4000
     lower_frequency_limit = 20
     filterbank_channel_count = 40
+    window_length = 0.025
+    frame_length = 0.010
+    output_type = 2
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
     hparams.add_hparam('lower_frequency_limit', lower_frequency_limit)
     hparams.add_hparam('filterbank_channel_count', filterbank_channel_count)
+    hparams.add_hparam('window_length', window_length)
+    hparams.add_hparam('frame_length', frame_length)
+    hparams.add_hparam('output_type', output_type)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -45,14 +53,11 @@ class Fbank(BaseFrontend):
     return hparams
 
   def call(self, audio_data, sample_rate):
-    p = self.config
 
     with tf.name_scope('fbank'):
 
-      spectrum = py_x_ops.spectrum(
-        audio_data,
-        sample_rate,
-        output_type=1)
+      p = self.config
+      spectrum = self.spect(audio_data, sample_rate)
 
       spectrum = tf.expand_dims(spectrum, 0)
       sample_rate = tf.to_int32(sample_rate)
@@ -65,9 +70,3 @@ class Fbank(BaseFrontend):
         filterbank_channel_count=p.filterbank_channel_count)
 
     return fbank
-
-
-
-
-
-

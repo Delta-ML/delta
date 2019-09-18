@@ -19,7 +19,6 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank import Fbank
-import librosa
 
 class FbankTest(tf.test.TestCase):
 
@@ -29,8 +28,13 @@ class FbankTest(tf.test.TestCase):
 
     with self.session():
       read_wav = ReadWav.params().instantiate()
-      input_data, sample_rate = read_wav.call(wav_path)
-      fbank = Fbank.params().instantiate()
+      input_data, sample_rate = read_wav(wav_path)
+      config = {
+        'window_length': 0.025,
+        'output_type': 1,
+        'frame_length': 0.010
+      }
+      fbank = Fbank.params(config).instantiate()
       fbank_test = fbank(input_data, sample_rate)
 
       self.assertEqual(tf.rank(fbank_test).eval(), 3)
