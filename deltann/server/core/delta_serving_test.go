@@ -21,6 +21,6 @@ import (
 )
 
 func TestDeltaServing(t *testing.T) {
-	err := DeltaListen(DeltaOptions{":8004", "/api/model", "../dpl/output/conf/model.yaml"})
+	err := DeltaListen(DeltaOptions{false, "8004", "classify", "../dpl/output/conf/model.yaml"})
 	assert.NoError(t, err)
 }
