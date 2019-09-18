@@ -81,6 +81,7 @@ func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error)
 		deltaPtr := C.CString(valueInputs.(string))
 		defer C.free(unsafe.Pointer(deltaPtr))
 		ins.ptr = unsafe.Pointer(deltaPtr)
+		// len(valueInputs.(string)) + 1   for text /0
 		ins.size = C.int(len(valueInputs.(string)) + 1)
 
 	case int:

@@ -33,6 +33,7 @@ const defaultPort = "8004"
 
 // Options
 type DeltaOptions struct {
+	Debug          bool
 	ServerPort     string
 	ServerType     string
 	DeltaModelYaml string
@@ -59,7 +60,9 @@ func DeltaListen(opts DeltaOptions) error {
 
 	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
-	pprof.Register(router)
+	if opts.Debug {
+		pprof.Register(router)
+	}
 	//gin.SetMode(gin.ReleaseMode)
 	relativePathRoot := "/v1/models/" + conf.DeltaConf.Model.Graph[0].Local.ModelType
 	relativePathFull := relativePathRoot + "/versions/"

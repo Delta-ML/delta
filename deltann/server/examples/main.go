@@ -24,11 +24,12 @@ import (
 func main() {
 	deltaPort := flag.String("port", "none", "set http listen port")
 	deltaYaml := flag.String("yaml", "none", "set delta model yaml conf")
-	deltaType := flag.String("type", "none", "set server type")
+	deltaType := flag.String("type", "none", "set server type：predict | classify")
+	deltaDebug := flag.Bool("debug", false, "set debug environment：true | false")
 	flag.Parse()
 	defer glog.Flush()
 
-	err := DeltaListen(DeltaOptions{*deltaPort, *deltaType, *deltaYaml})
+	err := DeltaListen(DeltaOptions{*deltaDebug, *deltaPort, *deltaType, *deltaYaml})
 	if err != nil {
 		glog.Fatalf("DeltaListen err %s", err.Error())
 	}
