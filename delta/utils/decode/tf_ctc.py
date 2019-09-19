@@ -19,7 +19,8 @@ import tensorflow as tf
 
 def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
   '''
-    data preprocess
+    Moves the blank_label cloumn to the end of the logit matrix,
+    and adjust the rank of sequence_length to 1
     param: logits, (B, T, C), output of ctc asr model
     param: sequence_length, (B, 1), sequence lengths
     param: blank_id, None, default blank_id is 0, same to espnet.
@@ -49,7 +50,8 @@ def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
 
 def ctc_decode_last_to_blankid(decode_result, blank_id):
   '''
-    change the value of blank_label elements from num_classes - 1 to blank_id
+    Change the value of blank_label elements from num_classes - 1 to blank_id,
+    after removing blank_id by decoder.
     param: decode_result, an tf.SparseTensor, containing the docode result
            there is no elements corresponds to numclasses-1 in the decode_result
     param: blank_id, int, the index of blank label

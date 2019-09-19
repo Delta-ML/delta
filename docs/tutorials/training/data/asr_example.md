@@ -55,4 +55,4 @@ By simply using `./run.sh`, an open source dataset, HKUST, can be quickly downlo
 
 4. In `delta/utils/decode/tf_ctc.py`, two different methods, `ctc_greedy_decode` and `ctc_beam_search_decode`, are supported to perform greedy and beam search decoding on the logits respectively.
    In this stage, the mismatch between the blank label index in input logits and num_classes - 1 could also occur. Thus, we provide the `ctc_decode_blankid_to_last` method to address this issue.
-   Specially, in order to eliminate the effect of the change of blank label index, the `ctc_decode_last_to_blankid` should be applied on the decode result to adjust the index of blank label back.
+   Specially, in order to eliminate the effect of the change of blank label index, the `ctc_decode_last_to_blankid` should be applied on the decode result which removing repeated labels and blank symbols to adjust the index of blank label back.
