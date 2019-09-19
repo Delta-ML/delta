@@ -18,11 +18,11 @@ import tensorflow as tf
 import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
-from delta.data.frontend.fbank_pitch import Fbank_pitch
+from delta.data.frontend.fbank_pitch import FbankPitch
 
 class FbankPitchTest(tf.test.TestCase):
 
-  def test_fbank_pitch(self):
+  def test_FbankPitch(self):
     wav_path = str(
       Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
@@ -35,7 +35,7 @@ class FbankPitchTest(tf.test.TestCase):
         'frame_length': 0.010,
         'thres_autoc': 0.4
       }
-      fbank_pitch = Fbank_pitch.params(config).instantiate()
+      fbank_pitch = FbankPitch.params(config).instantiate()
       fbank_pitch_test = fbank_pitch(input_data)
 
       self.assertEqual(tf.rank(fbank_pitch_test).eval(), 2)

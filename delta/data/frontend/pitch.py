@@ -53,5 +53,6 @@ class Pitch(BaseFrontend):
           window_length=p.window_length,
           frame_length=p.frame_length,
           thres_autoc=p.thres_autoc)
-
+    pitch = tf.squeeze(pitch)
+    pitch = tf.transpose(pitch[None, :])
     return pitch

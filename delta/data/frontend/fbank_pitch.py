@@ -21,7 +21,7 @@ from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.pitch import Pitch
 from delta.data.frontend.fbank import Fbank
 
-class Fbank_pitch(BaseFrontend):
+class FbankPitch(BaseFrontend):
 
   def __init__(self, config: dict):
     super().__init__(config)
