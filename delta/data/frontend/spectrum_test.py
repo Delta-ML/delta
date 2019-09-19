@@ -32,7 +32,7 @@ class SpectrumTest(tf.test.TestCase):
       input_data, sample_rate = read_wav(wav_path)
 
       spectrum = Spectrum.params({'window_length':0.025}).instantiate()
-      spectrum_test = spectrum(input_data, sample_rate)
+      spectrum_test = spectrum(input_data)
 
       output_true = np.array(
         [[-16.863441, -16.910473, -17.077059, -16.371634, -16.845686],
