@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
   Input ins[1];
   const char* text = "I'm angry.";
   ins[0].ptr = reinterpret_cast<void*>(&text);
-  ins[0].size = 1;
+  ins[0].size = sizeof(text) + 1;
   ins[0].input_name = "input_sentence";
   ins[0].graph_name = "default";
 

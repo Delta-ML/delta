@@ -22,8 +22,14 @@ import (
 )
 
 type DeltaConfig struct {
-	Model   DeltaModel   `yaml:"model"`
-	RunTime DeltaRunTime `yaml:"runtime"`
+	Model            DeltaModel       `yaml:"model"`
+	RunTime          DeltaRunTime     `yaml:"runtime"`
+	DeltaServingPoll DeltaServingConf `yaml:"serving"`
+}
+
+type DeltaServingConf struct {
+	DeltaMaxWorker int `yaml:"max_worker"`
+	DeltaMaxQueue  int `yaml:"max_queue"`
 }
 
 type DeltaModel struct {

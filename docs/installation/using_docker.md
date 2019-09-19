@@ -37,7 +37,7 @@ After the image downloaded, create a container.
 For **delta** usage (model development):
 
 ```bash
-cd /path/to/detla && docker run -it zh794390558/delta:1.14.0-delta-cpu-py3 /bin/bash
+cd /path/to/detla && docker run -v `pwd`:/delta -it zh794390558/delta:1.14.0-delta-cpu-py3 /bin/bash
 ```
 
 The basic version of **delta** (except Kaldi) was already installed in this container. You can develop in this container like:
