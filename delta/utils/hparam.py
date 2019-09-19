@@ -20,6 +20,7 @@ from __future__ import print_function
 import json
 import numbers
 import re
+from deepdiff import DeepDiff
 
 import six
 
@@ -612,6 +613,27 @@ class HParams(object):
 
   def __repr__(self):
     return '%s(%s)' % (type(self).__name__, self.__str__())
+
+  def __getitem__(self, key):
+    return self.get(key)
+
+  def __setitem__(self, key, value):
+    self.set_hparam(key, value)
+
+  def __delitem__(self, key):
+    self.del_hparam(key)
+
+  def __eq__(self, other):
+    if DeepDiff(self, other):
+      return False
+    else:
+      return True
+
+  def __ne__(self, other):
+    if DeepDiff(self, other):
+      return True
+    else:
+      return False
 
   @staticmethod
   def _get_kind_name(param_type, is_list):
