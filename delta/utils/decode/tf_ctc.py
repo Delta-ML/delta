@@ -51,6 +51,7 @@ def ctc_decode_last_to_blankid(decode_result, blank_id):
   '''
     change the value of blank_label elements from num_classes - 1 to blank_id
     param: decode_result, an tf.SparseTensor, containing the docode result
+           there is no elements corresponds to numclasses-1 in the decode_result
     param: blank_id, int, the index of blank label
     return: decode_result_return: an tf.SparseTensor
     '''
