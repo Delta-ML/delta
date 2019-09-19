@@ -102,7 +102,7 @@ def ctc_data_transform(labels, logits, blank_index):
   '''
   data transform according blank_index
   '''
-  if blank_index < 0 or blank_index is None:
+  if blank_index is None or blank_index < 0:
     raise ValueError('blank_index must be greater than or equal to zero')
 
   num_class = logits.shape[2] - 1

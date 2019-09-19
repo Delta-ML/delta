@@ -17,8 +17,7 @@
 
 import tensorflow as tf
 
-
-def ctc_decode_data_prepare(logits, sequence_length, blank_id=None):
+def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
   '''
     data preprocess
     param: logits, (B, T, C), output of ctc asr model
@@ -48,14 +47,14 @@ def ctc_decode_data_prepare(logits, sequence_length, blank_id=None):
 
   return logits_return, sequence_length_return, blank_id
 
-def ctc_decode_post_process(decode_result, blank_id):
+def ctc_decode_last_to_blankid(decode_result, blank_id):
   '''
     change the value of blank_label elements from num_classes - 1 to blank_id
     param: decode_result, an tf.SparseTensor, containing the docode result
     param: blank_id, int, the index of blank label
     return: decode_result_return: an tf.SparseTensor
     '''
-  if blank_id < 0 or blank_id is None:
+  if blank_id is None or blank_id < 0:
     raise ValueError('blank_index must be greater than or equal to zero')
 
   decode_labels = decode_result.values
@@ -64,8 +63,8 @@ def ctc_decode_post_process(decode_result, blank_id):
                                     decode_labels)
 
   decode_result_change_blank_id = tf.SparseTensor(indices=decode_result.indices,
-				                  values=labels_change_blank_id,
-				                  dense_shape=decode_result.dense_shape)
+                                                  values=labels_change_blank_id,
+                                                  dense_shape=decode_result.dense_shape)
   return decode_result_change_blank_id
 
 def ctc_greedy_decode(logits,
@@ -83,8 +82,8 @@ def ctc_greedy_decode(logits,
             the negative of the sum of the greatest logit at each timeframe.
     '''
 
-  logits, sequence_len, blank_id = ctc_decode_data_prepare(logits, sequence_length,
-                                                           blank_id)
+  logits, sequence_len, blank_id = ctc_decode_blankid_to_last(logits, sequence_length,
+                                                              blank_id)
   deps = [
       tf.assert_rank(logits, 3),
       tf.assert_rank(sequence_len, 1),
@@ -93,10 +92,10 @@ def ctc_greedy_decode(logits,
   with tf.control_dependencies(deps):
     decode_result, probs = tf.nn.ctc_greedy_decoder(
         logits, sequence_len, merge_repeated=merge_repeated)
-    decode_result = [ctc_decode_post_process(single_decode_result, blank_id) 
+    decode_result = [ctc_decode_last_to_blankid(single_decode_result, blank_id)
                      for single_decode_result in decode_result]
     decode_result = tf.sparse_tensor_to_dense(decode_result[0],
-                                              default_value = blank_id,
+                                              default_value=blank_id,
                                               name="outputs")
   return decode_result, probs
 
@@ -117,8 +116,8 @@ def ctc_beam_search_decode(logits,
        probs: A float matrix [batch_size, top_paths] containing sequence log-probabilities.
     '''
 
-  logits, sequence_len, blank_id = ctc_decode_data_prepare(logits, sequence_length,
-                                                           blank_id)
+  logits, sequence_len, blank_id = ctc_decode_blankid_to_last(logits, sequence_length,
+                                                              blank_id)
 
   deps = [tf.assert_rank(logits, 3), tf.assert_rank(sequence_len, 1)]
 
@@ -126,7 +125,7 @@ def ctc_beam_search_decode(logits,
     decode_result, probs = tf.nn.ctc_beam_search_decoder_v2(
         logits, sequence_len, beam_width=beam_width, top_paths=top_paths)
     decode_result_recovery_blank_id = [
-        ctc_decode_post_process(single_decode_result, blank_id) 
+        ctc_decode_last_to_blankid(single_decode_result, blank_id)
         for single_decode_result in decode_result
     ]
     decode_result_dense = [
