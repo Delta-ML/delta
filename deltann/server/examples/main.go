@@ -29,7 +29,6 @@ func main() {
 	deltaDebug := flag.Bool("debug", false, "set debug environment：true | false")
 	flag.Parse()
 	defer glog.Flush()
-
 	var deltaOptions = DeltaOptions{
 		Debug:          *deltaDebug,
 		ServerPort:     *deltaPort,

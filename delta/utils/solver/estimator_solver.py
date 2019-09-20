@@ -205,7 +205,6 @@ class EstimatorSolver(ABCEstimatorSolver):
     nclass = self.config['data']['task']['classes']['num']
     metric_tensor = {
         "batch_accuracy": metrics_lib.accuracy(logits, labels),
-        "raw_labels": labels,
         'global_step': tf.train.get_or_create_global_step(),
     }
     if nclass > 100:
