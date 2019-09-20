@@ -16,6 +16,7 @@
 ''' ctc tensorflow decoder '''
 
 import tensorflow as tf
+from delta.utils import ctc_utils
 
 def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
   '''
@@ -33,12 +34,7 @@ def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
   #while blank_id is set as C-1 in tf.nn.ctc_decoder
   if blank_id is None:
     blank_id = 0
-  blank_tensor = tf.expand_dims(logits[:, :, blank_id], 2)
-  label_index_list = [
-      index for index in range(logits.shape[-1]) if index != blank_id
-  ]
-  label_tensor = tf.gather(logits, label_index_list, axis=2)
-  logits_return = tf.concat([label_tensor, blank_tensor], 2)
+  logits = ctc_utils.logits_blankid_to_last(logits=logits, blank_index=blank_id)
 
   sequence_length_return = tf.cond(
       pred=tf.equal(tf.rank(sequence_length), 1),
@@ -46,29 +42,8 @@ def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
       false_fn=lambda: tf.squeeze(sequence_length),
   )
 
-  return logits_return, sequence_length_return, blank_id
+  return logits, sequence_length_return, blank_id
 
-def ctc_decode_last_to_blankid(decode_result, blank_id):
-  '''
-    Change the value of blank_label elements from num_classes - 1 to blank_id,
-    after removing blank_id by decoder.
-    param: decode_result, an tf.SparseTensor, containing the docode result
-           there is no elements corresponds to numclasses-1 in the decode_result
-    param: blank_id, int, the index of blank label
-    return: decode_result_return: an tf.SparseTensor
-    '''
-  if blank_id is None or blank_id < 0:
-    raise ValueError('blank_index must be greater than or equal to zero')
-
-  decode_labels = decode_result.values
-  labels_change_blank_id = tf.where(decode_labels >= blank_id,
-                                    decode_labels + 1,
-                                    decode_labels)
-
-  decode_result_change_blank_id = tf.SparseTensor(indices=decode_result.indices,
-                                                  values=labels_change_blank_id,
-                                                  dense_shape=decode_result.dense_shape)
-  return decode_result_change_blank_id
 
 def ctc_greedy_decode(logits,
                       sequence_length,
@@ -95,7 +70,7 @@ def ctc_greedy_decode(logits,
   with tf.control_dependencies(deps):
     decode_result, probs = tf.nn.ctc_greedy_decoder(
         logits, sequence_len, merge_repeated=merge_repeated)
-    decode_result = [ctc_decode_last_to_blankid(single_decode_result, blank_id)
+    decode_result = [ctc_utils.labels_last_to_blankid(single_decode_result, blank_id)
                      for single_decode_result in decode_result]
     decode_result = tf.sparse_tensor_to_dense(decode_result[0],
                                               default_value=blank_id,
@@ -128,7 +103,7 @@ def ctc_beam_search_decode(logits,
     decode_result, probs = tf.nn.ctc_beam_search_decoder_v2(
         logits, sequence_len, beam_width=beam_width, top_paths=top_paths)
     decode_result_recovery_blank_id = [
-        ctc_decode_last_to_blankid(single_decode_result, blank_id)
+        ctc_utils.labels_last_to_blankid(single_decode_result, blank_id)
         for single_decode_result in decode_result
     ]
     decode_result_dense = [
