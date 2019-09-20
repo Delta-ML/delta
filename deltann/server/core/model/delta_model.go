@@ -46,6 +46,10 @@ type DeltaParam struct {
 	DeltaYaml string
 }
 
+func GoToDelta(tr DeltaInterface) {
+	tr.DeltaModelInit()
+}
+
 func (dParam DeltaParam) DeltaModelInit() error {
 	yamlFile := C.CString(dParam.DeltaYaml)
 	defer C.free(unsafe.Pointer(yamlFile))
