@@ -18,7 +18,7 @@ import math
 import tensorflow as tf
 
 from delta import utils
-
+from delta.utils import ctc_utils
 
 #pylint: disable=too-many-arguments
 def cross_entropy(logits,
@@ -102,34 +102,13 @@ def ctc_data_transform(labels, logits, blank_index):
   '''
   data transform according blank_index
   '''
-  if blank_index is None or blank_index < 0:
-    raise ValueError('blank_index must be greater than or equal to zero')
-
-  num_class = logits.shape[2] - 1
-  if blank_index > num_class:
-    raise ValueError('blank_index must be less than or equal to num_class - 1')
-
-  if blank_index != num_class:
-    logits = tf.concat([
-        logits[:, :, :blank_index], logits[:, :, blank_index + 1:],
-        logits[:, :, blank_index:blank_index + 1]
-    ],
-                       axis=2)
-
-  labels = tf.cast(labels, tf.int32)
-  labels_idx = tf.where(tf.not_equal(labels, 0))
-  labels_values = tf.gather_nd(labels, labels_idx)
-  labels_num_class = tf.zeros_like(labels_values, dtype=tf.int32) + num_class
-  labels_values_change_blank = tf.where(
-      tf.equal(labels_values, blank_index), labels_num_class, labels_values)
-  labels_values = tf.where(labels_values_change_blank < blank_index,
-                           labels_values_change_blank,
-                           labels_values_change_blank - 1)
-  labels_shape = tf.cast(tf.shape(labels), dtype=tf.int64)
-  labels_sparse = tf.SparseTensor(
-      indices=labels_idx, values=labels_values, dense_shape=labels_shape)
-
-  return labels_sparse, logits
+  logits = ctc_utils.logits_blankid_to_last(logits=logits, blank_index=blank_index)
+  
+  num_class = logits.shape[2]
+  labels = ctc_utils.labels_blankid_to_last(labels=labels,
+                                            blank_index=blank_index,
+                                            num_class=num_class)
+  return labels, logits
 
 
 def crf_log_likelihood(tags_scores, labels, input_length, transitions):
