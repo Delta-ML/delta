@@ -19,6 +19,7 @@ import (
 	. "delta/deltann/server/core"
 	"flag"
 	"github.com/golang/glog"
+	"os"
 )
 
 func main() {
@@ -28,10 +29,21 @@ func main() {
 	deltaDebug := flag.Bool("debug", false, "set debug environment：true | false")
 	flag.Parse()
 	defer glog.Flush()
-
-	err := DeltaListen(DeltaOptions{*deltaDebug, *deltaPort, *deltaType, *deltaYaml})
-	if err != nil {
-		glog.Fatalf("DeltaListen err %s", err.Error())
+	var deltaOptions = DeltaOptions{
+		Debug:          *deltaDebug,
+		ServerPort:     *deltaPort,
+		ServerType:     *deltaType,
+		DeltaModelYaml: *deltaYaml,
 	}
 
+	r, err := DeltaListen(deltaOptions)
+	if err != nil {
+		glog.Fatalf("DeltaListen err %s", err.Error())
+		os.Exit(1)
+	}
+	err = DeltaRun(r)
+	if err != nil {
+		glog.Fatalf("DeltaRun err %s", err.Error())
+		os.Exit(1)
+	}
 }

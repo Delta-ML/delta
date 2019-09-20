@@ -29,8 +29,6 @@ import (
 	"syscall"
 )
 
-const defaultPort = "8004"
-
 // Options
 type DeltaOptions struct {
 	Debug          bool
@@ -40,19 +38,19 @@ type DeltaOptions struct {
 }
 
 var deltaInterface DeltaInterface
-
+var defaultPort string
 var dispatcher *Dispatcher
 
 func init() {
 	listenSystemStatus()
 }
 
-func DeltaListen(opts DeltaOptions) error {
+func DeltaListen(opts DeltaOptions) (*gin.Engine, error) {
 	conf.SetConfPath(opts.DeltaModelYaml)
-	dParams := DeltaParam{opts.DeltaModelYaml}
+	dParams := DeltaParam{DeltaYaml: opts.DeltaModelYaml}
 	err := dParams.DeltaModelInit()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	dispatcher = DeltaDispatcher(conf.DeltaConf.DeltaServingPoll.DeltaMaxWorker, conf.DeltaConf.DeltaServingPoll.DeltaMaxQueue)
@@ -73,17 +71,19 @@ func DeltaListen(opts DeltaOptions) error {
 	router.POST(relativePathFull, handel.DeltaPredictHandler)
 	router.POST(relativePathRoot, handel.DeltaModelHandler)
 
-	dPort := opts.ServerPort
-	if dPort == "" {
-		dPort = defaultPort
-	}
+	defaultPort = opts.ServerPort
 
-	err = router.Run(":" + dPort)
+	glog.Infof("delta serving DeltaPredictHandler path %s", relativePathFull)
+	glog.Infof("delta serving DeltaModelHandler  path %s", relativePathRoot)
+	return router, nil
+}
+
+func DeltaRun(router *gin.Engine) error {
+	err := router.Run(":" + defaultPort)
 	if err != nil {
-		glog.Infof("delta serving init port  %s", dPort)
+		glog.Infof("delta serving init port  %s", defaultPort)
+		return err
 	}
-	glog.Infof("delta serving DeltaPredictHandler port  %s  path %s", dPort, relativePathFull)
-	glog.Infof("delta serving DeltaModelHandler port  %s  path %s", dPort, relativePathRoot)
 	return nil
 }
 

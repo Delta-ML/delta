@@ -44,7 +44,7 @@ func DeltaPredictHandler(context *gin.Context) {
 }
 
 func DeltaPackJob(req DeltaRequest, reply string, done chan DeltaJob) DeltaJob {
-	work := DeltaJob{req.DeltaInputs, reply, done}
+	work := DeltaJob{DeltaInputs: req.DeltaInputs, Reply: reply, Done: done}
 	DeltaJobQueue <- work
 	return work
 }
