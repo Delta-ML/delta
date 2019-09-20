@@ -30,16 +30,23 @@ class FbankPitch(BaseFrontend):
 
   @classmethod
   def params(cls, config=None):
-    ''' set params '''
+    """
+    Set params.
+    :param config: contains eight optional parameters:upper_frequency_limit(float, default=4000.0),
+    lower_frequency_limit(float, default=20.0), filterbank_channel_count(float, default=40.0),
+    window_length(float, default=0.025), frame_length(float, default=0.010),
+    thres_autoc(float, default=0.3), output_type(int, default=2), sample_rate(float, default=16000).
+    :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
+    """
 
-    upper_frequency_limit = 4000
-    lower_frequency_limit = 20
-    filterbank_channel_count = 40
+    upper_frequency_limit = 4000.0
+    lower_frequency_limit = 20.0
+    filterbank_channel_count = 40.0
     window_length = 0.025
     frame_length = 0.010
     thres_autoc = 0.3
     output_type = 2
-    sample_rate = 16000
+    sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -57,6 +64,12 @@ class FbankPitch(BaseFrontend):
     return hparams
 
   def call(self, audio_data, sample_rate=None):
+    """
+    Caculate fbank && pitch(concat) features of wav.
+    :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
+    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
+    :return: A tensor with shape (num_frames, dim_features), containing fbank && pitch feature of every frame in speech.
+    """
 
     p = self.config
     if sample_rate == None:
@@ -66,7 +79,6 @@ class FbankPitch(BaseFrontend):
 
       fbank_feats = tf.squeeze(self.fbank(audio_data, sample_rate))
       pitch_feats = self.pitch(audio_data, sample_rate)
-      # return shape = (num_frames * num_features)
       fbank_pitch_feats = tf.concat([fbank_feats, pitch_feats], 1)
 
     return fbank_pitch_feats
