@@ -28,9 +28,9 @@ class Spectrum(BaseFrontend):
   @classmethod
   def params(cls, config=None):
     """
-
-    :param config: contains three optional parameters: window_length(default is 0.025s),
-        frame_length(default is 0.010s), output_type(default is 2).
+    Set params.
+    :param config: contains four optional parameters: window_length(default is 0.025s),
+        frame_length(default is 0.010s), output_type(default is 2) and sample_rate(default is 16000).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
@@ -52,10 +52,10 @@ class Spectrum(BaseFrontend):
 
   def call(self, audio_data, sample_rate=None):
     """
-
-    :param audio_data: the audio signal from which to compute spectrum. Should be an 1 * N tensor.
-    :param sample_rate: the samplerate of the signal we working with.
-    :return: A float tensor of size (num_frames * num_frequencies) containing power spectrum (output_type=1)
+    Caculate power spectrum or log power spectrum of audio data.
+    :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
+    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
+    :return: A float tensor of size (num_frames, num_frequencies) containing power spectrum (output_type=1)
         or log power spectrum (output_type=2).
     """
     p = self.config

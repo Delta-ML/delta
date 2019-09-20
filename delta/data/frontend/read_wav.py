@@ -27,7 +27,11 @@ class ReadWav(BaseFrontend):
 
   @classmethod
   def params(cls, config=None):
-    ''' set params '''
+    """
+      Set params.
+       :param config: contains one optional parameters: audio_channels(default is 1).
+       :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
+       """
     audio_channels = 1
 
     hparams = HParams(cls=cls)
@@ -39,6 +43,12 @@ class ReadWav(BaseFrontend):
     return hparams
 
   def call(self, wavfile):
+    """
+    Get audio data and sample rate from a wavfile.
+    :param wavfile: filepath of wav
+    :return: 2 values. The first is a Tensor of audio data. The second return value is the sample rate of the input wav
+        file, which is a tensor with float dtype.
+    """
     params = self.config
     contents = tf.io.read_file(wavfile)
     waveforms = contrib_audio.decode_wav(
