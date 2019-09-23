@@ -364,11 +364,12 @@ class EstimatorSolver(ABCEstimatorSolver):
       logging.info("{}: {}".format(key, value))
       if save:
         fobj.write("{}: {}\n".format(key, value))
-    f1_score = metrics_lib.f1_score(metrics['tp'], metrics['fp'], metrics['fn'],
-                                    metrics['tn'])
-    logging.info("F1: {}".format(f1_score))
-    if save:
-      fobj.write("F1: {}\n".format(f1_score))
+    if 'tp' in metrics and 'fp' in metrics and 'fn' in metrics and 'tn' in metrics:
+      f1_score = metrics_lib.f1_score(metrics['tp'], metrics['fp'], metrics['fn'],
+                                      metrics['tn'])
+      logging.info("F1: {}".format(f1_score))
+      if save:
+        fobj.write("F1: {}\n".format(f1_score))
 
   #pylint: disable=arguments-differ
   def eval(self, steps=None):
