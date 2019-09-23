@@ -57,7 +57,7 @@ def logits_blankid_to_last(logits, blank_index):
 
 def labels_blankid_to_last(labels, blank_index, num_class=None):
   ''' Change the value of blank_label elements from blank_index to num_class - 1'''
-  assert not num_class is None, 'The num_class should not be None!'
+  assert num_class is not None, 'The num_class should not be None!'
 
   labels = transform_preprocess(labels=labels,
                                 blank_index=blank_index,

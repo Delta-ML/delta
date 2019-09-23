@@ -56,7 +56,7 @@ class CTCUtilTest(tf.test.TestCase):
           'blank_index must be greater than or equal to zero')
       
       with self.assertRaises(ValueError) as valueErr:
-        labelss = ctc_utils.transform_preprocess(labels=None, blank_index=-10, num_class=None)
+        labels = ctc_utils.transform_preprocess(labels=None, blank_index=-10, num_class=None)
       the_exception = valueErr.exception
       self.assertEqual(
           str(the_exception),
