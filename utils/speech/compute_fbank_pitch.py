@@ -23,7 +23,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from delta.data.frontend.fbank_pitch import FbankPitch
 from delta.data.frontend.kaldi_reader_writer import KaldiWriter
-from espnet.espnet.utils.cli_writers import KaldiWriter
+from espnet.utils.cli_writers import KaldiWriter
 
 def get_parser():
   parser = argparse.ArgumentParser(
