@@ -54,6 +54,9 @@ def token_error(predict_seq_list=None, target_seq_list=None, eos_id=None):
     if eos_id in cur_target_seq:
       target_seq_end = cur_target_seq.index(eos_id)
       cur_target_seq = cur_target_seq[:target_seq_end]
+    if eos_id in cur_predict_seq:
+      predict_seq_end = cur_predict_seq.index(eos_id)
+      cur_predict_seq = cur_predict_seq[:predict_seq_end]
 
     levenshtein_distance += levenshtein(cur_predict_seq, cur_target_seq)
     target_length += len(cur_target_seq)

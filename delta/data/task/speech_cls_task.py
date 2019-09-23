@@ -872,7 +872,9 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
     super().__init__(config, mode)
     self.shuffle = True
     self.batch_size = self.config['solver']['optimizer']['batch_size']
-    self.subset = self.config['data']['task']['subset']
+    subset = self.config['data']['task']['subset']
+    subset = subset if subset else 'all'
+    self.subset = subset
     assert self.subset in ('impro', 'script', 'all')
     logging.info(f"using subset data: {self.subset}")
 

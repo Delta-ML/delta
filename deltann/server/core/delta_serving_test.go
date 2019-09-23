@@ -14,3 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 package core
+
+import (
+	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+)
+
+func TestDeltaServing(t *testing.T) {
+	var deltaOptions = DeltaOptions{
+		true,
+		"8004",
+		"predict",
+		"../dpl/output/conf/model.yaml",
+	}
+	r, err := DeltaListen(deltaOptions)
+	assert.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/v1/models/saved_model", nil)
+	r.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+
+}
