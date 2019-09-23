@@ -30,7 +30,7 @@ class PlpTest(tf.test.TestCase):
 
     with self.session():
       read_wav = ReadWav.params().instantiate()
-      input_data, sample_rate = read_wav.call(wav_path)
+      input_data, sample_rate = read_wav(wav_path)
 
       plp = Plp.params({'window_length': 0.025, 'frame_length': 0.010, 'plp_order': 12}).instantiate()
       plp_test = plp(input_data, sample_rate)

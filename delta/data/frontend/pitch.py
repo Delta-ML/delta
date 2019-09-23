@@ -50,7 +50,7 @@ class Pitch(BaseFrontend):
 
     return hparams
 
-  def call(self, audio_data, sample_rate):
+  def call(self, audio_data, sample_rate=None):
     """
     Caculate pitch features of audio data.
     :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.

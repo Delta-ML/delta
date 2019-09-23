@@ -29,14 +29,14 @@ class Zcr(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config:contains three optional parameters: window_length(default is 0.025s),
-        frame_length(default is 0.010s), and sample_rate(default is 16000).
+    :param config:contains three optional parameters: window_length(float, default=0.025s),
+        frame_length(float, default=0.010s), and sample_rate(float, default=16000.0).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
     window_length = 0.025
     frame_length = 0.010
-    sample_rate = 16000
+    sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)

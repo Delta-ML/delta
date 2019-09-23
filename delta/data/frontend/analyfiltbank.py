@@ -29,7 +29,7 @@ class Analyfiltbank(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains three optional parameters:window_length(float, default=0.025),
+    :param config: contains three optional parameters:window_length(float, default=0.030),
           frame_length(float, default=0.010), sample_rate(float, default=16000.0).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """

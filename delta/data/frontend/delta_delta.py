@@ -20,20 +20,27 @@ from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
-class Delta_delta(BaseFrontend):
+class DeltaDelta(BaseFrontend):
 
   def __init__(self, config:dict):
     super().__init__(config)
 
   @classmethod
   def params(cls, config=None):
-    ''' set params '''
 
     hparams = HParams(cls=cls)
 
     return hparams
 
   def call(self, feat, order, window):
+    """
+    Caculate delta of feats.
+    :param feat: a float tensor of size (num_frames, dim_feat).
+    :param order: an int.
+    :param window: an int.
+    :return: A tensor with shape (num_frames, (dim_feat * (order + 1))),
+        containing delta of features of every frame in speech.
+    """
 
     p = self.config
     with tf.name_scope('delta_delta'):

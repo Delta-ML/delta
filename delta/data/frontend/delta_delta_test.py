@@ -15,14 +15,10 @@
 # ==============================================================================
 
 import tensorflow as tf
-import os
-from pathlib import Path
-from delta.data.frontend.read_wav import ReadWav
-from delta.data.frontend.delta_delta import Delta_delta
+from delta.data.frontend.delta_delta import DeltaDelta
 import numpy as np
 import tempfile
 from kaldiio import WriteHelper
-
 
 class Delta_delta_Test(tf.test.TestCase):
 
@@ -287,7 +283,7 @@ class Delta_delta_Test(tf.test.TestCase):
       self.order = 2
       self.window = 2
       feat = tf.constant(self.data[None, :], dtype=tf.float32)
-      delta_delta = Delta_delta.params().instantiate()
+      delta_delta = DeltaDelta.params().instantiate()
       delta_delta_test = delta_delta(feat, self.order, self.window)
 
       self.assertEqual(delta_delta_test.shape, (1, self.feat_dim * (self.order + 1)))
