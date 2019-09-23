@@ -91,40 +91,6 @@ class DecodeUtilTest(tf.test.TestCase):
       self.assertAllEqual(sequence_lens.eval(), sequence_lens_after_transform)
       self.assertAllEqual(blank_id, blank_id_after_transform)
 
-  def test_ctc_decode_last_to_blankid(self):
-    ''' unit test case for the ctc_decode_last_to_blankid interface '''
-    with self.cached_session():
-      decode_result_dense = tf.constant(self.decode_result)
-      decode_result_idx = tf.where(tf.not_equal(decode_result_dense, 0))
-      decode_result_values = tf.gather_nd(decode_result_dense, decode_result_idx)
-      decode_result_shape = tf.cast(tf.shape(decode_result_dense), dtype=tf.int64)
-      decode_result_sparse = tf.SparseTensor(indices=decode_result_idx,
-                                             values=decode_result_values,
-                                             dense_shape=decode_result_shape)
-      
-      blank_id = None
-      with self.assertRaises(ValueError) as valueErr:
-        decode_result_transform = tf_ctc.ctc_decode_last_to_blankid(decode_result_sparse,
-                                                                    blank_id)
-      the_exception = valueErr.exception
-      self.assertEqual(
-          str(the_exception),
-          'blank_index must be greater than or equal to zero')
-     
-      blank_id = 0
-      decode_result = tf_ctc.ctc_decode_last_to_blankid(decode_result_sparse,
-                                                        blank_id)
-      decode_result = tf.sparse_tensor_to_dense(decode_result)
-      decode_result_after_transform = np.asarray([[2, 2, 2, 4], [2, 2, 2, 0]], dtype=np.int32)
-      self.assertAllEqual(decode_result.eval(), decode_result_after_transform)
-      
-      blank_id = 2
-      decode_result = tf_ctc.ctc_decode_last_to_blankid(decode_result_sparse,
-                                                        blank_id)
-      decode_result = tf.sparse_tensor_to_dense(decode_result)
-      decode_result_after_transform = np.asarray([[1, 1, 1, 4], [1, 1, 1, 0]], dtype=np.int32)
-      self.assertAllEqual(decode_result.eval(), decode_result_after_transform)
-
   def test_ctc_greedy_decode(self):
     ''' ctc tensorflow greedy decode unittest '''
 
