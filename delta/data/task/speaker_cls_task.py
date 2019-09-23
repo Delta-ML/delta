@@ -776,17 +776,16 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
     if self.shuffle:
       np.random.shuffle(self.indexs)
 
-  def collate_fn(self, batch):
+    self.segment_win = int(
+          (self.min_segment_length + self.max_segment_length) / 2)
+    logging.info(f"default segment length: {self.segment_win}")
 
     if self.mode == utils.TRAIN:
       if self.min_segment_length <= self.max_segment_length and self.max_segment_length > 0:
         self.segment_win = np.random.randint(self.min_segment_length,
                                              self.max_segment_length)
-      else:
-        self.segment_win = batch[0][2].shape[0]
-    else:
-      self.segment_win = int(
-          (self.min_segment_length + self.max_segment_length) / 2)
+
+  def collate_fn(self, batch):
 
     minibatch_size = len(batch)
 
