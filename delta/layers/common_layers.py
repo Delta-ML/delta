@@ -136,7 +136,7 @@ def tdnn(x,
           name='DW',
           shape=[context, in_dim, out_dim],
           dtype=tf.float32,
-          initializer=tf.contrib.layers.xavier_initializer())
+          initializer=tf.glorot_uniform_initializer())
       x = tf.nn.conv1d(x, kernel, stride=1, padding='SAME')
       if has_bias:
         b = tf.get_variable(
@@ -157,7 +157,7 @@ def conv2d(x, name, filter_size, in_channels, out_channels, strides):
         name='DW',
         shape=[filter_size[0], filter_size[1], in_channels, out_channels],
         dtype=tf.float32,
-        initializer=tf.contrib.layers.xavier_initializer())
+        initializer=tf.glorot_uniform_initializer())
     b = tf.get_variable(
         name='bias',
         shape=[out_channels],

@@ -61,7 +61,7 @@ def compute_mel_filterbank_features(waveforms,
                                     frame_step=10,
                                     fft_length=None,
                                     window_fn=functools.partial(
-                                        tf.contrib.signal.hann_window,
+                                        tf.signal.hann_window,
                                         periodic=True),
                                     lower_edge_hertz=80.0,
                                     upper_edge_hertz=7600.0,
