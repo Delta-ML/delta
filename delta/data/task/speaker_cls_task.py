@@ -308,8 +308,6 @@ class SpeakerClsTask(SpeechTask):
 
   def __init__(self, config, mode):
     super().__init__(config, mode)
-    assert mode in (utils.INFER, utils.EVAL, utils.TRAIN)
-    self.mode = mode
     self.dataconf = self.config['data']
     self.taskconf = self.dataconf['task']
     self.solverconf = self.config['solver']
@@ -719,13 +717,18 @@ def segments(inputs, segment_length, segment_shift_rate=0.5, rand=False):
 
 
 @registers.task.register
-class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
+class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
   ''' Speaker Task for uttrance with segments '''
 
   def __init__(self, config, mode):
     super().__init__(config, mode)
     self.shuffle = mode == utils.TRAIN
-    self.batch_size = self.config['solver']['optimizer']['batch_size']
+    self.dataconf = self.config['data']
+    self.taskconf = self.dataconf['task']
+    self.solverconf = self.config['solver']
+    self.batch_size = self.solverconf['optimizer']['batch_size']
+
+    self.data_type = self.taskconf['data_type']
     self.min_segment_length = 240
     self.max_segment_length = 280
     self.segment_shift_rate = 0.5
@@ -842,6 +845,15 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
         labels, num_classes=self.class_nums)
     return features, one_hot_labels
 
+  def generate_cmvn(self, filelist=None, dry_run=False):  # pylint: disable=unused-argument
+    pass
+
+  def generate_feat(self, filelist, dry_run=False):
+    pass
+
+  def preprocess_batch(self, batch):
+    return batch
+
   def generate_data(self):
     '''
     Yields samples.
@@ -901,11 +913,6 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
       }
       return features, labels
 
-    if self.mode == utils.INFER and self.whole_utt_inference:
-      # To avoid length difference since padding = False.
-      logging.info('Inference mode, set batch_size to 1.')
-      batch_size = 1
-
-    return data.map(make_example, num_parallel_calls=10).\
+    return data.map(make_example, num_parallel_calls=30).\
                 batch(batch_size, drop_remainder=False).\
                 prefetch(tf.contrib.data.AUTOTUNE)
