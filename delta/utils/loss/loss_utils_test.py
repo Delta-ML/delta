@@ -169,7 +169,7 @@ class LossUtilTest(tf.test.TestCase):
       labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
           labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
-      new_labels = [[1, 4, 2]]
+      new_labels = [[1, 5, 2]]
       new_inputs = [
           [[0.633766, 0.221185, 0.0129757, 0.0142857, 0.0260553, 0.0917319],
            [0.111121, 0.588392, 0.0055756, 0.00569609, 0.010436, 0.278779],

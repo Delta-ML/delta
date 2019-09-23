@@ -61,6 +61,15 @@ class MetricUtilsTest(tf.test.TestCase):
         seq_list_one, seq_list_two, eos_id=0)
     self.assertAllClose(token_errors, 0.3)
 
+    seq_list_three = [[5, 1, 1, 1, 1, 0, 0], [5, 2, 6, 10, 2, 0]]
+    token_errors = metric_utils.token_error(
+        seq_list_three, seq_list_two, eos_id=0)
+    self.assertAllClose(token_errors, 0.3)
+
+    token_errors = metric_utils.token_error(
+        seq_list_two, seq_list_three, eos_id=0)
+    self.assertAllClose(token_errors, 0.3)
+
   def test_levenshtein(self):
     ''' test levenshtein distance '''
     seq_one = [5, 1, 1, 1, 0]
