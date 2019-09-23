@@ -42,6 +42,7 @@ from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 from delta.utils.decode.tf_ctc import ctc_greedy_decode
 
+
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
 @registers.solver.register
 class AsrSolver(Solver):
@@ -198,8 +199,8 @@ class AsrSolver(Solver):
         model_load_type=self._model_load_type,
         specified_model_file_name=self._specified_model_file)
 
-    logging.info("{}-{}: load model from {}"
-                 .format(mode, model_load_type, model_file_name))
+    logging.info("{}-{}: load model from {}".format(mode, model_load_type,
+                                                    model_file_name))
     if model_file_name is not None:
       if self.model.built:
         self.model.load_weights(str(model_file_name), by_name=False)
@@ -285,7 +286,8 @@ class AsrSolver(Solver):
     logging.info(f"CallBack: Save Best Model")
 
     # save checkpoint
-    save_file_pattern = self._checkpoint_file_pattern.replace('monitor_used', monitor_used)
+    save_file_pattern = self._checkpoint_file_pattern.replace(
+        'monitor_used', monitor_used)
     save_ckpt = Path(self._model_path).joinpath(save_file_pattern)
     save_ckpt_cb = ParallelModelCheckpoint(
         model=self.model,
@@ -495,10 +497,11 @@ class AsrSolver(Solver):
     def ctc_greedy_decode_lambda_func(args):
       y_pred, input_length = args
       input_length = tf.cast(input_length, dtype=tf.int32)
-      decode_result, _ = ctc_greedy_decode(logits=y_pred,
-                                           sequence_length=input_length,
-                                           merge_repeated=True,
-                                           blank_id=None)
+      decode_result, _ = ctc_greedy_decode(
+          logits=y_pred,
+          sequence_length=input_length,
+          merge_repeated=True,
+          blank_id=None)
       return decode_result
 
     model_outputs = self.model.get_layer('outputs').output
@@ -506,13 +509,14 @@ class AsrSolver(Solver):
         ctc_greedy_decode_lambda_func, output_shape=(),
         name='decode')([model_outputs, input_length])
 
-    model_to_export = Model(inputs=[input_feat, input_length],
-                            outputs=greedy_decode)
+    model_to_export = Model(
+        inputs=[input_feat, input_length], outputs=greedy_decode)
 
     model_export_path = Path(self._model_path).joinpath("export")
-    export_saved_model(model=model_to_export,
-                       saved_model_path=str(model_export_path),
-                       custom_objects=None,
-                       as_text=False,
-                       input_signature=None,
-                       serving_only=False)
+    export_saved_model(
+        model=model_to_export,
+        saved_model_path=str(model_export_path),
+        custom_objects=None,
+        as_text=False,
+        input_signature=None,
+        serving_only=False)

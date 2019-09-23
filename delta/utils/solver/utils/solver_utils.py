@@ -83,7 +83,9 @@ def save_infer_res(config, logits, preds):
       in_f.write(" ".join(["{:.3f}".format(num) for num in logit]) +
                  "\t{}\n".format(pred))
 
-def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified_model_file_name):
+
+def get_model_file(dir_name, file_name_pattern, mode, model_load_type,
+                   specified_model_file_name):
   """
     Return model file according the specified model_load_type
     :param dir_name: the folder path where a file search will start
@@ -99,8 +101,8 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified
   if model_load_type is None:
     logging.warning("The values of model_load_type is not specified.")
     model_load_type = "latest" if mode == utils.TRAIN else "best"
-    logging.warning(
-        "For the {} command, model_load_type:{} is adopted.".format(mode, model_load_type))
+    logging.warning("For the {} command, model_load_type:{} is adopted.".format(
+        mode, model_load_type))
 
   #model_load_type can not be 'scratch' when performing EVAL or INFER command
   if model_load_type == 'scratch' and mode != utils.TRAIN:
@@ -108,7 +110,7 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified
     logging.warning(
         "The model_load_type cannot be scratch when performing {} command, and is changed to {}"
         .format(mode, model_load_type))
- 
+
   #get the path of model file according the specificed model_load_type
   model_file_name = None
   if model_load_type == "specific":
@@ -121,17 +123,19 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified
           .format(model_file_name, model_load_type))
 
   if model_load_type == "latest":
-    model_file_name = get_most_recently_modified_file_matching_pattern(dir_name, file_name_pattern)
+    model_file_name = get_most_recently_modified_file_matching_pattern(
+        dir_name, file_name_pattern)
   elif model_load_type == "best":
     model_file_name = Path(dir_name).joinpath('best_model.ckpt')
 
   #verify the existence of the file
-  #model_file_name will be None when 
+  #model_file_name will be None when
   #     1.model_load_type=scratch
   #     2.no model_file is found with model_load_type=latest
   if model_file_name is None or not model_file_name.exists():
-    logging.warning('No model file is found in {} with model_load_type={}'.format(dir_name,
-                                                                                  model_load_type))
+    logging.warning(
+        'No model file is found in {} with model_load_type={}'.format(
+            dir_name, model_load_type))
     if mode == utils.TRAIN:
       model_load_type = 'scratch'
       model_file_name = None
@@ -141,22 +145,27 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type, specified
 
   return model_load_type, model_file_name
 
-def get_most_recently_modified_file_matching_pattern(dir_name, file_name_pattern):
+
+def get_most_recently_modified_file_matching_pattern(dir_name,
+                                                     file_name_pattern):
   """Return the most recently checkpoint file matching file_name_pattern"""
   file_name_regex = '^' + re.sub(r'{.*}', r'.*', file_name_pattern) + '$'
 
   tf_checkpoint_file = tf.train.latest_checkpoint(dir_name)
   if tf_checkpoint_file is not None and re.match(file_name_regex,
                                                  tf_checkpoint_file.name):
-     return tf_checkpoint_file
+    return tf_checkpoint_file
 
-  file_list = [file_name
-               for file_name in Path(dir_name).iterdir()
-               if re.match(file_name_regex, file_name.name)]
+  file_list = [
+      file_name for file_name in Path(dir_name).iterdir()
+      if re.match(file_name_regex, file_name.name)
+  ]
   file_time_list = [single_file.stat().st_mtime for single_file in file_list]
   file_sort_by_time = np.argsort(file_time_list)
-  latest_file = file_list[file_sort_by_time[-1]] if file_sort_by_time.shape[0] > 0 else None
+  latest_file = file_list[
+      file_sort_by_time[-1]] if file_sort_by_time.shape[0] > 0 else None
   return latest_file
+
 
 def run_metrics(config, y_preds, y_ground_truth, mode):
   """Run metrics for one output"""

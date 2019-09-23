@@ -16,7 +16,7 @@ limitations under the License.
 package handel
 
 import (
-	. "delta/deltann/server/model"
+	. "delta/deltann/server/core/pool"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -35,10 +35,16 @@ func DeltaPredictHandler(context *gin.Context) {
 		return
 	}
 
-	modelResult, err := DeltaModelRun(json.DeltaInputs)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	context.JSON(http.StatusOK, gin.H{"predictions": modelResult})
+	var reply string
+	call := DeltaPackJob(json, reply, make(chan DeltaJob, 1))
+	result := <-call.Done
+
+	context.JSON(http.StatusOK, gin.H{"predictions": result.Reply})
+
+}
+
+func DeltaPackJob(req DeltaRequest, reply string, done chan DeltaJob) DeltaJob {
+	work := DeltaJob{DeltaInputs: req.DeltaInputs, Reply: reply, Done: done}
+	DeltaJobQueue <- work
+	return work
 }

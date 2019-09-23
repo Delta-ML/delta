@@ -37,8 +37,10 @@ class ASREvaluate(FrozenModel):
     super().__init__(model, gpu_str='0')
 
     self.inputs = self.graph.get_tensor_by_name(config['serving']['inputs'])
-    self.input_length = self.graph.get_tensor_by_name(config['serving']['input_length'])
-    self.pred_valid = self.graph.get_tensor_by_name(config['serving']['outputs'])
+    self.input_length = self.graph.get_tensor_by_name(
+        config['serving']['input_length'])
+    self.pred_valid = self.graph.get_tensor_by_name(
+        config['serving']['outputs'])
 
   @property
   def config(self):
@@ -70,15 +72,15 @@ class ASREvaluate(FrozenModel):
         input_length = features["input_length"]
         y_true_valid = features["targets"]
         num_input_samples += input_length.shape[0]
-        logging.info('The size of the INFER Set increased to {}'.format(num_input_samples))
+        logging.info('The size of the INFER Set increased to {}'.format(
+            num_input_samples))
 
-        validate_feed = {
-            self.inputs: inputs,
-            self.input_length: input_length
-        }
+        validate_feed = {self.inputs: inputs, self.input_length: input_length}
         y_pred_valid = self.sess.run(self.pred_valid, feed_dict=validate_feed)
         num_processed_samples += y_pred_valid.shape[0]
-        logging.info('A total of {} samples has been successfully processed'.format(num_processed_samples))
+        logging.info(
+            'A total of {} samples has been successfully processed'.format(
+                num_processed_samples))
 
         target_seq_list.extend(y_true_valid.tolist())
         predict_seq_list.extend(y_pred_valid.tolist())
@@ -86,10 +88,12 @@ class ASREvaluate(FrozenModel):
     except tf.errors.OutOfRangeError:
       logging.info("Infer End")
 
-    token_errors = metrics_lib.token_error(predict_seq_list=predict_seq_list,
-                                           target_seq_list=target_seq_list,
-                                           eos_id=0)
+    token_errors = metrics_lib.token_error(
+        predict_seq_list=predict_seq_list,
+        target_seq_list=target_seq_list,
+        eos_id=0)
     logging.info('Token ERR: {}'.format(token_errors))
+
 
 def main(_):
   ''' main func '''

@@ -1,13 +1,19 @@
 #!/bin/sh
-GOOS=linux GOARCH=amd64 go build -o delta-service  main.go
+delta_file="delta-service"
+if [ -f "$delta_file" ]; then
+rm -rf $delta_file
+fi
+
+GOOS=linux GOARCH=amd64 go build -o $delta_file  main.go
 if [ -d output ]
 then
-    rm -r output
+    rm -rf output
 fi
-mkdir -p output/delta-service/log
+mkdir -p output/$delta_file/log
 cp -R  ../dpl output
-cp delta-service output/delta-service
-cp control.sh output/delta-service
-cp run.sh output/delta-service
+cp $delta_file output/$delta_file
+cp control.sh output/$delta_file
+cp run.sh output/$delta_file
+cp env.sh output/$delta_file
 
 

@@ -18,8 +18,10 @@ package core
 import (
 	"delta/deltann/server/core/conf"
 	"delta/deltann/server/core/handel"
-	. "delta/deltann/server/model"
+	. "delta/deltann/server/core/model"
+	. "delta/deltann/server/core/pool"
 	"fmt"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"os"
@@ -27,31 +29,41 @@ import (
 	"syscall"
 )
 
-const defaultPort = "8004"
-
 // Options
 type DeltaOptions struct {
+	Debug          bool
 	ServerPort     string
 	ServerType     string
 	DeltaModelYaml string
 }
 
 var deltaInterface DeltaInterface
+var defaultPort string
+var dispatcher *Dispatcher
 
 func init() {
 	listenSystemStatus()
 }
 
-func DeltaListen(opts DeltaOptions) error {
+func DeltaListen(opts DeltaOptions) (*gin.Engine, error) {
 	conf.SetConfPath(opts.DeltaModelYaml)
-	dParams := DeltaParam{opts.DeltaModelYaml}
+	dParams := DeltaParam{DeltaYaml: opts.DeltaModelYaml}
 	err := dParams.DeltaModelInit()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	dispatcher = DeltaDispatcher(conf.DeltaConf.DeltaServingPoll.DeltaMaxWorker, conf.DeltaConf.DeltaServingPoll.DeltaMaxQueue)
+	dispatcher.Run()
+
 	glog.Infof("start deltaModelRun...")
 	router := gin.Default()
-
+	if opts.Debug {
+		pprof.Register(router)
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	relativePathRoot := "/v1/models/" + conf.DeltaConf.Model.Graph[0].Local.ModelType
 	relativePathFull := relativePathRoot + "/versions/"
 	relativePathFull = relativePathFull + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
@@ -59,33 +71,30 @@ func DeltaListen(opts DeltaOptions) error {
 	router.POST(relativePathFull, handel.DeltaPredictHandler)
 	router.POST(relativePathRoot, handel.DeltaModelHandler)
 
-	dPort := opts.ServerPort
-	if dPort == "" {
-		dPort = defaultPort
-	}
+	defaultPort = opts.ServerPort
 
-	err = router.Run(":" + dPort)
+	glog.Infof("delta serving DeltaPredictHandler path %s", relativePathFull)
+	glog.Infof("delta serving DeltaModelHandler  path %s", relativePathRoot)
+	return router, nil
+}
+
+func DeltaRun(router *gin.Engine) error {
+	err := router.Run(":" + defaultPort)
 	if err != nil {
-		glog.Infof("delta serving init port  %s", dPort)
+		glog.Infof("delta serving init port  %s", defaultPort)
+		return err
 	}
-	glog.Infof("delta serving DeltaPredictHandler port  %s  path %s", dPort, relativePathFull)
-	glog.Infof("delta serving DeltaModelHandler port  %s  path %s", dPort, relativePathRoot)
 	return nil
 }
 
 func listenSystemStatus() {
 	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGUSR1, syscall.SIGUSR2)
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	go func() {
 		for s := range c {
 			switch s {
-			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
-				fmt.Println("exit:", s)
-				DeltaDestroy()
-			case syscall.SIGUSR1:
-				fmt.Println("usr1", s)
-			case syscall.SIGUSR2:
-				fmt.Println("usr2", s)
+			case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
+				dispatcher.StopWorkers()
 			default:
 				fmt.Println("other:", s)
 			}
