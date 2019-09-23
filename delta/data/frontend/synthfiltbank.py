@@ -27,23 +27,44 @@ class Synthfiltbank(BaseFrontend):
 
   @classmethod
   def params(cls, config=None):
-    ''' set params '''
+    """
+    Set params.
+    :param config: config: contains three optional parameters:window_length(float, default=0.030),
+          frame_length(float, default=0.010), sample_rate(float, default=16000.0).
+    :return:An object of class HParams, which is a set of hyperparameters as name-value pairs.
+    """
     window_length = 0.030
     frame_length = 0.010
+    sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
     hparams.add_hparam('frame_length', frame_length)
+    hparams.add_hparam('sample_rate', sample_rate)
 
     if config is not None:
       hparams.override_from_dict(config)
 
     return hparams
 
-  def call(self, power_spectrum, phase_spectrum, sample_rate):
+  def call(self, power_spectrum, phase_spectrum, sample_rate=None):
+    """
+    Implement frequency domain to time domain conversion.
+    :param power_spectrum: a float tensor of size (num_frames, num_frequencies).
+    :param phase_spectrum: a float tensor of size (num_frames, num_frequencies).
+    :param sample_rate: a scalar tensor.
+    :return: audio data
+    """
 
     p = self.config
     with tf.name_scope('synthfiltbank'):
+
+      if sample_rate == None:
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
+      else:
+        assert sample_rate == p.sample_rate,\
+          "The input sample rate is not equal to the config's sample rate."
+
       audio_data = py_x_ops.synthfiltbank(
           power_spectrum,
           phase_spectrum,
