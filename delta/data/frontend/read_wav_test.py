@@ -26,14 +26,12 @@ class ReadWavTest(tf.test.TestCase):
     wav_path = str(
       Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
-    read_wav = ReadWav.params().instantiate()
-    input_data, sample_rate = read_wav(wav_path)
-    sess = tf.Session()
-    audio_data = sess.run(input_data)
-    sample_rate1 = sess.run(sample_rate)
-    audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
-    self.assertAllClose(audio_data, audio_data_true)
-    self.assertAllClose(sample_rate1, sample_rate_true)
+    with self.session():
+      read_wav = ReadWav.params().instantiate()
+      audio_data, sample_rate = read_wav(wav_path)
+      audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
+      self.assertAllClose(audio_data.eval(), audio_data_true)
+      self.assertAllClose(sample_rate.eval(), sample_rate_true)
 
 if __name__ == '__main__':
   tf.test.main()

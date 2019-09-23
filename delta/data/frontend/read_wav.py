@@ -15,7 +15,6 @@
 # ==============================================================================
 
 import tensorflow as tf
-from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
@@ -29,13 +28,16 @@ class ReadWav(BaseFrontend):
   def params(cls, config=None):
     """
       Set params.
-       :param config: contains one optional parameters: audio_channels(default is 1).
+       :param config: contains two optional parameters: audio_channels(int, default=1),
+              sample_rate(float, default=16000.0).
        :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
        """
     audio_channels = 1
+    sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('audio_channels', audio_channels)
+    hparams.add_hparam('sample_rate', sample_rate)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -49,10 +51,9 @@ class ReadWav(BaseFrontend):
     :return: 2 values. The first is a Tensor of audio data. The second return value is the sample rate of the input wav
         file, which is a tensor with float dtype.
     """
-    params = self.config
+    p = self.config
     contents = tf.io.read_file(wavfile)
-    waveforms = contrib_audio.decode_wav(
-      contents,
-      desired_channels=params.audio_channels)
+    audio_data, sample_rate = tf.audio.decode_wav(contents, desired_channels=p.audio_channels)
+    tf.assert_equal(p.sample_rate, tf.cast(sample_rate, dtype=float))
 
-    return tf.squeeze(waveforms.audio, axis=-1), tf.cast(waveforms.sample_rate, dtype=float)
+    return tf.squeeze(audio_data, axis=-1), tf.cast(sample_rate, dtype=float)
