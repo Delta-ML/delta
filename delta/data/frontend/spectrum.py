@@ -29,15 +29,15 @@ class Spectrum(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains four optional parameters: window_length(default is 0.025s),
-        frame_length(default is 0.010s), output_type(default is 2) and sample_rate(default is 16000).
+    :param config: contains four optional parameters:window_length(float, default=0.025),
+          frame_length(float, default=0.010), output_type(int, default=2), sample_rate(float, default=16000.0).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
     window_length = 0.025
     frame_length = 0.010
     output_type = 2
-    sample_rate = 16000
+    sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
@@ -56,14 +56,17 @@ class Spectrum(BaseFrontend):
     :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
     :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
     :return: A float tensor of size (num_frames, num_frequencies) containing power spectrum (output_type=1)
-        or log power spectrum (output_type=2).
+        or log power spectrum (output_type=2) of every frame in speech.
     """
-    p = self.config
 
+    p = self.config
     with tf.name_scope('spectrum'):
 
       if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
+      else:
+        assert sample_rate.eval() == p.sample_rate,\
+          "The input sample rate is not equal to the config's sample rate."
 
       spectrum = py_x_ops.spectrum(
         audio_data,

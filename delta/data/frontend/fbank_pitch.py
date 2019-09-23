@@ -72,10 +72,13 @@ class FbankPitch(BaseFrontend):
     """
 
     p = self.config
-    if sample_rate == None:
-      sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-
     with tf.name_scope('fbank_pitch'):
+
+      if sample_rate == None:
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
+      else:
+        assert sample_rate.eval() == p.sample_rate, \
+          "The input sample rate is not equal to the config's sample rate."
 
       fbank_feats = tf.squeeze(self.fbank(audio_data, sample_rate))
       pitch_feats = self.pitch(audio_data, sample_rate)

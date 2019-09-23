@@ -30,14 +30,22 @@ class Fbank(BaseFrontend):
 
   @classmethod
   def params(cls, config=None):
-    ''' set params '''
+    """
+    Set params.
+    :param config: contains seven optional parameters:upper_frequency_limit(float, default=4000.0),
+    lower_frequency_limit(float, default=20.0), filterbank_channel_count(float, default=40.0),
+    window_length(float, default=0.025), frame_length(float, default=0.010),
+    output_type(int, default=2), sample_rate(float, default=16000).
+    :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
+    """
 
-    upper_frequency_limit = 4000
-    lower_frequency_limit = 20
-    filterbank_channel_count = 40
+    upper_frequency_limit = 4000.0
+    lower_frequency_limit = 20.0
+    filterbank_channel_count = 40.0
     window_length = 0.025
     frame_length = 0.010
     output_type = 2
+    sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -46,6 +54,7 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('window_length', window_length)
     hparams.add_hparam('frame_length', frame_length)
     hparams.add_hparam('output_type', output_type)
+    hparams.add_hparam('sample_rate', sample_rate)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -53,10 +62,22 @@ class Fbank(BaseFrontend):
     return hparams
 
   def call(self, audio_data, sample_rate):
-
+    """
+    Caculate fbank features of audio data.
+    :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
+    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
+    :return: A float tensor of size (num_channels, num_frames, num_frequencies) containing
+            fbank features of every frame in speech.
+    """
+    p = self.config
     with tf.name_scope('fbank'):
 
-      p = self.config
+      if sample_rate == None:
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
+      else:
+        assert sample_rate.eval() == p.sample_rate,\
+          "The input sample rate is not equal to the config's sample rate."
+
       spectrum = self.spect(audio_data, sample_rate)
 
       spectrum = tf.expand_dims(spectrum, 0)
