@@ -19,7 +19,6 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.analyfiltbank import Analyfiltbank
-from delta.data import feat as feat_lib
 import numpy as np
 
 
@@ -32,15 +31,10 @@ class Test(tf.test.TestCase):
     with self.session():
 
       read_wav = ReadWav.params().instantiate()
-      input_data0, sample_rate0 = read_wav(wav_path)
-
-      sample_rate, input_data = feat_lib.load_wav(wav_path, sr=16000)
-
-      self.assertAllClose(input_data0.eval(), input_data)
-      self.assertAllClose(sample_rate, sample_rate0.eval())
+      audio_data, sample_rate = read_wav(wav_path)
 
       analyfiltbank = Analyfiltbank.params().instantiate()
-      power_spc, phase_spc = analyfiltbank(input_data0.eval(), sample_rate0.eval())
+      power_spc, phase_spc = analyfiltbank(audio_data.eval(), sample_rate.eval())
 
       power_spc_true = np.array(
         [[
