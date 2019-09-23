@@ -15,11 +15,10 @@
 # ==============================================================================
 
 import tensorflow as tf
+from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
-import numpy as np
-from scipy.io import wavfile
 
 class ReadWav(BaseFrontend):
 
@@ -30,42 +29,30 @@ class ReadWav(BaseFrontend):
   def params(cls, config=None):
     """
       Set params.
-       :param config: contains one optional parameters: sample_rate(float, default=16000.0).
+       :param config: contains one optional parameters: audio_channels(default is 1).
        :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
        """
-    sample_rate = 16000.0
+    audio_channels = 1
 
     hparams = HParams(cls=cls)
-    hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('audio_channels', audio_channels)
 
     if config is not None:
       hparams.override_from_dict(config)
 
     return hparams
 
-  def call(self, wav_path):
+  def call(self, wavfile):
     """
     Get audio data and sample rate from a wavfile.
-    :param wav_path: filepath of wav
+    :param wavfile: filepath of wav
     :return: 2 values. The first is a Tensor of audio data. The second return value is the sample rate of the input wav
         file, which is a tensor with float dtype.
     """
-    p = self.config
+    params = self.config
+    contents = tf.io.read_file(wavfile)
+    waveforms = contrib_audio.decode_wav(
+      contents,
+      desired_channels=params.audio_channels)
 
-    sample_rate, pcm_data = wavfile.read(wav_path)
-    assert float(sample_rate) == p.sample_rate, \
-      "The wavfile's sample rate is not equal to the config's sample rate."
-
-    audio_data = tf.constant(self.pcm2float(pcm_data), dtype=tf.float32)
-    sample_rate = tf.constant(sample_rate, dtype=tf.float32)
-
-    return audio_data, sample_rate
-
-  def pcm2float(self, pcm_data):
-    pcm_data = np.asarray(pcm_data)
-    if pcm_data.dtype.kind not in 'iu':
-      raise TypeError("'pcm_data' must be an array of integers.")
-    i = np.iinfo(pcm_data.dtype)
-    abs_max = 2 ** (i.bits - 1)
-    offset = i.min + abs_max
-    return (pcm_data.astype(dtype=np.float32) - offset) / abs_max
+    return tf.squeeze(waveforms.audio, axis=-1), tf.cast(waveforms.sample_rate, dtype=float)
