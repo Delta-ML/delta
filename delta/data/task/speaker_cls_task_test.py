@@ -319,15 +319,6 @@ class SpeakerClsTaskTest(tf.test.TestCase):
         logging.info("soft_labels: {}".format(batch_soft_labels))
         break
 
-  def test_speaker_utt_task_generate_data(self):
-    task_name = 'SpeakerUttTask'
-    self.config['data']['task']['name'] = task_name
-    task_class = registers.task[task_name]
-    task = task_class(self.config, utils.TRAIN)
-
-    for example in task.generate_data():
-      logging.info(f"SpkUttTask: {example}")
-
   def test_speaker_utt_task_dataset(self):
     task_name = 'SpeakerUttTask'
     self.config['data']['task']['name'] = task_name
@@ -336,28 +327,47 @@ class SpeakerClsTaskTest(tf.test.TestCase):
 
     task_name = self.config['data']['task']['name']
     task_class = registers.task[task_name]
-    task = task_class(self.config, utils.TRAIN)
 
-    dataset = task.input_fn(utils.TRAIN, batch_size, 1)()
+    for mode in (utils.TRAIN, utils.EVAL, utils.INFER):
+      task = task_class(self.config, mode)
+      dataset = task.input_fn(mode, batch_size, 1)()
+      features, one_hot_labels = dataset.make_one_shot_iterator().get_next()
+      samples = features['inputs']
+      filenames = features['filepath']
+      clip_ids = features['clipid']
+      labels = features['labels']
 
-    features, one_hot_labels = dataset.make_one_shot_iterator().get_next()
-    samples = features['inputs']
-    filenames = features['filepath']
-    clip_ids = features['clipid']
-    labels = features['labels']
+      with self.session() as sess:
+        while True:
+          batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot = \
+             sess.run([samples, labels, filenames, clip_ids, one_hot_labels])
 
-    with self.session() as sess:
-      while True:
-        batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot = \
-           sess.run([samples, labels, filenames, clip_ids, one_hot_labels])
+          del labels_onehot
+          logging.info("feat shape: {}".format(batch_inputs.shape))
+          logging.info("labels: {}".format(batch_labels))
+          logging.info("filename: {}".format(batch_files))
+          logging.info("clip id: {}".format(batch_clipids))
+          break
 
-        del labels_onehot
-        logging.info("feat shape: {}".format(batch_inputs.shape))
-        logging.info("labels: {}".format(batch_labels))
-        logging.info("filename: {}".format(batch_files))
-        logging.info("clip id: {}".format(batch_clipids))
-        break
+  def test_speaker_utt_task_generate_data(self):
+    task_name = 'SpeakerUttTask'
+    self.config['data']['task']['name'] = task_name
+    task_class = registers.task[task_name]
+    for mode in (utils.TRAIN, utils.EVAL, utils.INFER):
+      task = task_class(self.config, utils.EVAL)
+      for utt, segid, feat, spkid in task.generate_data():
+        logging.info(
+            f"SpkUttTask: generate_data: {utt} {segid} {feat.shape} {spkid}")
 
+  def test_speaker_utt_task_getitem(self):
+    task_name = 'SpeakerUttTask'
+    self.config['data']['task']['name'] = task_name
+    task_class = registers.task[task_name]
+
+    for mode in (utils.TRAIN, utils.EVAL, utils.INFER):
+      task = task_class(self.config, mode)
+      for i, (feats, labels) in enumerate(task):
+        logging.info(f"SpkUttTask: __getitem__: {feats.keys()} {labels}")
 
 
 if __name__ == '__main__':

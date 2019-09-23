@@ -34,6 +34,7 @@ from delta.data.task.base_speech_task import SpeechTask
 #pylint: disable=too-few-public-methods
 #pylint: disable=arguments-differ
 
+
 class ChunkSampler():
   ''' Produce samples from utterance. '''
 
@@ -586,6 +587,7 @@ class SpeakerClsTask(SpeechTask):
 
 
 class KaldiDir:
+
   def __init__(self, kaldi_dir):
     self._dir = Path(kaldi_dir)
 
@@ -596,14 +598,15 @@ class KaldiDir:
 
     self._feats_scp = defaultdict(str)
     with feats_scp_file.open(mode='r', encoding='utf-8') as scp_reader:
-        for line in scp_reader:
-            line = line.strip().replace('\n', '').replace('\r', '').replace('\t', ' ')
-            splits = line.split()
-            if len(splits) < 2:
-                continue
-            utt_id = splits[0]
-            utt_path = splits[1]
-            self._feats_scp[utt_id] = utt_path
+      for line in scp_reader:
+        line = line.strip().replace('\n', '').replace('\r',
+                                                      '').replace('\t', ' ')
+        splits = line.split()
+        if len(splits) < 2:
+          continue
+        utt_id = splits[0]
+        utt_path = splits[1]
+        self._feats_scp[utt_id] = utt_path
     self._num_utt = len(self._feats_scp)
 
     self._spk2id = defaultdict(int)
@@ -617,9 +620,9 @@ class KaldiDir:
     self._utt2spk_ids = defaultdict(int)
     with utt2spk_file.open(mode='r', encoding='utf-8') as reader:
       for line in reader:
-         utt, spk = line.strip().split()
-         self._utt2spk[utt] = spk
-         self._utt2spk_ids[utt] = self.spk2id[spk]
+        utt, spk = line.strip().split()
+        self._utt2spk[utt] = spk
+        self._utt2spk_ids[utt] = self.spk2id[spk]
 
     self._spk2utt = defaultdict(list)
     with spk2utt_file.open(mode='r', encoding='utf-8') as reader:
@@ -635,7 +638,7 @@ class KaldiDir:
   @property
   def num_spks(self):
     return self._num_spk
- 
+
   @property
   def utt2spk(self):
     return self._utt2spk
@@ -656,28 +659,64 @@ class KaldiDir:
   def spk2id(self):
     return self._spk2id
 
+
 def rand_segment(feat, segment_length):
-    if feat is None:
-        return None
-    num_frame = feat.shape[0]
-    if segment_length < num_frame:
-        index = random.randint(0, (num_frame - segment_length) - 1)
-        segment_feat = feat[index:index + segment_length, :]
+  if feat is None:
+    return None
+  num_frame = feat.shape[0]
+  if segment_length < num_frame:
+    index = random.randint(0, (num_frame - segment_length) - 1)
+    segment_feat = feat[index:index + segment_length, :]
+  else:
+    segment_feat = feat
+    while segment_feat.shape[0] < segment_length:
+      segment_feat = np.concatenate([segment_feat, feat], 0)
+
+    seg_len = segment_feat.shape[0]
+    elen = seg_len - segment_length - 1
+    if elen > 1:
+      s = np.round(random.randint(0, elen - 1))
     else:
-        segment_feat = feat
-        while segment_feat.shape[0] < segment_length:
-            segment_feat = np.concatenate([segment_feat, feat], 0)
+      s = 0
+    e = s + segment_length
+    segment_feat = segment_feat[s:e, :]
 
-        seg_len = segment_feat.shape[0]
-        elen = seg_len - segment_length - 1
-        if elen > 1:
-            s = np.round(random.randint(0, elen - 1))
-        else:
-            s = 0
-        e = s + segment_length
-        segment_feat = segment_feat[s:e, :]
+  return [segment_feat]
 
-    return [segment_feat]
+
+def segments(inputs, segment_length, segment_shift_rate=0.5, rand=False):
+  '''
+  param:
+    inputs: [time, feat size, 1]
+  return:
+    list of feats, shape [segment_len, feat size, 1] or None
+  '''
+  if rand:
+    return rand_segment(inputs, segment_length)
+
+  segment_shift = int(segment_length * segment_shift_rate)
+  length = inputs.shape[0]
+  segs = []
+  for x in range(0, length, segment_shift):
+    end = x + segment_length
+    if end < length:
+      feature_mat = inputs[x:end, :, :]
+    else:
+      input_data = inputs
+      while input_data.shape[0] < segment_length:
+        input_data = np.concatenate([input_data, inputs], 0)
+
+      seg_len = input_data.shape[0]
+      elen = seg_len - segment_length - 1
+      if elen > 1:
+        s = np.round(random.randint(0, elen - 1))
+      else:
+        s = 0
+      e = s + segment_length
+      feature_mat = input_data[s:e, :, :]
+    segs.append(feature_mat)
+  return segs
+
 
 @registers.task.register
 class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
@@ -687,8 +726,9 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
     super().__init__(config, mode)
     self.shuffle = mode == utils.TRAIN
     self.batch_size = self.config['solver']['optimizer']['batch_size']
-    self.min_segment_length = 90
-    self.max_segment_length = 160
+    self.min_segment_length = 240
+    self.max_segment_length = 280
+    self.segment_shift_rate = 0.5
 
     self.collect_meta()
     self.on_epoch_end()
@@ -703,19 +743,20 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
       logging.info('Loading dir %s ...' % (data_path))
       if self.data_type == 'KaldiDataDirectory':
         self.kaldi_meta = KaldiDir(data_path)
-        
+
         self.feats_scp_items = list(self.kaldi_meta.feats_scp.items())
         self.num_utts = self.kaldi_meta.num_utts
         self.class_nums = self.kaldi_meta.num_spks
         assert self.class_nums == self.taskconf['classes']['num']
-        logging.info('The dataset have {} utts and {} speakers'.format(self.num_utts, self.class_nums))
+        logging.info('The dataset have {} utts and {} speakers'.format(
+            self.num_utts, self.class_nums))
 
         for _, (utt, feat_path) in enumerate(self.kaldi_meta.feats_scp.items()):
-            self.feat_size = kaldiio.load_mat(feat_path).shape[1]
-            break
+          self.feat_size = kaldiio.load_mat(feat_path).shape[1]
+          break
         logging.info('feat_size {}'.format(self.feat_size))
         if self.feat_size < 0:
-            raise Exception('Wrong feat_size {}'.format(self.feat_size))
+          raise Exception('Wrong feat_size {}'.format(self.feat_size))
       else:
         raise ValueError('Unsupported data type: %s' % (self.data_type))
 
@@ -734,10 +775,15 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
 
   def collate_fn(self, batch):
 
-    if self.min_segment_length <= self.max_segment_length and self.max_segment_length > 0:
-        self.segment_win = np.random.randint(self.min_segment_length, self.max_segment_length)
-    else:
+    if self.mode == utils.TRAIN:
+      if self.min_segment_length <= self.max_segment_length and self.max_segment_length > 0:
+        self.segment_win = np.random.randint(self.min_segment_length,
+                                             self.max_segment_length)
+      else:
         self.segment_win = batch[0][2].shape[0]
+    else:
+      self.segment_win = int(
+          (self.min_segment_length + self.max_segment_length) / 2)
 
     minibatch_size = len(batch)
 
@@ -746,37 +792,44 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
     spk_ids = []
     seg_ids = []
     for x in range(minibatch_size):
-        sample = batch[x]
-        utt_id = sample[0]
-        spk_id = int(sample[1])
-        spect = sample[2]
- 
-        # for train
-        for i, spect_slice in enumerate(rand_segment(spect, self.segment_win)):
-          inputs.append(spect_slice)
-          seg_ids.append(i)
-          utt_ids.append(utt_id)
-          spk_ids.append(spk_id)
- 
+      sample = batch[x]
+      utt_id = sample[0]
+      spk_id = int(sample[1])
+      spect = sample[2]
+
+      # for train
+      for i, spect_slice in enumerate(
+          segments(
+              spect,
+              self.segment_win,
+              segment_shift_rate=self.segment_shift_rate,
+              rand=self.mode == utils.TRAIN)):
+        inputs.append(spect_slice)
+        seg_ids.append(i)
+        utt_ids.append(utt_id)
+        spk_ids.append(spk_id)
+
     targets = spk_ids
     return utt_ids, seg_ids, inputs, targets
 
   def __getitem__(self, batch_index, return_format=True):
     ''' get batch_index's batch data '''
-    indexs = self.indexs[batch_index * self.batch_size:(batch_index+1) * self.batch_size]
+    indexs = self.indexs[batch_index * self.batch_size:(batch_index + 1) *
+                         self.batch_size]
     # key, feat_path
-    batch_meta = [ self.feats_scp_items[i] for i in indexs]
+    batch_meta = [self.feats_scp_items[i] for i in indexs]
 
     batches = []
     for _, (utt_id, utt_path) in enumerate(batch_meta):
-        spk_id = self.kaldi_meta.utt2spkid[utt_id]
-        in_feat = kaldiio.load_mat(utt_path)
-        batches.append((utt_id, spk_id, in_feat))
+      spk_id = self.kaldi_meta.utt2spkid[utt_id]
+      in_feat = kaldiio.load_mat(utt_path)
+      in_feat = np.expand_dims(in_feat, axis=-1)
+      batches.append((utt_id, spk_id, in_feat))
 
     uttids, segids, feats, spkids = self.collate_fn(batches)
 
     if not return_format:
-        return uttids, segids, feats, spkids
+      return uttids, segids, feats, spkids
 
     labels = np.array(spkids, dtype=np.int32)
     features = {
@@ -786,9 +839,8 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
         'clipid': np.array(segids, dtype=np.int32),
     }
     one_hot_labels = tf.keras.utils.to_categorical(
-      labels, num_classes=self.class_nums)
+        labels, num_classes=self.class_nums)
     return features, one_hot_labels
-
 
   def generate_data(self):
     '''
@@ -803,15 +855,18 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
     for i in range(len(self)):
       uttids, segids, feats, spkids = self.__getitem__(i, return_format=False)
       for b, _ in enumerate(uttids):
-        yield uttids[b], segids[b], feats[b], spkids[b] 
+        logging.info(f"dddd {b} {uttids[b]}")
+        logging.info(f"dddd {b} {feats[b].shape}")
+        yield uttids[b], segids[b], feats[b], spkids[b]
     raise StopIteration
 
   def feature_spec(self):
     output_shapes = (
-     tf.TensorShape([]),  # utt 
-     tf.TensorShape([]),  # segid 
-     tf.TensorShape([None, self.feat_size]),  # audio_feat, without batch dim e.g. (3000, 40, 3)
-     tf.TensorShape([]), # spkid
+        tf.TensorShape([]),  # utt
+        tf.TensorShape([]),  # segid
+        tf.TensorShape([None, self.feat_size,
+                        1]),  # audio_feat, without batch dim e.g. (3000, 40, 3)
+        tf.TensorShape([]),  # spkid
     )
     output_types = (
         tf.string,
@@ -850,6 +905,7 @@ class SpeakerUttTask(SpeakerClsTask, tf.keras.utils.Sequence):
       # To avoid length difference since padding = False.
       logging.info('Inference mode, set batch_size to 1.')
       batch_size = 1
-    return data.map(make_example, num_parallel_calls=100).\
+
+    return data.map(make_example, num_parallel_calls=10).\
                 batch(batch_size, drop_remainder=False).\
                 prefetch(tf.contrib.data.AUTOTUNE)
