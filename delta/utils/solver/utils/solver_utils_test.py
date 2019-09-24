@@ -38,11 +38,19 @@ class SolverUtilsTest(tf.test.TestCase):
   # pylint: disable=too-many-locals
   def test_get_model_file(self):
     ''' get model file according the specified model_load_type unittest'''
-    # There is no model file in model_path
-    model_load_type_list = [None, "best", "latest", "scratch", "specific"]
+    model_load_dict = {
+        'best':
+            Path(self.model_path).joinpath('best_model.ckpt'),
+        'specific':
+            Path(self.model_path).joinpath(self.specified_model_file_name),
+        'latest':
+            Path(self.model_path).joinpath('model.00-1.00.ckpt')
+    }
 
+    # There is no model file in model_path
     mode_list = [utils.EVAL, utils.INFER]
     for cur_mode in mode_list:
+      model_load_type_list = ["specific", "latest"]
       for cur_model_load_type in model_load_type_list:
         with self.assertRaises(AssertionError) as assert_err:
           _, _ = solver_utils.get_model_file(
@@ -56,7 +64,19 @@ class SolverUtilsTest(tf.test.TestCase):
             str(the_exception),
             '{} END, since no model file is found'.format(cur_mode))
 
+      model_load_type_list = [None, 'scratch', 'best']
+      for cur_model_load_type in model_load_type_list:
+        model_load_type, model_file_name = solver_utils.get_model_file(
+            dir_name=self.model_path,
+            file_name_pattern=self.file_name_pattern,
+            mode=cur_mode,
+            model_load_type=cur_model_load_type,
+            specified_model_file_name=self.specified_model_file_name)
+        self.assertEqual('best', model_load_type)
+        self.assertEqual(model_load_dict['best'], model_file_name)
+
     cur_mode = utils.TRAIN
+    model_load_type_list = [None, 'scratch', 'specific', "latest"]
     for cur_model_load_type in model_load_type_list:
       model_load_type, model_file_name = solver_utils.get_model_file(
           dir_name=self.model_path,
@@ -66,6 +86,16 @@ class SolverUtilsTest(tf.test.TestCase):
           specified_model_file_name=self.specified_model_file_name)
       self.assertEqual(model_load_type, 'scratch')
       self.assertIsNone(model_file_name)
+
+    cur_model_load_type = 'best'
+    model_load_type, model_file_name = solver_utils.get_model_file(
+	dir_name=self.model_path,
+	file_name_pattern=self.file_name_pattern,
+	mode=cur_mode,
+	model_load_type=cur_model_load_type,
+	specified_model_file_name=self.specified_model_file_name)
+    self.assertEqual(model_load_type, cur_model_load_type)
+    self.assertEqual(model_file_name, model_load_dict[cur_model_load_type]) 
 
     # create model files in model_path
     file_name_list = [
@@ -78,14 +108,6 @@ class SolverUtilsTest(tf.test.TestCase):
         time.sleep(1)
 
     all_mode_list = [utils.TRAIN, utils.EVAL, utils.INFER]
-    model_load_dict = {
-        'best':
-            Path(self.model_path).joinpath('best_model.ckpt'),
-        'specific':
-            Path(self.model_path).joinpath(self.specified_model_file_name),
-        'latest':
-            Path(self.model_path).joinpath('model.00-1.00.ckpt')
-    }
     for cur_mode in all_mode_list:
       for cur_model_load_type in model_load_dict:
         model_load_type, model_file_name = solver_utils.get_model_file(
