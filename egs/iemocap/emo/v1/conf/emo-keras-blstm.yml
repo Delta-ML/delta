@@ -133,6 +133,10 @@ solver:
     eval_on_dev_every_secs: 1
     print_every: 10
     resume_model_path: ""
+  loader:
+    model_load_type: null #restore which kind of model(support 4 values: "best", "lastest", "scratch", "specific")
+    init_epoch: 0 #epoch at which to start training(range from 0 to solver.optimizer.epochs)
+    file_name: null
   run_config:
     debug: false # use tfdbug
     tf_random_seed: null # 0-2**32; null is None, try to read data from /dev/urandom if available or seed from the clock otherwise
