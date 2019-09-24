@@ -19,7 +19,7 @@ import tensorflow as tf
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
-class ReadWav(BaseFrontend):
+class WriteWav(BaseFrontend):
 
   def __init__(self, config:dict):
     super().__init__(config)
@@ -28,15 +28,13 @@ class ReadWav(BaseFrontend):
   def params(cls, config=None):
     """
       Set params.
-       :param config: contains two optional parameters: audio_channels(int, default=1),
-              sample_rate(float, default=16000.0).
+       :param config: contains one optional parameters:sample_rate(float, default=16000.0).
        :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
        """
-    audio_channels = 1
+
     sample_rate = 16000.0
 
     hparams = HParams(cls=cls)
-    hparams.add_hparam('audio_channels', audio_channels)
     hparams.add_hparam('sample_rate', sample_rate)
 
     if config is not None:
@@ -44,16 +42,24 @@ class ReadWav(BaseFrontend):
 
     return hparams
 
-  def call(self, wavfile):
+  def call(self, filename, audio_data, sample_rate=None):
     """
-    Get audio data and sample rate from a wavfile.
-    :param wavfile: filepath of wav
-    :return: 2 values. The first is a Tensor of audio data. The second return value is the sample rate of the input wav
-        file, which is a tensor with float dtype.
+    Write wav using audio_data[tensor].
+    :param filename: filepath of wav.
+    :param audio_data: a tensor containing data of a wav.
+    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
+    :return: write wav opration.
     """
     p = self.config
-    contents = tf.io.read_file(wavfile)
-    audio_data, sample_rate = tf.audio.decode_wav(contents, desired_channels=p.audio_channels)
-    assert_op = tf.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
-    with tf.control_dependencies([assert_op]):
-      return tf.squeeze(audio_data, axis=-1), tf.cast(sample_rate, dtype=float)
+    filename = tf.constant(filename)
+
+    if sample_rate == None:
+      sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
+    else:
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
+        audio_data = tf.cast(audio_data, dtype=tf.float32)
+        contents = tf.audio.encode_wav(tf.expand_dims(audio_data, 1), tf.cast(sample_rate, dtype=tf.int32))
+        with tf.compat.v1.Session() as sess:
+          w = tf.io.write_file(filename, contents)
+          sess.run(w)

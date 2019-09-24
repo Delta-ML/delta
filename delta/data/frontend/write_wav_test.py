@@ -18,20 +18,23 @@ import tensorflow as tf
 import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
-import librosa
+from delta.data.frontend.write_wav import WriteWav
 
-class ReadWavTest(tf.test.TestCase):
+class WriteWavTest(tf.test.TestCase):
 
-  def test_read_wav(self):
+  def test_write_wav(self):
     wav_path = str(
       Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
     with self.session():
-      read_wav = ReadWav.params({'sample_rate':16000.0}).instantiate()
-      audio_data, sample_rate = read_wav(wav_path)
-      audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
-      self.assertAllClose(audio_data.eval(), audio_data_true)
-      self.assertAllClose(sample_rate.eval(), sample_rate_true)
+      read_wav = ReadWav.params().instantiate()
+      input_data, sample_rate = read_wav(wav_path)
+      write_wav = WriteWav.params().instantiate()
+      new_path = str(Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln_new.wav'))
+      write_wav(new_path, input_data, sample_rate)
+      test_data, test_sample_rate = read_wav(new_path)
+      self.assertAllEqual(input_data.eval(), test_data.eval())
+      self.assertAllEqual(sample_rate.eval(),test_sample_rate.eval())
 
 if __name__ == '__main__':
   tf.test.main()
