@@ -45,8 +45,9 @@ def input_fn(dataset, mode, batch_size, num_epoch=None):
     per_device_batch_size = batch_size
     num_epoch = 1
 
-  logging.info("Total Batch size:{}, Per device batch size: {}".format(
-      batch_size, per_device_batch_size))
+  logging.info(
+      "Learning Phase: {}, Total Batch size:{}, Per device batch size: {}"
+      .format(mode, batch_size, per_device_batch_size))
 
   def _input_fn():
     return dataset(mode, per_device_batch_size, num_epoch)
@@ -131,6 +132,8 @@ def load_nlu_joint_raw_data(paths, mode, infer_no_label=False):
   if mode == utils.INFER and infer_no_label:
     return text, ([], [])
   return text, (intent_label, slots_label)
+
+
 #pylint: enable=too-many-locals
 
 

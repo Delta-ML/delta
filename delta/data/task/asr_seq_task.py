@@ -30,12 +30,17 @@ from delta.data.task.base_speech_task import SpeechTask
 
 def _make_example(uttids, feats, ilens, targets, olens):
   features = {
-      'uttids': uttids,
-      'inputs': tf.expand_dims(feats, axis=-1) 
-                if not isinstance(feats, np.ndarray) else np.expand_dims(feats, axis=-1),
-      'input_length': ilens,
-      'targets': targets,
-      'target_length': olens
+      'uttids':
+          uttids,
+      'inputs':
+          tf.expand_dims(feats, axis=-1) if not isinstance(feats, np.ndarray)
+          else np.expand_dims(feats, axis=-1),
+      'input_length':
+          ilens,
+      'targets':
+          targets,
+      'target_length':
+          olens
   }
   labels = {
       'ctc':
@@ -55,7 +60,8 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     self.batch_mode = config['data']['task']['batch_mode']
     self.batch_size = config['solver']['optimizer']['batch_size']
     self._shuffle_buffer_size = config['data']['task']['shuffle_buffer_size']
-    self._need_shuffle = config['data']['task']['need_shuffle']
+    self._need_shuffle = config['data']['task'][
+        'need_shuffle'] and mode == utils.TRAIN
     # get batches form data path
     if self.dummy:
       self._feat_shape = [40]
@@ -74,6 +80,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     logging.info('#output dims: ' + str(self.vocab_size))
 
     self._converter = espnet_utils.ASRConverter(self.config)
+    self.on_epoch_end()
 
   @property
   def converter(self):
@@ -103,7 +110,7 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     if self.batch_mode:
       steps = len(self.batches)
     else:
-      batch_size = self._config['solver']['optimizer']['batch_size']
+      batch_size = self._config['data']['task']['batch']['batch_size']
       steps = int(self.n_utts / batch_size)
     return steps
 
@@ -117,6 +124,13 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     ''' Denotes the number of batches per epoch'''
     return self.steps_per_epoch
 
+  def on_epoch_end(self):
+    '''shuffle data after each epoch'''
+    self.batch_num = self.steps_per_epoch
+    self.indexes = np.arange(self.batch_num)
+    if self._need_shuffle:
+      np.random.shuffle(self.indexes)
+
   def __getitem__(self, batch_index):
     ''' Generates a batch of correctly shaped X and Y data
     :param batch_index: index of the batch to generate
@@ -124,7 +138,8 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
     '''
 
     assert self.batch_mode
-    batch = self.batches[batch_index]
+    batch_index_after_shuffle = self.indexes[batch_index]
+    batch = self.batches[batch_index_after_shuffle]
 
     uttids, feats, ilens, targets, olens = self._process_batch(batch)
     return _make_example(uttids, feats, ilens, targets, olens)
@@ -281,7 +296,8 @@ class AsrSeqTask(SpeechTask, tf.keras.utils.Sequence):
 
     feature_shape, label_shape = {}, {}
     for feature_key, feature_val in feature.items():
-      feature_shape[feature_key] = tf.TensorShape((None,) + feature_val.shape[1:])
+      feature_shape[feature_key] = tf.TensorShape((None,) +
+                                                  feature_val.shape[1:])
 
     for label_key, label_val in labels.items():
       label_shape[label_key] = tf.TensorShape((None,) + label_val.shape[1:])

@@ -62,11 +62,11 @@ class SpeechFeatureTest(tf.test.TestCase):
   def test_tf_fbank(self):
     ''' test tensorflow fbank feature interface '''
     speech_feature.extract_feature((self.wavfile),
-                                      winlen=self.winlen,
-                                      winstep=self.winstep,
-                                      sr=self.sr,
-                                      feature_size=self.feature_size,
-                                      feature_name='fbank')
+                                   winlen=self.winlen,
+                                   winstep=self.winstep,
+                                   sr=self.sr,
+                                   feature_size=self.feature_size,
+                                   feature_name='fbank')
 
     feat = np.load(self.featfile)
     logging.info(f"feat : {feat}")
@@ -79,11 +79,11 @@ class SpeechFeatureTest(tf.test.TestCase):
   def test_tf_spec(self):
     ''' test tensorflow spec feature interface '''
     speech_feature.extract_feature((self.wavfile),
-                                      winlen=self.winlen,
-                                      winstep=self.winstep,
-                                      sr=self.sr,
-                                      feature_size=self.feature_size,
-                                      feature_name='spec')
+                                   winlen=self.winlen,
+                                   winstep=self.winstep,
+                                   sr=self.sr,
+                                   feature_size=self.feature_size,
+                                   feature_name='spec')
     feat = np.load(self.featfile)
     self.assertEqual(feat.shape, (425, 129, 1))
 
@@ -91,15 +91,14 @@ class SpeechFeatureTest(tf.test.TestCase):
       feat = speech_ops.delta_delta(feat, 2)
       self.assertEqual(feat.eval().shape, (425, 129, 3))
 
-
   def test_tf_delta_detla(self):
     ''' test tensorflow delta delta '''
     speech_feature.extract_feature((self.wavfile),
-                                      winlen=self.winlen,
-                                      winstep=self.winstep,
-                                      sr=self.sr,
-                                      feature_size=self.feature_size,
-                                      feature_name='fbank')
+                                   winlen=self.winlen,
+                                   winstep=self.winstep,
+                                   sr=self.sr,
+                                   feature_size=self.feature_size,
+                                   feature_name='fbank')
 
     feat = np.load(self.featfile)
     self.assertEqual(feat.shape, (425, 40, 1))

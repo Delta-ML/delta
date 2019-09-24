@@ -67,8 +67,8 @@ Graph::Graph(const YAML::Node& cfg) : _cfg(cfg) {
     } else {
       LOG_FATAL << "Error, not support server_type " << server_type;
     }
-
-  } catch (const YAML::Exception& e) {
+  }
+  catch (const YAML::Exception& e) {
     LOG_FATAL << "Error, read config failed: " << e.what();
   }
 

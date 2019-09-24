@@ -54,15 +54,15 @@ def _freq_feat_graph(feat_name, **kwargs):
   assert feat_name in ('fbank', 'spec')
 
   params = speech_ops.speech_params(
-     sr=sr,
-     bins=feature_size,
-     add_delta_deltas=False,
-     audio_frame_length=winlen,
-     audio_frame_step=winstep)
+      sr=sr,
+      bins=feature_size,
+      add_delta_deltas=False,
+      audio_frame_length=winlen,
+      audio_frame_step=winstep)
 
   graph = None
   if feat_name == 'fbank':
-     # get session
+    # get session
     if feat_name not in _global_sess:
       graph = tf.Graph()
       #pylint: disable=not-context-manager
@@ -84,17 +84,18 @@ def _freq_feat_graph(feat_name, **kwargs):
         waveforms, sample_rate = speech_ops.read_wav(filepath, params)
 
         spec = py_x_ops.spectrum(
-           waveforms[:, 0],
-           tf.cast(sample_rate, tf.dtypes.float32),
-           output_type=1) #output_type: 1, power spec; 2 log power spec
+            waveforms[:, 0],
+            tf.cast(sample_rate, tf.dtypes.float32),
+            output_type=1)  #output_type: 1, power spec; 2 log power spec
         spec = tf.sqrt(spec)
         # shape must be [T, D, C]
         spec = tf.expand_dims(spec, -1)
         feat = tf.identity(spec, name=feat_name)
   else:
     raise ValueError(f"Not support freq feat: {feat_name}.")
- 
-  return graph, (_get_out_tensor_name('wavpath', 0), _get_out_tensor_name(feat_name, 0))
+
+  return graph, (_get_out_tensor_name('wavpath',
+                                      0), _get_out_tensor_name(feat_name, 0))
 
 
 #pylint: disable=too-many-locals
@@ -102,7 +103,7 @@ def extract_feature(*wavefiles, **kwargs):
   ''' tensorflow fbank feat '''
   dry_run = kwargs.get('dry_run')
   feat_name = 'fbank'
-  feat_name = kwargs.get('feature_name') 
+  feat_name = kwargs.get('feature_name')
   assert feat_name
 
   graph, (input_tensor, output_tensor) = _freq_feat_graph(feat_name, **kwargs)
@@ -110,7 +111,8 @@ def extract_feature(*wavefiles, **kwargs):
 
   for wavpath in wavefiles:
     savepath = os.path.splitext(wavpath)[0] + '.npy'
-    logging.debug('extract_feat: input: {}, output: {}'.format(wavpath, savepath))
+    logging.debug('extract_feat: input: {}, output: {}'.format(
+        wavpath, savepath))
 
     feat = sess.run(output_tensor, feed_dict={input_tensor: wavpath})
 

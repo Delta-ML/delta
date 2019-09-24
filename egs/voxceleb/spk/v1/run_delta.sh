@@ -5,6 +5,7 @@ voxceleb1_trials=data/voxceleb1_test_no_sil/trials
 test_nj=1
 test_use_gpu=true
 stage=-1
+stop_stage=100
 config_file=tdnn_arcface.yml
 
 
@@ -14,7 +15,7 @@ source parse_options.sh
 echo "Running from stage $stage ..."
 
 
-if [ $stage -le -1 ]; then
+if [ $stage -le -1 ] && [ $stop_stage -ge -1 ]; then
   echo "Running Kaldi data preparation ..."
   for ff in /export/corpora/VoxCeleb1 /export/corpora/VoxCeleb2
   do
@@ -28,7 +29,7 @@ if [ $stage -le -1 ]; then
   echo "Running Kaldi data preparation done."
 fi
 
-if [ $stage -le 0 ]; then
+if [ $stage -le 0 ] && [ $stop_stage -ge 0 ]; then
   # Prepare data.
   # TODO: run Kaldi script till data/train_combined_no_sil is ready.
   echo "Making training and validation sets ..."
@@ -41,13 +42,13 @@ if [ $stage -le 0 ]; then
 fi
 
 # not need stage 1 
-if [ $stage -le 1 ]; then
+if [ $stage -le 1 ] && [ $stop_stage -ge 1 ]; then
   echo "Computing CMVN stats ..."
   python3 -u $MAIN_ROOT/delta/main.py --cmd gen_cmvn --config conf/$config_file
   echo "Computing CMVN stats done."
 fi
 
-if [ $stage -le 2 ]; then
+if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
   # Train the model.
   echo "Training the model ..."
   python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/$config_file
@@ -55,7 +56,7 @@ if [ $stage -le 2 ]; then
 fi
 
 # sliding-cmvn and vad
-if [ $stage -le 9 ]; then
+if [ $stage -le 9 ] && [ $stop_stage -ge 9 ]; then
   if [ ! -d data/voxceleb1_test_no_sil ]
   then
     echo "Preparing feats for test ..."
@@ -114,7 +115,7 @@ fi
 
 # Cosine
 
-if [ $stage -le 11 ]; then
+if [ $stage -le 11 ] && [ $stop_stage -ge 11 ]; then
   echo "Computing cosine scores ..."
   ivector-normalize-length scp:${test_vector_scp} ark:${test_vector_scp}.norm
   ivector-compute-dot-products <(awk '{print $1, $2}' $voxceleb1_trials) ark:${test_vector_scp}.norm ark:${test_vector_scp}.norm $infer_dir/cosine_scores
@@ -127,7 +128,7 @@ fi
 
 # PLDA
 
-if [ $stage -le 12 ]; then
+if [ $stage -le 12 ] && [ $stop_stage -ge 12 ]; then
   echo "Preparing feats for clean training set ..."
   local/nnet3/xvector/prepare_feats_for_egs.sh \
       --compress false \
@@ -137,14 +138,14 @@ if [ $stage -le 12 ]; then
 fi
 
 infer_train_dir=exp/delta_speaker/ckpt/infer_train
-if [ $stage -le 13 ]; then
+if [ $stage -le 13 ] && [ $stop_stage -ge 13 ]; then
   echo "Running inference through model on training set ..."
   infer_one_set data/train_no_sil $infer_train_dir
   echo "Running inference through model on training set done."
 fi
 
 train_vector_scp=$infer_train_dir/utt_embeddings.txt.scp
-if [ $stage -le 14 ]; then
+if [ $stage -le 14 ] && [ $stop_stage -ge 14 ]; then
   echo "Computing PLDA ..."
   # Compute the mean vector for centering the evaluation xvectors.
   ivector-mean scp:$train_vector_scp \
@@ -163,7 +164,7 @@ if [ $stage -le 14 ]; then
   echo "Computing PLDA done."
 fi
 
-if [ $stage -le 15 ]; then
+if [ $stage -le 15 ] && [ $stop_stage -ge 15 ]; then
   echo "PLDA scoring ..."
   ivector-plda-scoring --normalize-length=true \
     "ivector-copy-plda --smoothing=0.0 $infer_train_dir/plda - |" \
@@ -173,7 +174,7 @@ if [ $stage -le 15 ]; then
   echo "PLDA scoring done."
 fi
 
-if [ $stage -le 16 ]; then
+if [ $stage -le 16 ] && [ $stop_stage -ge 16 ]; then
   eer=`compute-eer <(local/prepare_for_eer.py $voxceleb1_trials exp/scores_voxceleb1_test) 2> /dev/null`
   mindcf1=`sid/compute_min_dcf.py --p-target 0.01 exp/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
   mindcf2=`sid/compute_min_dcf.py --p-target 0.001 exp/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
@@ -196,4 +197,10 @@ if [ $stage -le 16 ]; then
   # EER: 5.329%
   # minDCF(p-target=0.01): 0.4933
   # minDCF(p-target=0.001): 0.6168
+fi
+
+if [ $stage -le 17 ] && [ $stop_stage -ge 17 ]; then
+  echo "export model..."
+  python3 -u $MAIN_ROOT/delta/main.py --cmd export_model --config conf/$config_file
+  echo "export model done."
 fi
