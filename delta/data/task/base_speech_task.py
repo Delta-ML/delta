@@ -27,6 +27,11 @@ class SpeechTask(WavSpeechTask):
   def __init__(self, config, mode):
     super().__init__(config)
     assert mode in (utils.TRAIN, utils.EVAL, utils.INFER)
+    self._mode = mode
+
+  @property
+  def mode(self):
+    return self._mode
 
   #pylint: disable=arguments-differ
   def input_fn(self, mode, batch_size, num_epoch=None):
