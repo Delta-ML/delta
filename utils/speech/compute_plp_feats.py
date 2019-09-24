@@ -21,29 +21,21 @@ import kaldiio
 import numpy as np
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-from delta.data.frontend.fbank_pitch import FbankPitch
+from delta.data.frontend.plp import Plp
 from espnet.utils.cli_writers import KaldiWriter
 
 def get_parser():
   parser = argparse.ArgumentParser(
-    description='Compute fbank && pitch feature from wav.',
+    description='Compute plp features from wav.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('--sample_rate', type=float,
                       default=16000, help='Sampling frequency')
-  parser.add_argument('--upper_frequency_limit', type=float,
-                      default=4000, help='Maxinum frequency')
-  parser.add_argument('--lower_frequency_limit', type=float,
-                      default=20, help='Minimum frequency')
-  parser.add_argument('--filterbank_channel_count', type=float,
-                      default=40, help='Order of fbank')
+  parser.add_argument('--plp_order', type=int,
+                      default=12, help='Order of plp')
   parser.add_argument('--window_length', type=float,
                       default=0.025, help='Length of a frame')
   parser.add_argument('--frame_length', type=float,
                       default=0.010, help='Hop size of window')
-  parser.add_argument('--thres_autoc', type=float,
-                      default=0.3, help='Threshold of autoc')
-  parser.add_argument('--output_type', type=int,
-                      default=1, help='1 for power spectrum, 2 for log-power spectrum.')
   parser.add_argument('--write_num_frames', type=str,
                       help='Specify wspecifer for utt2num_frames')
   parser.add_argument('--compress', type=strtobool, default=False,
@@ -60,21 +52,17 @@ def get_parser():
   parser.add_argument('wspecifier', type=str, help='Writer specifier')
   return parser
 
-def compute_fbank_pitch():
+def compute_plp():
   parser = get_parser()
   args = parser.parse_args()
 
   config = {}
   config['sample_rate'] = float(args.sample_rate)
-  config['upper_frequency_limit'] = float(args.upper_frequency_limit)
-  config['lower_frequency_limit'] = float(args.lower_frequency_limit)
-  config['filterbank_channel_count'] = float(args.filterbank_channel_count)
+  config['plp_order'] = int(args.plp_order)
   config['window_length'] = args.window_length
   config['frame_length'] = args.frame_length
-  config['thres_autoc'] = args.thres_autoc
-  config['output_type'] = args.output_type
 
-  fbank_pitch = FbankPitch.params(config).instantiate()
+  plp = Plp.params(config).instantiate()
 
   with kaldiio.ReadHelper(args.rspecifier,
                           segments=args.segments) as reader, \
@@ -85,13 +73,13 @@ def compute_fbank_pitch():
         args.sample_rate = sample_rate
       array = array.astype(np.float32)
       audio_data = tf.constant(array, dtype=tf.float32)
-      fbank_pitch_test = fbank_pitch(audio_data, args.sample_rate)
-      sess = tf.Session()
-      fbank_pitch_feats = fbank_pitch_test.eval(session=sess)
-      writer[utt_id] = fbank_pitch_feats
+      plp_test = plp(audio_data, args.sample_rate)
+      sess = tf.compat.v1.Session()
+      plp_feats = plp_test.eval(session=sess)
+      writer[utt_id] = plp_feats
 
 if __name__ == "__main__":
-  compute_fbank_pitch()
+  compute_plp()
 
 
 
