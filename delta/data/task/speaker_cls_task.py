@@ -867,6 +867,8 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
       uttids, segids, feats, spkids = self.__getitem__(i, return_format=False)
       for b, _ in enumerate(uttids):
         yield uttids[b], segids[b], feats[b], spkids[b]
+
+    self.on_epoch_end()
     raise StopIteration
 
   def feature_spec(self):
