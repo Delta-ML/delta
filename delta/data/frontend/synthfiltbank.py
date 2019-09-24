@@ -60,16 +60,16 @@ class Synthfiltbank(BaseFrontend):
     with tf.name_scope('synthfiltbank'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-      else:
-        assert sample_rate == p.sample_rate,\
-          "The input sample rate is not equal to the config's sample rate."
+        sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      audio_data = py_x_ops.synthfiltbank(
-          power_spectrum,
-          phase_spectrum,
-          sample_rate,
-          window_length=p.window_length,
-          frame_length=p.frame_length)
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
 
-    return audio_data
+        audio_data = py_x_ops.synthfiltbank(
+            power_spectrum,
+            phase_spectrum,
+            sample_rate,
+            window_length=p.window_length,
+            frame_length=p.frame_length)
+
+        return audio_data

@@ -67,17 +67,17 @@ class Cepstrum(BaseFrontend):
     with tf.name_scope('cepstrum'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-      else:
-        assert sample_rate.eval() == p.sample_rate,\
-          "The input sample rate is not equal to the config's sample rate."
+        sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      cepstrum = py_x_ops.cepstrum(
-        audio_data,
-        sample_rate,
-        window_length=p.window_length,
-        frame_length=p.frame_length,
-        ceps_subband_num=p.ceps_subband_num,
-        tag_ceps_mean_norm=p.tag_ceps_mean_norm)
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
 
-    return cepstrum
+        cepstrum = py_x_ops.cepstrum(
+          audio_data,
+          sample_rate,
+          window_length=p.window_length,
+          frame_length=p.frame_length,
+          ceps_subband_num=p.ceps_subband_num,
+          tag_ceps_mean_norm=p.tag_ceps_mean_norm)
+
+        return cepstrum

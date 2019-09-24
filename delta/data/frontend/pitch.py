@@ -62,18 +62,18 @@ class Pitch(BaseFrontend):
     with tf.name_scope('pitch'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-      else:
-        assert sample_rate.eval() == p.sample_rate,\
-          "The input sample rate is not equal to the config's sample rate."
+        sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      pitch = py_x_ops.pitch(
-          audio_data,
-          sample_rate,
-          window_length=p.window_length,
-          frame_length=p.frame_length,
-          thres_autoc=p.thres_autoc)
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
 
-    pitch = tf.squeeze(pitch)
-    pitch = tf.transpose(pitch[None, :])
-    return pitch
+        pitch = py_x_ops.pitch(
+            audio_data,
+            sample_rate,
+            window_length=p.window_length,
+            frame_length=p.frame_length,
+            thres_autoc=p.thres_autoc)
+
+        pitch = tf.squeeze(pitch)
+        pitch = tf.transpose(pitch[None, :])
+        return pitch

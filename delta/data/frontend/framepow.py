@@ -60,15 +60,15 @@ class Framepow(BaseFrontend):
     with tf.name_scope('framepow'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-      else:
-        assert sample_rate.eval() == p.sample_rate, \
-          "The input sample rate is not equal to the config's sample rate."
+        sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      framepow = py_x_ops.frame_pow(
-          audio_data,
-          sample_rate,
-          window_length=p.window_length,
-          frame_length=p.frame_length)
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
 
-    return framepow
+        framepow = py_x_ops.frame_pow(
+            audio_data,
+            sample_rate,
+            window_length=p.window_length,
+            frame_length=p.frame_length)
+
+        return framepow

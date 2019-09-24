@@ -75,13 +75,13 @@ class FbankPitch(BaseFrontend):
     with tf.name_scope('fbank_pitch'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-      else:
-        assert sample_rate.eval() == p.sample_rate, \
-          "The input sample rate is not equal to the config's sample rate."
+        sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      fbank_feats = tf.squeeze(self.fbank(audio_data, sample_rate))
-      pitch_feats = self.pitch(audio_data, sample_rate)
-      fbank_pitch_feats = tf.concat([fbank_feats, pitch_feats], 1)
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
 
-    return fbank_pitch_feats
+        fbank_feats = tf.squeeze(self.fbank(audio_data, sample_rate))
+        pitch_feats = self.pitch(audio_data, sample_rate)
+        fbank_pitch_feats = tf.concat([fbank_feats, pitch_feats], 1)
+
+        return fbank_pitch_feats

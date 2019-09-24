@@ -73,21 +73,20 @@ class Fbank(BaseFrontend):
     with tf.name_scope('fbank'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=tf.float32)
-      else:
-        assert sample_rate.eval() == p.sample_rate,\
-          "The input sample rate is not equal to the config's sample rate."
+        sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      spectrum = self.spect(audio_data, sample_rate)
+      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      with tf.control_dependencies([assert_op]):
 
-      spectrum = tf.expand_dims(spectrum, 0)
-      sample_rate = tf.to_int32(sample_rate)
+        spectrum = self.spect(audio_data, sample_rate)
+        spectrum = tf.expand_dims(spectrum, 0)
+        sample_rate = tf.cast(sample_rate, dtype=tf.int32)
 
-      fbank = py_x_ops.fbank(
-        spectrum,
-        sample_rate,
-        upper_frequency_limit=p.upper_frequency_limit,
-        lower_frequency_limit=p.lower_frequency_limit,
-        filterbank_channel_count=p.filterbank_channel_count)
+        fbank = py_x_ops.fbank(
+          spectrum,
+          sample_rate,
+          upper_frequency_limit=p.upper_frequency_limit,
+          lower_frequency_limit=p.lower_frequency_limit,
+          filterbank_channel_count=p.filterbank_channel_count)
 
-    return fbank
+        return fbank
