@@ -88,7 +88,7 @@ void DeltaDelta::Compute(const Tensor& input_feats, int frame,
   output->resize(output_dim);
   auto input = input_feats.matrix<float>();
 
-  for (int i = 0; i < order_; i++) {
+  for (int i = 0; i <= order_; i++) {
     const std::vector<double>& scales = scales_[i];
     int max_offset = (scales.size() - 1) / 2;
     // e.g. max_offset=2, (-2, 2)

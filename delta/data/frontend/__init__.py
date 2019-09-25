@@ -13,27 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' Base Speech Task'''
-from delta import utils
-from delta.data import utils as data_utils
-from delta.data.task.base_task import WavSpeechTask
-
-#pylint: disable=abstract-method
-
-
-class SpeechTask(WavSpeechTask):
-  ''' base class for speech task'''
-
-  def __init__(self, config, mode):
-    super().__init__(config)
-    assert mode in (utils.TRAIN, utils.EVAL, utils.INFER)
-    self._mode = mode
-
-  @property
-  def mode(self):
-    return self._mode
-
-  #pylint: disable=arguments-differ
-  def input_fn(self, mode, batch_size, num_epoch=None):
-    ''' estimator input_fn'''
-    return data_utils.input_fn(self.dataset, mode, batch_size, num_epoch)
+''' init of frontend package'''

@@ -27,3 +27,4 @@ sacrebleu
 pyAudioAnalysis
 flake8
 sentencepiece
+deepdiff
