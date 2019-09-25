@@ -774,7 +774,9 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
     ''' update indexes after each epoch'''
     self.indexs = np.arange(self.num_utts)
     if self.shuffle:
+      logging.info("shuffle data")
       np.random.shuffle(self.indexs)
+    logging.info(f"{self.indexs}")
 
     self.segment_win = int(
           (self.min_segment_length + self.max_segment_length) / 2)
@@ -784,6 +786,7 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
       if self.min_segment_length <= self.max_segment_length and self.max_segment_length > 0:
         self.segment_win = np.random.randint(self.min_segment_length,
                                              self.max_segment_length)
+      logging.info(f"For training, using segment length: {self.segment_win}")
 
   def collate_fn(self, batch):
 
