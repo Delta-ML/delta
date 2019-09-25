@@ -57,7 +57,6 @@ class TextTask(Task):
     self.shuffle_buffer_size = self.task_config['shuffle_buffer_size']
     self.need_shuffle = self.task_config['need_shuffle']
 
-    self.init_feed_dict = {}
 
   def input_fn(self):
 
