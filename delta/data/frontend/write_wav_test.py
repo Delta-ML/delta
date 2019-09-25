@@ -26,13 +26,12 @@ class WriteWavTest(tf.test.TestCase):
     wav_path = str(
       Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.session() as sess:
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
       write_wav = WriteWav.params().instantiate()
       new_path = str(Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln_new.wav'))
       writewav_op = write_wav(new_path, input_data, sample_rate)
-      sess = tf.compat.v1.Session()
       sess.run(writewav_op)
       test_data, test_sample_rate = read_wav(new_path)
       self.assertAllEqual(input_data.eval(), test_data.eval())
