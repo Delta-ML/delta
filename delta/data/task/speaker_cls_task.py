@@ -606,21 +606,7 @@ class KaldiDir:
         utt_path = splits[1]
         self._feats_scp[utt_id] = utt_path
     self._num_utt = len(self._feats_scp)
-
-    self._spk2id = defaultdict(int)
-    with spk2id_file.open(mode='r', encoding='utf-8') as reader:
-      for line in reader:
-        spk, spk_id = line.strip().split()
-        self._spk2id[spk] = spk_id
-    self._num_spk = len(self._spk2id)
-
-    self._utt2spk = defaultdict(str)
-    self._utt2spk_ids = defaultdict(int)
-    with utt2spk_file.open(mode='r', encoding='utf-8') as reader:
-      for line in reader:
-        utt, spk = line.strip().split()
-        self._utt2spk[utt] = spk
-        self._utt2spk_ids[utt] = self.spk2id[spk]
+    logging.info("kaldi dir: {self._num_utt} utts")
 
     self._spk2utt = defaultdict(list)
     with spk2utt_file.open(mode='r', encoding='utf-8') as reader:
@@ -628,6 +614,28 @@ class KaldiDir:
         spk, utt_str = line.strip().split(maxsplit=1)
         utts = utt_str.split()
         self._spk2utt[spk] = utts
+
+    self._spk2id = defaultdict(int)
+    if not spk2id_file.exists():
+      logging.info("spk2id not exists: generate spk2id dict") 
+      for i, (spk, _) in enumerate(self._spk2utt): 
+        self._spk2id[spk] = i
+    else:
+      with spk2id_file.open(mode='r', encoding='utf-8') as reader:
+        for line in reader:
+          spk, spk_id = line.strip().split()
+          self._spk2id[spk] = spk_id
+    self._num_spk = len(self._spk2id)
+    logging.info("kaldi dir: {self._num_spk} spks")
+
+
+    self._utt2spk = defaultdict(str)
+    self._utt2spk_ids = defaultdict(int)
+    with utt2spk_file.open(mode='r', encoding='utf-8') as reader:
+      for line in reader:
+        utt, spk = line.strip().split()
+        self._utt2spk[utt] = spk
+        self._utt2spk_ids[utt] = self._spk2id[spk]
 
   @property
   def num_utts(self):

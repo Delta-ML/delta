@@ -163,3 +163,107 @@ class SpeakerPostProc(PostProc):
           file_pointers[output_level][output_key].close()
 
     logging.info('Postprocessing completed.')
+
+@registers.postprocess.register
+class SpkUttPostProc(PostProc):
+  ''' Apply speaker embedding extraction on hidden layer outputs. '''
+
+  def __init__(self, config):
+    super().__init__(config)
+
+  # pylint: disable=arguments-differ
+  def call(self, predictions, log_verbose=False):
+    ''' Implementation of postprocessing. '''
+
+    num_clips_processed = 0
+    last_utt_key = None
+
+    last_utt_chunk_outputs = {}
+    for output_key in self.outputs:
+      last_utt_chunk_outputs[output_key] = []
+
+    if self.infer:
+      file_pointers = collections.defaultdict(dict)
+      for output_level in self.output_levels:
+        for output_key in self.outputs:
+          file_pointers[output_level][output_key] = \
+              open(self.output_files[output_level][output_key], 'w')
+
+
+    utt2clips = defaultdict(list)
+
+    for batch_index, batch in enumerate(predictions):
+      # batch = {'inputs': [clip_0, clip_1, ...],
+      #          'labels': [clip_0, clip_1, ...],
+      #          'embeddings': [clip_0, clip_1, ...],
+      #          ...}
+      # Now we extract each clip from the minibatch.
+      logging.info(f"{batch_index} {batch}")
+      clips = collections.defaultdict(dict)
+      for key, batch_values in batch.items():
+        for clip_index, clip_data in enumerate(batch_values):
+          clips[clip_index][key] = clip_data
+
+      for clip_index, clip in sorted(clips.items()):
+        if log_verbose or self.log_verbose:
+          logging.debug(clip)
+        chunk_key = clip['filepath'].decode()
+        utt_key, utt_chunk_index_str = chunk_key.rsplit('_', 1)
+        utt_chunk_index = int(utt_chunk_index_str[-2:])
+        utt_chunk_index_from_clip_id = clip['clipid']
+        assert utt_chunk_index == utt_chunk_index_from_clip_id
+
+        for output_key in self.outputs:
+          chunk_output = clip[output_key]
+          if self.infer:
+            formatted_output = format_kaldi_vector(chunk_output)
+            if 'chuck' in self.output_levels:
+              file_pointers['chunk'][output_key].write(
+                  '%s %s\n' % (chunk_key, formatted_output))
+
+          embeddings = last_utt_chunk_outputs[output_key]
+          # Check if an utterance is over.
+          if utt_key != last_utt_key:
+            if last_utt_key is not None:
+              # Average over all chunks.
+              logging.debug('Utt %s: averaging "%s" over %d chunks' %
+                            (last_utt_key, output_key, len(embeddings)))
+              utt_embedding = np.average(embeddings, axis=0)
+              if self.infer:
+                formatted_output = format_kaldi_vector(utt_embedding)
+                if 'utt' in self.output_levels:
+                  file_pointers['utt'][output_key].write(
+                      '%s %s\n' % (last_utt_key, formatted_output))
+
+            # Start a new utterance.
+            embeddings.clear()
+          embeddings.append(chunk_output)
+        last_utt_key = utt_key
+
+      num_clips_processed += len(clips)
+      if (batch_index + 1) % 10 == 0:
+        logging.info('Processed %d batches, %d clips.' %
+                     (batch_index + 1, num_clips_processed))
+
+    # Average over all chunks for the last utterance.
+    # TODO: reusability
+    for output_key in self.outputs:
+      embeddings = last_utt_chunk_outputs[output_key]
+      # Average over all chunks.
+      logging.debug('Utt %s: averaging "%s" over %d chunks' %
+                    (last_utt_key, output_key, len(embeddings)))
+      utt_embedding = np.average(embeddings, axis=0)
+      if self.infer:
+        formatted_output = format_kaldi_vector(utt_embedding)
+        if 'utt' in self.output_levels:
+          file_pointers['utt'][output_key].write(
+              '%s %s\n' % (last_utt_key, formatted_output))
+
+    if self.infer:
+      for output_level in self.output_levels:
+        for output_key in self.outputs:
+          file_pointers[output_level][output_key].close()
+
+    logging.info('Postprocessing completed.')
+
+
