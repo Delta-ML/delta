@@ -165,7 +165,7 @@ class SpeakerPostProc(PostProc):
     logging.info('Postprocessing completed.')
 
 @registers.postprocess.register
-class SpkUttPostProc(PostProc):
+class SpkUttPostProc(SpeakerPostProc):
   ''' Apply speaker embedding extraction on hidden layer outputs. '''
 
   def __init__(self, config):
@@ -190,19 +190,29 @@ class SpkUttPostProc(PostProc):
               open(self.output_files[output_level][output_key], 'w')
 
 
-    utt2clips = defaultdict(list)
+    utt2clips = collections.defaultdict(list)
+    last_utt = None 
 
     for batch_index, batch in enumerate(predictions):
       # batch = {'inputs': [clip_0, clip_1, ...],
       #          'labels': [clip_0, clip_1, ...],
       #          'embeddings': [clip_0, clip_1, ...],
+      #          'clipid': [clip_0, clip_1, ...],
+      #          'filepath': [clip_0, clip_1, ...],
       #          ...}
       # Now we extract each clip from the minibatch.
-      logging.info(f"{batch_index} {batch}")
-      clips = collections.defaultdict(dict)
-      for key, batch_values in batch.items():
-        for clip_index, clip_data in enumerate(batch_values):
-          clips[clip_index][key] = clip_data
+      logging.info(f"{batch_index} {batch.keys()} {batch['labels']} {batch['clipid']}")
+      for i, utt in enumerate(batch['filepath']):
+        if last_utt is None:
+          last_utt = utt
+
+        value = (batch['clipid'][i], batch['labels'][i])
+        for key in self.outputs:
+          value += (batch[key][i],)
+        # utt -> (clipid, skpid, embeddings, ...)
+        utt2clips[utt].append(value)
+        #logging.info(f"utt2clips: {utt} {value[0]} {value[1]}")
+      continue
 
       for clip_index, clip in sorted(clips.items()):
         if log_verbose or self.log_verbose:
