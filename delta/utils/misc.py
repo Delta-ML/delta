@@ -138,28 +138,18 @@ def get_distribution_strategy(num_gpus, all_reduce_alg='nccl'):
   Args:
     num_gpus: Number of GPUs to run this model.
     all_reduce_alg: Specify which algorithm to use when performing all-reduce.
-      See tf.contrib.distribute.AllReduceCrossTowerOps for available algorithms.
-      If None, DistributionStrategy will choose based on device topology.
+      See tf.distribute.NcclAllReduce for available algorithms.
+      If None, Strategy will using nccl as default.
 
   Returns:
-    tf.contrib.distribute.DistibutionStrategy object.
+    tf.distribute.Strategy object.
   """
   if num_gpus == 0:  #pylint: disable=no-else-return
-    return tf.contrib.distribute.OneDeviceStrategy("device:CPU:0")
+    return tf.distribute.OneDeviceStrategy("device:CPU:0")
   elif num_gpus == 1:
-    return tf.contrib.distribute.OneDeviceStrategy("device:GPU:0")
+    return tf.distribute.OneDeviceStrategy("device:GPU:0")
   else:
-    if tf_version_satisfy('1.14'):
-      _cross_tower_ops = tf.contrib.distribute.AllReduceCrossDeviceOps
-    else:
-      _cross_tower_ops = tf.contrib.distribute.AllReduceCrossTowerOps
-
-    if all_reduce_alg:  #pylint: disable=no-else-return
-      return tf.contrib.distribute.MirroredStrategy(
-          num_gpus=num_gpus,
-          cross_tower_ops=_cross_tower_ops(all_reduce_alg, num_packs=num_gpus))
-    else:
-      return tf.contrib.distribute.MirroredStrategy(num_gpus=num_gpus)
+    return tf.distribute.MirroredStrategy(devices=None, cross_device_ops=None)
 
 
 def per_device_batch_size(batch_size, num_gpus):
