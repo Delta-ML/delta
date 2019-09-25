@@ -18,6 +18,7 @@ lint_and_unit_test:
   only:
     - "master"
     - "203-ctc-egs"
+    - "198-update-data-read-method"
 
   script:
     - env
