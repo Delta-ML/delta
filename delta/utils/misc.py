@@ -149,8 +149,7 @@ def get_distribution_strategy(num_gpus, all_reduce_alg='nccl'):
   elif num_gpus == 1:
     return tf.distribute.OneDeviceStrategy("device:GPU:0")
   else:
-    _cross_tower_ops = tf.distribute.NcclAllReduce
-    return tf.distribute.MirroredStrategy(devices=None, cross_device_ops=_cross_tower_ops)
+    return tf.distribute.MirroredStrategy(devices=None, cross_device_ops=None)
 
 
 def per_device_batch_size(batch_size, num_gpus):
