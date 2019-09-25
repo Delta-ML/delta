@@ -615,7 +615,7 @@ class KaldiDir:
         utts = utt_str.split()
         self._spk2utt[spk] = utts
 
-    self._spk2id = defaultdict(int)
+    self._spk2id = defaultdict(lambda: -1)
     with spk2id_file.open(mode='r', encoding='utf-8') as reader:
       for line in reader:
         spk, spk_id = line.strip().split()
