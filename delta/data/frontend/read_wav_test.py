@@ -13,27 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' Base Speech Task'''
-from delta import utils
-from delta.data import utils as data_utils
-from delta.data.task.base_task import WavSpeechTask
 
-#pylint: disable=abstract-method
+import tensorflow as tf
+import os
+from pathlib import Path
+from delta.data.frontend.read_wav import ReadWav
+import librosa
 
+class ReadWavTest(tf.test.TestCase):
 
-class SpeechTask(WavSpeechTask):
-  ''' base class for speech task'''
+  def test_read_wav(self):
+    wav_path = str(
+      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
-  def __init__(self, config, mode):
-    super().__init__(config)
-    assert mode in (utils.TRAIN, utils.EVAL, utils.INFER)
-    self._mode = mode
+    with self.session():
+      read_wav = ReadWav.params({'sample_rate':16000.0}).instantiate()
+      audio_data, sample_rate = read_wav(wav_path)
+      audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
+      self.assertAllClose(audio_data.eval(), audio_data_true)
+      self.assertAllClose(sample_rate.eval(), sample_rate_true)
 
-  @property
-  def mode(self):
-    return self._mode
-
-  #pylint: disable=arguments-differ
-  def input_fn(self, mode, batch_size, num_epoch=None):
-    ''' estimator input_fn'''
-    return data_utils.input_fn(self.dataset, mode, batch_size, num_epoch)
+if __name__ == '__main__':
+  tf.test.main()

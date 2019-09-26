@@ -132,7 +132,7 @@ def get_model_file(dir_name, file_name_pattern, mode, model_load_type,
   #model_file_name will be None when
   #     1.model_load_type=scratch
   #     2.no model_file is found with model_load_type=latest
-  if model_file_name is None or not model_file_name.exists():
+  if model_file_name is None:
     logging.warning(
         'No model file is found in {} with model_load_type={}'.format(
             dir_name, model_load_type))
