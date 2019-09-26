@@ -16,8 +16,9 @@
 ''' Stub post processing for speaker tasks. '''
 import os
 import collections
-from absl import logging
 import numpy as np
+from absl import logging
+from kaldiio import WriteHelper
 
 from delta.utils.postprocess.base_postproc import PostProc
 from delta.utils.register import registers
@@ -63,13 +64,13 @@ class SpeakerPostProc(PostProc):
 
     self.output_files = collections.defaultdict(dict)
 
-    # e.g. ["utt", "chuck"]
+    # e.g. ["utt", "chunk"]
     self.output_levels = postconf['output_levels']
     assert 'utt' in self.output_levels
 
     for output_level in self.output_levels:
       for output_key in self.outputs:
-        output_file_name = '%s_%s.txt' % (output_level, output_key)
+        output_file_name = '%s_%s' % (output_level, output_key)
         self.output_files[output_level][output_key] = \
             os.path.join(self.output_dir, output_file_name)
     self.pred_metrics_path = os.path.join(self.output_dir, 'metrics.txt')
@@ -89,7 +90,7 @@ class SpeakerPostProc(PostProc):
       for output_level in self.output_levels:
         for output_key in self.outputs:
           file_pointers[output_level][output_key] = \
-              open(self.output_files[output_level][output_key], 'w')
+              open(self.output_files[output_level][output_key] + '.txt', 'w')
 
     for batch_index, batch in enumerate(predictions):
       # batch = {'inputs': [clip_0, clip_1, ...],
@@ -115,7 +116,7 @@ class SpeakerPostProc(PostProc):
           chunk_output = clip[output_key]
           if self.infer:
             formatted_output = format_kaldi_vector(chunk_output)
-            if 'chuck' in self.output_levels:
+            if 'chunk' in self.output_levels:
               file_pointers['chunk'][output_key].write(
                   '%s %s\n' % (chunk_key, formatted_output))
 
@@ -174,24 +175,17 @@ class SpkUttPostProc(SpeakerPostProc):
   # pylint: disable=arguments-differ
   def call(self, predictions, log_verbose=False):
     ''' Implementation of postprocessing. '''
-
-    num_clips_processed = 0
-    last_utt_key = None
-
-    last_utt_chunk_outputs = {}
-    for output_key in self.outputs:
-      last_utt_chunk_outputs[output_key] = []
-
     if self.infer:
       file_pointers = collections.defaultdict(dict)
       for output_level in self.output_levels:
         for output_key in self.outputs:
+          file_path = self.output_files[output_level][output_key]
           file_pointers[output_level][output_key] = \
-              open(self.output_files[output_level][output_key], 'w')
-
+              WriteHelper(f"ark,t,scp:{file_path}.ark,{file_path}.scp")
 
     utt2clips = collections.defaultdict(list)
-    last_utt = None 
+    last_utt = None
+    num_clips_processed = 0
 
     for batch_index, batch in enumerate(predictions):
       # batch = {'inputs': [clip_0, clip_1, ...],
@@ -201,73 +195,46 @@ class SpkUttPostProc(SpeakerPostProc):
       #          'filepath': [clip_0, clip_1, ...],
       #          ...}
       # Now we extract each clip from the minibatch.
-      logging.info(f"{batch_index} {batch.keys()} {batch['labels']} {batch['clipid']}")
+      logging.debug(f"{batch_index} {batch.keys()} {batch['labels']} {batch['clipid']}")
       for i, utt in enumerate(batch['filepath']):
         if last_utt is None:
           last_utt = utt
 
-        value = (batch['clipid'][i], batch['labels'][i])
+        value = (batch['clipid'][i],)
         for key in self.outputs:
           value += (batch[key][i],)
         # utt -> (clipid, skpid, embeddings, ...)
         utt2clips[utt].append(value)
-        #logging.info(f"utt2clips: {utt} {value[0]} {value[1]}")
-      continue
+        logging.debug(f"utt2clips: {utt} {value[0]} {len(utt2clips[utt])}")
 
-      for clip_index, clip in sorted(clips.items()):
-        if log_verbose or self.log_verbose:
-          logging.debug(clip)
-        chunk_key = clip['filepath'].decode()
-        utt_key, utt_chunk_index_str = chunk_key.rsplit('_', 1)
-        utt_chunk_index = int(utt_chunk_index_str[-2:])
-        utt_chunk_index_from_clip_id = clip['clipid']
-        assert utt_chunk_index == utt_chunk_index_from_clip_id
+        if last_utt != utt:
+          chunks_out = collections.defaultdict(list)
+          for i, item in enumerate(utt2clips[last_utt]):
+            logging.debug(f"{last_utt} {item[0]} {utt}")
+            num_clips_processed += 1
 
-        for output_key in self.outputs:
-          chunk_output = clip[output_key]
-          if self.infer:
-            formatted_output = format_kaldi_vector(chunk_output)
-            if 'chuck' in self.output_levels:
-              file_pointers['chunk'][output_key].write(
-                  '%s %s\n' % (chunk_key, formatted_output))
+            for j, output_key in enumerate(self.outputs):
+             chunk_output = item[j+1] # offset 1 for first filed is clipid
+             chunks_out[output_key].append(chunk_output)
+             if self.infer:
+               chunk_key = last_utt.decode() + '_' + str(item[0])
+               if 'chunk' in self.output_levels:
+                 file_pointers['chunk'][output_key](chunk_key, chunk_output)
 
-          embeddings = last_utt_chunk_outputs[output_key]
-          # Check if an utterance is over.
-          if utt_key != last_utt_key:
-            if last_utt_key is not None:
-              # Average over all chunks.
-              logging.debug('Utt %s: averaging "%s" over %d chunks' %
-                            (last_utt_key, output_key, len(embeddings)))
-              utt_embedding = np.average(embeddings, axis=0)
-              if self.infer:
-                formatted_output = format_kaldi_vector(utt_embedding)
-                if 'utt' in self.output_levels:
-                  file_pointers['utt'][output_key].write(
-                      '%s %s\n' % (last_utt_key, formatted_output))
+          utts_out = collections.defaultdict(lambda: np.zeros((None), dtype=np.float32))
+          for i, output_key in enumerate(self.outputs):
+            utt_output = np.mean(chunks_out[output_key], axis=0)
+            utts_out[output_key] = utt_output
+            utt_key = last_utt.decode()
+            if self.infer:
+              if 'utt' in self.output_levels:
+                file_pointers['utt'][output_key](utt_key, utt_output)
 
-            # Start a new utterance.
-            embeddings.clear()
-          embeddings.append(chunk_output)
-        last_utt_key = utt_key
+          last_utt = utt
 
-      num_clips_processed += len(clips)
       if (batch_index + 1) % 10 == 0:
         logging.info('Processed %d batches, %d clips.' %
                      (batch_index + 1, num_clips_processed))
-
-    # Average over all chunks for the last utterance.
-    # TODO: reusability
-    for output_key in self.outputs:
-      embeddings = last_utt_chunk_outputs[output_key]
-      # Average over all chunks.
-      logging.debug('Utt %s: averaging "%s" over %d chunks' %
-                    (last_utt_key, output_key, len(embeddings)))
-      utt_embedding = np.average(embeddings, axis=0)
-      if self.infer:
-        formatted_output = format_kaldi_vector(utt_embedding)
-        if 'utt' in self.output_levels:
-          file_pointers['utt'][output_key].write(
-              '%s %s\n' % (last_utt_key, formatted_output))
 
     if self.infer:
       for output_level in self.output_levels:
@@ -275,5 +242,3 @@ class SpkUttPostProc(SpeakerPostProc):
           file_pointers[output_level][output_key].close()
 
     logging.info('Postprocessing completed.')
-
-

@@ -39,7 +39,7 @@ class EpochHook(tf.train.SessionRunHook):
     self._global_batch_size = global_batch_size
     self._epoch = 0
 
-   @porperty
+  @property
   def epoch(self):
     return self._epoch
 
@@ -107,7 +107,7 @@ class MultiStepLRHook(tf.train.SessionRunHook):
     train_step = run_values.results
     self._lrn_rate = self.get_lr()
 
-  def get_lr(self)
+  def get_lr(self):
     return self._lrn_rate * self._gamma ** bisect_right(self._milestones, self.last_epoch)
 
   def end(self, session):
