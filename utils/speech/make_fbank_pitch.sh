@@ -104,7 +104,7 @@ if [ -f ${data}/segments ]; then
     utils/split_scp.pl ${data}/segments ${split_segments}
 
     ${cmd} JOB=1:${nj} ${logdir}/make_fbank_pitch${name}.JOB.log \
-        python3 compute_fbank_pitch.py \
+        compute_fbank_pitch.py \
             --sample_rate ${sample_rate} \
             --upper_frequency_limit ${upper_frequency_limit} \
             --lower_frequency_limit ${lower_frequency_limit} \
@@ -117,7 +117,7 @@ if [ -f ${data}/segments ]; then
             --compress ${compress} \
             --compression_method ${compression_method} \
             --segment=${logdir}/segments.JOB scp:${scp} \
-            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp
+            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp || exit 1
 
 else
   echo "$0: [info]: no segments file exists: assuming pcm.scp indexed by utterance."
@@ -129,7 +129,7 @@ else
   utils/split_scp.pl ${scp} ${split_scps}
 
   ${cmd} JOB=1:${nj} ${logdir}/make_fbank_pitch${name}.JOB.log \
-      python3 compute_fbank_pitch.py \
+      compute_fbank_pitch.py \
             --sample_rate ${sample_rate} \
             --upper_frequency_limit ${upper_frequency_limit} \
             --lower_frequency_limit ${lower_frequency_limit} \
@@ -142,7 +142,7 @@ else
             --compress ${compress} \
             --compression_method ${compression_method} \
             scp:${logdir}/wav.JOB.scp \
-            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp
+            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp || exit 1
 fi
 
 # concatenate the .scp files together.
