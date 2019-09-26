@@ -177,7 +177,6 @@ class TextMatchTask(TextTask):
         "input_x_len": input_x_len,
         "iterator": iterator,
         "iterator_len": iterator_len,
-        #"init_feed_dict": self.init_feed_dict   #去掉
     }
 
     if not self.infer_without_label:

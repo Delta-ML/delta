@@ -144,16 +144,16 @@ class TextPreparer(Preparer):
         for i in range(self.output_num):
           label_ds = label[i].batch(self.batch_size)
           label_iterator = label_ds.make_initializable_iterator()
-          label__after_arr = self.run_dataset(label_iterator, batch_num)
-          label_after_one = [one_line.decode("utf-8") for one_line in label__after_arr]
+          label_after_arr = self.run_dataset(label_iterator, batch_num)
+          label_after_one = [one_line.decode("utf-8") for one_line in label_after_arr]
           one_label_after.append(label_after_one)
           all_labels[i] += label_after_one
       else:
         label = label[0]
         label_ds = label.batch(self.batch_size)
         label_iterator = label_ds.make_initializable_iterator()
-        label__after_arr = self.run_dataset(label_iterator, batch_num)
-        one_label_after = [one_line.decode("utf-8") for one_line in label__after_arr]
+        label_after_arr = self.run_dataset(label_iterator, batch_num)
+        one_label_after = [one_line.decode("utf-8") for one_line in label_after_arr]
         all_labels += one_label_after
 
     logging.debug(f"one_text_after: {len(one_text_after)}")

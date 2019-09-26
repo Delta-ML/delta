@@ -74,7 +74,7 @@ class TextSeqLabelTask(TextTask):
     if self.infer_without_label:
       data_set = text_ds
     else:
-      label_ds = load_multi_label_dataset(label_ds, self.config)  # TODO one_label 也要改
+      label_ds = load_multi_label_dataset(label_ds, self.config)
       data_set = tf.data.Dataset.zip((text_ds, label_ds))
 
     self.config['data']['vocab_size'] = get_vocab_size(
