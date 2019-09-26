@@ -623,7 +623,6 @@ class KaldiDir:
     self._num_spk = len(self._spk2id)
     logging.info(f"kaldi dir: {self._num_spk} spks")
 
-
     self._utt2spk = defaultdict(str)
     self._utt2spk_ids = defaultdict(int)
     with utt2spk_file.open(mode='r', encoding='utf-8') as reader:
@@ -782,7 +781,7 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
     logging.info(f"{self.indexs}")
 
     self.segment_win = int(
-          (self.min_segment_length + self.max_segment_length) / 2)
+        (self.min_segment_length + self.max_segment_length) / 2)
     logging.info(f"default segment length: {self.segment_win}")
 
     if self.mode == utils.TRAIN:

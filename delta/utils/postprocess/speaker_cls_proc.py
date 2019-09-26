@@ -165,6 +165,7 @@ class SpeakerPostProc(PostProc):
 
     logging.info('Postprocessing completed.')
 
+
 @registers.postprocess.register
 class SpkUttPostProc(SpeakerPostProc):
   ''' Apply speaker embedding extraction on hidden layer outputs. '''
@@ -195,7 +196,8 @@ class SpkUttPostProc(SpeakerPostProc):
       #          'filepath': [clip_0, clip_1, ...],
       #          ...}
       # Now we extract each clip from the minibatch.
-      logging.debug(f"{batch_index} {batch.keys()} {batch['labels']} {batch['clipid']}")
+      logging.debug(
+          f"{batch_index} {batch.keys()} {batch['labels']} {batch['clipid']}")
       for i, utt in enumerate(batch['filepath']):
         if last_utt is None:
           last_utt = utt
@@ -214,14 +216,15 @@ class SpkUttPostProc(SpeakerPostProc):
             num_clips_processed += 1
 
             for j, output_key in enumerate(self.outputs):
-             chunk_output = item[j+1] # offset 1 for first filed is clipid
-             chunks_out[output_key].append(chunk_output)
-             if self.infer:
-               chunk_key = last_utt.decode() + '_' + str(item[0])
-               if 'chunk' in self.output_levels:
-                 file_pointers['chunk'][output_key](chunk_key, chunk_output)
+              chunk_output = item[j + 1]  # offset 1 for first filed is clipid
+              chunks_out[output_key].append(chunk_output)
+              if self.infer:
+                chunk_key = last_utt.decode() + '_' + str(item[0])
+                if 'chunk' in self.output_levels:
+                  file_pointers['chunk'][output_key](chunk_key, chunk_output)
 
-          utts_out = collections.defaultdict(lambda: np.zeros((None), dtype=np.float32))
+          utts_out = collections.defaultdict(lambda: np.zeros(
+              (None), dtype=np.float32))
           for i, output_key in enumerate(self.outputs):
             utt_output = np.mean(chunks_out[output_key], axis=0)
             utts_out[output_key] = utt_output

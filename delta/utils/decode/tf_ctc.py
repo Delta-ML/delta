@@ -18,6 +18,7 @@
 import tensorflow as tf
 from delta.utils import ctc_utils
 
+
 def ctc_decode_blankid_to_last(logits, sequence_length, blank_id=None):
   '''
     Moves the blank_label cloumn to the end of the logit matrix,
@@ -60,8 +61,8 @@ def ctc_greedy_decode(logits,
             the negative of the sum of the greatest logit at each timeframe.
     '''
 
-  logits, sequence_len, blank_id = ctc_decode_blankid_to_last(logits, sequence_length,
-                                                              blank_id)
+  logits, sequence_len, blank_id = ctc_decode_blankid_to_last(
+      logits, sequence_length, blank_id)
   deps = [
       tf.assert_rank(logits, 3),
       tf.assert_rank(sequence_len, 1),
@@ -70,11 +71,12 @@ def ctc_greedy_decode(logits,
   with tf.control_dependencies(deps):
     decode_result, probs = tf.nn.ctc_greedy_decoder(
         logits, sequence_len, merge_repeated=merge_repeated)
-    decode_result = [ctc_utils.labels_last_to_blankid(single_decode_result, blank_id)
-                     for single_decode_result in decode_result]
-    decode_result = tf.sparse_tensor_to_dense(decode_result[0],
-                                              default_value=blank_id,
-                                              name="outputs")
+    decode_result = [
+        ctc_utils.labels_last_to_blankid(single_decode_result, blank_id)
+        for single_decode_result in decode_result
+    ]
+    decode_result = tf.sparse_tensor_to_dense(
+        decode_result[0], default_value=blank_id, name="outputs")
   return decode_result, probs
 
 
@@ -94,8 +96,8 @@ def ctc_beam_search_decode(logits,
        probs: A float matrix [batch_size, top_paths] containing sequence log-probabilities.
     '''
 
-  logits, sequence_len, blank_id = ctc_decode_blankid_to_last(logits, sequence_length,
-                                                              blank_id)
+  logits, sequence_len, blank_id = ctc_decode_blankid_to_last(
+      logits, sequence_length, blank_id)
 
   deps = [tf.assert_rank(logits, 3), tf.assert_rank(sequence_len, 1)]
 

@@ -19,6 +19,7 @@ import tensorflow as tf
 from bisect import bisect_right
 from absl import logging
 
+
 class DatasetInitializerHook(tf.train.SessionRunHook):
   ''' iterator dataset initailizer '''
 
@@ -33,7 +34,9 @@ class DatasetInitializerHook(tf.train.SessionRunHook):
     del coord
     session.run(self._initializer, self._init_feed_dict)
 
+
 class EpochHook(tf.train.SessionRunHook):
+
   def __init__(self, examples_per_epoch, global_batch_size):
     self._num_examples_per_epoch = exampels_per_epoch
     self._global_batch_size = global_batch_size
@@ -47,7 +50,8 @@ class EpochHook(tf.train.SessionRunHook):
     self._global_step_tensor = tf.train.get_or_create_global_step()
     if self._global_step_tensor is None:
       raise RuntimeError("Global step should be created to use StopAtStepHook.")
-    self._epoch_tensor = (self._global_step_tensor * tf.constant(self._num_examples_per_epoch)) / tf.constant(self._global_batch_size)
+    self._epoch_tensor = (self._global_step_tensor * tf.constant(
+        self._num_examples_per_epoch)) / tf.constant(self._global_batch_size)
 
   def after_create_session(self, session, coord):
     pass
@@ -57,7 +61,7 @@ class EpochHook(tf.train.SessionRunHook):
 
   def after_run(self, run_context, run_values):
     global_step = run_values.results + 1
-    
+
     # Check latest global step to ensure that the targeted last step is
     # reached. global_step read tensor is the value of global step
     # before running the operation. We're not sure whether current session.run
@@ -65,11 +69,13 @@ class EpochHook(tf.train.SessionRunHook):
 
     step = run_context.session.run(self._global_step_tensor)
     assert step == global_step
-    self._epoch = int((self._global_batch_size * step) / self._num_examples_per_epoch)
+    self._epoch = int(
+        (self._global_batch_size * step) / self._num_examples_per_epoch)
     logging.info(f"{self.__class__.__name__}: Epoch {self.epoch}")
 
   def end(self, session):
     pass
+
 
 class MultiStepLRHook(tf.train.SessionRunHook):
   ''' Set the learning rate of each parameter group to the initial lr decayed 
@@ -82,10 +88,11 @@ class MultiStepLRHook(tf.train.SessionRunHook):
     last_epoch (int) : The index of last epoch. Default: -1.
   '''
 
-  def __init__(self, lr, milestones, gamma = 0.1, last_epoch = -1):
+  def __init__(self, lr, milestones, gamma=0.1, last_epoch=-1):
     if not list(milestones) == sorted(milestones):
-      raise ValueError('Milestones should be a list of'
-                       ' increasing integers. Got {}', milestones)
+      raise ValueError(
+          'Milestones should be a list of'
+          ' increasing integers. Got {}', milestones)
     self._milestones = milestones
     self._lrn_rate = lr
     self._gamma = gamma
@@ -93,7 +100,8 @@ class MultiStepLRHook(tf.train.SessionRunHook):
 
   def begin(self):
     self._global_step_tensor = tf.train.get_or_create_global_step()
-    self._lrn_rate_tensor = tf.get_default_graph().get_tensor_by_name('learning_rate:0')
+    self._lrn_rate_tensor = tf.get_default_graph().get_tensor_by_name(
+        'learning_rate:0')
 
   def after_create_session(self, session, coord):
     pass
@@ -108,7 +116,8 @@ class MultiStepLRHook(tf.train.SessionRunHook):
     self._lrn_rate = self.get_lr()
 
   def get_lr(self):
-    return self._lrn_rate * self._gamma ** bisect_right(self._milestones, self.last_epoch)
+    return self._lrn_rate * self._gamma**bisect_right(self._milestones,
+                                                      self.last_epoch)
 
   def end(self, session):
     pass

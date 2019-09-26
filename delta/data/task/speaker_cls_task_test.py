@@ -359,7 +359,6 @@ class SpeakerClsTaskTest(tf.test.TestCase):
       for i, (feats, labels) in enumerate(task):
         logging.info(f"SpkUttTask: __getitem__: {feats.keys()} {labels}")
 
-
   def test_speaker_utt_task_generate_data(self):
     task_name = 'SpeakerUttTask'
     self.config['data']['task']['name'] = task_name
