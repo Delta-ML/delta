@@ -20,6 +20,7 @@ import tensorflow as tf
 from delta import utils
 from delta.utils import ctc_utils
 
+
 #pylint: disable=too-many-arguments
 def cross_entropy(logits,
                   labels,
@@ -102,12 +103,12 @@ def ctc_data_transform(labels, logits, blank_index):
   '''
   data transform according blank_index
   '''
-  logits = ctc_utils.logits_blankid_to_last(logits=logits, blank_index=blank_index)
-  
+  logits = ctc_utils.logits_blankid_to_last(
+      logits=logits, blank_index=blank_index)
+
   num_class = logits.shape[2]
-  labels = ctc_utils.labels_blankid_to_last(labels=labels,
-                                            blank_index=blank_index,
-                                            num_class=num_class)
+  labels = ctc_utils.labels_blankid_to_last(
+      labels=labels, blank_index=blank_index, num_class=num_class)
   return labels, logits
 
 
