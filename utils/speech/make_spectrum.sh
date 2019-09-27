@@ -100,7 +100,7 @@ if [ -f ${data}/segments ]; then
     utils/split_scp.pl ${data}/segments ${split_segments}
 
     ${cmd} JOB=1:${nj} ${logdir}/make_spectrum${name}.JOB.log \
-        python3 compute_spectrum_feats.py \
+        speech/compute_spectrum_feats.py \
             --sample_rate ${sample_rate} \
             --output_type ${output_type} \
             --window_length ${window_length} \
@@ -121,7 +121,7 @@ else
   utils/split_scp.pl ${scp} ${split_scps}
 
   ${cmd} JOB=1:${nj} ${logdir}/make_spectrum${name}.JOB.log \
-      python3 compute_spectrum_feats.py \
+      speech/compute_spectrum_feats.py \
             --sample_rate ${sample_rate} \
             --output_type ${output_type} \
             --window_length ${window_length} \

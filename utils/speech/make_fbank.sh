@@ -103,7 +103,7 @@ if [ -f ${data}/segments ]; then
     utils/split_scp.pl ${data}/segments ${split_segments}
 
     ${cmd} JOB=1:${nj} ${logdir}/make_fbank${name}.JOB.log \
-        python3 compute_fbank_feats.py \
+        speech/compute_fbank_feats.py \
             --sample_rate ${sample_rate} \
             --upper_frequency_limit ${upper_frequency_limit} \
             --lower_frequency_limit ${lower_frequency_limit} \
@@ -127,7 +127,7 @@ else
   utils/split_scp.pl ${scp} ${split_scps}
 
   ${cmd} JOB=1:${nj} ${logdir}/make_fbank${name}.JOB.log \
-      python3 compute_fbank_feats.py \
+      speech/compute_fbank_feats.py \
             --sample_rate ${sample_rate} \
             --upper_frequency_limit ${upper_frequency_limit} \
             --lower_frequency_limit ${lower_frequency_limit} \
