@@ -14,6 +14,11 @@ set -e
 set -u
 set -o pipefail
 
+#prepare kaldi
+if [ ! -d ${MAIN_ROOT}/tools/kaldi/tools/sph2pipe_v2.5 ]; then
+  ./prepare_kaldi.sh
+fi
+
 echo "Integration Testing..."
 
 pushd ${MAIN_ROOT}/egs/mini_an4/asr/v1
