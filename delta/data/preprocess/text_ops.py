@@ -24,10 +24,13 @@ from delta.layers.ops import py_x_ops
 
 def tokenize_label(label, maxlen, label_vocab_file_path, pad_id):
   """Tokenize labels"""
+  with open(label_vocab_file_path) as f:
+    vocabs = [line.strip() for line in f.readlines()]
   label_id, _ = py_x_ops.sentence_to_ids(
       label,
       maxlen=maxlen,
-      vocab_filepath=label_vocab_file_path,
+      use_vocab_file=False,
+      vocab=vocabs,
       load_token_ids_from_vocab=True,
       pad_id=pad_id,
       check_tokens=False)
@@ -36,10 +39,13 @@ def tokenize_label(label, maxlen, label_vocab_file_path, pad_id):
 
 def tokenize_sentence(texts, max_seq_len, vocab_path):
   """Tokenize sentence"""
+  with open(vocab_path) as f:
+    vocabs = [line.strip() for line in f.readlines()]
   token_ids, _ = py_x_ops.sentence_to_ids(
       texts,
       maxlen=max_seq_len,
-      vocab_filepath=vocab_path,
+      use_vocab_file=False,
+      vocab=vocabs,
       load_token_ids_from_vocab=True,
       pad_id=utils.PAD_IDX,
       check_tokens=True)
