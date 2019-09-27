@@ -769,7 +769,11 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
 
   def __len__(self):
     ''' the number of exmaples'''
-    steps_per_epoch = (self.num_utts - self.batch_size) / self.batch_size + 1
+    # using this to make shure the last exmaples less than batch size used.
+    if self.mode == utils.TRAIN:
+      steps_per_epoch = ( self.num_utts - self.batch_size) / self.batch_size + 1
+    else:
+      steps_per_epoch = (self.num_utts / self.batch_size) + 1
     return int(steps_per_epoch)
 
   def on_epoch_end(self):

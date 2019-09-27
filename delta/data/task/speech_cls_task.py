@@ -893,8 +893,11 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
 
   def __len__(self):
     ''' the number of examples '''
-    steps_per_epoch = (len(self.examples_meta) -
-                       self.batch_size) / self.batch_size + 1
+    if self.mode == utils.TRAIN:
+      steps_per_epoch = (len(self.examples_meta) -
+                         self.batch_size) / self.batch_size + 1
+    else:
+      steps_per_epoch = len(self.examples_meta) / self.batch_size + 1
     return int(steps_per_epoch)
 
   def on_epoch_end(self):
