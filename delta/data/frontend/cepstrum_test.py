@@ -21,27 +21,30 @@ from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.cepstrum import Cepstrum
 import numpy as np
 
+
 class CepstrumTest(tf.test.TestCase):
 
   def test_cepstrum(self):
 
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
     with self.session():
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav.call(wav_path)
-      cepstrum = Cepstrum.params({'window_length':0.025}).instantiate()
+      cepstrum = Cepstrum.params({'window_length': 0.025}).instantiate()
       cepstrum_test = cepstrum(input_data, sample_rate)
 
       output_true = np.array(
-        [[0.525808, 0.579537, 0.159656, 0.014726, -0.1866810],
-         [0.225988, 1.557304, 3.381828, 0.132935, 0.7128600],
-         [-1.832759, -1.045178, 0.753158, 0.116107, -0.9307780],
-         [-0.696277, 1.333355, 1.590942, 2.041829, -0.0805630],
-         [-0.377375, 2.984320, 0.036302, 3.676640, 1.1709290]])
+          [[0.525808, 0.579537, 0.159656, 0.014726, -0.1866810],
+           [0.225988, 1.557304, 3.381828, 0.132935, 0.7128600],
+           [-1.832759, -1.045178, 0.753158, 0.116107, -0.9307780],
+           [-0.696277, 1.333355, 1.590942, 2.041829, -0.0805630],
+           [-0.377375, 2.984320, 0.036302, 3.676640, 1.1709290]])
 
       self.assertAllClose(cepstrum_test.eval()[15:20, 7:12], output_true)
+
 
 if __name__ == '__main__':
   tf.test.main()

@@ -779,7 +779,7 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
     logging.info(f"{self.indexs}")
 
     self.segment_win = int(
-          (self.min_segment_length + self.max_segment_length) / 2)
+        (self.min_segment_length + self.max_segment_length) / 2)
     logging.info(f"default segment length: {self.segment_win}")
 
     if self.mode == utils.TRAIN:

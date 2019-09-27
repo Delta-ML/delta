@@ -16,7 +16,7 @@ set -o pipefail
 
 #prepare kaldi
 if [ ! -d ${MAIN_ROOT}/tools/kaldi/tools/sph2pipe_v2.5 ]; then
-  ./prepare_kaldi.sh
+  bash ${MAIN_ROOT}/tools/test/prepare_kaldi.sh
 fi
 
 echo "Integration Testing..."
