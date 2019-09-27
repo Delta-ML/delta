@@ -38,7 +38,7 @@ class DatasetInitializerHook(tf.train.SessionRunHook):
 class EpochHook(tf.train.SessionRunHook):
 
   def __init__(self, examples_per_epoch, global_batch_size):
-    self._num_examples_per_epoch = exampels_per_epoch
+    self._num_examples_per_epoch = examples_per_epoch
     self._global_batch_size = global_batch_size
     self._epoch = 0
 
