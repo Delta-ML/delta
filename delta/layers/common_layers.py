@@ -166,7 +166,7 @@ def conv2d(x, name, filter_size, in_channels, out_channels, strides, bias=True):
           initializer=tf.constant_initializer(0.0))
     out = tf.nn.conv2d(
         x, kernel, [1, strides[0], strides[1], 1], padding='SAME')
-    if bais:
+    if bias:
       out = tf.nn.bias_add(out, b)
     return out
 
