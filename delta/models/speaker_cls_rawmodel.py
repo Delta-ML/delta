@@ -26,6 +26,7 @@ from delta.layers import common_layers
 from delta.models.base_model import RawModel
 from delta.utils.register import registers
 from delta.utils.loss.loss_utils import arcface_loss
+from delta.utils.hparam import HParams
 
 #pylint: disable=invalid-name
 #pylint: disable=too-many-locals
@@ -187,7 +188,8 @@ class SpeakerBaseRawModel(RawModel):
     with tf.control_dependencies([assert_rank3]):
       x = tf.identity(x)
 
-    pooling_type = pooling_type if pooling_type else self.netconf['frame_pooling_type']
+    pooling_type = pooling_type if pooling_type else self.netconf[
+        'frame_pooling_type']
     if pooling_type == 'stats':
       with tf.name_scope('stats_pooling'):
         mean, var = tf.nn.moments(x, 1)
@@ -432,8 +434,15 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
   ''' A speaker model with ResNet layers. '''
 
   @classmethod
-  def params(cls, config:dict = None) -> dict:
-    hp = {'embedding_size': 512}
+  def params(cls, config: dict = None):
+    embedding_size = 512
+
+    #hp = HParams(cls=cls)
+    hp = HParams(cls=cls)
+    hp.add_hparam('embedding_size', embedding_size)
+
+    if config is not None:
+      hp.override_from_dict(config)
     return hp
 
   def model(self, feats, labels):
@@ -447,25 +456,18 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
       x = tf.reshape(x, [batch_t, time_t, feat * channel])
       x = self.pooling_layer(x, pooling_type='average')
 
-
     with tf.variable_scope("output_layer"):
       shape = x.shape.as_list()
       shape = shape[-1]
-      hidden_dims = self.params()['embedding_size'] 
+      hidden_dims = self.params().embedding_size
       y = x
       y = common_layers.linear(
-          y,
-          'dense-matmul', [shape, hidden_dims],
-          has_bias=True)
+          y, 'dense-matmul', [shape, hidden_dims], has_bias=True)
       y = tf.layers.batch_normalization(
-          y,
-          axis=-1,
-          momentum=0.99,
-          training=self.train,
-          name='dense-bn')
+          y, axis=-1, momentum=0.99, training=self.train, name='dense-bn')
       embedding = y
       dense_output = y
- 
+
     logits = self.logits_layer(dense_output, labels)
     model_outputs = {'logits': logits, 'embeddings': embedding}
     return model_outputs
@@ -477,7 +479,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
 
   def prelu_layer(self, x, name, num_parameters=1, init=0.25):
     if num_parameters == 1:
-      shape = 1;
+      shape = 1
     else:
       shape = x.get_shape()[-1]
     alpha = tf.get_variable(
@@ -611,8 +613,12 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     with tf.variable_scope('resnet'):
       x = tf.identity(inputs)
       with tf.variable_scope('input_layer'):
-        x = common_layers.conv2d(x, 'input_conv', (3, 3), self.input_channels,
-                                 filters_list[0], [1, 1], bias=False)
+        x = common_layers.conv2d(
+            x,
+            'input_conv', (3, 3),
+            self.input_channels,
+            filters_list[0], [1, 1],
+            bias=False)
         x = tf.layers.batch_normalization(
             x, axis=-1, momentum=0.9, training=self.train, name='input_bn')
         x = self.prelu_layer(x, 'input_prelu')
