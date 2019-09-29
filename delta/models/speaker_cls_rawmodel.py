@@ -442,7 +442,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
       x = tf.reshape(x, [batch_t, time_t, feat * channel])
       x = self.pooling_layer(x, pooling_type='average')
 
-    with tf.variable_scope("output_layer")
+    with tf.variable_scope("output_layer"):
       shape = x.shape[-1].value
       hidden_dims = self.netconf['hidden_dims']
       y = x
