@@ -8,7 +8,7 @@ if [ -z ${MAIN_ROOT} ];then
 fi
 
 pushd ${MAIN_ROOT}/tools/kaldi/tools
-sudo apt-get install zlib1g-dev wget subversion
+#sudo apt-get install zlib1g-dev wget subversion
 extras/check_dependencies.sh
 wget --no-check-certificate -T 10  https://sourceforge.net/projects/kaldi/files/sph2pipe_v2.5.tar.gz
 tar --no-same-owner -xzf sph2pipe_v2.5.tar.gz
