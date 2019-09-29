@@ -26,6 +26,7 @@ from tensorflow.python.estimator.canned import metric_keys
 from tensorboard.plugins.pr_curve import summary as pr_summary
 
 from delta import utils
+from delta.utils.hparam import HParams
 from delta.utils import metrics as metrics_lib
 from delta.utils.register import registers
 from delta.utils.solver.base_solver import ABCEstimatorSolver
@@ -158,7 +159,7 @@ class EstimatorSolver(ABCEstimatorSolver):
 
   def create_estimator(self):
     # Set model params
-    model_params = tf.contrib.training.HParams()
+    model_params = HParams()
 
     # create model func
     model_fn = self.model_fn()

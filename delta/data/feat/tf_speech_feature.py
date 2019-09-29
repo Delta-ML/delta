@@ -23,6 +23,7 @@ import scipy.signal
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta import utils
+from delta.utils.hparam import HParams
 
 
 def add_delta_deltas(filterbanks, name=None):
@@ -176,7 +177,7 @@ def speech_params(sr=16000,
                   cmvn=False,
                   cmvn_path=''):
   ''' feat params '''
-  p = tf.contrib.training.HParams()
+  p = HParams()
   p.add_hparam("audio_sample_rate", sr)
   p.add_hparam("audio_channels", 1)
   p.add_hparam("audio_preemphasis", 0.97)

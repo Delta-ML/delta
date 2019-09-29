@@ -22,6 +22,7 @@ import delta.compat as tf
 from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta import utils
+from delta.utils.hparam import HParams
 from delta.layers.ops import py_x_ops
 
 
@@ -36,7 +37,7 @@ def speech_params(sr=16000,
                   cmvn=False,
                   cmvn_path=''):
   ''' speech feat params '''
-  p = tf.contrib.training.HParams()
+  p = HParams()
   p.add_hparam("audio_sample_rate", sr)
   if dither:
     p.add_hparam("audio_dither", 1.0 / np.iinfo(np.int16).max)
