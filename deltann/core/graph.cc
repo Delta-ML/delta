@@ -61,7 +61,7 @@ Graph::Graph(const YAML::Node& cfg) : _cfg(cfg) {
     } else if (server_type == "remote") {
       LOG_INFO << "load remote model";
       _model_meta.remote.hostname = cfg["remote"]["host"].as<string>();
-      _model_meta.remote.port = cfg["remote"]["port"].as<uint16>();
+      _model_meta.remote.port = cfg["remote"]["port"].as<std::uint16_t>();
       _model_meta.remote.model_name = cfg["remote"]["model_name"].as<string>();
 
     } else {
