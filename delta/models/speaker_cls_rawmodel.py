@@ -448,14 +448,14 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
       y = x
       y = common_layers.linear(
           y,
-          'dense-matmul-%d' % (idx + 1), [shape, hidden_dims],
+          'dense-matmul', [shape, hidden_dims],
           has_bias=True)
       y = tf.layers.batch_normalization(
           y,
           axis=-1,
           momentum=0.99,
           training=self.train,
-          name='dense-bn-%d' % (idx + 1))
+          name='dense-bn')
       embedding = y
       dense_output = y
  
