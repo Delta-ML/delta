@@ -431,6 +431,11 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
 class SpeakerResNetRawModel(SpeakerBaseRawModel):
   ''' A speaker model with ResNet layers. '''
 
+  @classmethod
+  def params(cls, config:dict = None) -> dict:
+    hp = {'embedding_size': 512}
+    return hp
+
   def model(self, feats, labels):
     ''' Build the model. '''
     x = self.resnet(feats)
@@ -442,9 +447,11 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
       x = tf.reshape(x, [batch_t, time_t, feat * channel])
       x = self.pooling_layer(x, pooling_type='average')
 
+
     with tf.variable_scope("output_layer"):
-      shape = x.shape[-1].value
-      hidden_dims = self.netconf['hidden_dims']
+      shape = x.shape.as_list()
+      shape = shape[-1]
+      hidden_dims = self.params()['embedding_size'] 
       y = x
       y = common_layers.linear(
           y,

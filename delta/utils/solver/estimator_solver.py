@@ -410,7 +410,7 @@ class EstimatorSolver(ABCEstimatorSolver):
       default_key = metric_keys.MetricKeys.ACCURACY
     compare_fn = functools.partial(
         utils.metric_smaller, default_key=default_key)
-    logging.info("Using {default_key} metric for best exporter")
+    logging.info(f"Using {default_key} metric for best exporter")
 
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self.input_fn(utils.EVAL),
