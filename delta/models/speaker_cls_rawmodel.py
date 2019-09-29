@@ -174,7 +174,7 @@ class SpeakerBaseRawModel(RawModel):
       outputs = x
     return outputs
 
-  def pooling_layer(self, x):
+  def pooling_layer(self, x, pooling_type=None):
     '''
       Add a pooling layer across the whole utterance.
       Input: [B, T, D]
@@ -187,7 +187,7 @@ class SpeakerBaseRawModel(RawModel):
     with tf.control_dependencies([assert_rank3]):
       x = tf.identity(x)
 
-    pooling_type = self.netconf['frame_pooling_type']
+    pooling_type = pooling_type if pooling_type else self.netconf['frame_pooling_type']
     if pooling_type == 'stats':
       with tf.name_scope('stats_pooling'):
         mean, var = tf.nn.moments(x, 1)
@@ -434,9 +434,31 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
   def model(self, feats, labels):
     ''' Build the model. '''
     x = self.resnet(feats)
-    x = self.linear_block(x)
-    x = self.pooling_layer(x)
-    embedding, dense_output = self.dense_layer(x)
+
+    with tf.variable_scope("avg_pooling"):
+      batch_t = tf.shape(x)[0]
+      time_t = tf.shape(x)[1]
+      feat, channel = x.shape.as_list()[2:]
+      x = tf.reshape(x, [batch_t, time_t, feat * channel])
+      x = self.pooling_layer(x, pooling_type='average')
+
+    with tf.variable_scope("output_layer")
+      shape = x.shape[-1].value
+      hidden_dims = self.netconf['hidden_dims']
+      y = x
+      y = common_layers.linear(
+          y,
+          'dense-matmul-%d' % (idx + 1), [shape, hidden_dims],
+          has_bias=True)
+      y = tf.layers.batch_normalization(
+          y,
+          axis=-1,
+          momentum=0.99,
+          training=self.train,
+          name='dense-bn-%d' % (idx + 1))
+      embedding = y
+      dense_output = y
+ 
     logits = self.logits_layer(dense_output, labels)
     model_outputs = {'logits': logits, 'embeddings': embedding}
     return model_outputs
@@ -446,12 +468,16 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
     return x
 
-  def prelu_layer(self, x, name):
+  def prelu_layer(self, x, name, num_parameters=1, init=0.25):
+    if num_parameters == 1:
+      shape = 1;
+    else:
+      shape = x.get_shape()[-1]
     alpha = tf.get_variable(
         name,
-        shape=x.get_shape()[-1],
+        shape=shape,
         dtype=x.dtype,
-        initializer=tf.constant_initializer(0.1))
+        initializer=tf.constant_initializer(init))
     return tf.maximum(0.0, x) + alpha * tf.minimum(0.0, x)
 
   def se_moudle(self, x, channels, reduction, name=''):
@@ -579,7 +605,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
       x = tf.identity(inputs)
       with tf.variable_scope('input_layer'):
         x = common_layers.conv2d(x, 'input_conv', (3, 3), self.input_channels,
-                                 filters_list[0], [1, 1])
+                                 filters_list[0], [1, 1], bias=False)
         x = tf.layers.batch_normalization(
             x, axis=-1, momentum=0.9, training=self.train, name='input_bn')
         x = self.prelu_layer(x, 'input_prelu')
