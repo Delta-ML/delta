@@ -223,8 +223,8 @@ class SpkUttPostProc(SpeakerPostProc):
                 if 'chunk' in self.output_levels:
                   file_pointers['chunk'][output_key](chunk_key, chunk_output)
 
-          utts_out = collections.defaultdict(lambda: np.zeros(
-              (None), dtype=np.float32))
+          utts_out = collections.defaultdict(lambda: np.zeros((None),
+                                                              dtype=np.float32))
           for i, output_key in enumerate(self.outputs):
             utt_output = np.mean(chunks_out[output_key], axis=0)
             utts_out[output_key] = utt_output
