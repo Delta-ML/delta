@@ -185,12 +185,12 @@ def linear(x, names, shapes, has_bias=True):
     weights = tf.get_variable(
         name='weights',
         shape=shapes,
-        initializer=tf.initializers.truncated_normal(stddev=0.1))
+        initializer=tf.initializers.lecun_uniform())
     if has_bias:
       bias = tf.get_variable(
           name='bias',
           shape=shapes[1],
-          initializer=tf.constant_initializer(0.0))
+          initializer=tf.initializers.lecun_uniform())
       return tf.matmul(x, weights) + bias
     else:
       return tf.matmul(x, weights)
