@@ -153,7 +153,7 @@ def read_wav(wavfile, params):
   ''' samples of shape [nsample] '''
   contents = tf.read_file(wavfile)
   #pylint: disable=no-member
-  waveforms = tf.compat.v1.audio.decode_wav(
+  waveforms = tf.audio.decode_wav(
       contents,
       desired_channels=params.audio_channels,
       #desired_samples=params.audio_sample_rate,
