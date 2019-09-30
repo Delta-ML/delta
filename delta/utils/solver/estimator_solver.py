@@ -15,9 +15,11 @@
 # ==============================================================================
 ''' Estimator base class for classfication '''
 import os
+import functools
 from absl import logging
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
+from tensorflow.python.estimator.canned import metric_keys
 # See: tensorboard/tensorboard/plugins/pr_curve/README.md
 # Note: tf.contrib.metrics.streaming_curve_points will only produce a series of points
 #  which won't be displayed by Tensorboard.
@@ -207,7 +209,6 @@ class EstimatorSolver(ABCEstimatorSolver):
     nclass = self.config['data']['task']['classes']['num']
     metric_tensor = {
         "batch_accuracy": metrics_lib.accuracy(logits, labels),
-        "raw_labels": labels,
         'global_step': tf.train.get_or_create_global_step(),
     }
     if nclass > 100:
@@ -250,8 +251,10 @@ class EstimatorSolver(ABCEstimatorSolver):
 
   def get_eval_hooks(self, labels, logits):
     ''' lables: [batch]
-            logits: [batch, num_classes]
-        '''
+        logits: [batch, num_classes]
+    '''
+    nclass = self.config['data']['task']['classes']['num']
+
     eval_hooks = []
     metric_tensor = {}
     with tf.variable_scope('metrics'):
@@ -263,39 +266,42 @@ class EstimatorSolver(ABCEstimatorSolver):
           'accuracy':
               tf.metrics.accuracy(
                   labels=true_label, predictions=pred_label, weights=None),
-          'auc':
-              tf.metrics.auc(
-                  labels=true_label,
-                  predictions=softmax[:, -1],
-                  num_thresholds=20,
-                  curve='ROC',
-                  summation_method='trapezoidal'),
-          'precision':
-              tf.metrics.precision(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'recall':
-              tf.metrics.recall(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'tp':
-              tf.metrics.true_positives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'fn':
-              tf.metrics.false_negatives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'fp':
-              tf.metrics.false_positives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'tn':
-              tf.metrics.true_negatives(
-                  labels=true_label, predictions=pred_label, weights=None),
-          'pr_curve_eval':
-              pr_summary.streaming_op(
-                  name='pr_curve_eval',
-                  labels=true_label_bool,
-                  predictions=softmax[:, -1],
-                  num_thresholds=50,
-                  weights=None)
       }
+      if nclass == 2:
+        eval_metrics_ops.update({
+            'auc':
+                tf.metrics.auc(
+                    labels=true_label,
+                    predictions=softmax[:, -1],
+                    num_thresholds=20,
+                    curve='ROC',
+                    summation_method='trapezoidal'),
+            'precision':
+                tf.metrics.precision(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'recall':
+                tf.metrics.recall(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'tp':
+                tf.metrics.true_positives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'fn':
+                tf.metrics.false_negatives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'fp':
+                tf.metrics.false_positives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'tn':
+                tf.metrics.true_negatives(
+                    labels=true_label, predictions=pred_label, weights=None),
+            'pr_curve_eval':
+                pr_summary.streaming_op(
+                    name='pr_curve_eval',
+                    labels=true_label_bool,
+                    predictions=softmax[:, -1],
+                    num_thresholds=50,
+                    weights=None)
+        })
 
     metric_tensor.update({key: val[0] for key, val in eval_metrics_ops.items()})
     metric_hook = tf.train.LoggingTensorHook(
@@ -365,11 +371,12 @@ class EstimatorSolver(ABCEstimatorSolver):
       logging.info("{}: {}".format(key, value))
       if save:
         fobj.write("{}: {}\n".format(key, value))
-    f1_score = metrics_lib.f1_score(metrics['tp'], metrics['fp'], metrics['fn'],
-                                    metrics['tn'])
-    logging.info("F1: {}".format(f1_score))
-    if save:
-      fobj.write("F1: {}\n".format(f1_score))
+    if 'tp' in metrics and 'fp' in metrics and 'fn' in metrics and 'tn' in metrics:
+      f1_score = metrics_lib.f1_score(metrics['tp'], metrics['fp'], metrics['fn'],
+                                      metrics['tn'])
+      logging.info("F1: {}".format(f1_score))
+      if save:
+        fobj.write("F1: {}\n".format(f1_score))
 
   #pylint: disable=arguments-differ
   def eval(self, steps=None):
@@ -402,6 +409,16 @@ class EstimatorSolver(ABCEstimatorSolver):
         input_fn=self.input_fn(utils.TRAIN), max_steps=None, hooks=None)
 
     #pylint: disable=no-member
+    nclass = self.config['data']['task']['classes']['num']
+    # https://github.com/tensorflow/estimator/blob/master/tensorflow_estimator/python/estimator/canned/metric_keys.py
+    if nclass == 2:
+      default_key = metric_keys.MetricKeys.AUC
+    else:
+      default_key = metric_keys.MetricKeys.ACCURACY
+    compare_fn = functools.partial(
+        utils.metric_smaller, default_key=default_key)
+    logging.info("Using {default_key} metric for best exporter")
+
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self.input_fn(utils.EVAL),
         steps=None,
@@ -419,7 +436,7 @@ class EstimatorSolver(ABCEstimatorSolver):
                 serving_input_receiver_fn=self.create_serving_input_receiver_fn(
                 ),
                 event_file_pattern='eval/*.tfevents.*',
-                compare_fn=utils.auc_smaller,
+                compare_fn=compare_fn,
                 assets_extra=None,
                 as_text=False,
                 exports_to_keep=1,

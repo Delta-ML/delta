@@ -169,7 +169,7 @@ class LossUtilTest(tf.test.TestCase):
       labels_after_transform, inputs_after_transform = loss_utils.ctc_data_transform(
           labels, inputs, blank_index)
       labels_after_transform = tf.sparse_tensor_to_dense(labels_after_transform)
-      new_labels = [[1, 4, 2]]
+      new_labels = [[1, 5, 2]]
       new_inputs = [
           [[0.633766, 0.221185, 0.0129757, 0.0142857, 0.0260553, 0.0917319],
            [0.111121, 0.588392, 0.0055756, 0.00569609, 0.010436, 0.278779],
@@ -267,6 +267,7 @@ class LossUtilTest(tf.test.TestCase):
     with self.cached_session():
       logits = np.array([[22, 23, 24]], dtype=np.float32)
       labels = np.array([2], dtype=np.int32)
+      alpha = tf.ones([3])
 
       ce_loss = loss_utils.cross_entropy(
           logits=tf.constant(logits),
@@ -275,17 +276,26 @@ class LossUtilTest(tf.test.TestCase):
           label_length=None)
 
       fl_loss0 = loss_utils.focal_loss(
-          logits=tf.constant(logits), labels=tf.constant(labels), gamma=0)
+          logits=tf.constant(logits),
+          labels=tf.constant(labels),
+          alpha=alpha,
+          gamma=0)
 
       self.assertAllClose(fl_loss0.eval(), 0.407606, rtol=1e-06, atol=1e-6)
       self.assertAllClose(
           fl_loss0.eval(), ce_loss.eval(), rtol=1e-07, atol=1e-7)
 
       fl_loss2 = loss_utils.focal_loss(
-          logits=tf.constant(logits), labels=tf.constant(labels), gamma=2)
+          logits=tf.constant(logits),
+          labels=tf.constant(labels),
+          alpha=alpha,
+          gamma=2)
 
       fl_loss5 = loss_utils.focal_loss(
-          logits=tf.constant(logits), labels=tf.constant(labels), gamma=5)
+          logits=tf.constant(logits),
+          labels=tf.constant(labels),
+          alpha=alpha,
+          gamma=5)
 
       self.assertAllClose(fl_loss2.eval(), 0.045677, rtol=1e-06, atol=1e-6)
       self.assertAllClose(fl_loss5.eval(), 0.001713, rtol=1e-06, atol=1e-6)

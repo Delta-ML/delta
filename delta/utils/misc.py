@@ -229,19 +229,21 @@ def generate_synthetic_data(input_shape,
   return tf.data.Dataset.from_tensors(element).repeat(nepoch)
 
 
-def auc_smaller(best_eval_result, current_eval_result):
+def metric_smaller(best_eval_result,
+                   current_eval_result,
+                   default_key=metric_keys.MetricKeys.AUC):
   """Compares two evaluation results and returns true if the 2nd one is smaller.
               Both evaluation results should have the values for MetricKeys.LOSS, which are
               used for comparison.
               Args:
                 best_eval_result: best eval metrics.
                 current_eval_result: current eval metrics.
+                default_key: metric_keys.MericKeys
               Returns:
                 True if the loss of current_eval_result is smaller; otherwise, False.
               Raises:
                ValueError: If input eval result is None or no loss is available.
         """
-  default_key = metric_keys.MetricKeys.AUC
   if not best_eval_result or default_key not in best_eval_result:
     raise ValueError(
         'best_eval_result cannot be empty or no loss is found in it.')

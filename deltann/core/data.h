@@ -108,7 +108,9 @@ class BaseInOutData {
   void copy_from(const void* src, std::size_t size) {
     DataType dtype = this->dtype();
     if (dtype != DataType::DELTA_NONE) {
-      _data->copy_from(src, size * delta_sizeof(dtype));
+      std::size_t bytes = size * delta_sizeof(dtype);
+      resize(bytes);
+      _data->copy_from(src, bytes);
     } else {
       LOG_FATAL << "_dtype is DataType::DELTA_NONE ";
     }

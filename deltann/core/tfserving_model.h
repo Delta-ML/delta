@@ -49,7 +49,7 @@ class TFServingModel : public BaseModel {
 #endif
 
   const std::string _hostname;
-  const unsigned short _port;
+  const uint16 _port;
   const std::string _model_name;
   const int _version;
   std::string _base_url;

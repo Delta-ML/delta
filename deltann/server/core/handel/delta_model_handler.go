@@ -13,40 +13,35 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-package conf
+package handel
 
 import (
-	"delta/deltann/server/core/utils"
-	"flag"
-	"fmt"
+	"delta/deltann/server/core/conf"
+	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"path/filepath"
+	"net/http"
 )
 
-type envConfig struct {
-	Port string `yaml:"port"`
-	Env  string `yaml:"env"`
+type ModelVersion struct {
+	Version string      `json:"version"`
+	State   string      `json:"state"`
+	Status  ModelStatus `json:"status"`
 }
 
-type AppConf struct {
-	Env envConfig `yaml:"envConfig"`
+type ModelStatus struct {
+	ErrorCode    string `json:"error_code"`
+	ErrorMessage string `json:"error_message"`
 }
 
-var AppConfig AppConf
-var Profile = flag.String("profile", "develop", "deploy environment")
+func DeltaModelHandler(context *gin.Context) {
 
-func init() {
-	flag.Parse()
-
-	ymlFile, err := ioutil.ReadFile(filepath.Join(utils.GetProjectPath(*Profile), fmt.Sprintf("configurations/conf.%s.yml", *Profile)))
+	modelVersion := &ModelVersion{conf.DeltaConf.Model.Graph[0].Version, "AVAILABLE", ModelStatus{"OK", ""}}
+	pagesJson, err := json.Marshal(modelVersion)
 	if err != nil {
-		glog.Fatalf("read the confg file err! %s", err.Error())
+		glog.Infof("Cannot encode to JSON %s ", err.Error())
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-	err = yaml.Unmarshal(ymlFile, &AppConfig)
-	if err != nil {
-		glog.Fatalf("the config file is not yaml format %s", err.Error())
-	}
-
+	context.JSON(http.StatusOK, gin.H{"model_version_status": string(pagesJson)})
 }
