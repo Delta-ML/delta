@@ -188,6 +188,32 @@ class SpkUttPostProc(SpeakerPostProc):
     last_utt = None
     num_clips_processed = 0
 
+    def _process_utt(utt):
+      num_clips = 0
+      chunks_out = collections.defaultdict(list)
+      for i, item in enumerate(utt2clips[utt]):
+        logging.debug(f"{utt} {item[0]} {utt}")
+        num_clips += 1
+
+        for j, output_key in enumerate(self.outputs):
+          chunk_output = item[j + 1]  # offset 1 for first filed is clipid
+          chunks_out[output_key].append(chunk_output)
+          if self.infer:
+            chunk_key = utt.decode() + '_' + str(item[0])
+            if 'chunk' in self.output_levels:
+              file_pointers['chunk'][output_key](chunk_key, chunk_output)
+
+      utts_out = collections.defaultdict(lambda: np.zeros(
+          (None), dtype=np.float32))
+      for i, output_key in enumerate(self.outputs):
+        utt_output = np.mean(chunks_out[output_key], axis=0)
+        utts_out[output_key] = utt_output
+        utt_key = utt.decode()
+        if self.infer:
+          if 'utt' in self.output_levels:
+            file_pointers['utt'][output_key](utt_key, utt_output)
+      return num_clips
+
     for batch_index, batch in enumerate(predictions):
       # batch = {'inputs': [clip_0, clip_1, ...],
       #          'labels': [clip_0, clip_1, ...],
@@ -210,35 +236,18 @@ class SpkUttPostProc(SpeakerPostProc):
         logging.debug(f"utt2clips: {utt} {value[0]} {len(utt2clips[utt])}")
 
         if last_utt != utt:
-          chunks_out = collections.defaultdict(list)
-          for i, item in enumerate(utt2clips[last_utt]):
-            logging.debug(f"{last_utt} {item[0]} {utt}")
-            num_clips_processed += 1
-
-            for j, output_key in enumerate(self.outputs):
-              chunk_output = item[j + 1]  # offset 1 for first filed is clipid
-              chunks_out[output_key].append(chunk_output)
-              if self.infer:
-                chunk_key = last_utt.decode() + '_' + str(item[0])
-                if 'chunk' in self.output_levels:
-                  file_pointers['chunk'][output_key](chunk_key, chunk_output)
-
-          utts_out = collections.defaultdict(lambda: np.zeros((None),
-                                                              dtype=np.float32))
-          for i, output_key in enumerate(self.outputs):
-            utt_output = np.mean(chunks_out[output_key], axis=0)
-            utts_out[output_key] = utt_output
-            utt_key = last_utt.decode()
-            if self.infer:
-              if 'utt' in self.output_levels:
-                file_pointers['utt'][output_key](utt_key, utt_output)
-
+          num_clips_processed += _process_utt(last_utt)
           last_utt = utt
 
       if (batch_index + 1) % 10 == 0:
         logging.info('Processed %d batches, %d clips.' %
                      (batch_index + 1, num_clips_processed))
 
+    # save last
+    num_clips_processed += _process_utt(last_utt)
+    logging.info('Processed %d clips.' % (num_clips_processed))
+
+    # close files
     if self.infer:
       for output_level in self.output_levels:
         for output_key in self.outputs:
