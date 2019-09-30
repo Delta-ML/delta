@@ -209,7 +209,7 @@ class SpkUttPostProc(SpeakerPostProc):
         utt2clips[utt].append(value)
         logging.debug(f"utt2clips: {utt} {value[0]} {len(utt2clips[utt])}")
 
-        if last_utt != utt:
+        if last_utt != utt or i == 0:
           chunks_out = collections.defaultdict(list)
           for i, item in enumerate(utt2clips[last_utt]):
             logging.debug(f"{last_utt} {item[0]} {utt}")
