@@ -18,7 +18,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import lingvo.compat as tf
+import delta.compat as tf
 from tensorflow.python.framework import function  # pylint:disable=g-direct-tensorflow-import
 
 

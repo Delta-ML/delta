@@ -304,7 +304,7 @@ def batch_extract_feature(waveforms, params):
   loop_vars = (time, waveforms, output_tas)
 
   parallel_iterations = 10
-  shape_invariants = tf.contrib.framework.nest.map_structure(
+  shape_invariants = tf.nest.map_structure(
       lambda t: tf.TensorShape(None), loop_vars)
 
   (time, inputs, output_tas) = tf.while_loop(
@@ -362,7 +362,7 @@ def splice(feat, left_context, right_context):
     loop_vars = (time, T, context, left_context, right_context, output_tas)
 
     parallel_iterations = 10
-    shape_invariants = tf.contrib.framework.nest.map_structure(
+    shape_invariants = tf.nest.map_structure(
         lambda t: tf.TensorShape(None), loop_vars)
 
     (time, end_time, context, left_context, right_context,

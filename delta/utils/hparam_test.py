@@ -17,7 +17,7 @@
 import copy
 import tensorflow as tf
 
-from hparam import HParams
+from delta.utils.hparam import HParams
 
 
 class HParamsTest(tf.test.TestCase):

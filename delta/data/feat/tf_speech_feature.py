@@ -110,7 +110,7 @@ def compute_mel_filterbank_features(waveforms,
   if fft_length is None:
     fft_length = int(2**(np.ceil(np.log2(frame_length))))
 
-  stfts = tf.contrib.signal.stft(
+  stfts = tf.signal.stft(
       waveforms,
       frame_length=frame_length,
       frame_step=frame_step,
