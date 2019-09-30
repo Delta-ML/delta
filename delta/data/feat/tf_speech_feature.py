@@ -20,7 +20,6 @@ import numpy as np
 import delta.compat as tf
 import scipy.signal
 #pylint: disable=ungrouped-imports,no-name-in-module
-from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta import utils
 from delta.utils.hparam import HParams
@@ -131,7 +130,7 @@ def compute_mel_filterbank_features(waveforms,
   # Warp the linear-scale, magnitude spectrograms into the mel-scale.
   num_spectrogram_bins = magnitude_spectrograms.shape[-1].value
   linear_to_mel_weight_matrix = (
-      tf.contrib.signal.linear_to_mel_weight_matrix(num_mel_bins,
+      tf.signal.linear_to_mel_weight_matrix(num_mel_bins,
                                                     num_spectrogram_bins,
                                                     sample_rate,
                                                     lower_edge_hertz,
@@ -154,7 +153,7 @@ def read_wav(wavfile, params):
   ''' samples of shape [nsample] '''
   contents = tf.read_file(wavfile)
   #pylint: disable=no-member
-  waveforms = contrib_audio.decode_wav(
+  waveforms = tf.compat.v1.audio.decode_wav(
       contents,
       desired_channels=params.audio_channels,
       #desired_samples=params.audio_sample_rate,
