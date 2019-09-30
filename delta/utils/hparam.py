@@ -13,10 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """Hyperparameter values."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import json
 import numbers
 import re
@@ -24,7 +20,6 @@ from deepdiff import DeepDiff
 
 import six
 
-from tensorflow.contrib.training.python.training import hparam_pb2
 from tensorflow.python.framework import ops
 from tensorflow.python.util import compat
 from tensorflow.python.util import deprecation
