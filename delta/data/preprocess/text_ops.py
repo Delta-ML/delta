@@ -17,17 +17,21 @@
 
 import tensorflow as tf
 from absl import logging
+import os
 
 from delta import utils
 from delta.layers.ops import py_x_ops
+from delta.data.utils import read_lines_from_text_file
 
 
 def tokenize_label(label, maxlen, label_vocab_file_path, pad_id):
   """Tokenize labels"""
+  vocabs = read_lines_from_text_file(label_vocab_file_path)
   label_id, _ = py_x_ops.sentence_to_ids(
       label,
       maxlen=maxlen,
-      vocab_filepath=label_vocab_file_path,
+      use_vocab_file=False,
+      vocab=vocabs,
       load_token_ids_from_vocab=True,
       pad_id=pad_id,
       check_tokens=False)
@@ -36,14 +40,46 @@ def tokenize_label(label, maxlen, label_vocab_file_path, pad_id):
 
 def tokenize_sentence(texts, max_seq_len, vocab_path):
   """Tokenize sentence"""
+  vocabs = read_lines_from_text_file(vocab_path)
   token_ids, _ = py_x_ops.sentence_to_ids(
       texts,
       maxlen=max_seq_len,
-      vocab_filepath=vocab_path,
+      use_vocab_file=False,
+      vocab=vocabs,
       load_token_ids_from_vocab=True,
       pad_id=utils.PAD_IDX,
       check_tokens=True)
   return token_ids
+
+
+def chinese_word_cut_tf(input_str):
+  """"""
+  main_root = os.environ["MAIN_ROOT"]
+  dict_path = os.path.join(main_root,
+                           "tools/cppjieba/dict/jieba.dict.utf8")
+  hmm_path = os.path.join(main_root,
+                          "tools/cppjieba/dict/hmm_model.utf8")
+  user_dict_path = os.path.join(main_root,
+                                "tools/cppjieba/dict/user.dict.utf8")
+  idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
+  stop_word_path = os.path.join(main_root,
+                                "tools/cppjieba/dict/stop_words.utf8")
+  dict_lines = read_lines_from_text_file(dict_path)
+  model_lines = read_lines_from_text_file(hmm_path)
+  user_dict_lines = read_lines_from_text_file(user_dict_path)
+  idf_lines = read_lines_from_text_file(idf_path)
+  stop_word_lines = read_lines_from_text_file(stop_word_path)
+
+  output_str = py_x_ops.jieba_cut(
+    input_str,
+    use_file=False,
+    hmm=True,
+    dict_lines=dict_lines,
+    model_lines=model_lines,
+    user_dict_lines=user_dict_lines,
+    idf_lines=idf_lines,
+    stop_word_lines=stop_word_lines)
+  return output_str
 
 
 def clean_english_str_tf(input_str):
@@ -83,3 +119,70 @@ def char_cut_tf(input_str):
     raise Exception("Error input shape for input_str.")
   output_str = tf.strings.strip(output_str)
   return output_str
+
+
+def load_one_label_dataset(label_placeholder, config, output_index=None):
+  """Load one-label data set."""
+  logging.info("Loading one label dataset...")
+  num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
+  classes = config["data"]["task"]["classes"]
+  if isinstance(classes, list):
+    if output_index is None or output_index not in range(len(classes)):
+      raise IndexError("output_index:{} not in the range of classes length: "
+                       "{}!".format(output_index, len(classes)))
+    num_classes = classes[output_index]["num_classes"]
+    label_vocab_file_path = config["data"]["task"]["label_vocab"][output_index]
+  else:
+    num_classes = classes["num_classes"]
+    label_vocab_file_path = config["data"]["task"]["label_vocab"]
+  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
+
+  label_ds = label_ds.map(
+      lambda x: tokenize_label(
+          x, maxlen=1, label_vocab_file_path=label_vocab_file_path, pad_id=0),
+      num_parallel_calls=num_parallel_calls)
+
+  label_ds = label_ds.map(
+      lambda l: tf.one_hot(l, num_classes, dtype=tf.int32),
+      num_parallel_calls=num_parallel_calls)
+
+  label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
+
+  return label_ds
+
+
+def load_multi_label_dataset(label_placeholder, config, output_index=None):
+  """Load multi-label data set."""
+  logging.info("Loading multi label dataset...")
+  label_vocab_file_path = config["data"]["task"]["label_vocab"]
+  num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
+  max_seq_len = config["data"]["task"]["max_seq_len"]
+
+  label_vocab_file_path = config["data"]["task"]["label_vocab"]
+  if isinstance(label_vocab_file_path, list):
+    if output_index is None or output_index not in range(
+        len(label_vocab_file_path)):
+      raise IndexError("output_index:{} not in the range of classes length: "
+                       "{}!".format(output_index, len(label_vocab_file_path)))
+    label_vocab_file_path = label_vocab_file_path[output_index]
+
+  else:
+    label_vocab_file_path = label_vocab_file_path
+
+  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
+  label_ds = label_ds.map(
+      lambda x: tokenize_label(
+          x,
+          maxlen=max_seq_len,
+          label_vocab_file_path=label_vocab_file_path,
+          pad_id=0),
+      num_parallel_calls=num_parallel_calls)
+  label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
+
+  return label_ds
+
+
+def load_dense_dataset(dense_feature):
+  """Load dense data set"""
+  dataset = tf.data.Dataset.from_tensor_slices(dense_feature)
+  return dataset

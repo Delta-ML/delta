@@ -20,10 +20,8 @@ import re
 import json
 import numpy as np
 from absl import logging
-import tensorflow as tf
 
 from delta import utils
-from delta.data.preprocess.text_ops import tokenize_label
 
 
 def input_fn(dataset, mode, batch_size, num_epoch=None):
@@ -330,68 +328,8 @@ def load_npy(npy_path, dtype=np.float32):
   return dense_feature
 
 
-def load_one_label_dataset(label_placeholder, config, output_index=None):
-  """Load one-label data set."""
-  logging.info("Loading one label dataset...")
-  num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
-  classes = config["data"]["task"]["classes"]
-  if isinstance(classes, list):
-    if output_index is None or output_index not in range(len(classes)):
-      raise IndexError("output_index:{} not in the range of classes length: "
-                       "{}!".format(output_index, len(classes)))
-    num_classes = classes[output_index]["num_classes"]
-    label_vocab_file_path = config["data"]["task"]["label_vocab"][output_index]
-  else:
-    num_classes = classes["num_classes"]
-    label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
-
-  label_ds = label_ds.map(
-      lambda x: tokenize_label(
-          x, maxlen=1, label_vocab_file_path=label_vocab_file_path, pad_id=0),
-      num_parallel_calls=num_parallel_calls)
-
-  label_ds = label_ds.map(
-      lambda l: tf.one_hot(l, num_classes, dtype=tf.int32),
-      num_parallel_calls=num_parallel_calls)
-
-  label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
-
-  return label_ds
-
-
-def load_multi_label_dataset(label_placeholder, config, output_index=None):
-  """Load multi-label data set."""
-  logging.info("Loading multi label dataset...")
-  label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
-  max_seq_len = config["data"]["task"]["max_seq_len"]
-
-  label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  if isinstance(label_vocab_file_path, list):
-    if output_index is None or output_index not in range(
-        len(label_vocab_file_path)):
-      raise IndexError("output_index:{} not in the range of classes length: "
-                       "{}!".format(output_index, len(label_vocab_file_path)))
-    label_vocab_file_path = label_vocab_file_path[output_index]
-
-  else:
-    label_vocab_file_path = label_vocab_file_path
-
-  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
-  label_ds = label_ds.map(
-      lambda x: tokenize_label(
-          x,
-          maxlen=max_seq_len,
-          label_vocab_file_path=label_vocab_file_path,
-          pad_id=0),
-      num_parallel_calls=num_parallel_calls)
-  label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
-
-  return label_ds
-
-
-def load_dense_dataset(dense_feature):
-  """Load dense data set"""
-  dataset = tf.data.Dataset.from_tensor_slices(dense_feature)
-  return dataset
+def read_lines_from_text_file(file_path):
+  """Read lines from a text file."""
+  with open(file_path) as f:
+    lines = [line.strip() for line in f.readlines()]
+    return lines

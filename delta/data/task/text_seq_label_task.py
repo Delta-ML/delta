@@ -21,7 +21,7 @@ from absl import logging
 
 from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_seq_label_raw_data
-from delta.data.utils.common_utils import load_multi_label_dataset
+from delta.data.preprocess.text_ops import load_multi_label_dataset
 from delta.data.preprocess.utils import get_vocab_size
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens

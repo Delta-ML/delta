@@ -94,6 +94,7 @@ egs/*/*/*/res
 *.pbtxt
 dpl/lib/*
 dpl/test/*
+dpl/input_model
 !dpl/output_model/
 dpl/output_model/*
 !dpl/output_model/.gitkeep
@@ -107,3 +108,6 @@ deltann/server/examples/log/
 deltann/server/examples/nohup.out
 .bash_history
 .viminfo
+
+# inner egs
+inner

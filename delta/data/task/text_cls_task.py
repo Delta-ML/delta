@@ -21,9 +21,9 @@ from absl import logging
 
 from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_cls_raw_data
-from delta.data.utils.common_utils import load_one_label_dataset
-from delta.data.utils.common_utils import load_dense_dataset
 from delta.data.utils.common_utils import load_npy
+from delta.data.preprocess.text_ops import load_one_label_dataset
+from delta.data.preprocess.text_ops import load_dense_dataset
 from delta.data.preprocess.utils import load_vocab_dict
 from delta import utils
 from delta.utils.register import registers

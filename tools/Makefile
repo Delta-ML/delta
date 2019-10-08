@@ -152,7 +152,7 @@ mecab.done: espnet.done
 
 # Chinese segment word 
 cppjieba.done:
-	test -d cppjieba || git clone --depth=1 https://github.com/yanyiwu/cppjieba.git cppjieba
+	test -d cppjieba || git clone --depth=1 https://github.com/applenob/cppjieba.git cppjieba
 	touch cppjieba.done
 
 check_install:
