@@ -157,7 +157,7 @@ def conv2d(x, name, filter_size, in_channels, out_channels, strides, bias=True):
         name='DW',
         shape=[filter_size[0], filter_size[1], in_channels, out_channels],
         dtype=tf.float32,
-        initializer=tf.contrib.layers.xavier_initializer())
+        initializer=tf.initializers.glorot_uniform())
     if bias:
       b = tf.get_variable(
           name='bias',
@@ -188,12 +188,12 @@ def linear(x, names, shapes, has_bias=True):
     weights = tf.get_variable(
         name='weights',
         shape=shapes,
-        initializer=tf.initializers.lecun_uniform())
+        initializer=tf.initializers.glorot_uniform())
     if has_bias:
       bias = tf.get_variable(
           name='bias',
           shape=shapes[1],
-          initializer=tf.initializers.lecun_uniform())
+          initializer=tf.initializers.glorot_uniform())
       return tf.matmul(x, weights) + bias
     else:
       return tf.matmul(x, weights)

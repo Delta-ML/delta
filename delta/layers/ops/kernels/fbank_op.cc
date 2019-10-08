@@ -66,9 +66,8 @@ class FbankOp : public OpKernel {
     Tensor* output_tensor = nullptr;
     OP_REQUIRES_OK(context,
                    context->allocate_output(
-                       0,
-                       TensorShape({audio_channels, spectrogram_samples,
-                                    filterbank_channel_count_}),
+                       0, TensorShape({audio_channels, spectrogram_samples,
+                                       filterbank_channel_count_}),
                        &output_tensor));
 
     const float* spectrogram_flat = spectrogram.flat<float>().data();

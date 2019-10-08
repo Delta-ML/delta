@@ -495,7 +495,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     x = tf.layers.conv2d(
         x,
         channels // reduction, (1, 1),
-        use_bias=True,
+        use_bias=False,
         name=name + '_1x1_down',
         strides=(1, 1),
         padding='valid',
@@ -508,7 +508,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     x = tf.layers.conv2d(
         x,
         channels, (1, 1),
-        use_bias=True,
+        use_bias=False,
         name=name + '_1x1_up',
         strides=(1, 1),
         padding='valid',
@@ -527,23 +527,39 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
 
     short_cut = x
     if not dim_match:
-      short_cut = common_layers.conv2d(short_cut, conv_name_base + '1', (1, 1),
-                                       in_channel, out_channel, stride)
+      short_cut = common_layers.conv2d(
+          short_cut,
+          conv_name_base + '1',
+          filter_size=(1, 1),
+          in_channels=in_channel,
+          out_channels=out_channel,
+          strides=stride,
+          bias=False)
       short_cut = tf.layers.batch_normalization(
           short_cut,
           axis=-1,
           momentum=0.9,
           training=self.train,
           name=bn_name_base + '1')
+
     x = tf.layers.batch_normalization(
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name_base + '2a')
-    x = common_layers.conv2d(x, conv_name_base + '2a', (3, 3), in_channel,
-                             out_channel, [1, 1])
+    x = common_layers.conv2d(
+        x,
+        conv_name_base + '2a', (3, 3),
+        in_channel,
+        out_channel, [1, 1],
+        bias=False)
     x = tf.layers.batch_normalization(
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name_base + '2b')
     x = self.prelu_layer(x, name=prelu_name_base + '2b')
-    x = common_layers.conv2d(x, conv_name_base + '2b', (3, 3), out_channel,
-                             out_channel, stride)
+    x = common_layers.conv2d(
+        x,
+        conv_name_base + '2b', (3, 3),
+        out_channel,
+        out_channel,
+        stride,
+        bias=False)
     res = tf.layers.batch_normalization(
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name_base + '2c')
 
@@ -588,13 +604,14 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     elif block_mode == 'ir_se':
       block = self.se_resnet_layer
 
-    x = block(x, in_channel, out_channel, stride, False, block_name='a')
+    x = block(
+        x, in_channel, out_channel, stride, dim_match=False, block_name='a')
     for i in range(1, layer_num):
       x = block(
           x,
           out_channel,
           out_channel, [1, 1],
-          True,
+          dim_match=True,
           block_name=chr(ord('a') + i))
 
     return x

@@ -20,15 +20,9 @@ limitations under the License.
 #include <math.h>
 
 // define complex declare type
-typedef struct FCOMPLEX {
-  float r, i;
-} fcomplex;
-typedef struct ICOMPLEX {
-  int r, i;
-} icomplex;
-typedef struct DCOMPLEX {
-  double r, i;
-} dcomplex;
+typedef struct FCOMPLEX { float r, i; } fcomplex;
+typedef struct ICOMPLEX { int r, i; } icomplex;
+typedef struct DCOMPLEX { double r, i; } dcomplex;
 
 // define fcomplex, float type
 typedef fcomplex xcomplex;

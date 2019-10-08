@@ -27,6 +27,7 @@ from tensorboard.plugins.pr_curve import summary as pr_summary
 
 from delta import utils
 from delta.utils import metrics as metrics_lib
+from delta.utils import summary as summary_lib
 from delta.utils.register import registers
 from delta.utils.solver.base_solver import ABCEstimatorSolver
 
@@ -107,6 +108,16 @@ class EstimatorSolver(ABCEstimatorSolver):
           soft_labels=soft_labels,
           name='x_loss',
       )
+
+      # L2 loss
+      weight_decay = self.config['solver']['optimizer'].get(
+          'weight_decay', None)
+      if weight_decay:
+        logging.info(f"add L2 Loss with decay: {weight_decay}")
+        tvars = [v for v in tf.trainable_variables() if 'bias' not in v.name]
+        l2_loss = weight_decay * tf.add_n([tf.nn.l2_loss(v) for v in tvars])
+        summary_lib.scalar('l2_loss', l2_loss)
+        loss += l2_loss
 
       if mode == utils.TRAIN:  #pylint: disable=no-else-return
         multitask = self.config['solver']['optimizer']['multitask']
@@ -213,7 +224,7 @@ class EstimatorSolver(ABCEstimatorSolver):
     else:
       metric_tensor['batch_confusion'] = \
           metrics_lib.confusion_matrix(logits, labels, nclass)
-    tf.summary.scalar('batch_accuracy', metric_tensor['batch_accuracy'])
+    summary_lib.scalar('batch_accuracy', metric_tensor['batch_accuracy'])
     if alpha:
       metric_tensor.update({"alignment": alpha})
 
