@@ -66,18 +66,6 @@ class TextOpsTest(tf.test.TestCase):
                           [[3, 3]])
       self.assertAllEqual(res[1], [[0, 0]])
 
-    text_tokenize_t = tokenize_sentence(text, maxlen, self.vocab_text)
-    label = ["B B"]
-    maxlen = 2
-    label_tokenize_t = tokenize_label(label, maxlen, self.vocab_label, -1)
-
-    with self.session() as sess:
-      res = sess.run([text_tokenize_t, label_tokenize_t])
-      logging.debug(res)
-      self.assertAllEqual(res[0],
-                          [[3, 3]])
-      self.assertAllEqual(res[1], [[0, 0]])
-
   def test_clean_english_str_tf(self):
     t_sentence_in = tf.placeholder(dtype=tf.string)
     t_sentence_out = clean_english_str_tf(t_sentence_in)
