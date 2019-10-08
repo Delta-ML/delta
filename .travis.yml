@@ -3,25 +3,20 @@ language: python
 services:
   - docker
 
+before_install:
+  - export DELTA_PATH=`pwd`; echo $DELTA_PATH
+  - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
+  - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
+  - docker run -it -d --name travis_con --user root -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
+  - docker exec travis_con bash -c "gcc -v && g++ -v"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; touch test.done"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; git clone --depth=1 https://github.com/kaldi-asr/kaldi.git"
+
 jobs:
   include:
-    - stage: install
-      script:
-        - export DELTA_PATH=`pwd`; echo $DELTA_PATH
-        - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
-        - docker pull zh794390558/delta:1.14.0-ci-cpu-py3
-        - docker run -it -d --name travis_con --user root -v ${DELTA_PATH}:${DOCKER_DELTA} zh794390558/delta:1.14.0-ci-cpu-py3 bash
-        - docker exec travis_con bash -c "gcc -v && g++ -v"
-        - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
-        - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; touch test.done"
-        - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
-        - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; git clone --depth=1 https://github.com/kaldi-asr/kaldi.git"
-
     - stage: test
       script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/python_test.sh"
     - script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/lint.sh"
     - script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
-
-stages:
-  - install
-  - test
