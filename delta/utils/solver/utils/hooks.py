@@ -20,7 +20,7 @@ from bisect import bisect_right
 from absl import logging
 
 
-class DatasetInitializerHook(tf.train.SessionRunHook):
+class DatasetInitializerHook(tf.estimator.SessionRunHook):
   ''' iterator dataset initailizer '''
 
   def __init__(self, iterator, init_feed_dict):
@@ -35,7 +35,7 @@ class DatasetInitializerHook(tf.train.SessionRunHook):
     session.run(self._initializer, self._init_feed_dict)
 
 
-class EpochHook(tf.train.SessionRunHook):
+class EpochHook(tf.estimator.SessionRunHook):
 
   def __init__(self, examples_per_epoch, global_batch_size):
     self._num_examples_per_epoch = examples_per_epoch
@@ -77,7 +77,7 @@ class EpochHook(tf.train.SessionRunHook):
     pass
 
 
-class MultiStepLRHook(tf.train.SessionRunHook):
+class MultiStepLRHook(tf.estimator.SessionRunHook):
   ''' Set the learning rate of each parameter group to the initial lr decayed 
       by gamma once the number of epoch reaches one of the milestones. 
       When last_epoch=-1, sets initial lr as lr.
