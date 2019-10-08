@@ -82,7 +82,7 @@ class JiebaCutOp : public OpKernel {
                    ctx->allocate_output("sentence_out", t_sentence_in->shape(),
                                         &t_sentence_out));
     if (t_sentence_in->dims() == 0) {
-      jieba_->Cut(t_sentence_in->scalar<string>()(), words, true);
+      jieba_->Cut(t_sentence_in->scalar<string>()(), words, hmm);
       t_sentence_out->scalar<string>()() = str_util::Join(words, " ");
     } else {
       OP_REQUIRES(
@@ -90,7 +90,7 @@ class JiebaCutOp : public OpKernel {
           errors::InvalidArgument("Input must be a scalar or 1D tensor."));
       int batch = t_sentence_in->dim_size(0);
       for (int i = 0; i < batch; i++) {
-        jieba_->Cut(t_sentence_in->vec<string>()(i), words, true);
+        jieba_->Cut(t_sentence_in->vec<string>()(i), words, hmm);
         t_sentence_out->vec<string>()(i) = str_util::Join(words, " ");
       }
     }
