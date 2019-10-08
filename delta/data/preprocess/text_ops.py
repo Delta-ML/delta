@@ -26,8 +26,7 @@ from delta.data.utils import read_lines_from_text_file
 
 def tokenize_label(label, maxlen, label_vocab_file_path, pad_id):
   """Tokenize labels"""
-  with open(label_vocab_file_path) as f:
-    vocabs = [line.strip() for line in f.readlines()]
+  vocabs = read_lines_from_text_file(label_vocab_file_path)
   label_id, _ = py_x_ops.sentence_to_ids(
       label,
       maxlen=maxlen,
@@ -41,8 +40,7 @@ def tokenize_label(label, maxlen, label_vocab_file_path, pad_id):
 
 def tokenize_sentence(texts, max_seq_len, vocab_path):
   """Tokenize sentence"""
-  with open(vocab_path) as f:
-    vocabs = [line.strip() for line in f.readlines()]
+  vocabs = read_lines_from_text_file(vocab_path)
   token_ids, _ = py_x_ops.sentence_to_ids(
       texts,
       maxlen=max_seq_len,
