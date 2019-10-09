@@ -61,6 +61,18 @@ class EstimatorSolver(ABCEstimatorSolver):
       scaffold = None  # default
     return scaffold
 
+  def l2_loss(self, tvars=None):
+    _l2_loss = 0.0
+    weight_decay = self.config['solver']['optimizer'].get('weight_decay', None)
+    if weight_decay:
+      logging.info(f"add L2 Loss with decay: {weight_decay}")
+      with tf.name_scope('l2_loss'):
+        tvars = tvars if tvars else tf.trainable_variables()
+        tvars = [v for v in tvars if 'bias' not in v.name]
+        _l2_loss = weight_decay * tf.add_n([tf.nn.l2_loss(v) for v in tvars])
+        summary_lib.scalar('l2_loss', _l2_loss)
+    return _l2_loss
+
   def model_fn(self):
     ''' return model_fn '''
     model_class = super().model_fn()
@@ -110,16 +122,6 @@ class EstimatorSolver(ABCEstimatorSolver):
       )
 
       if mode == utils.TRAIN:  #pylint: disable=no-else-return
-        # L2 loss
-        l2_loss = 0.0
-        weight_decay = self.config['solver']['optimizer'].get(
-            'weight_decay', None)
-        if weight_decay:
-          logging.info(f"add L2 Loss with decay: {weight_decay}")
-          tvars = [v for v in tf.trainable_variables() if 'bias' not in v.name]
-          l2_loss = weight_decay * tf.add_n([tf.nn.l2_loss(v) for v in tvars])
-          summary_lib.scalar('l2_loss', l2_loss)
-
         multitask = self.config['solver']['optimizer']['multitask']
         if self.config['solver']['adversarial']['enable']:
           x = features['inputs']  #pylint: disable=invalid-name
@@ -142,7 +144,8 @@ class EstimatorSolver(ABCEstimatorSolver):
         else:
           loss_all = loss
 
-        loss_all += l2_loss
+        # L2 loss
+        loss_all += self.l2_loss()
 
         train_op = self.get_train_op(loss_all, multitask=multitask)
         train_hooks = self.get_train_hooks(labels, logits, alpha=alignment)
