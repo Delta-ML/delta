@@ -20,12 +20,13 @@ from absl import logging
 import tensorflow as tf
 
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import load_match_raw_data
+from delta.data.utils.common_utils import get_file_len
+from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.data.preprocess.utils import load_vocab_dict
-from delta.data.preprocess.text_ops import load_one_label_dataset
+from delta.data.preprocess.text_ops import process_one_label_dataset
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
-
+from delta import utils
 # pylint: disable=too-many-instance-attributes
 
 
@@ -46,24 +47,22 @@ class TextMatchTask(TextTask):
     self.paths_after_pre_process = [
         one_path + ".after" for one_path in self.paths
     ]
+    self.infer_no_label = self.config["data"][utils.INFER].get(
+      'infer_no_label', False)
+    self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
     self.prepare()
 
   # pylint: disable=too-many-locals
   def generate_data(self):
     """Generate data for offline training."""
-    (text_left, text_right), label = load_match_raw_data(
-        paths=self.paths_after_pre_process, mode=self.mode)
+    if self.infer_without_label:
+      column_num=2
+      text_ds_left, text_ds_right = load_textline_dataset(self.paths_after_pre_process, column_num)
+    else:
+      column_num=3
+      label,text_ds_left, text_ds_right=load_textline_dataset(self.paths_after_pre_process, column_num)
 
-    text_left_placeholder = tf.placeholder(tf.string, name="text_left")
-    text_right_placeholder = tf.placeholder(tf.string, name="text_right")
-    label_placeholder = tf.placeholder(tf.string, name="label")
-    self.init_feed_dict[text_left_placeholder] = text_left
-    self.init_feed_dict[text_right_placeholder] = text_right
-    self.init_feed_dict[label_placeholder] = label
-
-    text_ds_left = tf.data.Dataset.from_tensor_slices(text_left_placeholder)
-    text_ds_right = tf.data.Dataset.from_tensor_slices(text_right_placeholder)
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds_left = text_ds_left.map(
         input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
@@ -81,14 +80,14 @@ class TextMatchTask(TextTask):
     if self.infer_without_label:
       data_set_left_right = text_ds_left_right
     else:
-      label_ds = load_one_label_dataset(label_placeholder, self.config)
+      label_ds = process_one_label_dataset(label, self.config)
       data_set_left_right = tf.data.Dataset.zip((text_ds_left_right, label_ds))
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
-    data_size = len(text_left)
 
     self.config['data']['vocab_size'] = vocab_size
-    self.config['data']['{}_data_size'.format(self.mode)] = data_size
+    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(self.paths_after_pre_process)
+
     return data_set_left_right, text_len_left_right
 
   def feature_spec(self):
@@ -178,7 +177,6 @@ class TextMatchTask(TextTask):
         "input_x_len": input_x_len,
         "iterator": iterator,
         "iterator_len": iterator_len,
-        "init_feed_dict": self.init_feed_dict
     }
 
     if not self.infer_without_label:

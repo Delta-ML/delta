@@ -17,20 +17,32 @@
 
 # pylint: disable=missing-docstring
 
+import os
+from pathlib import Path
 import tensorflow as tf
 from absl import logging
 import tempfile
+import numpy as np
+from delta import utils
 
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
 from delta.data.preprocess.text_ops import tokenize_label
 from delta.data.preprocess.text_ops import tokenize_sentence
+from delta.data.preprocess.text_ops import process_one_label_dataset
+from delta.data.preprocess.text_ops import process_multi_label_dataset
 
 
 class TextOpsTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up '''
+    main_root = os.environ['MAIN_ROOT']
+    main_root = Path(main_root)
+    self.config_file = main_root.joinpath(
+      'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+    self.config = utils.load_config(self.config_file)
+
     self.vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']
     self.vocab_label = [
         'B\t0', "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4", "B-ORG5\t5",
@@ -97,6 +109,44 @@ class TextOpsTest(tf.test.TestCase):
       logging.info([one.decode("utf-8") for one in sen_out])
       self.assertAllEqual(["我 爱 北 京 天 安 门", "天 安 门 前 太 阳 升 啊"],
                           [one.decode("utf-8") for one in sen_out])
+
+
+  def test_process_one_label_dataset(self):
+    label = ["O", "O", "O", "I-MISC"]
+    label_filepath = tempfile.mktemp(suffix='label_file_for_unitest.txt')
+    with open(label_filepath, mode='w', encoding='utf-8') as fobj:
+      for token in label:
+        fobj.write(token)
+        fobj.write('\n')
+    label_ds = tf.data.TextLineDataset(label_filepath)
+    true_res = [0, 0, 0, 8]
+    label_ds = process_one_label_dataset(label_ds, self.config)
+
+    iterator = label_ds.make_initializable_iterator()
+    label_res = iterator.get_next()
+
+    with tf.Session() as sess:
+      sess.run(iterator.initializer)
+      for i in range(len(label)):
+        self.assertEqual(np.argmax(sess.run(label_res)), true_res[i])
+
+  def test_process_multi_label_dataset(self):
+    label = ["O I-MISC I-MISC", "O B-MISC I-MISC"]
+    label_filepath = tempfile.mktemp(suffix='label_file_for_unitest.txt')
+    with open(label_filepath, mode='w', encoding='utf-8') as fobj:
+      for token in label:
+        fobj.write(token)
+        fobj.write('\n')
+    label_ds = tf.data.TextLineDataset(label_filepath)
+    true_res = [[0, 8, 8], [0, 7, 8]]
+    label_ds = process_multi_label_dataset(label_ds, self.config)
+    iterator = label_ds.make_initializable_iterator()
+    label_res = iterator.get_next()
+
+    with tf.Session() as sess:
+      sess.run(iterator.initializer)
+      for i in range(len(label)):
+        self.assertEqual(list(sess.run(label_res)[:3]), true_res[i])
 
 
 if __name__ == '__main__':

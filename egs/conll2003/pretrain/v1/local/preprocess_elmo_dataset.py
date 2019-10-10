@@ -13,21 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Hooks"""
 
-import tensorflow as tf
+import sys
+from absl import logging
+
+def add_start_end_token(file):
+  f1 = open(file + ".elmo", 'w')
+  with open(file, 'r') as f:
+    add_lines = ['O ' + line.strip().split('\t')[0] + ' O'
+                 + '\t' + '<s> ' + line.strip().split('\t')[1] + ' </s>'
+                 for line in f.readlines()]
+    f1.write('\n'.join(add_lines))
 
 
-class DatasetInitializerHook(tf.train.SessionRunHook):
-  ''' iterator dataset initailizer '''
+if __name__ == '__main__':
+  logging.set_verbosity(logging.INFO)
 
-  def __init__(self, iterator, init_feed_dict):
-    self._iterator = iterator
-    self._init_feed_dict = init_feed_dict
+  if len(sys.argv) != 4:
+    logging.error("Usage python {} train_path, val_path, test_path".format(sys.argv[0]))
+    sys.exit(-1)
 
-  def begin(self):
-    self._initializer = self._iterator.initializer
-
-  def after_create_session(self, session, coord):
-    del coord
-    session.run(self._initializer, self._init_feed_dict)
+  train_path = sys.argv[1]
+  val_path = sys.argv[2]
+  test_path = sys.argv[3]
+  add_start_end_token(train_path)
+  add_start_end_token(val_path)
+  add_start_end_token(test_path)
