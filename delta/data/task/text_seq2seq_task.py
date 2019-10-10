@@ -25,7 +25,6 @@ from delta import utils
 from delta.data.preprocess.text_ops import tokenize_sentence
 from delta.data.preprocess.utils import load_vocab_dict
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import load_seq2seq_raw_data
 from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.data.utils.common_utils import get_file_len
 from delta.layers.utils import compute_sen_lens

@@ -133,8 +133,9 @@ def load_textline_dataset(paths, column_num):
   return tuple(ds_list)
 
 
-def process_one_label_dataset(label_placeholder, config, output_index=None):
-  """Load one-label data set."""
+def process_one_label_dataset(label_ds, config, output_index=None):
+  """process one-label data set."""
+
   logging.info("Loading one label dataset...")
   num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
   classes = config["data"]["task"]["classes"]
@@ -147,24 +148,23 @@ def process_one_label_dataset(label_placeholder, config, output_index=None):
   else:
     num_classes = classes["num_classes"]
     label_vocab_file_path = config["data"]["task"]["label_vocab"]
-  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
 
   label_ds = label_ds.map(
-      lambda x: tokenize_label(
-          x, maxlen=1, label_vocab_file_path=label_vocab_file_path, pad_id=0),
-      num_parallel_calls=num_parallel_calls)
+    lambda x: tokenize_label(
+      x, maxlen=1, label_vocab_file_path=label_vocab_file_path, pad_id=0),
+    num_parallel_calls=num_parallel_calls)
 
   label_ds = label_ds.map(
-      lambda l: tf.one_hot(l, num_classes, dtype=tf.int32),
-      num_parallel_calls=num_parallel_calls)
+    lambda l: tf.one_hot(l, num_classes, dtype=tf.int32),
+    num_parallel_calls=num_parallel_calls)
 
   label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
 
   return label_ds
 
 
-def process_multi_label_dataset(label_placeholder, config, output_index=None):
-  """Load multi-label data set."""
+def process_multi_label_dataset(label_ds, config, output_index=None):
+  """process multi-label data set."""
   logging.info("Loading multi label dataset...")
   label_vocab_file_path = config["data"]["task"]["label_vocab"]
   num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
@@ -173,7 +173,7 @@ def process_multi_label_dataset(label_placeholder, config, output_index=None):
   label_vocab_file_path = config["data"]["task"]["label_vocab"]
   if isinstance(label_vocab_file_path, list):
     if output_index is None or output_index not in range(
-        len(label_vocab_file_path)):
+      len(label_vocab_file_path)):
       raise IndexError("output_index:{} not in the range of classes length: "
                        "{}!".format(output_index, len(label_vocab_file_path)))
     label_vocab_file_path = label_vocab_file_path[output_index]
@@ -181,14 +181,13 @@ def process_multi_label_dataset(label_placeholder, config, output_index=None):
   else:
     label_vocab_file_path = label_vocab_file_path
 
-  label_ds = tf.data.Dataset.from_tensor_slices(label_placeholder)
   label_ds = label_ds.map(
-      lambda x: tokenize_label(
-          x,
-          maxlen=max_seq_len,
-          label_vocab_file_path=label_vocab_file_path,
-          pad_id=0),
-      num_parallel_calls=num_parallel_calls)
+    lambda x: tokenize_label(
+      x,
+      maxlen=max_seq_len,
+      label_vocab_file_path=label_vocab_file_path,
+      pad_id=0),
+    num_parallel_calls=num_parallel_calls)
   label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
 
   return label_ds
