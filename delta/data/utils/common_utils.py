@@ -332,8 +332,8 @@ def load_npy(npy_path, dtype=np.float32):
   return dense_feature
 
 
-def load_one_label_dataset(label_ds, config, output_index=None):
-  """Load one-label data set."""
+def process_one_label_dataset(label_ds, config, output_index=None):
+  """process one-label data set."""
   logging.info("Loading one label dataset...")
   num_parallel_calls = config["data"]["task"]["num_parallel_calls"]
   classes = config["data"]["task"]["classes"]
@@ -361,7 +361,7 @@ def load_one_label_dataset(label_ds, config, output_index=None):
   return label_ds
 
 
-def load_multi_label_dataset(label_ds, config, output_index=None):
+def process_multi_label_dataset(label_ds, config, output_index=None):
   """Load multi-label data set."""
   logging.info("Loading multi label dataset...")
   label_vocab_file_path = config["data"]["task"]["label_vocab"]

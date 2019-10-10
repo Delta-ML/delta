@@ -22,8 +22,8 @@ import tensorflow as tf
 import numpy as np
 from delta import utils
 from delta.data.utils.common_utils import load_seq_label_raw_data
-from delta.data.utils.common_utils import load_one_label_dataset
-from delta.data.utils.common_utils import load_multi_label_dataset
+from delta.data.utils.common_utils import process_one_label_dataset
+from delta.data.utils.common_utils import process_multi_label_dataset
 from delta.data.utils.common_utils import get_file_len
 
 # pylint: disable=invalid-name,too-many-locals,missing-docstring
@@ -59,7 +59,7 @@ class CommonUtilsTest(tf.test.TestCase):
     self.assertEqual(text[0], "i feel good .")
     self.assertEqual(label[0], "O O O O")
 
-  def test_load_one_label_dataset(self):
+  def test_process_one_label_dataset(self):
     label = ["O", "O", "O", "I-MISC"]
     label_filepath = tempfile.mktemp(suffix='label_file_for_unitest.txt')
     with open(label_filepath, mode='w', encoding='utf-8') as fobj:
@@ -68,7 +68,7 @@ class CommonUtilsTest(tf.test.TestCase):
         fobj.write('\n')
     label_ds = tf.data.TextLineDataset(label_filepath)
     true_res = [0, 0, 0, 8]
-    label_ds = load_one_label_dataset(label_ds, self.config)
+    label_ds = process_one_label_dataset(label_ds, self.config)
 
     iterator = label_ds.make_initializable_iterator()
     label_res = iterator.get_next()
@@ -78,7 +78,7 @@ class CommonUtilsTest(tf.test.TestCase):
       for i in range(len(label)):
         self.assertEqual(np.argmax(sess.run(label_res)), true_res[i])
 
-  def test_load_multi_label_dataset(self):
+  def test_process_multi_label_dataset(self):
     label = ["O I-MISC I-MISC", "O B-MISC I-MISC"]
     label_filepath = tempfile.mktemp(suffix='label_file_for_unitest.txt')
     with open(label_filepath, mode='w', encoding='utf-8') as fobj:
@@ -87,7 +87,7 @@ class CommonUtilsTest(tf.test.TestCase):
         fobj.write('\n')
     label_ds = tf.data.TextLineDataset(label_filepath)
     true_res = [[0, 8, 8], [0, 7, 8]]
-    label_ds = load_multi_label_dataset(label_ds, self.config)
+    label_ds = process_multi_label_dataset(label_ds, self.config)
     iterator = label_ds.make_initializable_iterator()
     label_res = iterator.get_next()
 

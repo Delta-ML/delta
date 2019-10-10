@@ -89,9 +89,8 @@ def load_textline_dataset(paths, column_num):
   """Load raw data for text task."""
   ds = tf.data.TextLineDataset(paths)
   ds = ds.map(lambda x: tf.strings.split(x, sep="\t", result_type="RaggedTensor"))
-  # TODO report error log
   ds = ds.filter(lambda line: tf.equal(tf.size(line), column_num))
-  ds_list=[]
+  ds_list = []
   for i in range(column_num):
     ds_list.append(ds.map(lambda x: x[i]))
 

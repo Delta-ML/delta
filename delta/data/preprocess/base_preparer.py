@@ -133,7 +133,7 @@ class TextPreparer(Preparer):
                                                    pre_process_pipeline,
                                                    self.num_parallel_calls,
                                                    self.batch_size)
-      text_after_arr = self.run_dataset(text_iterator,batch_num)
+      text_after_arr = self.run_dataset(text_iterator, batch_num)
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
       all_texts += text_after
       one_text_after = text_after

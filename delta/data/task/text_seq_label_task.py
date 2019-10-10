@@ -21,7 +21,7 @@ from absl import logging
 
 from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import load_seq_label_raw_data
-from delta.data.utils.common_utils import load_multi_label_dataset
+from delta.data.utils.common_utils import process_multi_label_dataset
 from delta.data.preprocess.utils import get_vocab_size
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
@@ -53,7 +53,7 @@ class TextSeqLabelTask(TextTask):
 
   def generate_data(self):
     """Generate data for offline training."""
-    paths=self.paths
+    paths = self.paths
     if self.infer_without_label:
       self.column_num = 1
       text_ds = load_textline_dataset(paths, self.column_num)
@@ -74,7 +74,7 @@ class TextSeqLabelTask(TextTask):
     if self.infer_without_label:
       data_set = text_ds
     else:
-      label_ds = load_multi_label_dataset(label_ds, self.config)
+      label_ds = process_multi_label_dataset(label_ds, self.config)
       data_set = tf.data.Dataset.zip((text_ds, label_ds))
 
     self.config['data']['vocab_size'] = get_vocab_size(

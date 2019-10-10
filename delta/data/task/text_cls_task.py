@@ -20,7 +20,7 @@ import tensorflow as tf
 from absl import logging
 
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import load_one_label_dataset
+from delta.data.utils.common_utils import process_one_label_dataset
 from delta.data.utils.common_utils import load_dense_dataset
 from delta.data.utils.common_utils import load_npy
 from delta.data.utils.common_utils import get_file_len
@@ -63,10 +63,10 @@ class TextClsTask(TextTask):
     """Generate data for offline training."""
     if self.infer_without_label:
       column_num = 1
-      text_ds=load_textline_dataset(self.paths_after_pre_process, column_num)
+      text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
     else:
       column_num = 2
-      label,text_ds=load_textline_dataset(self.paths_after_pre_process, column_num)
+      label_ds, text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
 
     input_pipeline_func = self.get_input_pipeline(for_export=False)
 
@@ -89,7 +89,7 @@ class TextClsTask(TextTask):
       else:
         data_set = text_ds
     else:
-      label_ds = load_one_label_dataset(label, self.config)
+      label_ds = process_one_label_dataset(label_ds, self.config)
       if self.use_dense:
         data_set = tf.data.Dataset.zip((text_ds, dense_ds, label_ds))
       else:

@@ -76,7 +76,7 @@ class TextS2SPreparer(TextPreparer):
     For single output, label: [label1, label2, ...]
     For multiple outputs, label: [[label1_1, ...], [label1_2, ...]]
     """
-    column_num=1
+    column_num = 1
     text_path, target_path = one_path
     texts = load_textline_dataset([text_path], column_num)
    # texts = data_utils.load_seq2seq_raw_data([text_path])
@@ -88,11 +88,12 @@ class TextS2SPreparer(TextPreparer):
   def save_a_raw_file(self, label, text_after, one_path_after,
                       infer_without_label):
     text_path, target_path = one_path_after
-    text, target = text_after
-
-    data_utils.save_a_text_seq2seq_file(text, text_path)
-    if not infer_without_label:
+    if infer_without_label:
+      text = text_after[0]
+    else:
+      text, target = text_after
       data_utils.save_a_text_seq2seq_file(target, target_path)
+    data_utils.save_a_text_seq2seq_file(text, text_path)
 
   def prepare_label_vocab(self, all_labels):
     """Prepare label vocab"""

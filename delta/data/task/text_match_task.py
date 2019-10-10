@@ -20,7 +20,7 @@ from absl import logging
 import tensorflow as tf
 
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import load_one_label_dataset
+from delta.data.utils.common_utils import process_one_label_dataset
 from delta.data.utils.common_utils import get_file_len
 from delta.data.preprocess.utils import load_vocab_dict
 from delta.data.preprocess.text_ops import load_textline_dataset
@@ -80,7 +80,7 @@ class TextMatchTask(TextTask):
     if self.infer_without_label:
       data_set_left_right = text_ds_left_right
     else:
-      label_ds = load_one_label_dataset(label, self.config)
+      label_ds = process_one_label_dataset(label, self.config)
       data_set_left_right = tf.data.Dataset.zip((text_ds_left_right, label_ds))
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)

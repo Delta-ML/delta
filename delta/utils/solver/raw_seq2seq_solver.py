@@ -72,9 +72,10 @@ class RawS2SSolver(RawSolver):
     model.input_x_len = inputs["input_x_len"]
     model.mode = mode
     loss_fn = self.get_loss_fn()
-    if not self.infer_no_label:
+    if mode != utils.INFER or not self.infer_no_label:
       input_y = inputs["input_y_dict"]["input_y"]
       model.input_y = input_y
+
     if mode != utils.INFER:
       input_y_len = inputs["input_y_len"]
       model.loss = loss_fn(
@@ -142,6 +143,8 @@ class RawS2SSolver(RawSolver):
             [model.preds, model.y_ground_truth])
         else:
           batch_preds = model.sess.run([model.preds])
+          batch_preds = batch_preds[0]
+
         if mode == utils.EVAL:
           total_loss += loss_val
           y_preds.append([preds for preds in batch_preds])
@@ -153,8 +156,8 @@ class RawS2SSolver(RawSolver):
             batch_preds = batch_preds[:act_end_id]
             if not self.infer_no_label:
               batch_y_ground_truth = batch_y_ground_truth[:act_end_id]
-
           y_preds.extend([preds for preds in batch_preds])
+
           if not self.infer_no_label:
             y_ground_truth.extend(
                 [ground_truth for ground_truth in batch_y_ground_truth])
