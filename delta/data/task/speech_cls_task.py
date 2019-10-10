@@ -762,10 +762,14 @@ class SpeechClsTask(SpeechTask):
             feat = np.pad(feat, [(0, seg[2]), (0, 0), (0, 0)], mode='constant')
 
           feat = feat[seg[0]:seg[1], :, :]
-          assert len(feat) == self.sample_to_frame(
-              self.example_len), "{} {} {} {} {} {}".format(
-                  filename, seg, len(feat), self.example_len,
-                  self.sample_to_frame(self.example_len), seg[2])
+          expect_nframes = self.sample_to_frame(self.example_len)
+          if len(feat) != expect_nframes:
+            logging.warn("{} {} {} {} {} {}".format(
+                filename, seg, len(feat), self.example_len,
+                self.sample_to_frame(self.example_len), seg[2]))
+            feat = np.pad(
+                feat, [(0, expect_nframes - len(feat)), (0, 0), (0, 0)],
+                mode='constant')
 
           if self.use_distilling:
             soft_label = self.teacher(feat)
