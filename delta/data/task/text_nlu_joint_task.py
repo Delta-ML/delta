@@ -20,8 +20,8 @@ import tensorflow as tf
 from absl import logging
 
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import process_one_label_dataset
-from delta.data.utils.common_utils import process_multi_label_dataset
+from delta.data.preprocess.text_ops import process_one_label_dataset
+from delta.data.preprocess.text_ops import process_multi_label_dataset
 from delta.data.utils.common_utils import load_nlu_joint_raw_data
 from delta.data.utils.common_utils import get_file_len
 from delta.data.preprocess.text_ops import load_textline_dataset

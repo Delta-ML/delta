@@ -31,19 +31,19 @@ class TextOpsTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up '''
-    vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']
-    vocab_label = [
+    self.vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']
+    self.vocab_label = [
         'B\t0', "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4", "B-ORG5\t5",
         "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"
     ]
     self.vocab_text_filepath = tempfile.mktemp(suffix='text_vocab.txt')
     self.vocab_label_filepath = tempfile.mktemp(suffix='label_vocab.txt')
     with open(self.vocab_text_filepath, mode='w', encoding='utf-8') as fobj:
-      for token in vocab_text:
+      for token in self.vocab_text:
         fobj.write(token)
         fobj.write('\n')
     with open(self.vocab_label_filepath, mode='w', encoding='utf-8') as fobj:
-      for token in vocab_label:
+      for token in self.vocab_label:
         fobj.write(token)
         fobj.write('\n')
 
@@ -63,7 +63,8 @@ class TextOpsTest(tf.test.TestCase):
       res = sess.run([text_tokenize_t, label_tokenize_t])
       logging.debug(res)
       self.assertAllEqual(res[0],
-                          [[3, 3]]), self.assertAllEqual(res[1], [[0, 0]])
+                          [[3, 3]])
+      self.assertAllEqual(res[1], [[0, 0]])
 
   def test_clean_english_str_tf(self):
     t_sentence_in = tf.placeholder(dtype=tf.string)

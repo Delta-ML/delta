@@ -22,9 +22,10 @@ import tensorflow as tf
 import numpy as np
 from delta import utils
 from delta.data.utils.common_utils import load_seq_label_raw_data
-from delta.data.utils.common_utils import process_one_label_dataset
-from delta.data.utils.common_utils import process_multi_label_dataset
+from delta.data.preprocess.text_ops import process_one_label_dataset
+from delta.data.preprocess.text_ops import process_multi_label_dataset
 from delta.data.utils.common_utils import get_file_len
+
 
 # pylint: disable=invalid-name,too-many-locals,missing-docstring
 

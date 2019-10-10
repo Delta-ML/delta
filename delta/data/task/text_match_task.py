@@ -20,10 +20,12 @@ from absl import logging
 import tensorflow as tf
 
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import process_one_label_dataset
 from delta.data.utils.common_utils import get_file_len
 from delta.data.preprocess.utils import load_vocab_dict
 from delta.data.preprocess.text_ops import load_textline_dataset
+from delta.data.utils.common_utils import load_match_raw_data
+from delta.data.preprocess.utils import load_vocab_dict
+from delta.data.preprocess.text_ops import process_one_label_dataset
 from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
 from delta import utils
