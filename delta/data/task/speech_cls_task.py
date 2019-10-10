@@ -167,7 +167,7 @@ class SpeechClsTask(SpeechTask):
     nframe = librosa.core.samples_to_frames(
         samples,
         hop_length=self.taskconf['audio']['winstep'] * self._sample_rate)
-    return nframe
+    return int(nframe)
 
   @property
   def nframe(self):
