@@ -26,6 +26,7 @@ from delta.layers import common_layers
 from delta.models.base_model import RawModel
 from delta.utils.register import registers
 from delta.utils.loss.loss_utils import arcface_loss
+from delta.utils.hparam import HParams
 
 #pylint: disable=invalid-name
 #pylint: disable=too-many-locals
@@ -174,7 +175,7 @@ class SpeakerBaseRawModel(RawModel):
       outputs = x
     return outputs
 
-  def pooling_layer(self, x):
+  def pooling_layer(self, x, pooling_type=None):
     '''
       Add a pooling layer across the whole utterance.
       Input: [B, T, D]
@@ -187,7 +188,8 @@ class SpeakerBaseRawModel(RawModel):
     with tf.control_dependencies([assert_rank3]):
       x = tf.identity(x)
 
-    pooling_type = self.netconf['frame_pooling_type']
+    pooling_type = pooling_type if pooling_type else self.netconf[
+        'frame_pooling_type']
     if pooling_type == 'stats':
       with tf.name_scope('stats_pooling'):
         mean, var = tf.nn.moments(x, 1)
@@ -431,12 +433,41 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
 class SpeakerResNetRawModel(SpeakerBaseRawModel):
   ''' A speaker model with ResNet layers. '''
 
+  @classmethod
+  def params(cls, config: dict = None):
+    embedding_size = 512
+
+    #hp = HParams(cls=cls)
+    hp = HParams(cls=cls)
+    hp.add_hparam('embedding_size', embedding_size)
+
+    if config is not None:
+      hp.override_from_dict(config)
+    return hp
+
   def model(self, feats, labels):
     ''' Build the model. '''
     x = self.resnet(feats)
-    x = self.linear_block(x)
-    x = self.pooling_layer(x)
-    embedding, dense_output = self.dense_layer(x)
+
+    with tf.variable_scope("avg_pooling"):
+      batch_t = tf.shape(x)[0]
+      time_t = tf.shape(x)[1]
+      feat, channel = x.shape.as_list()[2:]
+      x = tf.reshape(x, [batch_t, time_t, feat * channel])
+      x = self.pooling_layer(x, pooling_type='average')
+
+    with tf.variable_scope("output_layer"):
+      shape = x.shape.as_list()
+      shape = shape[-1]
+      hidden_dims = self.params().embedding_size
+      y = x
+      y = common_layers.linear(
+          y, 'dense-matmul', [shape, hidden_dims], has_bias=True)
+      y = tf.layers.batch_normalization(
+          y, axis=-1, momentum=0.99, training=self.train, name='dense-bn')
+      embedding = y
+      dense_output = y
+
     logits = self.logits_layer(dense_output, labels)
     model_outputs = {'logits': logits, 'embeddings': embedding}
     return model_outputs
@@ -446,12 +477,16 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name)
     return x
 
-  def prelu_layer(self, x, name):
+  def prelu_layer(self, x, name, num_parameters=1, init=0.25):
+    if num_parameters == 1:
+      shape = 1
+    else:
+      shape = x.get_shape()[-1]
     alpha = tf.get_variable(
         name,
-        shape=x.get_shape()[-1],
+        shape=shape,
         dtype=x.dtype,
-        initializer=tf.constant_initializer(0.1))
+        initializer=tf.constant_initializer(init))
     return tf.maximum(0.0, x) + alpha * tf.minimum(0.0, x)
 
   def se_moudle(self, x, channels, reduction, name=''):
@@ -460,7 +495,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     x = tf.layers.conv2d(
         x,
         channels // reduction, (1, 1),
-        use_bias=True,
+        use_bias=False,
         name=name + '_1x1_down',
         strides=(1, 1),
         padding='valid',
@@ -473,7 +508,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     x = tf.layers.conv2d(
         x,
         channels, (1, 1),
-        use_bias=True,
+        use_bias=False,
         name=name + '_1x1_up',
         strides=(1, 1),
         padding='valid',
@@ -492,23 +527,39 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
 
     short_cut = x
     if not dim_match:
-      short_cut = common_layers.conv2d(short_cut, conv_name_base + '1', (1, 1),
-                                       in_channel, out_channel, stride)
+      short_cut = common_layers.conv2d(
+          short_cut,
+          conv_name_base + '1',
+          filter_size=(1, 1),
+          in_channels=in_channel,
+          out_channels=out_channel,
+          strides=stride,
+          bias=False)
       short_cut = tf.layers.batch_normalization(
           short_cut,
           axis=-1,
           momentum=0.9,
           training=self.train,
           name=bn_name_base + '1')
+
     x = tf.layers.batch_normalization(
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name_base + '2a')
-    x = common_layers.conv2d(x, conv_name_base + '2a', (3, 3), in_channel,
-                             out_channel, [1, 1])
+    x = common_layers.conv2d(
+        x,
+        conv_name_base + '2a', (3, 3),
+        in_channel,
+        out_channel, [1, 1],
+        bias=False)
     x = tf.layers.batch_normalization(
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name_base + '2b')
     x = self.prelu_layer(x, name=prelu_name_base + '2b')
-    x = common_layers.conv2d(x, conv_name_base + '2b', (3, 3), out_channel,
-                             out_channel, stride)
+    x = common_layers.conv2d(
+        x,
+        conv_name_base + '2b', (3, 3),
+        out_channel,
+        out_channel,
+        stride,
+        bias=False)
     res = tf.layers.batch_normalization(
         x, axis=-1, momentum=0.9, training=self.train, name=bn_name_base + '2c')
 
@@ -553,13 +604,14 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     elif block_mode == 'ir_se':
       block = self.se_resnet_layer
 
-    x = block(x, in_channel, out_channel, stride, False, block_name='a')
+    x = block(
+        x, in_channel, out_channel, stride, dim_match=False, block_name='a')
     for i in range(1, layer_num):
       x = block(
           x,
           out_channel,
           out_channel, [1, 1],
-          True,
+          dim_match=True,
           block_name=chr(ord('a') + i))
 
     return x
@@ -578,8 +630,12 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
     with tf.variable_scope('resnet'):
       x = tf.identity(inputs)
       with tf.variable_scope('input_layer'):
-        x = common_layers.conv2d(x, 'input_conv', (3, 3), self.input_channels,
-                                 filters_list[0], [1, 1])
+        x = common_layers.conv2d(
+            x,
+            'input_conv', (3, 3),
+            self.input_channels,
+            filters_list[0], [1, 1],
+            bias=False)
         x = tf.layers.batch_normalization(
             x, axis=-1, momentum=0.9, training=self.train, name='input_bn')
         x = self.prelu_layer(x, 'input_prelu')

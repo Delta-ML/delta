@@ -6,7 +6,7 @@ pushd ${BASH_DIR}/../..
 source env.sh
 popd
 
-pushd ${MAIN_TOOL}/tools
+pushd ${MAIN_ROOT}/tools
 make deltann || echo "deltann install failed" && exit -1
 popd
 

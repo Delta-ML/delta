@@ -149,7 +149,7 @@ def _handle_errors(errors):
   if not errors:
     return
   for name, err in errors:
-    logging.warning("Module {} import failed: {}".format(name, err))
+    logging.fatal("Module {} import failed: {}".format(name, err))
 
 
 def import_all_modules_for_register():

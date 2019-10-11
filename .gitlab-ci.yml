@@ -17,7 +17,6 @@ lint_and_unit_test:
     - "delta-ci-runner"
   only:
     - "master"
-
   script:
     - env
     - cd ${CI_PROJECT_DIR} && source env.sh

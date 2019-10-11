@@ -605,21 +605,7 @@ class KaldiDir:
         utt_path = splits[1]
         self._feats_scp[utt_id] = utt_path
     self._num_utt = len(self._feats_scp)
-
-    self._spk2id = defaultdict(int)
-    with spk2id_file.open(mode='r', encoding='utf-8') as reader:
-      for line in reader:
-        spk, spk_id = line.strip().split()
-        self._spk2id[spk] = spk_id
-    self._num_spk = len(self._spk2id)
-
-    self._utt2spk = defaultdict(str)
-    self._utt2spk_ids = defaultdict(int)
-    with utt2spk_file.open(mode='r', encoding='utf-8') as reader:
-      for line in reader:
-        utt, spk = line.strip().split()
-        self._utt2spk[utt] = spk
-        self._utt2spk_ids[utt] = self.spk2id[spk]
+    logging.info(f"kaldi dir: {self._num_utt} utts")
 
     self._spk2utt = defaultdict(list)
     with spk2utt_file.open(mode='r', encoding='utf-8') as reader:
@@ -627,6 +613,22 @@ class KaldiDir:
         spk, utt_str = line.strip().split(maxsplit=1)
         utts = utt_str.split()
         self._spk2utt[spk] = utts
+
+    self._spk2id = defaultdict(lambda: -1)
+    with spk2id_file.open(mode='r', encoding='utf-8') as reader:
+      for line in reader:
+        spk, spk_id = line.strip().split()
+        self._spk2id[spk] = spk_id
+    self._num_spk = len(self._spk2id)
+    logging.info(f"kaldi dir: {self._num_spk} spks")
+
+    self._utt2spk = defaultdict(str)
+    self._utt2spk_ids = defaultdict(int)
+    with utt2spk_file.open(mode='r', encoding='utf-8') as reader:
+      for line in reader:
+        utt, spk = line.strip().split()
+        self._utt2spk[utt] = spk
+        self._utt2spk_ids[utt] = self._spk2id[spk]
 
   @property
   def num_utts(self):
@@ -766,7 +768,11 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
 
   def __len__(self):
     ''' the number of exmaples'''
-    steps_per_epoch = (self.num_utts - self.batch_size) / self.batch_size + 1
+    # using this to make shure the last exmaples less than batch size used.
+    if self.mode == utils.TRAIN:
+      steps_per_epoch = (self.num_utts - self.batch_size) / self.batch_size + 1
+    else:
+      steps_per_epoch = (self.num_utts / self.batch_size) + 1
     return int(steps_per_epoch)
 
   def on_epoch_end(self):
@@ -778,7 +784,7 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
     logging.info(f"{self.indexs}")
 
     self.segment_win = int(
-          (self.min_segment_length + self.max_segment_length) / 2)
+        (self.min_segment_length + self.max_segment_length) / 2)
     logging.info(f"default segment length: {self.segment_win}")
 
     if self.mode == utils.TRAIN:

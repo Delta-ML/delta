@@ -65,7 +65,7 @@ class NLUJointTaskTest(tf.test.TestCase):
                     "input_y" in data["input_y_dict"])
     input_intent_y, input_slots_y = data["input_y_dict"]["input_y"]
     with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_x"], data["input_x_len"], input_intent_y,
           input_slots_y
@@ -90,7 +90,7 @@ class NLUJointTaskTest(tf.test.TestCase):
     input_x = export_inputs["model_inputs"]["input_x"]
 
     with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res = sess.run(input_x, feed_dict={input_sentence: ["i am happy"]})
       logging.debug(res[0][:5])
       logging.debug(np.shape(res[0]))

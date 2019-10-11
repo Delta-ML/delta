@@ -50,10 +50,9 @@ class TextS2STaskTest(tf.test.TestCase):
     task_config["split_by_space"] = False
     task_config["use_word"] = True
 
-    # generate_mock_files(config)
-    task = TextS2STask(config, utils.TRAIN)
+    # test offline data for 'train'
 
-    # test offline data
+    task = TextS2STask(config, utils.TRAIN)
     data = task.dataset()
     self.assertTrue("input_x_dict" in data and
                     "input_enc_x" in data["input_x_dict"] and
@@ -61,7 +60,7 @@ class TextS2STaskTest(tf.test.TestCase):
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
     with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_enc_x"],
           data["input_x_dict"]["input_dec_x"], data["input_y_dict"]["input_y"],
@@ -78,6 +77,27 @@ class TextS2STaskTest(tf.test.TestCase):
       self.assertEqual(np.shape(res[2])[0], 16)
       self.assertEqual(np.shape(res[3])[0], 16)
 
+
+    # test offline data for 'infer'
+    task = TextS2STask(config, utils.INFER)
+    task.infer_without_label = True
+    data = task.dataset()
+    self.assertTrue("input_x_dict" in data and
+                    "input_enc_x" in data["input_x_dict"])
+    with self.session() as sess:
+      sess.run(data["iterator"].initializer)
+      res = sess.run([
+        data["input_x_dict"]["input_enc_x"],
+        data["input_x_len"]
+      ])
+
+      logging.debug(res[0][0])
+      logging.debug(res[1][0])
+
+      self.assertEqual(np.shape(res[0])[0], 16)
+      self.assertEqual(np.shape(res[1])[0], 16)
+
+
     # test online data
     export_inputs = task.export_inputs()
     self.assertTrue("export_inputs" in export_inputs and
@@ -86,7 +106,7 @@ class TextS2STaskTest(tf.test.TestCase):
     input_x = export_inputs["model_inputs"]["input_enc_x"]
 
     with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res = sess.run(
           input_x,
           feed_dict={

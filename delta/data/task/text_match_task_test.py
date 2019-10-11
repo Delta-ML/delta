@@ -72,8 +72,7 @@ class TextMatchTaskTest(tf.test.TestCase):
     # with self.session() as sess:
     #  sess.run(data["iterator"].initializer)
     with self.session() as sess:
-      sess.run([data["iterator"].initializer, data["iterator_len"].initializer],
-               feed_dict=data["init_feed_dict"])
+      sess.run([data["iterator"].initializer, data["iterator_len"].initializer])
       res = sess.run([
           data["input_x_dict"]["input_x_left"],
           data["input_x_dict"]["input_x_right"],
@@ -105,7 +104,7 @@ class TextMatchTaskTest(tf.test.TestCase):
     input_x_right = export_inputs["model_inputs"]["input_x_right"]
     with self.session() as sess:
       # sess.run(data["iterator"].initializer)
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+      sess.run(data["iterator"].initializer)
       res1, res2 = sess.run(
           [input_x_left, input_x_right],
           feed_dict={

@@ -25,7 +25,8 @@ from delta import utils
 from delta.data.preprocess.text_ops import tokenize_sentence
 from delta.data.preprocess.utils import load_vocab_dict
 from delta.data.task.base_text_task import TextTask
-from delta.data.utils.common_utils import load_seq2seq_raw_data
+from delta.data.preprocess.text_ops import load_textline_dataset
+from delta.data.utils.common_utils import get_file_len
 from delta.layers.utils import compute_sen_lens
 from delta.utils.register import registers
 
@@ -60,6 +61,10 @@ class TextS2STask(TextTask):
     self.tgt_paths_after_pre_process = [
         one_path + ".after" for one_path in self.tgt_paths
     ]
+    self.infer_no_label = self.config["data"][utils.INFER].get(
+      'infer_no_label', False)
+    self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
+
     self.prepare()
 
   def common_process_pipeline(self, batch):
@@ -87,54 +92,50 @@ class TextS2STask(TextTask):
   def generate_data(self):
     """Generate data for offline training."""
 
-    src = load_seq2seq_raw_data(paths=self.src_paths_after_pre_process)
-    tgt = load_seq2seq_raw_data(paths=self.tgt_paths_after_pre_process)
+    column_num = 1
+    src_path = self.src_paths_after_pre_process
+    target_path = self.tgt_paths_after_pre_process
 
-    tgt_out = [abs_ + ' ' + self.END_TOKEN for abs_ in tgt]
-    tgt_in = [self.START_TOKEN + ' ' + abs_ for abs_ in tgt]
+    src_ds = load_textline_dataset([src_path], column_num)
 
-    assert len(src) == len(tgt_in)
-    src_placeholder = tf.placeholder(tf.string, shape=(None,), name="src")
-    tgt_out_placeholder = tf.placeholder(tf.string, name="tgt_out")
-    tgt_in_placeholder = tf.placeholder(tf.string, name="tgt_in")
-    self.init_feed_dict[src_placeholder] = src
-    self.init_feed_dict[tgt_out_placeholder] = tgt_out
-    self.init_feed_dict[tgt_in_placeholder] = tgt_in
-    src_ds = tf.data.Dataset.from_tensor_slices(src_placeholder)
-    tgt_in_ds = tf.data.Dataset.from_tensor_slices(tgt_in_placeholder)
-
-    tgt_out_ds = tf.data.Dataset.from_tensor_slices(tgt_out_placeholder)
+    src_ds = src_ds[0]
 
     input_pipeline_func = self.get_input_pipeline(for_export=False)
 
     src_ds = src_ds.map(
-        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
 
     src_size_ds = src_ds.map(
-        lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
-        num_parallel_calls=self.num_parallel_calls)
+      lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
+      num_parallel_calls=self.num_parallel_calls)
 
     src_ds = src_ds.map(
-        self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+      self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
-    tgt_in_ds = tgt_in_ds.map(
+    if self.infer_without_label:
+      data_set = tf.data.Dataset.zip((src_ds, src_size_ds))
+
+    else:
+      tgt = load_textline_dataset([target_path], column_num)
+      tgt = tgt[0]
+      tgt_out_ds = tgt.map(lambda x: x + ' ' + self.END_TOKEN)
+      tgt_in_ds = tgt.map(lambda x: self.START_TOKEN + ' ' + x)
+
+      tgt_in_ds = tgt_in_ds.map(
         lambda batch: self.text_pipeline_func(batch, self.max_dec_len, self.
                                               text_vocab_file_path),
         num_parallel_calls=self.num_parallel_calls)
 
-    tgt_in_size_ds = tgt_in_ds.map(
+      tgt_in_size_ds = tgt_in_ds.map(
         lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
         num_parallel_calls=self.num_parallel_calls)
 
-    tgt_in_ds = tgt_in_ds.map(
+      tgt_in_ds = tgt_in_ds.map(
         self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
-    inp_ds = tf.data.Dataset.zip(
+      inp_ds = tf.data.Dataset.zip(
         (src_ds, src_size_ds, tgt_in_ds, tgt_in_size_ds))
 
-    if self.infer_without_label:
-      data_set = inp_ds
-    else:
       if self.use_label_vocab:
         target_vocab_file_path = self.label_vocab_file_paths[0]
       else:
@@ -152,7 +153,7 @@ class TextS2STask(TextTask):
     vocab_size = len(vocab_dict)
     label_vocab_dict = load_vocab_dict(self.label_vocab_file_paths[0])
     label_vocab_size = len(label_vocab_dict)
-    data_size = len(src)
+    data_size = get_file_len(self.src_paths_after_pre_process)
     self.config['data']['vocab_size'] = vocab_size
     self.config['data']['label_vocab_size'] = label_vocab_size
     self.config['data']['{}_data_size'.format(self.mode)] = data_size
@@ -161,11 +162,13 @@ class TextS2STask(TextTask):
 
   def feature_spec(self):
     """Get shapes for feature."""
-    feature_shapes = [(tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]),
-                       tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))
-                     ]
     if not self.infer_without_label:
+      feature_shapes = [(tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]),
+                         tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))]
       feature_shapes.append(tf.TensorShape([tf.Dimension(None)]))
+    else:
+      feature_shapes = [(tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))
+                        ]
     if len(feature_shapes) == 1:
       return feature_shapes[0]
     return tuple(feature_shapes)
@@ -224,17 +227,19 @@ class TextS2STask(TextTask):
     # pylint: disable=unused-variable
     if self.infer_without_label:
       input_enc_x, input_enc_x_len = iterator.get_next()
+      input_x_dict = collections.OrderedDict([("input_enc_x", input_enc_x)])
+
     else:
       (input_enc_x, input_enc_x_len, input_dec_x,
        input_dec_x_len), input_y = iterator.get_next()
 
-    input_x_dict = collections.OrderedDict([("input_enc_x", input_enc_x),
-                                            ("input_dec_x", input_dec_x)])
+      input_x_dict = collections.OrderedDict([("input_enc_x", input_enc_x),
+                                              ("input_dec_x", input_dec_x)])
+
     return_dict = {
         "input_x_dict": input_x_dict,
         "input_x_len": input_enc_x_len,
         "iterator": iterator,
-        "init_feed_dict": self.init_feed_dict,
     }
 
     if not self.infer_without_label:

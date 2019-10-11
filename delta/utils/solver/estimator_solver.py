@@ -28,6 +28,7 @@ from tensorboard.plugins.pr_curve import summary as pr_summary
 from delta import utils
 from delta.utils.hparam import HParams
 from delta.utils import metrics as metrics_lib
+from delta.utils import summary as summary_lib
 from delta.utils.register import registers
 from delta.utils.solver.base_solver import ABCEstimatorSolver
 
@@ -60,6 +61,18 @@ class EstimatorSolver(ABCEstimatorSolver):
     else:
       scaffold = None  # default
     return scaffold
+
+  def l2_loss(self, tvars=None):
+    _l2_loss = 0.0
+    weight_decay = self.config['solver']['optimizer'].get('weight_decay', None)
+    if weight_decay:
+      logging.info(f"add L2 Loss with decay: {weight_decay}")
+      with tf.name_scope('l2_loss'):
+        tvars = tvars if tvars else tf.trainable_variables()
+        tvars = [v for v in tvars if 'bias' not in v.name]
+        _l2_loss = weight_decay * tf.add_n([tf.nn.l2_loss(v) for v in tvars])
+        summary_lib.scalar('l2_loss', _l2_loss)
+    return _l2_loss
 
   def model_fn(self):
     ''' return model_fn '''
@@ -131,6 +144,9 @@ class EstimatorSolver(ABCEstimatorSolver):
           multitask = True
         else:
           loss_all = loss
+
+        # L2 loss
+        loss_all += self.l2_loss()
 
         train_op = self.get_train_op(loss_all, multitask=multitask)
         train_hooks = self.get_train_hooks(labels, logits, alpha=alignment)
@@ -214,7 +230,7 @@ class EstimatorSolver(ABCEstimatorSolver):
     else:
       metric_tensor['batch_confusion'] = \
           metrics_lib.confusion_matrix(logits, labels, nclass)
-    tf.summary.scalar('batch_accuracy', metric_tensor['batch_accuracy'])
+    summary_lib.scalar('batch_accuracy', metric_tensor['batch_accuracy'])
     if alpha:
       metric_tensor.update({"alignment": alpha})
 
@@ -366,8 +382,8 @@ class EstimatorSolver(ABCEstimatorSolver):
       if save:
         fobj.write("{}: {}\n".format(key, value))
     if 'tp' in metrics and 'fp' in metrics and 'fn' in metrics and 'tn' in metrics:
-      f1_score = metrics_lib.f1_score(metrics['tp'], metrics['fp'], metrics['fn'],
-                                      metrics['tn'])
+      f1_score = metrics_lib.f1_score(metrics['tp'], metrics['fp'],
+                                      metrics['fn'], metrics['tn'])
       logging.info("F1: {}".format(f1_score))
       if save:
         fobj.write("F1: {}\n".format(f1_score))
@@ -411,7 +427,7 @@ class EstimatorSolver(ABCEstimatorSolver):
       default_key = metric_keys.MetricKeys.ACCURACY
     compare_fn = functools.partial(
         utils.metric_smaller, default_key=default_key)
-    logging.info("Using {default_key} metric for best exporter")
+    logging.info(f"Using {default_key} metric for best exporter")
 
     eval_spec = tf.estimator.EvalSpec(
         input_fn=self.input_fn(utils.EVAL),

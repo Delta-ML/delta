@@ -48,12 +48,13 @@ class HParamsTest(tf.test.TestCase):
     self.assertEqual(hparams['n_mels'], 80)
 
     hparams2 = copy.deepcopy(hparams)
-    self.assertEqual(hparams==hparams2, True)
-    self.assertEqual(hparams!=hparams2, False)
+    self.assertEqual(hparams == hparams2, True)
+    self.assertEqual(hparams != hparams2, False)
 
     hparams2['name'] = 'MFCC'
-    self.assertEqual(hparams==hparams2, False)
-    self.assertEqual(hparams!=hparams2, True)
+    self.assertEqual(hparams == hparams2, False)
+    self.assertEqual(hparams != hparams2, True)
+
 
 if __name__ == '__main__':
   tf.test.main()
