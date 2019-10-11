@@ -34,7 +34,8 @@ from tensorflow.python.util import deprecation
 #   <variable name>[<index>]? = <rhs>
 # where <rhs> is either a single token or [] enclosed list of tokens.
 # For example:  "var[1] = a" or "x = [1,2,3]"
-PARAM_RE = re.compile(r"""
+PARAM_RE = re.compile(
+    r"""
   (?P<name>[a-zA-Z][\w\.]*)      # variable name: "var" or "x"
   (\[\s*(?P<index>\d+)\s*\])?  # (optional) index: "1" or None
   \s*=\s*
@@ -53,8 +54,8 @@ def _parse_fail(name, var_type, value, values):
 
 def _reuse_fail(name, values):
   """Helper function for raising a value error for reuse of name."""
-  raise ValueError('Multiple assignments to variable \'%s\' in %s' % (name,
-                                                                      values))
+  raise ValueError('Multiple assignments to variable \'%s\' in %s' %
+                   (name, values))
 
 
 def _process_scalar_value(name, parse_fn, var_type, m_dict, values,
@@ -158,9 +159,8 @@ def _cast_to_type_if_compatible(name, param_type, value):
       * If `param_type` is an integer type, but `value` is not.
       * If `param_type` is a float type, but `value` is not a numeric type.
   """
-  fail_msg = (
-      "Could not cast hparam '%s' of type '%s' from value %r" %
-      (name, param_type, value))
+  fail_msg = ("Could not cast hparam '%s' of type '%s' from value %r" %
+              (name, param_type, value))
 
   # Some callers use None, for which we can't do any casting/checking. :(
   if issubclass(param_type, type(None)):
@@ -430,8 +430,8 @@ class HParams(object):
       raise ValueError('Hyperparameter name is reserved: %s' % name)
     if isinstance(value, (list, tuple)):
       if not value:
-        raise ValueError(
-            'Multi-valued hyperparameters cannot be empty: %s' % name)
+        raise ValueError('Multi-valued hyperparameters cannot be empty: %s' %
+                         name)
       self._hparam_types[name] = (type(value[0]), True)
     else:
       self._hparam_types[name] = (type(value), False)
@@ -455,12 +455,12 @@ class HParams(object):
       if not is_list:
         raise ValueError(
             'Must not pass a list for single-valued parameter: %s' % name)
-      setattr(self, name, [
-          _cast_to_type_if_compatible(name, param_type, v) for v in value])
+      setattr(self, name,
+              [_cast_to_type_if_compatible(name, param_type, v) for v in value])
     else:
       if is_list:
-        raise ValueError(
-            'Must pass a list for multi-valued parameter: %s.' % name)
+        raise ValueError('Must pass a list for multi-valued parameter: %s.' %
+                         name)
       setattr(self, name, _cast_to_type_if_compatible(name, param_type, value))
 
   def del_hparam(self, name):

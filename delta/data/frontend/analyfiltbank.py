@@ -20,9 +20,10 @@ from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
+
 class Analyfiltbank(BaseFrontend):
 
-  def __init__(self, config:dict):
+  def __init__(self, config: dict):
     super().__init__(config)
 
   @classmethod
@@ -66,7 +67,8 @@ class Analyfiltbank(BaseFrontend):
       if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      assert_op = tf.compat.v1.assert_equal(
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
       with tf.control_dependencies([assert_op]):
 
         power_spectrum, phase_spectrum = py_x_ops.analyfiltbank(

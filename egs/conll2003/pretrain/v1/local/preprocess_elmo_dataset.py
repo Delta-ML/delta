@@ -25,7 +25,6 @@ def add_start_end_token(file):
                  for line in f.readlines()]
     f1.write('\n'.join(add_lines))
 
-
 if __name__ == '__main__':
   logging.set_verbosity(logging.INFO)
 
