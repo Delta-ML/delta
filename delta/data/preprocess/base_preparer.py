@@ -28,6 +28,7 @@ from delta.utils.solver.utils.solver_utils import get_session_conf
 from delta.data.preprocess.utils import prepare_vocab
 from delta.data.preprocess.utils import prepare_vocab_from_config
 from delta.data.preprocess.utils import get_pre_process_text_ds_iter
+from delta.data.utils.common_utils import get_file_len
 
 
 class Preparer:
@@ -101,68 +102,80 @@ class TextPreparer(Preparer):
       infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
       for one_path, one_path_after in zip(paths, paths_after_pre_process):
-        self.prepare_one_raw_data(one_path, one_path_after, mode,
+        data_size = get_file_len([one_path])
+        self.prepare_one_raw_data([one_path], one_path_after, mode,
                                   infer_without_label, pre_process_pipeline,
-                                  all_texts, all_labels)
+                                  all_texts, all_labels,data_size)
     if self.output_num <= 1:
       all_labels = [all_labels]
     return all_texts, all_labels
 
   def prepare_one_raw_data(self, one_path, one_path_after, mode,
                            infer_without_label, pre_process_pipeline, all_texts,
-                           all_labels):
+                           all_labels,data_size):
     """Prepare one raw data."""
-    text, label = self.load_a_raw_file(one_path, mode, infer_without_label)
+    text, label = self.load_a_raw_file(one_path, infer_without_label)
 
+    batch_num = int(math.ceil(data_size / float(self.batch_size)))
     if self.multi_text:
       one_text_after = []
-      for i, one_text in enumerate(text):
-        text_placeholder = tf.placeholder(
-            dtype=tf.string, shape=(None,), name="text_{}".format(i))
-        self.init_feed_dict[text_placeholder] = one_text
+      for i, one_text in enumerate(text):   #to be confirmed
         one_text_iterator = get_pre_process_text_ds_iter(
-            text_placeholder, pre_process_pipeline, self.num_parallel_calls,
+            one_text, pre_process_pipeline, self.num_parallel_calls,
             self.batch_size)
-        batch_num = int(math.ceil(len(one_text) / float(self.batch_size)))
-        text_after_arr = self.run_text_pipeline(one_text_iterator, batch_num)
+        text_after_arr = self.run_dataset(one_text_iterator,batch_num)
         text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
         all_texts += text_after
         one_text_after.append(text_after)
     else:
-      text_placeholder = tf.placeholder(
-          dtype=tf.string, shape=(None,), name="text")
-      self.init_feed_dict[text_placeholder] = text
-      text_iterator = get_pre_process_text_ds_iter(text_placeholder,
+      text = text[0]
+      text_iterator = get_pre_process_text_ds_iter(text,
                                                    pre_process_pipeline,
                                                    self.num_parallel_calls,
                                                    self.batch_size)
-      batch_num = int(math.ceil(len(text) / float(self.batch_size)))
-      text_after_arr = self.run_text_pipeline(text_iterator, batch_num)
+      text_after_arr = self.run_dataset(text_iterator, batch_num)
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
       all_texts += text_after
       one_text_after = text_after
+    self.config['data']['{}_data_size'.format(mode)] = len(one_text_after[0])
+    one_label_after = []
+    if not infer_without_label:
+      if self.multi_output:
+        for i in range(self.output_num):
+          label_ds = label[i].batch(self.batch_size)
+          label_iterator = label_ds.make_initializable_iterator()
+          label_after_arr = self.run_dataset(label_iterator, batch_num)
+          label_after_one = [one_line.decode("utf-8") for one_line in label_after_arr]
+          one_label_after.append(label_after_one)
+          all_labels[i] += label_after_one
+      else:
+        label = label[0]
+        label_ds = label.batch(self.batch_size)
+        label_iterator = label_ds.make_initializable_iterator()
+        label_after_arr = self.run_dataset(label_iterator, batch_num)
+        one_label_after = [one_line.decode("utf-8") for one_line in label_after_arr]
+        all_labels += one_label_after
 
-    if self.multi_output:
-      for i in range(self.output_num):
-        all_labels[i] += label[i]
-    else:
-      all_labels += label
     logging.debug(f"one_text_after: {len(one_text_after)}")
-    self.save_a_raw_file(label, one_text_after, one_path_after,
+    self.save_a_raw_file(one_label_after, one_text_after, one_path_after,
                          infer_without_label)
 
-  def run_text_pipeline(self, text_iterator, batch_num):
+  def run_dataset(self, data_iterator,batch_num):
     """Run the text pre-process pipeline, fetch data in numpy array format."""
-    text_after = []
-    text_t = text_iterator.get_next()
+    data_after = []
+    data_t = data_iterator.get_next()
     with tf.Session(config=self.session_conf) as sess:
-      sess.run(text_iterator.initializer, feed_dict=self.init_feed_dict)
+      sess.run(data_iterator.initializer, feed_dict=self.init_feed_dict)
       for _ in range(batch_num):
-        text_after.append(sess.run(text_t))
-    text_after_arr = np.concatenate(text_after, axis=0)
-    return text_after_arr
+        try:
+          data_after.append(sess.run(data_t))
+        except tf.errors.OutOfRangeError:
+          break
+    data_after_arr = np.concatenate(data_after, axis=0)
+    return data_after_arr
 
-  def load_a_raw_file(self, one_path, mode, infer_without_label):
+
+  def load_a_raw_file(self, one_path, infer_without_label):
     """
     Load a raw file. Return text and label.
     For single text input, text: [sentence1, ...]

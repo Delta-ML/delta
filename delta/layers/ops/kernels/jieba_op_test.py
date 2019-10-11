@@ -20,11 +20,11 @@ import tempfile
 import tensorflow as tf
 from absl import logging
 
-from delta import utils
+from delta.data.utils import read_lines_from_text_file
 from delta.layers.ops import py_x_ops
 
-#pylint: disable=not-context-manager, invalid-name
 
+# pylint: disable=not-context-manager, invalid-name
 
 def test_one(sess, ops, inputs):
   ''' elapse time of op '''
@@ -41,9 +41,10 @@ class JiebaOpsTest(tf.test.TestCase):
   ''' jieba op test'''
 
   #pylint: disable=no-self-use
-  def build_op(self, sentence):
+  def build_op_use_file(self, sentence):
     ''' build graph '''
     main_root = os.environ["MAIN_ROOT"]
+
     dict_path = os.path.join(main_root, "tools/cppjieba/dict/jieba.dict.utf8")
     hmm_path = os.path.join(main_root, "tools/cppjieba/dict/hmm_model.utf8")
     user_dict_path = os.path.join(main_root,
@@ -54,6 +55,7 @@ class JiebaOpsTest(tf.test.TestCase):
 
     words = py_x_ops.jieba_cut(
         sentence,
+        use_file=True,
         hmm=True,
         dict_path=dict_path,
         hmm_path=hmm_path,
@@ -62,33 +64,43 @@ class JiebaOpsTest(tf.test.TestCase):
         stop_word_path=stop_word_path)
     return words
 
-  def setUp(self):
-    ''' set up '''
-    self.graph_pb_path = tempfile.mktemp('jibeba_test.pb')
-    logging.info("graph_pb_path: {}".format(self.graph_pb_path))
-    graph = tf.Graph()
-    with graph.as_default():
-      sentence = tf.placeholder(
-          dtype=tf.string, shape=[None], name="sentence_in")
+  def build_op_no_file(self, sentence):
+    ''' build graph '''
+    main_root = os.environ["MAIN_ROOT"]
 
-      sentence_out = self.build_op(sentence)
-      sentence_out = tf.identity(sentence_out, name="sentence_out")
+    dict_path = os.path.join(main_root, "tools/cppjieba/dict/jieba.dict.utf8")
+    hmm_path = os.path.join(main_root, "tools/cppjieba/dict/hmm_model.utf8")
+    user_dict_path = os.path.join(main_root,
+                                  "tools/cppjieba/dict/user.dict.utf8")
+    idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
+    stop_word_path = os.path.join(main_root,
+                                  "tools/cppjieba/dict/stop_words.utf8")
 
-      sess_config = utils.get_sess_config()
-      sess = utils.get_session(sess_config)
-      sess.run(tf.global_variables_initializer())
+    dict_lines = read_lines_from_text_file(dict_path)
+    model_lines = read_lines_from_text_file(hmm_path)
+    user_dict_lines = read_lines_from_text_file(user_dict_path)
+    idf_lines = read_lines_from_text_file(idf_path)
+    stop_word_lines = read_lines_from_text_file(stop_word_path)
 
-      utils.frozen_graph_to_pb(['sentence_out'], self.graph_pb_path, sess,
-                               graph)
+    words = py_x_ops.jieba_cut(
+        sentence,
+        use_file=False,
+        hmm=True,
+        dict_lines=dict_lines,
+        model_lines=model_lines,
+        user_dict_lines=user_dict_lines,
+        idf_lines=idf_lines,
+        stop_word_lines=stop_word_lines)
+    return words
 
-  def test_jieba_cut_op(self):
+  def test_jieba_cut_op_use_file(self):
     ''' test jieba '''
     graph = tf.Graph()
     with graph.as_default():
       sentence_in = tf.placeholder(
           dtype=tf.string, shape=[None], name="sentence_in")
 
-      sentence_out = self.build_op(sentence_in)
+      sentence_out = self.build_op_use_file(sentence_in)
 
       with self.session(use_gpu=False) as sess:
         # self.assertShapeEqual(tf.shape(sentence_in), tf.shape(sentence_out))
@@ -105,20 +117,29 @@ class JiebaOpsTest(tf.test.TestCase):
             "\n".join([one_sen.decode("utf-8") for one_sen in sentence_out_res
                       ]))
 
-  def test_jibebaop_save_load(self):
-    ''' test save jieba op '''
-    sess_config = utils.get_sess_config()
-    graph, sess = utils.load_graph_session_from_pb(
-        self.graph_pb_path, sess_config, print_op=True)
+  def test_jieba_cut_op_no_file(self):
+    ''' test jieba '''
+    graph = tf.Graph()
+    with graph.as_default():
+      sentence_in = tf.placeholder(
+          dtype=tf.string, shape=[None], name="sentence_in")
 
-    input_sentence_tensor = graph.get_operation_by_name(
-        "sentence_in").outputs[0]
-    sentence_out_output_tensor = graph.get_operation_by_name(
-        "sentence_out").outputs[0]
+      sentence_out = self.build_op_no_file(sentence_in)
 
-    sentence_out_res = sess.run(sentence_out_output_tensor,
-                                {input_sentence_tensor: ["南京市长江大桥"]})
-    self.assertEqual("南京市 长江大桥", sentence_out_res[0].decode("utf-8"))
+      with self.session(use_gpu=False) as sess:
+        # self.assertShapeEqual(tf.shape(sentence_in), tf.shape(sentence_out))
+        sentence_out_res = test_one(sess, sentence_out,
+                                    {sentence_in: ["我爱北京天安门"]})
+        self.assertEqual("我 爱 北京 天安门", sentence_out_res[0].decode("utf-8"))
+        sentence_out_res = test_one(sess, sentence_out,
+                                    {sentence_in: ["吉林省长春药店"]})
+        self.assertEqual("吉林省 长春 药店", sentence_out_res[0].decode("utf-8"))
+        sentence_out_res = test_one(sess, sentence_out,
+                                    {sentence_in: ["吉林省长春药店", "南京市长江大桥"]})
+        self.assertEqual(
+            "吉林省 长春 药店\n南京市 长江大桥",
+            "\n".join([one_sen.decode("utf-8") for one_sen in sentence_out_res
+                      ]))
 
 
 if __name__ == '__main__':

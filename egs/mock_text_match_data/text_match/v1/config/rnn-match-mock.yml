@@ -18,7 +18,7 @@ data:
       enable: true
       name: TextMatchPreparer
       done_sign: "egs/mock_text_match_data/text_match/v1/exp/prepare.done"
-      reuse: true
+      reuse: false
     use_dense: false
     language: english
     clean_english: True

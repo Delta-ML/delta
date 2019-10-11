@@ -36,19 +36,39 @@ namespace delta {
 class JiebaCutOp : public OpKernel {
  public:
   explicit JiebaCutOp(OpKernelConstruction* ctx) : OpKernel(ctx) {
-    std::string dict_path;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("dict_path", &dict_path));
-    std::string hmm_path;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm_path", &hmm_path));
-    std::string user_dict_path;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("user_dict_path", &user_dict_path));
-    std::string idf_path;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("idf_path", &idf_path));
-    std::string stop_word_path;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("stop_word_path", &stop_word_path));
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm", &hmm));
-    jieba_ = new cppjieba::Jieba(dict_path, hmm_path, user_dict_path, idf_path,
+    bool use_file;
+    OP_REQUIRES_OK(ctx, ctx->GetAttr("use_file",
+                                     &use_file));
+    if (use_file){
+      std::string dict_path;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("dict_path", &dict_path));
+      std::string hmm_path;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm_path", &hmm_path));
+      std::string user_dict_path;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("user_dict_path", &user_dict_path));
+      std::string idf_path;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("idf_path", &idf_path));
+      std::string stop_word_path;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("stop_word_path", &stop_word_path));
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm", &hmm));
+      jieba_ = new cppjieba::Jieba(dict_path, hmm_path, user_dict_path, idf_path,
                                  stop_word_path);
+    }
+    else{
+      std::vector<std::string> dict_lines;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("dict_lines", &dict_lines));
+      std::vector<std::string> model_lines;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("model_lines", &model_lines));
+      std::vector<std::string> user_dict_lines;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("user_dict_lines", &user_dict_lines));
+      std::vector<std::string> idf_lines;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("idf_lines", &idf_lines));
+      std::vector<std::string> stop_word_lines;
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("stop_word_lines", &stop_word_lines));
+      OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm", &hmm));
+      jieba_ = new cppjieba::Jieba(dict_lines, model_lines, user_dict_lines, idf_lines,
+                                 stop_word_lines);
+    }
   }
 
   ~JiebaCutOp() { delete jieba_; }
@@ -62,7 +82,7 @@ class JiebaCutOp : public OpKernel {
                    ctx->allocate_output("sentence_out", t_sentence_in->shape(),
                                         &t_sentence_out));
     if (t_sentence_in->dims() == 0) {
-      jieba_->Cut(t_sentence_in->scalar<string>()(), words, true);
+      jieba_->Cut(t_sentence_in->scalar<string>()(), words, hmm);
       t_sentence_out->scalar<string>()() = str_util::Join(words, " ");
     } else {
       OP_REQUIRES(
@@ -70,7 +90,7 @@ class JiebaCutOp : public OpKernel {
           errors::InvalidArgument("Input must be a scalar or 1D tensor."));
       int batch = t_sentence_in->dim_size(0);
       for (int i = 0; i < batch; i++) {
-        jieba_->Cut(t_sentence_in->vec<string>()(i), words, true);
+        jieba_->Cut(t_sentence_in->vec<string>()(i), words, hmm);
         t_sentence_out->vec<string>()(i) = str_util::Join(words, " ");
       }
     }

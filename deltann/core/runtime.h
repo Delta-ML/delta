@@ -155,7 +155,7 @@ DeltaStatus load_models(const RuntimeConfig& rt_cfg,
 // run graph
 class Runtime {
  public:
-  explicit Runtime(const RuntimeConfig& rt_cfg)
+  explicit Runtime(RuntimeConfig& rt_cfg)
       : _rt_cfg(rt_cfg), _graphs(rt_cfg.graphs()) {}
 
   virtual ~Runtime() {
