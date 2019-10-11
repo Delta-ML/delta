@@ -50,7 +50,7 @@ class MnistImageTaskTest(tf.test.TestCase):
         batch_size: 512
     '''
     import_all_modules_for_register_v2()
-    self.params = yaml.load(self.task_yaml)
+    self.params = yaml.safe_load(self.task_yaml)
     logging.info(f'config: {self.params}')
 
   def test_dataset(self):

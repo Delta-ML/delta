@@ -668,6 +668,6 @@ class HParams(object):
   def instantiate(self, *args, **kwargs):
     assert self.cls is not None
     logging.info(
-        f"instantiate class: {self.cls.__name__} with args:{args} kwargs:{kwargs}"
+        f"Instantiate [CLASS: {self.cls.__name__}] with HPARAMS:{self} ARGS:{args} KWARGS:{kwargs}"
     )
     return self.cls(self, *args, **kwargs)
