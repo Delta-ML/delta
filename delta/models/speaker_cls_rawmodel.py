@@ -404,15 +404,13 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
         unit_name = 'unit-' + str(index + 1)
         with tf.variable_scope(unit_name):
           tdnn_name = 'tdnn-' + str(index + 1)
-          use_bn = self.netconf['use_bn']
-          has_bias = not use_bn
           x = common_layers.tdnn(
               x,
               tdnn_name,
               last_w,
               tdnn_contexts[index],
               channels[index + 1],
-              has_bias=has_bias,
+              has_bias=True,
               method=tdnn_method)
           last_w = channels[index + 1]
           x = tf.nn.relu(x)
