@@ -23,11 +23,13 @@ samples_english = ["1\tAll is well", "0\tI am very angry"]
 samples_split_line_mark = ["1\t都挺好。|都是的呀", "0\t我很愤怒|超级生气！"]
 samples_split_by_space = ["1\t都 挺好", "0\t我 很 愤怒"]
 samples_split_by_char = ["1\t都挺好", "0\t我很愤怒"]
+samples_chinese_word = ["1\t都挺好", "0\t我很愤怒"]
 
 samples_dict = {"english": samples_english,
                 "split_by_line_mark": samples_split_line_mark,
                 "split_by_space": samples_split_by_space,
-                "split_by_char": samples_split_by_char}
+                "split_by_char": samples_split_by_char,
+                "chinese_word": samples_chinese_word}
 
 text_vocab_english = ["<unk>\t0", "</s>\t1", "all\t3", "is\t4",
                       "well\t5", "i\t6", "am\t7", "very\t8"]
@@ -38,10 +40,13 @@ text_vocab_split_by_space = ["<unk>\t0", "</s>\t1", "都\t2", "挺好\t3",
                              "我\t4", "很\t5"]
 text_vocab_split_by_char = ["<unk>\t0", "</s>\t1", "都\t2", "挺\t3",
                             "好\t4", "我\t5", "很\t6","愤\t7","怒\t8"]
+text_vocab_chinese_word = ["<unk>\t0", "</s>\t1", "都\t2", "挺好\t3",
+                             "我\t4", "很\t5"]
 text_vocab_dict = {"english": text_vocab_english,
                    "split_by_line_mark": text_vocab_split_line_mark,
                    "split_by_space": text_vocab_split_by_space,
-                   "split_by_char": text_vocab_split_by_char}
+                   "split_by_char": text_vocab_split_by_char,
+                   "chinese_word": text_vocab_chinese_word}
 
 
 def mock_text_class_data(train_file, dev_file, test_file, text_vocab_file, data_type):

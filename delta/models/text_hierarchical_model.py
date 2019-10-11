@@ -123,7 +123,7 @@ class HierarchicalAttentionModel(HierarchicalModel):
     logging.info("Initialize HierarchicalAttentionModel done.")
 
   def call(self, inputs, training=None, mask=None):  # pylint: disable=too-many-locals
-    input_x = inputs["input_x"]
+    input_x = tf.identity(inputs["input_x"], name='input_x')
     if self.use_dense_task:
       dense_input = inputs["input_dense"]
 

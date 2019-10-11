@@ -57,7 +57,7 @@ class FrozenModel(ABCFrozenModel):
   def init_session(self, model, gpu_str):
     # The config for CPU usage
     config = tf.ConfigProto()
-    if gpu_str is None:
+    if not gpu_str:
       config.gpu_options.visible_device_list = ''  # pylint: disable=no-member
     else:
       config.gpu_options.visible_device_list = gpu_str  # pylint: disable=no-member
@@ -98,6 +98,10 @@ class FrozenModel(ABCFrozenModel):
       logging.info('frozen graph pb : {}'.format(frozen_graph))
       self._graph = utils.load_frozen_graph(frozen_graph)
       self._sess = tf.Session(graph=self._graph, config=config)
+
+  def inspect_ops(self):
+    for op in self._graph.get_operations():
+      logging.info(op.name)
 
   @property
   def graph(self):

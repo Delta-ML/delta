@@ -207,13 +207,13 @@ class TextClsTaskTest(tf.test.TestCase):
     task_config["use_word"] = True
     data_config = config["data"]
     data_config["train"]["paths"] = \
-      ["egs/mock_text_cls_data/text_cls/v1/data/train.split_by_space.txt"]
+      ["egs/mock_text_cls_data/text_cls/v1/data/train.chinese_word.txt"]
     data_config["eval"]["paths"] = \
-      ["egs/mock_text_cls_data/text_cls/v1/data/eval.split_by_space.txt"]
+      ["egs/mock_text_cls_data/text_cls/v1/data/eval.chinese_word.txt"]
     data_config["infer"]["paths"] = \
-      ["egs/mock_text_cls_data/text_cls/v1/data/test.split_by_space.txt"]
+      ["egs/mock_text_cls_data/text_cls/v1/data/test.chinese_word.txt"]
     task_config[
-        "text_vocab"] = "egs/mock_text_cls_data/text_cls/v1/data/text_vocab.split_by_space.txt"
+        "text_vocab"] = "egs/mock_text_cls_data/text_cls/v1/data/text_vocab.chinese_word.txt"
     task_config["need_shuffle"] = False
     config["model"]["split_token"] = ""
     task_config["preparer"]["reuse"] = False
