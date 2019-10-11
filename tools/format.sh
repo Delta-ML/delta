@@ -1,10 +1,18 @@
 #!/bin/bash
+set -e
+
+if [ $(id -u) == 0 ]; then
+  SUDO=
+else
+  SUDO=sudo
+fi
+parallel --version &> /dev/null || ${SUDO} apt-get install -y parallel
 
 PYTEMPFILE=`mktemp`
 trap 'unlink $PYTEMPFILE' EXIT INT QUIT ABRT
 
 # yapf
-yapf -version &> /dev/null || sudo pip install yapf 
+yapf -version &> /dev/null || ${SUDO} pip install yapf
 
 # yapf
 for dir in delta deltann dpl docker utils;
@@ -24,16 +32,11 @@ find tools/test \
    tools/license \
    tools/plugins \
    -name *.py >> $PYTEMPFILE
-
-while read file;
-do
-  echo "yapf: $file"
-  yapf -i $file
-done < $PYTEMPFILE
+cat $PYTEMPFILE | parallel -I{} 'yapf -i {}; echo "yapf: {}";'
 
 
-#clang-format
-clang-format -version &> /dev/null || sudo apt-get install clang-format
+
+clang-format -version &> /dev/null || ${SUDO} apt-get install -y clang-format
 
 CPPTEMPFILE=`mktemp`
 trap 'unlink $CPPTEMPFILE' EXIT INT QUIT ABRT
@@ -57,10 +60,4 @@ find tools/test \
    tools/license \
    tools/plugins \
    -name '*.h' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' >> $CPPTEMPFILE
-
-
-while read file;
-do
-  echo "clang-format: $file"
-  clang-format -i $file 
-done < $CPPTEMPFILE
+cat $CPPTEMPFILE | parallel -I{} 'clang-format -i {}; echo "clang-format: {}";'
