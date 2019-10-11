@@ -172,10 +172,10 @@ if [ $stage -le 14 ] && [ $stop_stage -ge 14 ]; then
   lda_dim=200
   ivector-compute-lda --total-covariance-factor=0.0 --dim=$lda_dim \
     "ark:ivector-subtract-global-mean scp:$train_vector_scp ark:- |" \
-    ark:data/train/utt2spk $infer_train_dir/transform.mat || exit 1;
+    ark:data/train_no_sil/utt2spk $infer_train_dir/transform.mat || exit 1;
 
   # Train the PLDA model.
-  ivector-compute-plda ark:data/train/spk2utt \
+  ivector-compute-plda ark:data/train_no_sil/spk2utt \
     "ark:ivector-subtract-global-mean scp:$train_vector_scp ark:- | transform-vec $infer_train_dir/transform.mat ark:- ark:- | ivector-normalize-length ark:-  ark:- |" \
     $infer_train_dir/plda || exit 1;
   echo "Computing PLDA done."
