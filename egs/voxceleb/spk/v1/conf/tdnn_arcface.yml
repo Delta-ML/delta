@@ -53,7 +53,7 @@ data:
       cmvn_type: none # global, local, sliding
       cmvn_path: exp/delta_speaker/cmvn.npy # cmvn file
     classes:
-      num: 6153
+      num: 7323
       vocab: null
     num_parallel_calls: 12
     num_prefetch_batch: 2
