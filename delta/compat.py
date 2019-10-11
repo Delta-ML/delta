@@ -14,10 +14,6 @@
 # ==============================================================================
 """The compatible tensorflow library."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from tensorflow.compat.v1 import *  # pylint:disable=wildcard-import
 
 # Import absl.flags and absl.logging to overwrite the Tensorflow ones.
