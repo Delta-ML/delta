@@ -6,11 +6,31 @@ test_nj=1
 test_use_gpu=true
 stage=-1
 stop_stage=100
-config_file=tdnn_arcface.yml
+config_file=conf/tdnn_arcface.yml
 
 
 source path.sh
 source parse_options.sh
+
+
+# Determine job name and directory
+config_name=$(basename $config_file)
+echo "Config file: $config_file"
+job_name=job.${config_name%.yml}
+echo "Job name: $job_name"
+job_dir=exp/$job_name
+echo "Job dir: $job_dir"
+if [ -d $job_dir ]
+then
+  echo "Job directory $job_dir exists."
+else
+  mkdir -p $job_dir
+fi
+
+# Copy configuration file
+job_config_file=$job_dir/config.yml
+sed "s%__JOB_DIR__%$job_dir%" $config_file > $job_config_file
+
 
 echo "Running from stage $stage ..."
 
@@ -44,13 +64,13 @@ fi
 if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
   # Train the model.
   echo "Training the model ..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config conf/$config_file
+  python3 -u $MAIN_ROOT/delta/main.py --cmd train_and_eval --config $job_config_file
   echo "Training the model done."
 fi
 
 # sliding-cmvn and vad
 if [ $stage -le 9 ] && [ $stop_stage -ge 9 ]; then
-  if [ ! -d data/voxceleb1_test_no_sil ]
+  if [ ! -e data/voxceleb1_test_no_sil ]
   then
     echo "Preparing feats for test ..."
     local/nnet3/xvector/prepare_feats_for_egs.sh \
@@ -73,10 +93,11 @@ function infer_one_set() {
   for idx in $(seq 1 $test_nj)
   do
     mkdir $output_dir/split$test_nj/$idx || true
+    split_config_file=$job_config_file.$idx.yml
     sed \
       -e "s%__INFER_PATH__%$data_dir/split$test_nj/$idx%" \
       -e "s%pred_path:.*%pred_path: $output_dir/split$test_nj/$idx%" \
-      conf/${config_file} > exp/conf/${config_file}.$idx.yml
+      $job_config_file > $split_config_file
     if "$test_use_gpu"
     then
       gpu_idx=$((idx-1))
@@ -84,7 +105,7 @@ function infer_one_set() {
       gpu_idx=
     fi
     CUDA_VISIBLE_DEVICES="$gpu_idx" \
-      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config exp/conf/${config_file}.$idx.yml &> $output_dir/split$test_nj/$idx/infer.log &
+      python3 -u $MAIN_ROOT/delta/main.py --cmd infer --config $split_config_file &> $output_dir/split$test_nj/$idx/infer.log &
   done
 
   wait
@@ -98,7 +119,7 @@ function infer_one_set() {
   cat $output_dir/split$test_nj/*/utt_embeddings.txt.scp > $output_dir/utt_embeddings.txt.scp
 }
 
-infer_dir=exp/delta_speaker/ckpt/infer
+infer_dir=$job_dir/infer
 test_vector_scp=$infer_dir/utt_embeddings.txt.scp
 if [ $stage -le 10 ]; then
   echo "Running inference through model on test set ..."
@@ -122,15 +143,18 @@ fi
 # PLDA
 
 if [ $stage -le 12 ] && [ $stop_stage -ge 12 ]; then
-  echo "Preparing feats for clean training set ..."
-  local/nnet3/xvector/prepare_feats_for_egs.sh \
-      --compress false \
-      data/train data/train_no_sil data/train_no_sil
-  utils/fix_data_dir.sh data/train_no_sil
-  echo "Preparing feats for clean training set done."
+  if [ ! -e data/train_no_sil ]
+  then
+    echo "Preparing feats for clean training set ..."
+    local/nnet3/xvector/prepare_feats_for_egs.sh \
+        --compress false \
+        data/train data/train_no_sil data/train_no_sil
+    utils/fix_data_dir.sh data/train_no_sil
+    echo "Preparing feats for clean training set done."
+  fi
 fi
 
-infer_train_dir=exp/delta_speaker/ckpt/infer_train
+infer_train_dir=$job_dir/infer_train
 if [ $stage -le 13 ] && [ $stop_stage -ge 13 ]; then
   echo "Running inference through model on training set ..."
   infer_one_set data/train_no_sil $infer_train_dir
@@ -148,10 +172,10 @@ if [ $stage -le 14 ] && [ $stop_stage -ge 14 ]; then
   lda_dim=200
   ivector-compute-lda --total-covariance-factor=0.0 --dim=$lda_dim \
     "ark:ivector-subtract-global-mean scp:$train_vector_scp ark:- |" \
-    ark:data/train/utt2spk $infer_train_dir/transform.mat || exit 1;
+    ark:data/train_no_sil/utt2spk $infer_train_dir/transform.mat || exit 1;
 
   # Train the PLDA model.
-  ivector-compute-plda ark:data/train/spk2utt \
+  ivector-compute-plda ark:data/train_no_sil/spk2utt \
     "ark:ivector-subtract-global-mean scp:$train_vector_scp ark:- | transform-vec $infer_train_dir/transform.mat ark:- ark:- | ivector-normalize-length ark:-  ark:- |" \
     $infer_train_dir/plda || exit 1;
   echo "Computing PLDA done."
@@ -163,14 +187,14 @@ if [ $stage -le 15 ] && [ $stop_stage -ge 15 ]; then
     "ivector-copy-plda --smoothing=0.0 $infer_train_dir/plda - |" \
     "ark:ivector-subtract-global-mean $infer_train_dir/mean.vec scp:$test_vector_scp ark:- | transform-vec $infer_train_dir/transform.mat ark:- ark:- | ivector-normalize-length ark:- ark:- |" \
     "ark:ivector-subtract-global-mean $infer_train_dir/mean.vec scp:$test_vector_scp ark:- | transform-vec $infer_train_dir/transform.mat ark:- ark:- | ivector-normalize-length ark:- ark:- |" \
-    "cat '$voxceleb1_trials' | cut -d\  --fields=1,2 |" exp/scores_voxceleb1_test || exit 1;
+    "cat '$voxceleb1_trials' | cut -d\  --fields=1,2 |" $job_dir/scores_voxceleb1_test || exit 1;
   echo "PLDA scoring done."
 fi
 
 if [ $stage -le 16 ] && [ $stop_stage -ge 16 ]; then
-  eer=`compute-eer <(local/prepare_for_eer.py $voxceleb1_trials exp/scores_voxceleb1_test) 2> /dev/null`
-  mindcf1=`sid/compute_min_dcf.py --p-target 0.01 exp/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
-  mindcf2=`sid/compute_min_dcf.py --p-target 0.001 exp/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
+  eer=`compute-eer <(local/prepare_for_eer.py $voxceleb1_trials $job_dir/scores_voxceleb1_test) 2> /dev/null`
+  mindcf1=`sid/compute_min_dcf.py --p-target 0.01 $job_dir/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
+  mindcf2=`sid/compute_min_dcf.py --p-target 0.001 $job_dir/scores_voxceleb1_test $voxceleb1_trials 2> /dev/null`
   echo "PLDA:"
   echo "EER: $eer%"
   echo "minDCF(p-target=0.01): $mindcf1"
@@ -194,6 +218,6 @@ fi
 
 if [ $stage -le 17 ] && [ $stop_stage -ge 17 ]; then
   echo "export model..."
-  python3 -u $MAIN_ROOT/delta/main.py --cmd export_model --config conf/$config_file
+  python3 -u $MAIN_ROOT/delta/main.py --cmd export_model --config $job_config_file
   echo "export model done."
 fi
