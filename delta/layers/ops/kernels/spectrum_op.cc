@@ -30,6 +30,7 @@ class SpecOp : public OpKernel {
     OP_REQUIRES_OK(context, context->GetAttr("window_length", &window_length_));
     OP_REQUIRES_OK(context, context->GetAttr("frame_length", &frame_length_));
     OP_REQUIRES_OK(context, context->GetAttr("output_type", &output_type_));
+    OP_REQUIRES_OK(context, context->GetAttr("snip_edges", &snip_edges_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -51,6 +52,7 @@ class SpecOp : public OpKernel {
     cls_spc.set_window_length_sec(window_length_);
     cls_spc.set_frame_length_sec(frame_length_);
     cls_spc.set_output_type(output_type_);
+    cls_spc.set_snip_edges(snip_edges_);
     OP_REQUIRES(context, cls_spc.init_spc(L, sample_rate),
                 errors::InvalidArgument(
                     "spectrum_class initialization failed for length ", L,
@@ -60,6 +62,9 @@ class SpecOp : public OpKernel {
     int i_WinLen = static_cast<int>(window_length_ * sample_rate);
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
+    int i_snip_edges = snip_edges_;
+    if (i_snip_edges_ == 2)
+        i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
     int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
     OP_REQUIRES_OK(
         context, context->allocate_output(0, TensorShape({i_NumFrm, i_FrqNum}),
@@ -77,6 +82,7 @@ class SpecOp : public OpKernel {
   float window_length_;
   float frame_length_;
   int output_type_;
+  int snip_edges_;
 };
 
 REGISTER_KERNEL_BUILDER(Name("Spectrum").Device(DEVICE_CPU), SpecOp);

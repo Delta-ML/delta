@@ -46,6 +46,7 @@ class Fbank(BaseFrontend):
     frame_length = 0.010
     output_type = 2
     sample_rate = 16000.0
+    snip_edges = 1
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -55,6 +56,7 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('frame_length', frame_length)
     hparams.add_hparam('output_type', output_type)
     hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('snip_edges', snip_edges)
 
     if config is not None:
       hparams.override_from_dict(config)

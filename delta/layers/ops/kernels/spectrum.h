@@ -39,6 +39,7 @@ class Spectrum {
   float f_PreEph;
   char s_WinTyp[40];
   int i_OutTyp;  // 1: PSD, 2:log(PSD)
+  int i_snip_edges;
 
   float* pf_WINDOW;
   float* pf_SPC;
@@ -53,6 +54,8 @@ class Spectrum {
   void set_frame_length_sec(float frame_length_sec);
 
   void set_output_type(int output_type);
+
+  void set_snip_edges(int snip_edges);
 
   int init_spc(int input_size, float sample_rate);
 

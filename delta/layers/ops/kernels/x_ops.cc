@@ -330,6 +330,7 @@ REGISTER_OP("Spectrum")
     .Attr("window_length: float = 0.025")
     .Attr("frame_length: float = 0.010")
     .Attr("output_type: int = 2")
+    .Attr("snip_edges: int = 2")
     .Output("output: float")
     .SetShapeFn(SpectrumShapeFn)
     .Doc(R"doc(

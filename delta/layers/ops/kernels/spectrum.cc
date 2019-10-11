@@ -30,6 +30,7 @@ Spectrum::Spectrum() {
   window_length_sec_ = window_length_sec;
   frame_length_sec_ = frame_length_sec;
   i_OutTyp = 1;
+  i_snip_edges = 2;
   pf_WINDOW = NULL;
   pf_SPC = NULL;
 }
@@ -48,12 +49,16 @@ void Spectrum::set_frame_length_sec(float frame_length_sec) {
 }
 
 void Spectrum::set_output_type(int output_type) { i_OutTyp = output_type; }
+void Spectrum::set_snip_edges(int snip_edges) { i_snip_edges = snip_edges; }
 
 int Spectrum::init_spc(int input_size, float sample_rate) {
   f_SamRat = sample_rate;
   i_WinLen = static_cast<int>(window_length_sec_ * f_SamRat);
   i_FrmLen = static_cast<int>(frame_length_sec_ * f_SamRat);
-  i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
+  if (i_snip_edges == 1)
+    i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
+  else
+    i_NumFrm = (input_size + i_FrmLen / 2) / i_FrmLen;
   f_PreEph = 0.97;
   snprintf(s_WinTyp, sizeof(s_WinTyp), "hamm");
   i_FFTSiz = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))));
@@ -71,10 +76,25 @@ int Spectrum::proc_spc(const float* mic_buf, int input_size) {
   /* generate window */
   gen_window(pf_WINDOW, i_WinLen, s_WinTyp);
 
+  float* mic_buf1 = static_cast<float*>(malloc(sizeof(float) * (input_size + i_FrmLen / 2)));
+  if (i_snip_edges == 2)
+  {
+    for(int j = 0; j < input_size; j++)
+        mic_buf1[j] = mic_buf[j];
+    for(int j = 0; j < i_FrmLen / 2; j++)
+        mic_buf1[input_size + j] = 0;
+  }
+
+   int input_size1 = input_size;
+   if (i_snip_edges == 2)
+        input_size1 = input_size + i_FrmLen / 2;
   /* do pre-emphais */
   float* eph_buf =
-      static_cast<float*>(malloc(sizeof(float) * (input_size + 1)));
-  do_preemphasis(f_PreEph, eph_buf, mic_buf, input_size);
+      static_cast<float*>(malloc(sizeof(float) * (input_size1 + 1)));
+  if (i_snip_edges == 2)
+    do_preemphasis(f_PreEph, eph_buf, mic_buf1, input_size1);
+  else
+    do_preemphasis(f_PreEph, eph_buf, mic_buf, input_size1);
 
   float tmp;
   xcomplex* win = static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));
@@ -105,6 +125,7 @@ int Spectrum::proc_spc(const float* mic_buf, int input_size) {
     }
   }
 
+  free(mic_buf1);
   free(eph_buf);
   free(win);
   free(fftwin);

@@ -39,12 +39,14 @@ class Spectrum(BaseFrontend):
     frame_length = 0.010
     output_type = 2
     sample_rate = 16000.0
+    snip_edges = 2
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
     hparams.add_hparam('frame_length', frame_length)
     hparams.add_hparam('output_type', output_type)
     hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('snip_edges', snip_edges)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -75,6 +77,7 @@ class Spectrum(BaseFrontend):
             sample_rate,
             window_length=p.window_length,
             frame_length=p.frame_length,
-            output_type=p.output_type)
+            output_type=p.output_type,
+            snip_edges=p.snip_edges)
 
         return spectrum
