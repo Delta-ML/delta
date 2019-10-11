@@ -201,7 +201,7 @@ solver:
       output_levels: # which level outputs to save, e.g. utt, chunck
         - "utt"
   saver:
-    model_path: "exp/delta_speaker/ckpt"
+    model_path: "__JOB_DIR__"
     max_to_keep: 10
     save_checkpoints_steps: 1000
     keep_checkpoint_every_n_hours: 10000
