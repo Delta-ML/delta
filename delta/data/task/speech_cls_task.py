@@ -167,7 +167,7 @@ class SpeechClsTask(SpeechTask):
     nframe = librosa.core.samples_to_frames(
         samples,
         hop_length=self.taskconf['audio']['winstep'] * self._sample_rate)
-    return nframe
+    return int(nframe)
 
   @property
   def nframe(self):
@@ -762,10 +762,14 @@ class SpeechClsTask(SpeechTask):
             feat = np.pad(feat, [(0, seg[2]), (0, 0), (0, 0)], mode='constant')
 
           feat = feat[seg[0]:seg[1], :, :]
-          assert len(feat) == self.sample_to_frame(
-              self.example_len), "{} {} {} {} {} {}".format(
-                  filename, seg, len(feat), self.example_len,
-                  self.sample_to_frame(self.example_len), seg[2])
+          expect_nframes = self.sample_to_frame(self.example_len)
+          if len(feat) != expect_nframes:
+            logging.warn("{} {} {} {} {} {}".format(
+                filename, seg, len(feat), self.example_len,
+                self.sample_to_frame(self.example_len), seg[2]))
+            feat = np.pad(
+                feat, [(0, expect_nframes - len(feat)), (0, 0), (0, 0)],
+                mode='constant')
 
           if self.use_distilling:
             soft_label = self.teacher(feat)
@@ -893,8 +897,11 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
 
   def __len__(self):
     ''' the number of examples '''
-    steps_per_epoch = (len(self.examples_meta) -
-                       self.batch_size) / self.batch_size + 1
+    if self.mode == utils.TRAIN:
+      steps_per_epoch = (len(self.examples_meta) -
+                         self.batch_size) / self.batch_size + 1
+    else:
+      steps_per_epoch = len(self.examples_meta) / self.batch_size + 1
     return int(steps_per_epoch)
 
   def on_epoch_end(self):

@@ -19,9 +19,10 @@ import tensorflow as tf
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
+
 class ReadWav(BaseFrontend):
 
-  def __init__(self, config:dict):
+  def __init__(self, config: dict):
     super().__init__(config)
 
   @classmethod
@@ -53,7 +54,9 @@ class ReadWav(BaseFrontend):
     """
     p = self.config
     contents = tf.io.read_file(wavfile)
-    audio_data, sample_rate = tf.audio.decode_wav(contents, desired_channels=p.audio_channels)
-    assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+    audio_data, sample_rate = tf.audio.decode_wav(
+        contents, desired_channels=p.audio_channels)
+    assert_op = tf.compat.v1.assert_equal(
+        tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
     with tf.control_dependencies([assert_op]):
       return tf.squeeze(audio_data, axis=-1), tf.cast(sample_rate, dtype=float)

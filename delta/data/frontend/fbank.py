@@ -21,12 +21,12 @@ from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.spectrum import Spectrum
 
+
 class Fbank(BaseFrontend):
 
-  def __init__(self, config:dict):
+  def __init__(self, config: dict):
     super().__init__(config)
     self.spect = Spectrum(config)
-
 
   @classmethod
   def params(cls, config=None):
@@ -75,7 +75,8 @@ class Fbank(BaseFrontend):
       if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      assert_op = tf.compat.v1.assert_equal(
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
       with tf.control_dependencies([assert_op]):
 
         spectrum = self.spect(audio_data, sample_rate)
@@ -83,10 +84,10 @@ class Fbank(BaseFrontend):
         sample_rate = tf.cast(sample_rate, dtype=tf.int32)
 
         fbank = py_x_ops.fbank(
-          spectrum,
-          sample_rate,
-          upper_frequency_limit=p.upper_frequency_limit,
-          lower_frequency_limit=p.lower_frequency_limit,
-          filterbank_channel_count=p.filterbank_channel_count)
+            spectrum,
+            sample_rate,
+            upper_frequency_limit=p.upper_frequency_limit,
+            lower_frequency_limit=p.lower_frequency_limit,
+            filterbank_channel_count=p.filterbank_channel_count)
 
         return fbank
