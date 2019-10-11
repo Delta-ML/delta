@@ -62,7 +62,7 @@ class TextS2STask(TextTask):
         one_path + ".after" for one_path in self.tgt_paths
     ]
     self.infer_no_label = self.config["data"][utils.INFER].get(
-      'infer_no_label', False)
+        'infer_no_label', False)
     self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
     self.prepare()
@@ -103,14 +103,14 @@ class TextS2STask(TextTask):
     input_pipeline_func = self.get_input_pipeline(for_export=False)
 
     src_ds = src_ds.map(
-      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
 
     src_size_ds = src_ds.map(
-      lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
-      num_parallel_calls=self.num_parallel_calls)
+        lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
+        num_parallel_calls=self.num_parallel_calls)
 
     src_ds = src_ds.map(
-      self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+        self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
     if self.infer_without_label:
       data_set = tf.data.Dataset.zip((src_ds, src_size_ds))
@@ -122,19 +122,19 @@ class TextS2STask(TextTask):
       tgt_in_ds = tgt.map(lambda x: self.START_TOKEN + ' ' + x)
 
       tgt_in_ds = tgt_in_ds.map(
-        lambda batch: self.text_pipeline_func(batch, self.max_dec_len, self.
-                                              text_vocab_file_path),
-        num_parallel_calls=self.num_parallel_calls)
+          lambda batch: self.text_pipeline_func(batch, self.max_dec_len, self.
+                                                text_vocab_file_path),
+          num_parallel_calls=self.num_parallel_calls)
 
       tgt_in_size_ds = tgt_in_ds.map(
-        lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
-        num_parallel_calls=self.num_parallel_calls)
+          lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
+          num_parallel_calls=self.num_parallel_calls)
 
       tgt_in_ds = tgt_in_ds.map(
-        self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+          self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
       inp_ds = tf.data.Dataset.zip(
-        (src_ds, src_size_ds, tgt_in_ds, tgt_in_size_ds))
+          (src_ds, src_size_ds, tgt_in_ds, tgt_in_size_ds))
 
       if self.use_label_vocab:
         target_vocab_file_path = self.label_vocab_file_paths[0]
@@ -163,12 +163,14 @@ class TextS2STask(TextTask):
   def feature_spec(self):
     """Get shapes for feature."""
     if not self.infer_without_label:
-      feature_shapes = [(tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]),
-                         tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))]
+      feature_shapes = [
+          (tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]),
+           tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))
+      ]
       feature_shapes.append(tf.TensorShape([tf.Dimension(None)]))
     else:
-      feature_shapes = [(tf.TensorShape([tf.Dimension(None)]), tf.TensorShape([]))
-                        ]
+      feature_shapes = [(tf.TensorShape([tf.Dimension(None)]),
+                         tf.TensorShape([]))]
     if len(feature_shapes) == 1:
       return feature_shapes[0]
     return tuple(feature_shapes)

@@ -40,7 +40,7 @@ class TextOpsTest(tf.test.TestCase):
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(
-      'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
     self.config = utils.load_config(self.config_file)
 
     self.vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']
@@ -74,8 +74,7 @@ class TextOpsTest(tf.test.TestCase):
     with self.session() as sess:
       res = sess.run([text_tokenize_t, label_tokenize_t])
       logging.debug(res)
-      self.assertAllEqual(res[0],
-                          [[3, 3]])
+      self.assertAllEqual(res[0], [[3, 3]])
       self.assertAllEqual(res[1], [[0, 0]])
 
   def test_clean_english_str_tf(self):
@@ -109,7 +108,6 @@ class TextOpsTest(tf.test.TestCase):
       logging.info([one.decode("utf-8") for one in sen_out])
       self.assertAllEqual(["我 爱 北 京 天 安 门", "天 安 门 前 太 阳 升 啊"],
                           [one.decode("utf-8") for one in sen_out])
-
 
   def test_process_one_label_dataset(self):
     label = ["O", "O", "O", "I-MISC"]

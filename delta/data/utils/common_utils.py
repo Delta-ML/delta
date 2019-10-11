@@ -26,7 +26,6 @@ import subprocess
 from delta import utils
 
 
-
 def input_fn(dataset, mode, batch_size, num_epoch=None):
   '''
   params: dataset, tf.data.Dataset
@@ -153,7 +152,8 @@ def load_npy(npy_path, dtype=np.float32):
 def get_file_len(fname_paths):
   len_res = []
   for fname in fname_paths:
-    p = subprocess.Popen(['wc', '-l', fname], stdout=subprocess.PIPE,
+    p = subprocess.Popen(['wc', '-l', fname],
+                         stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
     result, err = p.communicate()
     if p.returncode != 0:
@@ -161,6 +161,7 @@ def get_file_len(fname_paths):
     len_res.append(int(result.strip().split()[0]))
 
   return sum(len_res)
+
 
 def read_lines_from_text_file(file_path):
   """Read lines from a text file."""

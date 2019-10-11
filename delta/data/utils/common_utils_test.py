@@ -21,7 +21,6 @@ import tensorflow as tf
 from delta import utils
 from delta.data.utils.common_utils import get_file_len
 
-
 # pylint: disable=invalid-name,too-many-locals,missing-docstring
 
 

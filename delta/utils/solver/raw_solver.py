@@ -368,7 +368,8 @@ class RawSolver(Solver):
       checkpoint_dir = get_checkpoint_dir(self.config)
 
       # scaffold
-      scaffold = self.get_scaffold(mode, global_step, train_model.iterator.initializer)
+      scaffold = self.get_scaffold(mode, global_step,
+                                   train_model.iterator.initializer)
 
     with tf.train.MonitoredTrainingSession(
         checkpoint_dir=checkpoint_dir,
@@ -419,7 +420,8 @@ class RawSolver(Solver):
         checkpoint_dir = get_checkpoint_dir(self.config)
 
         # scaffold
-        scaffold = self.get_scaffold(utils.TRAIN, global_step, train_model.iterator.initializer)
+        scaffold = self.get_scaffold(utils.TRAIN, global_step,
+                                     train_model.iterator.initializer)
 
         with tf.train.MonitoredTrainingSession(
             checkpoint_dir=checkpoint_dir,

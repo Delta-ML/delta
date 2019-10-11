@@ -23,8 +23,8 @@ from absl import logging
 from delta.data.utils import read_lines_from_text_file
 from delta.layers.ops import py_x_ops
 
-
 # pylint: disable=not-context-manager, invalid-name
+
 
 def test_one(sess, ops, inputs):
   ''' elapse time of op '''
