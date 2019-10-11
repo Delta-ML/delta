@@ -32,4 +32,6 @@ deepdiff
 tensorflow_probability
 tensorflow-io
 tensorflow-datasets
-tensorflow-addons
+
+# addons need tensorflow 2.0
+#tensorflow-addons
