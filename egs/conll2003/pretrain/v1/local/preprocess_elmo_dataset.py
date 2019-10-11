@@ -13,35 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' common utils unittest'''
 
-import os
-from pathlib import Path
-import tensorflow as tf
-from delta import utils
-from delta.data.utils.common_utils import get_file_len
+import sys
+from absl import logging
 
-
-# pylint: disable=invalid-name,too-many-locals,missing-docstring
-
-
-class CommonUtilsTest(tf.test.TestCase):
-
-  def setUp(self):
-    ''' set up '''
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
-    self.config = utils.load_config(self.config_file)
-
-  def tearDown(self):
-    ''' tear down '''
-
-  def test_get_file_name(self):
-    paths = self.config["data"]["train"]["paths"]
-    self.assertEqual(get_file_len(paths), 300)
-
+def add_start_end_token(file):
+  f1 = open(file + ".elmo", 'w')
+  with open(file, 'r') as f:
+    add_lines = ['O ' + line.strip().split('\t')[0] + ' O'
+                 + '\t' + '<s> ' + line.strip().split('\t')[1] + ' </s>'
+                 for line in f.readlines()]
+    f1.write('\n'.join(add_lines))
 
 if __name__ == '__main__':
-  tf.test.main()
+  logging.set_verbosity(logging.INFO)
+
+  if len(sys.argv) != 4:
+    logging.error("Usage python {} train_path, val_path, test_path".format(sys.argv[0]))
+    sys.exit(-1)
+
+  train_path = sys.argv[1]
+  val_path = sys.argv[2]
+  test_path = sys.argv[3]
+  add_start_end_token(train_path)
+  add_start_end_token(val_path)
+  add_start_end_token(test_path)

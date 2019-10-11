@@ -67,15 +67,15 @@ class RawS2SSolver(RawSolver):
     model = self.model_fn()
     training = mode == utils.TRAIN
     model.logits = model(inputs["input_x_dict"], training=training)
-    model.temp_init_feed_dict = inputs["init_feed_dict"]
     model.iterator = inputs["iterator"]
     model.input_x_dict = inputs["input_x_dict"]
     model.input_x_len = inputs["input_x_len"]
     model.mode = mode
     loss_fn = self.get_loss_fn()
-    if not self.infer_no_label:
+    if mode != utils.INFER or not self.infer_no_label:
       input_y = inputs["input_y_dict"]["input_y"]
       model.input_y = input_y
+
     if mode != utils.INFER:
       input_y_len = inputs["input_y_len"]
       model.loss = loss_fn(
@@ -120,7 +120,7 @@ class RawS2SSolver(RawSolver):
       if self.first_eval:
         model.sess.run(tf.tables_initializer())
         self.first_eval = False
-      model.sess.run(model.iterator.initializer, model.temp_init_feed_dict)
+      model.sess.run(model.iterator.initializer)
 
       # Evaluating loop.
       total_loss = 0.0
@@ -143,6 +143,8 @@ class RawS2SSolver(RawSolver):
             [model.preds, model.y_ground_truth])
         else:
           batch_preds = model.sess.run([model.preds])
+          batch_preds = batch_preds[0]
+
         if mode == utils.EVAL:
           total_loss += loss_val
           y_preds.append([preds for preds in batch_preds])
@@ -154,8 +156,8 @@ class RawS2SSolver(RawSolver):
             batch_preds = batch_preds[:act_end_id]
             if not self.infer_no_label:
               batch_y_ground_truth = batch_y_ground_truth[:act_end_id]
-
           y_preds.extend([preds for preds in batch_preds])
+
           if not self.infer_no_label:
             y_ground_truth.extend(
                 [ground_truth for ground_truth in batch_y_ground_truth])
