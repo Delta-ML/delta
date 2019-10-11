@@ -164,7 +164,7 @@ For model deployment, we provide many tools in the DELTA-NN package.
 We organize the model deployment scripts under `./dpl` directory.
 
 * Put `SavedModel` and configure `model.yaml` into `dpl/model`.
-* Use scripts under `dpl/gadapter` to convert model to other deployment model.  
+* Use scripts under `dpl/run.sh` to convert model to other deployment model, and compile libraries.
 * All compiled `tensorflow` libs and `delta-nn` libs are in `dpl/lib`.
 * Test, benchmark or serve under docker.
 
