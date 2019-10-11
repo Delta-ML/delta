@@ -25,6 +25,7 @@ from delta.layers.ops import py_x_ops
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
 from delta.data.preprocess.text_ops import tokenize_sentence
+from delta.data.preprocess.text_ops import chinese_word_cut_tf
 
 # pylint: disable=abstract-method
 
@@ -57,7 +58,6 @@ class TextTask(Task):
     self.shuffle_buffer_size = self.task_config['shuffle_buffer_size']
     self.need_shuffle = self.task_config['need_shuffle']
 
-    self.init_feed_dict = {}
 
   def input_fn(self):
 
@@ -90,24 +90,7 @@ class TextTask(Task):
         batch = input_sentences
       else:
         if use_word:
-          main_root = os.environ["MAIN_ROOT"]
-          dict_path = os.path.join(main_root,
-                                   "tools/cppjieba/dict/jieba.dict.utf8")
-          hmm_path = os.path.join(main_root,
-                                  "tools/cppjieba/dict/hmm_model.utf8")
-          user_dict_path = os.path.join(main_root,
-                                        "tools/cppjieba/dict/user.dict.utf8")
-          idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
-          stop_word_path = os.path.join(main_root,
-                                        "tools/cppjieba/dict/stop_words.utf8")
-          batch = py_x_ops.jieba_cut(
-              input_sentences,
-              hmm=True,
-              dict_path=dict_path,
-              hmm_path=hmm_path,
-              user_dict_path=user_dict_path,
-              idf_path=idf_path,
-              stop_word_path=stop_word_path)
+          batch = chinese_word_cut_tf(input_sentences)
         else:
           batch = char_cut_tf(input_sentences)
     return batch

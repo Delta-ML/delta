@@ -354,10 +354,12 @@ class SpeakerClsTaskTest(tf.test.TestCase):
     self.config['data']['task']['name'] = task_name
     task_class = registers.task[task_name]
     for mode in (utils.TRAIN, utils.EVAL, utils.INFER):
-      task = task_class(self.config, utils.EVAL)
-      for utt, segid, feat, spkid in task.generate_data():
-        logging.info(
-            f"SpkUttTask: generate_data: {utt} {segid} {feat.shape} {spkid}")
+      task = task_class(self.config, mode)
+      logging.info(f"mode: {mode}")
+      for i in range(10):
+        for utt, segid, feat, spkid in task.generate_data():
+          logging.info(
+              f"SpkUttTask: generate_data: {utt} {segid} {feat.shape} {spkid}")
 
   def test_speaker_utt_task_getitem(self):
     task_name = 'SpeakerUttTask'

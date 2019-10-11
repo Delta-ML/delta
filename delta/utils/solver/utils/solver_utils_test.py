@@ -96,7 +96,6 @@ class SolverUtilsTest(tf.test.TestCase):
 	specified_model_file_name=self.specified_model_file_name)
     self.assertEqual(model_load_type, cur_model_load_type)
     self.assertEqual(model_file_name, model_load_dict[cur_model_load_type]) 
-
     # create model files in model_path
     file_name_list = [
         'best_model.ckpt', 'model.09-1.00.ckpt', 'model.00-1.00.ckpt'

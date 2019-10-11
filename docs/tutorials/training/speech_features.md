@@ -39,28 +39,36 @@ Please follow [Contributing Guide](https://git.xiaojukeji.com/speech-nlu/nlu-ml/
   	*Currently support window\_length = 30ms and frame\_length = 10ms for perfect reconstruction.*
 * Synthesis filter bank (SFB)
 
+The specific interfaces of feature functions are shown below：
+![Speech Features](imags/speech_features.png)
+
 ## Comparsion with KALDI
 Extracted features are compared to existing KALDI features.
 
 1. Pitch
 
-   ![](⁩⁩imags/pitch_compare.png)
+	![Pitch](imags/pitch_compare.png)
+
 
 2. Log power spectrum
 
-   ![](imags/log_spectrum_compare.png⁩)
+	![Log power spectrum](imags/log_spectrum_compare.png)
+
 
 3. Cepstrum / MFCC
 
-	![](⁩⁩imags/mfcc_compare.png⁩)
+	![Cepstrum / MFCC](imags/mfcc_compare.png)
+
 
 4. PLP
 
-   ![](⁩⁩imags/plp_compare.png⁩)
+    ![PLP](imags/plp_compare.png)
+
  
 ## Reference
 
 * [An Intuitive Discrete Fourier Transform Tutorial](http://practicalcryptography.com/miscellaneous/machine-learning/intuitive-guide-discrete-fourier-transform/)
 * [Mel Frequency Cepstral Coefficient (MFCC) tutorial](http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/)
 * [A Tutorial on Cepstrum and LPCCs](http://practicalcryptography.com/miscellaneous/machine-learning/tutorial-cepstrum-and-lpccs/)
+* [Speech Processing for Machine Learning: Filter banks, Mel-Frequency Cepstral Coefficients (MFCCs) and What's In-Between](https://haythamfayek.com/2016/04/21/speech-processing-for-machine-learning.html)
 

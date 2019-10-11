@@ -13,21 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Hooks"""
 
 import tensorflow as tf
+import os
+from pathlib import Path
+from delta.data.frontend.read_wav import ReadWav
+import librosa
 
+class ReadWavTest(tf.test.TestCase):
 
-class DatasetInitializerHook(tf.train.SessionRunHook):
-  ''' iterator dataset initailizer '''
+  def test_read_wav(self):
+    wav_path = str(
+      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
 
-  def __init__(self, iterator, init_feed_dict):
-    self._iterator = iterator
-    self._init_feed_dict = init_feed_dict
+    with self.session():
+      read_wav = ReadWav.params({'sample_rate':16000.0}).instantiate()
+      audio_data, sample_rate = read_wav(wav_path)
+      audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
+      self.assertAllClose(audio_data.eval(), audio_data_true)
+      self.assertAllClose(sample_rate.eval(), sample_rate_true)
 
-  def begin(self):
-    self._initializer = self._iterator.initializer
-
-  def after_create_session(self, session, coord):
-    del coord
-    session.run(self._initializer, self._init_feed_dict)
+if __name__ == '__main__':
+  tf.test.main()
