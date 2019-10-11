@@ -20,8 +20,10 @@ import tensorflow as tf
 
 from delta.utils.hparam import HParams
 
+
 class ABCFrontend(metaclass=abc.ABCMeta):
   ''' abstract of Frontend '''
+
   def __init__(self, config):
     raise NotImplementedError()
 
@@ -34,7 +36,7 @@ class ABCFrontend(metaclass=abc.ABCMeta):
 class BaseFrontend(ABCFrontend):
   ''' wrapper of abstrcat Frontend'''
 
-  def __init__(self, config:dict):
+  def __init__(self, config: dict):
     self._config = config
 
   @property

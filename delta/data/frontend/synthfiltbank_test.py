@@ -21,11 +21,13 @@ from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.analyfiltbank import Analyfiltbank
 from delta.data.frontend.synthfiltbank import Synthfiltbank
 
+
 class Test(tf.test.TestCase):
 
   def test_synthfiltbank(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
     with self.session():
 
@@ -33,12 +35,18 @@ class Test(tf.test.TestCase):
       input_data, sample_rate = read_wav(wav_path)
 
       analyfiltbank = Analyfiltbank.params().instantiate()
-      power_spc, phase_spc = analyfiltbank(input_data.eval(), sample_rate.eval())
+      power_spc, phase_spc = analyfiltbank(input_data.eval(),
+                                           sample_rate.eval())
 
       synthfiltbank = Synthfiltbank.params().instantiate()
-      audio_data =synthfiltbank(power_spc, phase_spc, sample_rate.eval())
+      audio_data = synthfiltbank(power_spc, phase_spc, sample_rate.eval())
 
-      self.assertAllClose(audio_data.eval().flatten()[500:550], input_data.eval().flatten()[500:550], rtol=1e-4, atol=1e-4)
+      self.assertAllClose(
+          audio_data.eval().flatten()[500:550],
+          input_data.eval().flatten()[500:550],
+          rtol=1e-4,
+          atol=1e-4)
+
 
 if __name__ == '__main__':
   tf.test.main()
