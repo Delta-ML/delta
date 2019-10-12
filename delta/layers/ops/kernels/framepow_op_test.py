@@ -40,7 +40,7 @@ class FrmPowOpTest(tf.test.TestCase):
 
   def test_frmpow(self):
     ''' test frame_power op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 
       output = py_x_ops.frame_pow(input_data, sample_rate)

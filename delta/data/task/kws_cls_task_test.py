@@ -59,7 +59,7 @@ class KwsClsTaskTest(tf.test.TestCase):
     ''' dataset unittest'''
     pass
     '''
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       for _ in range(2):
         output = sess.run(self.one_element)
         logging.info(output)

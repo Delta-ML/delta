@@ -72,7 +72,7 @@ class SpeechFeatureTest(tf.test.TestCase):
     logging.info(f"feat : {feat}")
     self.assertEqual(feat.shape, (425, 40, 1))
 
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       feat = speech_ops.delta_delta(feat, 2)
       self.assertEqual(feat.eval().shape, (425, 40, 3))
 
@@ -87,7 +87,7 @@ class SpeechFeatureTest(tf.test.TestCase):
     feat = np.load(self.featfile)
     self.assertEqual(feat.shape, (425, 129, 1))
 
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       feat = speech_ops.delta_delta(feat, 2)
       self.assertEqual(feat.eval().shape, (425, 129, 3))
 

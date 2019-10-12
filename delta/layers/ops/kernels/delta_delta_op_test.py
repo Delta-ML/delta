@@ -287,7 +287,7 @@ class DeltaDeltaOpTest(tf.test.TestCase):
 
   def test_detla_delta(self):
     ''' test delta delta'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       feat = tf.constant(self.data[None, :], dtype=tf.float32)
       output = py_x_ops.delta_delta(feat, order=self.order, window=self.window)
       self.assertEqual(tf.rank(output).eval(), tf.rank(feat).eval())

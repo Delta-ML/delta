@@ -39,7 +39,7 @@ class PitchOpTest(tf.test.TestCase):
 
   def test_pitch(self):
     ''' test pitch op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       # read wave
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 

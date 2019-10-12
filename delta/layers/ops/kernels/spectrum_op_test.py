@@ -39,7 +39,7 @@ class SpecOpTest(tf.test.TestCase):
 
   def test_spectrum(self):
     ''' test spectrum op'''
-    with self.session(use_gpu=False, force_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
       logging.info(
           f"input shape: {input_data.shape}, sample rate dtype: {sample_rate.dtype}"

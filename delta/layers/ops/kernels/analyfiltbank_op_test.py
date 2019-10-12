@@ -40,7 +40,7 @@ class AfbOpTest(tf.test.TestCase):
 
   def test_afb(self):
     ''' test afb op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 
       power_spc, phase_spc = py_x_ops.analyfiltbank(input_data, sample_rate)

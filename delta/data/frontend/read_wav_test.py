@@ -28,7 +28,7 @@ class ReadWavTest(tf.test.TestCase):
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params({'sample_rate': 16000.0}).instantiate()
       audio_data, sample_rate = read_wav(wav_path)
       audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)

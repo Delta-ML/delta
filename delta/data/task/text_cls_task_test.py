@@ -70,7 +70,7 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run(
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
@@ -85,7 +85,7 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_sentence" in export_inputs["export_inputs"])
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run(input_x, feed_dict={input_sentence: ["All is well."]})
       logging.debug(res[0][:5])
       self.assertAllEqual(res[0][:5], [3, 4, 5, 0, 0])
@@ -119,7 +119,7 @@ class TextClsTaskTest(tf.test.TestCase):
   #                   "input_dense" in data["input_x_dict"])
   #   self.assertTrue("input_y_dict" in data and
   #                   "input_y" in data["input_y_dict"])
-  #   with self.session() as sess:
+  #   with self.cached_session(use_gpu=False, force_gpu=False) as sess:
   #     sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
   #     res = sess.run([
   #         data["input_x_dict"]["input_x"], data["input_x_dict"]["input_dense"],
@@ -138,7 +138,7 @@ class TextClsTaskTest(tf.test.TestCase):
   #                   "input_sentence" in export_inputs["export_inputs"])
   #   input_sentence = export_inputs["export_inputs"]["input_sentence"]
   #   input_x = export_inputs["model_inputs"]["input_x"]
-  #   with self.session() as sess:
+  #   with self.cached_session(use_gpu=False, force_gpu=False) as sess:
   #     res = sess.run(input_x, feed_dict={input_sentence: ["All is well."]})
   #     logging.debug(res[0])
   #     self.assertEqual(np.shape(res[0]), (max_len,))
@@ -175,7 +175,7 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run(
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
@@ -191,7 +191,7 @@ class TextClsTaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run(input_x, feed_dict={input_sentence: ["都 挺好"]})
       logging.debug(res[0][:5])
       logging.debug(np.shape(res[0]))
@@ -226,7 +226,7 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run(
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
@@ -242,7 +242,7 @@ class TextClsTaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run(input_x, feed_dict={input_sentence: ["我很愤怒"]})
       logging.debug(res[0])
       logging.debug(np.shape(res[0]))
@@ -281,7 +281,7 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"],
@@ -301,7 +301,7 @@ class TextClsTaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run(input_x, feed_dict={input_sentence: ["都挺好"]})
       logging.debug(res[0][:5])
       logging.debug(np.shape(res[0]))
@@ -337,7 +337,7 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"],
@@ -359,7 +359,7 @@ class TextClsTaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run(input_x, feed_dict={input_sentence: ["我很愤怒。|超级生气！"]})
       logging.debug(res[0][:10])
       logging.debug(np.shape(res[0]))

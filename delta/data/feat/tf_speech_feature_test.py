@@ -38,7 +38,7 @@ class SpeechFeatTest(tf.test.TestCase):
 
   def test_extract_feature(self):
     ''' test extract feature '''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       wavfile = tf.constant(self.wavpath)
 
       audio = tffeat.read_wav(wavfile, self.params)

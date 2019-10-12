@@ -30,7 +30,7 @@ class StringUtilsOpTest(tf.test.TestCase):
 
   def test_lower(self):
     ''' test lower string'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       output = py_x_ops.str_lower("Hello WORLD").eval()
       self.assertEqual(b'hello world', output)
       output = py_x_ops.str_lower(["Hello WORLD", "ABC XYZ"]).eval()

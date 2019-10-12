@@ -64,7 +64,7 @@ class NLUJointTaskTest(tf.test.TestCase):
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
     input_intent_y, input_slots_y = data["input_y_dict"]["input_y"]
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_x"], data["input_x_len"], input_intent_y,
@@ -89,7 +89,7 @@ class NLUJointTaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run(input_x, feed_dict={input_sentence: ["i am happy"]})
       logging.debug(res[0][:5])
