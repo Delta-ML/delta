@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
