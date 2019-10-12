@@ -461,7 +461,7 @@ REGISTER_OP("DeltaDelta")
     .Doc(R"doc(
 Add deltas (typically to raw mfcc or plp features).
 features: A matrix of shape [nframe, feat_dim].
-features_with_delta_delta: A matrix of shape [nframe, feat_dim * (order + 1)].
+features_with_delta_delta: A matrix of shape [nframe, (order + 1) * feat_dim].
 order: int, order fo delta computation.
 window: a int, parameter controlling window for delta computation(actual window
     size for each delta order is 1 + 2*window).

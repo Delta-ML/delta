@@ -39,7 +39,7 @@ class DeltaDelta(BaseFrontend):
     :param feat: a float tensor of size (num_frames, dim_feat).
     :param order: an int.
     :param window: an int.
-    :return: A tensor with shape (num_frames, (dim_feat * (order + 1))),
+    :return: A tensor with shape (num_frames, ((order + 1) * dim_feats)),
         containing delta of features of every frame in speech.
     """
 
