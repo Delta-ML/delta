@@ -190,11 +190,11 @@ For more details, please refer to [released models](docs/released_models.md).
 
 ### Speech tasks
 
-| Task | Model | DataSet | Metric | DELTA | Baseline | Baseline reference |
+| Task | Model | DataSet | Metric | DELTA | Reference |
 |---|---|---|---|---|---|---|
-| Speech recognition | CTC | HKUST | CER | 36.49 | 38.67 | Miao et al. (2016) |
-| Speaker verfication | TDNN | VoxCeleb | EER | 3.028 | 3.138 | Kaldi |
-| Emotion recognition | RNN-mean pool | IEMOCAP | Acc | 59.44 | 56.90 | Mirsamadi et al. (2017) |
+| Speech recognition | CTC | HKUST | CER | 36.49 | Miao et al. (2016) |
+| Speaker verfication | TDNN | VoxCeleb | EER | 3.028 | Kaldi |
+| Emotion recognition | RNN-mean pool | IEMOCAP | Acc | 59.44 | Mirsamadi et al. (2017) |
 
 
 ## FAQ
