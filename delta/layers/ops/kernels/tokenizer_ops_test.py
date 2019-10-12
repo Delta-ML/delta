@@ -26,7 +26,7 @@ class TokenizerOpsTest(tf.test.TestCase):
   ''' tokenizer op test'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.vocab = [
         '</s>',
         '<unk>',
@@ -42,7 +42,7 @@ class TokenizerOpsTest(tf.test.TestCase):
 
   def test_text_to_tokenid_with_vocab_file(self):
     ''' test label to token id'''
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test batch
       start = time.time()
       batch_op = py_x_ops.sentence_to_ids(
@@ -102,7 +102,7 @@ class TokenizerOpsTest(tf.test.TestCase):
 
   def test_text_to_tokenid(self):
     ''' test label to token id'''
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test batch
       start = time.time()
       batch_op = py_x_ops.sentence_to_ids(

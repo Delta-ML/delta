@@ -25,6 +25,7 @@ class LossUtilTest(tf.test.TestCase):
   ''' loss util unittest'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     # classfication: shape [2, 6]
     self.logits = np.array([[10, 23, 43, 23, 12, 23], [32, 10, 23, 45, 23, 0]],
