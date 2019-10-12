@@ -35,7 +35,7 @@ type ModelStatus struct {
 }
 
 func DeltaModelHandler(context *gin.Context) {
-
+	defer glog.Flush()
 	modelVersion := &ModelVersion{conf.DeltaConf.Model.Graph[0].Version, "AVAILABLE", ModelStatus{"OK", ""}}
 	pagesJson, err := json.Marshal(modelVersion)
 	if err != nil {

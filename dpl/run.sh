@@ -88,7 +88,7 @@ function compile_tensorflow(){
 
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
     pushd ${MAIN_ROOT}/tools/tensorflow
-    ${BAZEL} build -c opt --verbose_failures //tensorflow:libtensorflow_cc.so || exit 1
+    ${BAZEL} build -c opt  --verbose_failures --local_resources 2048,3,5  //tensorflow:libtensorflow_cc.so || exit 1
 	
     pushd bazel-bin/tensorflow
     #if [ -L libtensorflow_cc.so.1 ]; then

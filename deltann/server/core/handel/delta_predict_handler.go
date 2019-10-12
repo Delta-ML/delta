@@ -18,6 +18,7 @@ package handel
 import (
 	. "delta/deltann/server/core/pool"
 	"github.com/gin-gonic/gin"
+	"github.com/golang/glog"
 	"net/http"
 )
 
@@ -44,6 +45,7 @@ func DeltaPredictHandler(context *gin.Context) {
 }
 
 func DeltaPackJob(req DeltaRequest, reply string, done chan DeltaJob) DeltaJob {
+	defer glog.Flush()
 	work := DeltaJob{DeltaInputs: req.DeltaInputs, Reply: reply, Done: done}
 	DeltaJobQueue <- work
 	return work
