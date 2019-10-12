@@ -14,7 +14,7 @@
 # ==============================================================================
 """Tests for compat.py."""
 
-import lingvo.compat as tf
+import delta.compat as tf
 from tensorflow.python.framework import function  # pylint:disable=g-direct-tensorflow-import
 
 

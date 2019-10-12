@@ -32,6 +32,7 @@ class MnistImageTaskTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up '''
+    super().setUp()
     self.task_yaml = '''
     data:
       train:

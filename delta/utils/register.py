@@ -165,7 +165,10 @@ def import_all_modules_for_register():
   _handle_errors(errors)
 
 
-ALL_MODULES_V2 = [("delta.data.task", ["mnist_image_task"])]
+ALL_MODULES_V2 = [
+        ("delta.data.task", ["mnist_image_task"]),
+        ("delta.models", ["autoencoder_model"]),
+]
 
 
 def import_all_modules_for_register_v2():
