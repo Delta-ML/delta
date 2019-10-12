@@ -86,7 +86,7 @@ if sum(is_correct_version_list) != num_version_specified:
 
 # check cuda availableness
 logging.info("cuda availableness check start.")
-import delta.compat as tf
+import tensorflow as tf
 try:
   assert tf.test.is_gpu_available()
   logging.info("--> cuda is available in tensorflow.")
