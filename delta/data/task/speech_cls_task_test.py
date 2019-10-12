@@ -32,7 +32,7 @@ class SpeechClsTaskTest(tf.test.TestCase):
   ''' emotion task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     self.conf_str = '''
     data:
       train:

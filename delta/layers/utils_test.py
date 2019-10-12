@@ -30,7 +30,7 @@ from delta.layers.utils import split_one_doc_to_true_len_sens
 class LayerUtilsTest(tf.test.TestCase):
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down'''

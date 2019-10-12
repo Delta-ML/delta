@@ -22,7 +22,7 @@ class VocabOpsTest(tf.test.TestCase):
   ''' vocab op test '''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down '''

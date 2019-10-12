@@ -31,7 +31,7 @@ class TextMatchTaskTest(tf.test.TestCase):
 
   # pylint: disable=invalid-name
   def setUp(self):
-    """ set up"""
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(

@@ -29,7 +29,7 @@ class ZcrOpTest(tf.test.TestCase):
   ''' zero-cross-rate op unittest'''
 
   def setUp(self):
-    '''set up'''
+    super().setUp()
     self.wavpath = str(
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))

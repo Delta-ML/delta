@@ -24,6 +24,7 @@ class MiscTest(tf.test.TestCase):
   ''' misc unittest'''
 
   def setUp(self):
+    super().setUp()
     '''setup'''
     self.length = [3, 5, 2]
     self.mask_true = np.array([

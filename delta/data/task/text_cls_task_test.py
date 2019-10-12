@@ -31,6 +31,7 @@ from delta.utils.register import import_all_modules_for_register
 class TextClsTaskTest(tf.test.TestCase):
 
   def setUp(self):
+    super().setUp()
     import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)

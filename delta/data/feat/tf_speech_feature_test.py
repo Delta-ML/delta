@@ -28,7 +28,7 @@ class SpeechFeatTest(tf.test.TestCase):
   ''' tf.signal feat unittest'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     main_root = Path(os.environ['MAIN_ROOT'])
     self.params = tffeat.speech_params(sr=8000, bins=40, cmvn=False)
     self.wavpath = str(

@@ -30,6 +30,7 @@ from delta.utils.register import import_all_modules_for_register
 class RawS2SSolverTest(tf.test.TestCase):
 
   def setUp(self):
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(

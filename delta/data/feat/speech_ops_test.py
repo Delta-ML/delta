@@ -28,7 +28,7 @@ class SpeechOpsFeatTest(tf.test.TestCase):
   ''' test speech feat ops'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.sr_true = 8000
     #pylint: disable=invalid-name
     self.hp = tffeat.speech_params(

@@ -26,7 +26,7 @@ class TokenizerOpsTest(tf.test.TestCase):
   ''' tokenizer op test'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.vocab = [
         '</s>',
         '<unk>',

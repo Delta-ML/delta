@@ -25,6 +25,7 @@ class CmvnTest(tf.test.TestCase):
   ''' CMVN unittest Class'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
 
   def tearDown(self):

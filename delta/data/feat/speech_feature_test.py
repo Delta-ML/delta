@@ -31,7 +31,7 @@ class SpeechFeatureTest(tf.test.TestCase):
   ''' speech feat entrypoint unittest'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.winlen = 0.025
     self.winstep = 0.010
     self.feature_size = 40

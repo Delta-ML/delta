@@ -30,7 +30,7 @@ class SolverUtilsTest(tf.test.TestCase):
   ''' Unit test for solver_utils. '''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.model_path = self.get_temp_dir()
     self.file_name_pattern = 'model.{epoch:02d}-{monitor:02f}.ckpt'
     self.specified_model_file_name = 'model.09-1.00.ckpt'

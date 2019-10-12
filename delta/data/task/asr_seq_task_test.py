@@ -32,7 +32,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
   ''' Unit test for AsrSeqTask. '''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.conf_str = '''
     data:
       train:

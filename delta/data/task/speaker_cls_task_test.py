@@ -32,7 +32,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
   ''' speaker task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     self.conf_str = '''
     data:

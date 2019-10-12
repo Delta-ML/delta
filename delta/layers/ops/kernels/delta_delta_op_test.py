@@ -27,7 +27,7 @@ class DeltaDeltaOpTest(tf.test.TestCase):
   ''' delta-delta op test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     self.feat_dim = 80
     self.order = 2
     self.window = 2

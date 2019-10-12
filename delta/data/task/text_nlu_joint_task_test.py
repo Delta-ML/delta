@@ -29,7 +29,7 @@ class NLUJointTaskTest(tf.test.TestCase):
   ''' NLU joint task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)

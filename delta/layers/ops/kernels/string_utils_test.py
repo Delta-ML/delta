@@ -23,7 +23,7 @@ class StringUtilsOpTest(tf.test.TestCase):
   ''' string utils test'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down '''

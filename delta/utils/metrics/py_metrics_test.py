@@ -29,6 +29,7 @@ class MetricTest(tf.test.TestCase):
   ''' python metrix unittest '''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)

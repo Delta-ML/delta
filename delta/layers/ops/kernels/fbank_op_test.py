@@ -24,6 +24,7 @@ class FbankOpTest(tf.test.TestCase):
   ''' fbank op unittest'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
 
   def tearDown(self):
