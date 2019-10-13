@@ -32,7 +32,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
   ''' speaker task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     self.conf_str = '''
     data:
@@ -306,7 +306,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
     clip_ids = features['clipid']
     soft_labels = features['soft_labels']
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       while True:
         batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot, batch_soft_labels = \
            sess.run([samples, labels, filenames, clip_ids, tf.one_hot(labels, 2), soft_labels])
@@ -337,17 +337,27 @@ class SpeakerClsTaskTest(tf.test.TestCase):
       clip_ids = features['clipid']
       labels = features['labels']
 
-      with self.session() as sess:
+      with self.cached_session(use_gpu=False, force_gpu=False) as sess:
         while True:
           batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot = \
              sess.run([samples, labels, filenames, clip_ids, one_hot_labels])
 
           del labels_onehot
           logging.info("feat shape: {}".format(batch_inputs.shape))
-          logging.info("labels: {}".format(batch_labels))
           logging.info("filename: {}".format(batch_files))
           logging.info("clip id: {}".format(batch_clipids))
+          logging.info("labels: {}".format(batch_labels))
           break
+
+  def test_speaker_utt_task_getitem(self):
+    task_name = 'SpeakerUttTask'
+    self.config['data']['task']['name'] = task_name
+    task_class = registers.task[task_name]
+
+    for mode in (utils.TRAIN, utils.EVAL, utils.INFER):
+      task = task_class(self.config, mode)
+      for i, (feats, labels) in enumerate(task):
+        logging.info(f"SpkUttTask: __getitem__: {feats.keys()} {labels}")
 
   def test_speaker_utt_task_generate_data(self):
     task_name = 'SpeakerUttTask'
@@ -360,16 +370,6 @@ class SpeakerClsTaskTest(tf.test.TestCase):
         for utt, segid, feat, spkid in task.generate_data():
           logging.info(
               f"SpkUttTask: generate_data: {utt} {segid} {feat.shape} {spkid}")
-
-  def test_speaker_utt_task_getitem(self):
-    task_name = 'SpeakerUttTask'
-    self.config['data']['task']['name'] = task_name
-    task_class = registers.task[task_name]
-
-    for mode in (utils.TRAIN, utils.EVAL, utils.INFER):
-      task = task_class(self.config, mode)
-      for i, (feats, labels) in enumerate(task):
-        logging.info(f"SpkUttTask: __getitem__: {feats.keys()} {labels}")
 
 
 if __name__ == '__main__':

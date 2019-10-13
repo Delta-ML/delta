@@ -20,22 +20,27 @@ from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.write_wav import WriteWav
 
+
 class WriteWavTest(tf.test.TestCase):
 
   def test_write_wav(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
       write_wav = WriteWav.params().instantiate()
-      new_path = str(Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln_new.wav'))
+      new_path = str(
+          Path(os.environ['MAIN_ROOT']).joinpath(
+              'delta/layers/ops/data/sm1_cln_new.wav'))
       writewav_op = write_wav(new_path, input_data, sample_rate)
       sess.run(writewav_op)
       test_data, test_sample_rate = read_wav(new_path)
       self.assertAllEqual(input_data.eval(), test_data.eval())
-      self.assertAllEqual(sample_rate.eval(),test_sample_rate.eval())
+      self.assertAllEqual(sample_rate.eval(), test_sample_rate.eval())
+
 
 if __name__ == '__main__':
   tf.test.main()

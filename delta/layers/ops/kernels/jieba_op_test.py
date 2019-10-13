@@ -102,7 +102,7 @@ class JiebaOpsTest(tf.test.TestCase):
 
       sentence_out = self.build_op_use_file(sentence_in)
 
-      with self.session(use_gpu=False) as sess:
+      with self.cached_session(use_gpu=False, force_gpu=False) as sess:
         # self.assertShapeEqual(tf.shape(sentence_in), tf.shape(sentence_out))
         sentence_out_res = test_one(sess, sentence_out,
                                     {sentence_in: ["我爱北京天安门"]})
@@ -127,7 +127,7 @@ class JiebaOpsTest(tf.test.TestCase):
       sentence_out = self.build_op_no_file(sentence_in)
       shape_op = tf.shape(sentence_out)
 
-      with self.session(use_gpu=False) as sess:
+      with self.cached_session(use_gpu=False, force_gpu=False) as sess:
         # self.assertShapeEqual(tf.shape(sentence_in), tf.shape(sentence_out))
         sentence_out_res = test_one(sess, sentence_out,
                                     {sentence_in: ["我爱北京天安门"]})

@@ -20,28 +20,28 @@ from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank_pitch import FbankPitch
 
+
 class FbankPitchTest(tf.test.TestCase):
 
   def test_FbankPitch(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
       config = {
-        'window_length': 0.025,
-        'output_type': 1,
-        'frame_length': 0.010,
-        'thres_autoc': 0.4
+          'window_length': 0.025,
+          'output_type': 1,
+          'frame_length': 0.010,
+          'thres_autoc': 0.4
       }
       fbank_pitch = FbankPitch.params(config).instantiate()
       fbank_pitch_test = fbank_pitch(input_data)
 
       self.assertEqual(tf.rank(fbank_pitch_test).eval(), 2)
 
+
 if __name__ == '__main__':
   tf.test.main()
-
-
-

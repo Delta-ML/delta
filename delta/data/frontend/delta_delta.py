@@ -20,9 +20,10 @@ from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
+
 class DeltaDelta(BaseFrontend):
 
-  def __init__(self, config:dict):
+  def __init__(self, config: dict):
     super().__init__(config)
 
   @classmethod
@@ -44,9 +45,6 @@ class DeltaDelta(BaseFrontend):
 
     p = self.config
     with tf.name_scope('delta_delta'):
-      delta_delta = py_x_ops.delta_delta(
-        feat,
-        order,
-        window)
+      delta_delta = py_x_ops.delta_delta(feat, order, window)
 
     return delta_delta

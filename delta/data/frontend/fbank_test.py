@@ -20,24 +20,23 @@ from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank import Fbank
 
+
 class FbankTest(tf.test.TestCase):
 
   def test_fbank(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
-      config = {
-        'window_length': 0.025,
-        'output_type': 1,
-        'frame_length': 0.010
-      }
+      config = {'window_length': 0.025, 'output_type': 1, 'frame_length': 0.010}
       fbank = Fbank.params(config).instantiate()
       fbank_test = fbank(input_data, sample_rate)
 
       self.assertEqual(tf.rank(fbank_test).eval(), 3)
+
 
 if __name__ == '__main__':
   tf.test.main()

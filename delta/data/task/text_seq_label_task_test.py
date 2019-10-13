@@ -29,7 +29,7 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
   ''' sequence labeling task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
@@ -57,8 +57,8 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
                     "input_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
+      sess.run(data["iterator"].initializer)
       res = sess.run(
           [data["input_x_dict"]["input_x"], data["input_y_dict"]["input_y"]])
       logging.debug(res[0][0][:5])
@@ -73,8 +73,8 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
                     "input_sentence" in export_inputs["export_inputs"])
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
-    with self.session() as sess:
-      sess.run(data["iterator"].initializer, feed_dict=data["init_feed_dict"])
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
+      sess.run(data["iterator"].initializer)
       res = sess.run(input_x, feed_dict={input_sentence: ["I feel good ."]})
       logging.debug(res[0][:5])
       self.assertAllEqual(res[0][:5], [0, 3, 4, 5, 0])

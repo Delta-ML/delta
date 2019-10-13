@@ -21,6 +21,7 @@ from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.pitch import Pitch
 from delta.data.frontend.fbank import Fbank
 
+
 class FbankPitch(BaseFrontend):
 
   def __init__(self, config: dict):
@@ -77,7 +78,8 @@ class FbankPitch(BaseFrontend):
       if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=float)
 
-      assert_op = tf.compat.v1.assert_equal(tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+      assert_op = tf.compat.v1.assert_equal(
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
       with tf.control_dependencies([assert_op]):
 
         fbank_feats = tf.squeeze(self.fbank(audio_data, sample_rate))

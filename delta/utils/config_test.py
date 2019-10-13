@@ -26,6 +26,7 @@ class ConfigTest(tf.test.TestCase):
   ''' config unit test'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     self.conf_str = '''
      name: Tom Smith

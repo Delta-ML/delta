@@ -16,6 +16,7 @@
 ''' Preparer for NLU joint learning '''
 
 from delta.data.preprocess.base_preparer import TextPreparer
+from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.data import utils as data_utils
 from delta.utils.register import registers
 
@@ -26,7 +27,7 @@ from delta.utils.register import registers
 class TextNLUJointPreparer(TextPreparer):
   """Preparer for NLU joint learning."""
 
-  def load_a_raw_file(self, one_path, mode, infer_without_label):
+  def load_a_raw_file(self, one_path, infer_without_label):
     """
     Load a raw file. Return text and label.
     For single text input, text: [sentence1, ...]
@@ -34,8 +35,18 @@ class TextNLUJointPreparer(TextPreparer):
     For single output, label: [label1, label2, ...]
     For multiple outputs, label: [[label1_1, ...], [label1_2, ...]]
     """
-    return data_utils.load_nlu_joint_raw_data([one_path], mode,
-                                              infer_without_label)
+    if infer_without_label:
+      column_num = 1
+    else:
+      column_num = 3
+    ds_list = load_textline_dataset(one_path, column_num)
+    if infer_without_label:
+      text = ds_list
+      label = []
+    else:
+      text = ds_list[2:]
+      label = ds_list[:2]
+    return (text, label)
 
   def save_a_raw_file(self, label, text_after, one_path_after,
                       infer_without_label):

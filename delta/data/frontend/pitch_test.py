@@ -21,31 +21,38 @@ from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.pitch import Pitch
 import numpy as np
 
+
 class PitchTest(tf.test.TestCase):
 
   def test_pitch(self):
 
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
-    with self.session():
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav.call(wav_path)
-      pitch = Pitch.params({'window_length':0.025, 'frame_length':0.010, 'thres_autoc':0.3}).instantiate()
+      pitch = Pitch.params({
+          'window_length': 0.025,
+          'frame_length': 0.010,
+          'thres_autoc': 0.3
+      }).instantiate()
       pitch_test = pitch(input_data, sample_rate)
 
       output_true = np.array([
-        0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-        0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-        0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-        122.823532, 117.647057, 116.788322, 116.788322, 119.402985,
-        119.402985, 119.402985, 119.402985, 119.402985, 123.076920,
-        124.031006, 125.000000, 132.065216, 139.130432, 139.130432,
-        137.931030, 126.108368, 114.285713, 115.107910, 122.070084,
-        129.032257, 130.081299, 130.081299, 129.032257, 130.081299,
-        131.147537, 129.032257, 125.000000, 120.300751, 115.107910
+          0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+          0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+          0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
+          122.823532, 117.647057, 116.788322, 116.788322, 119.402985,
+          119.402985, 119.402985, 119.402985, 119.402985, 123.076920,
+          124.031006, 125.000000, 132.065216, 139.130432, 139.130432,
+          137.931030, 126.108368, 114.285713, 115.107910, 122.070084,
+          129.032257, 130.081299, 130.081299, 129.032257, 130.081299,
+          131.147537, 129.032257, 125.000000, 120.300751, 115.107910
       ])
 
       self.assertAllClose(pitch_test.eval().flatten()[:50], output_true)
+
 
 if __name__ == '__main__':
   tf.test.main()

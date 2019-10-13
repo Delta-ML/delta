@@ -26,26 +26,30 @@ class PlpTest(tf.test.TestCase):
 
   def test_plp(self):
     wav_path = str(
-      Path(os.environ['MAIN_ROOT']).joinpath('delta/layers/ops/data/sm1_cln.wav'))
+        Path(os.environ['MAIN_ROOT']).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
 
-      plp = Plp.params({'window_length': 0.025, 'frame_length': 0.010, 'plp_order': 12}).instantiate()
+      plp = Plp.params({
+          'window_length': 0.025,
+          'frame_length': 0.010,
+          'plp_order': 12
+      }).instantiate()
       plp_test = plp(input_data, sample_rate)
 
       output_true = np.array(
-        [[-0.209490, -0.326126, 0.010536, -0.027167, -0.117118],
-         [-0.020293, -0.454695, -0.104243, 0.001560, -0.234854],
-         [-0.015118, -0.444044, -0.156695, -0.086221, -0.319310],
-         [-0.031856, -0.130708, 0.047435, -0.089916, -0.160247],
-         [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
+          [[-0.209490, -0.326126, 0.010536, -0.027167, -0.117118],
+           [-0.020293, -0.454695, -0.104243, 0.001560, -0.234854],
+           [-0.015118, -0.444044, -0.156695, -0.086221, -0.319310],
+           [-0.031856, -0.130708, 0.047435, -0.089916, -0.160247],
+           [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
       self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true)
 
+
 if __name__ == '__main__':
   tf.test.main()
-
-
