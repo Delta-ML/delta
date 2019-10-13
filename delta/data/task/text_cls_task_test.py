@@ -46,6 +46,7 @@ class TextClsTaskTest(tf.test.TestCase):
     task_config = config["data"]["task"]
     task_config["language"] = "english"
     task_config["split_by_space"] = True
+    task_config["clean_english"] = True
     data_config = config["data"]
     data_config["train"]["paths"] = [
         "egs/mock_text_cls_data/text_cls/v1/data/train.english.txt"
@@ -241,11 +242,14 @@ class TextClsTaskTest(tf.test.TestCase):
                     "input_sentence" in export_inputs["export_inputs"])
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_x"]
+    shape_op = tf.shape(input_x)
 
     with self.session() as sess:
-      res = sess.run(input_x, feed_dict={input_sentence: ["我很愤怒"]})
+      res, shape_res = sess.run([input_x, shape_op], feed_dict={input_sentence: ["我很愤怒"]})
       logging.debug(res[0])
       logging.debug(np.shape(res[0]))
+      logging.debug(f"shape: {shape_res}")
+      self.assertAllEqual(shape_res, [1, 1024])
       self.assertAllEqual(res[0][:5], [4, 5, 0, 0, 0])
 
   def test_chinese_char(self):

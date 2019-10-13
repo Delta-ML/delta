@@ -200,6 +200,12 @@ Status NgramShapeFn(InferenceContext* c) {
 
   ShapeHandle sent = c->input(0);
   int32 rank = c->Rank(sent);
+  // If rank unknown, return unknown shape.
+  if (!c->RankKnown(sent)) {
+    c->set_output(0, c->UnknownShape());
+    return Status::OK();
+  }
+
   int32 input_len;
   ShapeHandle batch_dims;
   if (rank > 1) {
@@ -236,6 +242,11 @@ Status NgramShapeFn(InferenceContext* c) {
 
 Status SentenceToIdsShapeFn(InferenceContext* c) {
   ShapeHandle sent = c->input(0);
+  // If rank unknown, return unknown shape.
+  if (!c->RankKnown(sent)) {
+    c->set_output(0, c->UnknownShape());
+    return Status::OK();
+  }
   int32 rank = c->Rank(sent);
   if (rank > 0) {
     auto batch_size = c->Dim(c->input(0), 0);

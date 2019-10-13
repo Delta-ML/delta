@@ -126,7 +126,6 @@ class HierarchicalAttentionModel(HierarchicalModel):
     input_x = tf.identity(inputs["input_x"], name='input_x')
     if self.use_dense_task:
       dense_input = inputs["input_dense"]
-
     if self.use_true_length:
       # [batch_size, max_doc_len, max_sen_len]
       input_hx = self.pad_to_hier_input_true_len(

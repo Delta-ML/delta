@@ -103,6 +103,20 @@ class FrozenModel(ABCFrozenModel):
     for op in self._graph.get_operations():
       logging.info(op.name)
 
+  def debug(self):
+    feed_dict = self.get_test_feed_dict()
+    while True:
+      tensor_name = input("Input debug tensor name: ").strip()
+      if tensor_name == "q":
+        sys.exit(0)
+      try:
+        debug_tensor = self.graph.get_tensor_by_name(tensor_name)
+      except Exception as e:
+        logging.error(e)
+        continue
+      res = self.sess.run(debug_tensor, feed_dict=feed_dict)
+      logging.info(f"Result for tensor {tensor_name} is: {res}")
+
   @property
   def graph(self):
     return self._graph

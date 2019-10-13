@@ -39,7 +39,7 @@ class TextClsInfer(FrozenModel):
                          config['solver']['service']['model_version'])
     super().__init__(model, gpu_str=gpu_str)
 
-    # self.inspect_ops()
+    self.inspect_ops()
 
     self.input_sentence = self.graph.get_tensor_by_name(
       config['solver']['service']['input_sentence'])
@@ -55,31 +55,19 @@ class TextClsInfer(FrozenModel):
     ''' config '''
     return self._config
 
-  def predict_one(self):
-    feed_dict = {self.input_sentence: ["你好", "很开心"]}
-    input_x = self.sess.run(self.input_x, feed_dict=feed_dict)
-    logging.info(f"input_x: {input_x[0][:20]}, {np.shape(input_x)}")
+  def get_test_feed_dict(self):
+    return {self.input_sentence: ["你好", "很开心"]}
 
-    preds = self.sess.run(self.preds, feed_dict={self.input_x: input_x})
+  def infer_one(self):
+    feed_dict = self.get_test_feed_dict()
+
+    input_x, score, preds = self.sess.run([self.input_x, self.score, self.preds], feed_dict=feed_dict)
+    logging.info(f"input_x: {input_x}")
     logging.info(f"preds: {preds}")
+    logging.info(f"score: {score}")
 
-    # preds = self.sess.run(self.preds, feed_dict=feed_dict)
-    # logging.info(f"preds: {preds}")
-
-    # while True:
-    #   input_sent = input("Input sentence: ").strip()
-    #   if input_sent == "q":
-    #     sys.exit(0)
-    #   feed_dict = {self.input_sentence: [input_sent]}
-    #   # input_x = self.sess.run(self.input_x, feed_dict=feed_dict)
-    #   # logging.info(f"input_x: {input_x[0][:20]}, {np.shape(input_x)}")
-    #
-    #   # preds = self.sess.run(self.preds, feed_dict={self.input_x: input_x})
-    #   # logging.info(f"preds: {preds}")
-    #
-    #   preds = self.sess.run(self.preds, feed_dict=feed_dict)
-    #   logging.info(f"preds: {preds}")
-
+  def eval_or_infer(self):
+    pass
 
 def main(_):
   ''' main func '''
@@ -96,8 +84,10 @@ def main(_):
   #create dataset
   if FLAGS.mode == 'infer':
     mode = utils.INFER
-  else:
+  elif FLAGS.mode == 'eval':
     mode = utils.EVAL
+  else:
+    mode = FLAGS.mode
 
   # load config
   config = utils.load_config(FLAGS.config)
@@ -109,13 +99,19 @@ def main(_):
   config = solver.config
 
   eval_obj = TextClsInfer(config, gpu_str=FLAGS.gpu, mode=mode)
-  eval_obj.predict_one()
+
+  if mode == utils.INFER or mode == utils.EVAL:
+    eval_obj.eval_or_infer()
+  elif mode == "debug":
+    eval_obj.debug()
+  elif mode == "infer_one":
+    eval_obj.infer_one()
 
 
 def define_flags():
   ''' define flags for evaluator'''
   app.flags.DEFINE_string('config', 'egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml', help='config path')
-  app.flags.DEFINE_string('mode', 'eval', 'eval, infer, eval_and_infer')
+  app.flags.DEFINE_string('mode', 'eval', 'eval, infer, debug, infer_one')
   # The GPU devices which are visible for current process
   app.flags.DEFINE_string('gpu', '', 'gpu number')
 
