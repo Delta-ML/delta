@@ -16,7 +16,7 @@
 ''' Frozen text classification model Evaluater'''
 import os
 import sys
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from absl import app
 import numpy as np

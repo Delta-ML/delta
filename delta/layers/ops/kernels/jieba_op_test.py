@@ -142,6 +142,7 @@ class JiebaOpsTest(tf.test.TestCase):
             "\n".join([one_sen.decode("utf-8") for one_sen in sentence_out_res
                       ]))
         logging.info(f"shape: {shape_res}")
+        self.assertAllEqual(shape_res, [2])
 
 
 if __name__ == '__main__':

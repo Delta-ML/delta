@@ -245,6 +245,7 @@ Status SentenceToIdsShapeFn(InferenceContext* c) {
   // If rank unknown, return unknown shape.
   if (!c->RankKnown(sent)) {
     c->set_output(0, c->UnknownShape());
+    c->set_output(1, c->UnknownShape());
     return Status::OK();
   }
   int32 rank = c->Rank(sent);
