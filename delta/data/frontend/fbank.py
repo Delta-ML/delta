@@ -39,14 +39,19 @@ class Fbank(BaseFrontend):
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
-    upper_frequency_limit = 4000.0
+    upper_frequency_limit = 8000.0
     lower_frequency_limit = 20.0
-    filterbank_channel_count = 40.0
+    filterbank_channel_count = 23.0
     window_length = 0.025
     frame_length = 0.010
     output_type = 2
     sample_rate = 16000.0
-    snip_edges = 1
+    snip_edges = 2
+    raw_energy = 1
+    preEph_coeff = 0.97
+    window_type = 'povey'
+    remove_dc_offset = True
+
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -57,6 +62,10 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('output_type', output_type)
     hparams.add_hparam('sample_rate', sample_rate)
     hparams.add_hparam('snip_edges', snip_edges)
+    hparams.add_hparam('raw_energy', raw_energy)
+    hparams.add_hparam('preEph_coeff', preEph_coeff)
+    hparams.add_hparam('window_type', window_type)
+    hparams.add_hparam('remove_dc_offset', remove_dc_offset)
 
     if config is not None:
       hparams.override_from_dict(config)

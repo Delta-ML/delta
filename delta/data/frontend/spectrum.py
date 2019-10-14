@@ -40,6 +40,10 @@ class Spectrum(BaseFrontend):
     output_type = 2
     sample_rate = 16000.0
     snip_edges = 2
+    raw_energy = 1
+    preEph_coeff = 0.97
+    window_type = 'povey'
+    remove_dc_offset = True
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
@@ -47,6 +51,10 @@ class Spectrum(BaseFrontend):
     hparams.add_hparam('output_type', output_type)
     hparams.add_hparam('sample_rate', sample_rate)
     hparams.add_hparam('snip_edges', snip_edges)
+    hparams.add_hparam('raw_energy', raw_energy)
+    hparams.add_hparam('preEph_coeff', preEph_coeff)
+    hparams.add_hparam('window_type', window_type)
+    hparams.add_hparam('remove_dc_offset', remove_dc_offset)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -78,6 +86,10 @@ class Spectrum(BaseFrontend):
             window_length=p.window_length,
             frame_length=p.frame_length,
             output_type=p.output_type,
-            snip_edges=p.snip_edges)
+            snip_edges=p.snip_edges,
+            raw_energy=p.raw_energy,
+            preEph_coeff=p.preEph_coeff,
+            window_type=p.window_type,
+            remove_dc_offset=p.remove_dc_offset)
 
         return spectrum
