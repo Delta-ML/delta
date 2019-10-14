@@ -150,22 +150,25 @@ def tdnn(x,
     return x
 
 
-def conv2d(x, name, filter_size, in_channels, out_channels, strides):
+def conv2d(x, name, filter_size, in_channels, out_channels, strides, bias=True):
   """2D convolution."""
   with tf.variable_scope(name):
     kernel = tf.get_variable(
         name='DW',
         shape=[filter_size[0], filter_size[1], in_channels, out_channels],
         dtype=tf.float32,
-        initializer=tf.contrib.layers.xavier_initializer())
-    b = tf.get_variable(
-        name='bias',
-        shape=[out_channels],
-        dtype=tf.float32,
-        initializer=tf.constant_initializer(0.0))
-    con2d_op = tf.nn.conv2d(
+        initializer=tf.initializers.glorot_uniform())
+    if bias:
+      b = tf.get_variable(
+          name='bias',
+          shape=[out_channels],
+          dtype=tf.float32,
+          initializer=tf.constant_initializer(0.0))
+    out = tf.nn.conv2d(
         x, kernel, [1, strides[0], strides[1], 1], padding='SAME')
-    return tf.nn.bias_add(con2d_op, b)
+    if bias:
+      out = tf.nn.bias_add(out, b)
+    return out
 
 
 def max_pool(x, ksize, strides):
@@ -185,12 +188,12 @@ def linear(x, names, shapes, has_bias=True):
     weights = tf.get_variable(
         name='weights',
         shape=shapes,
-        initializer=tf.initializers.truncated_normal(stddev=0.1))
+        initializer=tf.initializers.glorot_uniform())
     if has_bias:
       bias = tf.get_variable(
           name='bias',
           shape=shapes[1],
-          initializer=tf.constant_initializer(0.0))
+          initializer=tf.initializers.glorot_uniform())
       return tf.matmul(x, weights) + bias
     else:
       return tf.matmul(x, weights)

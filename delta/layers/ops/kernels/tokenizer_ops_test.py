@@ -27,7 +27,7 @@ class TokenizerOpsTest(tf.test.TestCase):
 
   def setUp(self):
     ''' set up '''
-    vocab = [
+    self.vocab = [
         '</s>',
         '<unk>',
         'hello',
@@ -36,11 +36,11 @@ class TokenizerOpsTest(tf.test.TestCase):
     ]
     self.vocab_filepath = tempfile.mktemp(suffix='vocab.txt')
     with open(self.vocab_filepath, mode='w', encoding='utf-8') as fobj:
-      for token in vocab:
+      for token in self.vocab:
         fobj.write(token)
         fobj.write('\n')
 
-  def test_text_to_tokenid(self):
+  def test_text_to_tokenid_with_vocab_file(self):
     ''' test label to token id'''
     with self.session(use_gpu=False) as sess:
       # test batch
@@ -48,6 +48,7 @@ class TokenizerOpsTest(tf.test.TestCase):
       batch_op = py_x_ops.sentence_to_ids(
           ['hello world', '你好 hello unknown  world'],
           maxlen=10,
+          use_vocab_file=True,
           vocab_filepath=self.vocab_filepath,
           load_token_ids_from_vocab=False,
           pad_id=-1)
@@ -68,6 +69,7 @@ class TokenizerOpsTest(tf.test.TestCase):
           '你好 hello unknown  world',
           maxlen=10,
           vocab_filepath=self.vocab_filepath,
+          use_vocab_file=True,
           load_token_ids_from_vocab=False,
           pad_id=-1)
       token_ids, paddings = sess.run(single_op)
@@ -78,6 +80,7 @@ class TokenizerOpsTest(tf.test.TestCase):
       short_single_op = py_x_ops.sentence_to_ids(
           '你好 hello unknown  world',
           maxlen=2,
+          use_vocab_file=True,
           vocab_filepath=self.vocab_filepath,
           load_token_ids_from_vocab=False,
           pad_id=0)
@@ -89,7 +92,68 @@ class TokenizerOpsTest(tf.test.TestCase):
       short_batch_op = py_x_ops.sentence_to_ids(
           ['hello world', '你好 hello unknown  world'],
           maxlen=2,
+          use_vocab_file=True,
           vocab_filepath=self.vocab_filepath,
+          load_token_ids_from_vocab=False,
+          pad_id=0)
+      token_ids, paddings = sess.run(short_batch_op)
+      logging.info("short_op: {}".format(short_batch_op))
+      self.assertAllEqual(token_ids, [[2, 4], [3, 2]])
+
+  def test_text_to_tokenid(self):
+    ''' test label to token id'''
+    with self.session(use_gpu=False) as sess:
+      # test batch
+      start = time.time()
+      batch_op = py_x_ops.sentence_to_ids(
+          ['hello world', '你好 hello unknown  world'],
+          maxlen=10,
+          use_vocab_file=False,
+          vocab=self.vocab,
+          load_token_ids_from_vocab=False,
+          pad_id=-1)
+      token_ids, paddings = sess.run(batch_op)
+      elapsed = time.time() - start
+      logging.info("Time cost: {:.4f}s".format(elapsed))
+      logging.info(token_ids)
+      logging.info(paddings)
+      logging.info("batch_op: {}".format(batch_op))
+      self.assertAllEqual(token_ids, [[2, 4, -1, -1, -1, -1, -1, -1, -1, -1],
+                                      [3, 2, 1, 4, -1, -1, -1, -1, -1, -1]])
+      self.assertAllEqual(
+          paddings,
+          [[0, 0, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1]])
+
+      # test single
+      single_op = py_x_ops.sentence_to_ids(
+          '你好 hello unknown  world',
+          maxlen=10,
+          vocab=self.vocab,
+          use_vocab_file=False,
+          load_token_ids_from_vocab=False,
+          pad_id=-1)
+      token_ids, paddings = sess.run(single_op)
+      logging.info("single_op: {}".format(single_op))
+      self.assertAllEqual(token_ids, [3, 2, 1, 4, -1, -1, -1, -1, -1, -1])
+
+      # test short single
+      short_single_op = py_x_ops.sentence_to_ids(
+          '你好 hello unknown  world',
+          maxlen=2,
+          use_vocab_file=False,
+          vocab=self.vocab,
+          load_token_ids_from_vocab=False,
+          pad_id=0)
+      token_ids, paddings = sess.run(short_single_op)
+      logging.info("short_op: {}".format(short_single_op))
+      self.assertAllEqual(token_ids, [3, 2])
+
+      # test short batch
+      short_batch_op = py_x_ops.sentence_to_ids(
+          ['hello world', '你好 hello unknown  world'],
+          maxlen=2,
+          use_vocab_file=False,
+          vocab=self.vocab,
           load_token_ids_from_vocab=False,
           pad_id=0)
       token_ids, paddings = sess.run(short_batch_op)

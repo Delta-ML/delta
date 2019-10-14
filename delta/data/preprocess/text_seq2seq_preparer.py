@@ -23,7 +23,8 @@ from delta.data import utils as data_utils
 from delta.utils.register import registers
 from delta.data.preprocess.utils import prepare_vocab
 from delta.data.preprocess.utils import prepare_vocab_from_config
-
+from delta.data.preprocess.text_ops import load_textline_dataset
+from delta.data.utils.common_utils import get_file_len
 # pylint: disable=too-many-instance-attributes, too-many-locals
 
 
@@ -60,13 +61,14 @@ class TextS2SPreparer(TextPreparer):
 
       for one_path_text, one_path_target, \
           one_path_text_after, one_path_target_after in zip(*paths, *paths_after_pre_process):
+        data_size = get_file_len([one_path_text])
         self.prepare_one_raw_data((one_path_text, one_path_target),
                                   (one_path_text_after, one_path_target_after),
                                   mode, infer_without_label,
-                                  pre_process_pipeline, all_texts, all_labels)
+                                  pre_process_pipeline, all_texts, all_labels,data_size)
     return all_texts, all_labels
 
-  def load_a_raw_file(self, one_path, mode, infer_without_label):
+  def load_a_raw_file(self, one_path, infer_without_label):
     """
     Load a raw file. Return text and label.
     For single text input, text: [sentence1, ...]
@@ -74,21 +76,24 @@ class TextS2SPreparer(TextPreparer):
     For single output, label: [label1, label2, ...]
     For multiple outputs, label: [[label1_1, ...], [label1_2, ...]]
     """
+    column_num = 1
     text_path, target_path = one_path
-    texts = data_utils.load_seq2seq_raw_data([text_path])
+    texts = load_textline_dataset([text_path], column_num)
+   # texts = data_utils.load_seq2seq_raw_data([text_path])
     if not infer_without_label:
-      target = data_utils.load_seq2seq_raw_data([target_path])
-      return (texts, target), [target]
-    return (texts, []), []
+      target = load_textline_dataset([target_path],column_num)
+      return texts+target, target
+    return texts, []
 
   def save_a_raw_file(self, label, text_after, one_path_after,
                       infer_without_label):
     text_path, target_path = one_path_after
-    text, target = text_after
-
-    data_utils.save_a_text_seq2seq_file(text, text_path)
-    if not infer_without_label:
+    if infer_without_label:
+      text = text_after[0]
+    else:
+      text, target = text_after
       data_utils.save_a_text_seq2seq_file(target, target_path)
+    data_utils.save_a_text_seq2seq_file(text, text_path)
 
   def prepare_label_vocab(self, all_labels):
     """Prepare label vocab"""

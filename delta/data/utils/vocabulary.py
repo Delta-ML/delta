@@ -69,6 +69,8 @@ class Vocabulary:
     for word, count in self._freq:
       if count < min_frequency:
         break
+      if word in self._mapping:
+        continue
       self._mapping[word] = idx
       idx += 1
     self._freq = dict(self._freq[:idx - 1])
