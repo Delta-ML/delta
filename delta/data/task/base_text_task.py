@@ -21,7 +21,6 @@ from absl import logging
 from delta.data.task.base_task import Task
 from delta import utils
 from delta.utils.register import registers
-from delta.layers.ops import py_x_ops
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
 from delta.data.preprocess.text_ops import tokenize_sentence
