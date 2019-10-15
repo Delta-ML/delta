@@ -329,8 +329,13 @@ REGISTER_OP("Spectrum")
     .Input("sample_rate: float")
     .Attr("window_length: float = 0.025")
     .Attr("frame_length: float = 0.010")
+    .Attr("window_type: string")
     .Attr("output_type: int = 2")
     .Attr("snip_edges: int = 2")
+    .Attr("raw_energy: int = 1")
+    .Attr("preEph_coeff: float = 0.97")
+    .Attr("remove_dc_offset: bool = true")
+    .Attr("is_fbank: bool = true")
     .Output("output: float")
     .SetShapeFn(SpectrumShapeFn)
     .Doc(R"doc(
@@ -339,7 +344,8 @@ REGISTER_OP("Spectrum")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second.
-    output_type: int, 1: PSD, 2: log(PSD) 
+    output_type: int, 1: PSD, 2: log(PSD).
+    raw_energy: int, 1: raw energy, 2: wined_energy.
     output: float, PSD/logPSD features, [num_Frame, num_Subband].
     )doc");
 

@@ -35,6 +35,7 @@ class SpecOp : public OpKernel {
     OP_REQUIRES_OK(context, context->GetAttr("preEph_coeff", &preEph_coeff_));
     OP_REQUIRES_OK(context, context->GetAttr("window_type", &window_type_));
     OP_REQUIRES_OK(context, context->GetAttr("remove_dc_offset", &remove_dc_offset_));
+    OP_REQUIRES_OK(context, context->GetAttr("is_fbank", &is_fbank_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -62,6 +63,7 @@ class SpecOp : public OpKernel {
     cls_spc.set_preEph(preEph_coeff_);
     cls_spc.set_window_type(window_type);
     cls_spc.set_remove_dc_offset(remove_dc_offset_);
+    cls_spc.set_is_fbank(is_fbank_);
     OP_REQUIRES(context, cls_spc.init_spc(L, sample_rate),
                 errors::InvalidArgument(
                     "spectrum_class initialization failed for length ", L,
@@ -96,6 +98,7 @@ class SpecOp : public OpKernel {
   float preEph_coeff_;
   string window_type_;
   bool remove_dc_offset_;
+  bool is_fbank_;
 };
 
 REGISTER_KERNEL_BUILDER(Name("Spectrum").Device(DEVICE_CPU), SpecOp);

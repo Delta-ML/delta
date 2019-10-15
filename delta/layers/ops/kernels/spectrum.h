@@ -43,6 +43,7 @@ class Spectrum {
   int i_snip_edges;
   int i_raw_energy;
   bool i_remove_dc_offset;
+  bool i_is_fbank;
 
   float* pf_WINDOW;
   float* pf_SPC;
@@ -65,6 +66,8 @@ class Spectrum {
   void set_preEph(float preEph);
 
   void set_window_type(char* window_type);
+
+  void set_is_fbank(bool is_fbank);
 
   void set_remove_dc_offset(bool remove_dc_offset);
 

@@ -32,10 +32,12 @@ class Fbank(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains seven optional parameters:upper_frequency_limit(float, default=4000.0),
-    lower_frequency_limit(float, default=20.0), filterbank_channel_count(float, default=40.0),
+    :param config: contains thirteen optional parameters:upper_frequency_limit(float, default=8000.0),
+    lower_frequency_limit(float, default=20.0), filterbank_channel_count(float, default=23.0),
     window_length(float, default=0.025), frame_length(float, default=0.010),
-    output_type(int, default=2), sample_rate(float, default=16000).
+    output_type(int, default=2), sample_rate(float, default=16000), snip_edges(int, default=2),
+    raw_energy(int, default=1), preEph_coeff(float, default=0.97), window_type(string, default='povey'),
+    remove_dc_offset(bool, default=True), is_fbank(bool, default=True).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
@@ -51,6 +53,7 @@ class Fbank(BaseFrontend):
     preEph_coeff = 0.97
     window_type = 'povey'
     remove_dc_offset = True
+    is_fbank = True
 
 
     hparams = HParams(cls=cls)
@@ -66,6 +69,7 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('preEph_coeff', preEph_coeff)
     hparams.add_hparam('window_type', window_type)
     hparams.add_hparam('remove_dc_offset', remove_dc_offset)
+    hparams.add_hparam('is_fbank', is_fbank)
 
     if config is not None:
       hparams.override_from_dict(config)

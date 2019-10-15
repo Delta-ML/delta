@@ -33,6 +33,7 @@ Spectrum::Spectrum() {
   i_snip_edges = 1;
   i_raw_energy = 1;
   f_PreEph = 0.97;
+  i_is_fbank = true;
   i_remove_dc_offset = true;
   snprintf(s_WinTyp, sizeof(s_WinTyp), "povey");
   pf_WINDOW = NULL;
@@ -58,6 +59,8 @@ void Spectrum::set_snip_edges(int snip_edges) { i_snip_edges = snip_edges; }
 
 void Spectrum::set_raw_energy(int raw_energy) {i_raw_energy = raw_energy;}
 
+void Spectrum::set_is_fbank(bool is_fbank) {i_is_fbank = is_fbank;}
+
 void Spectrum::set_remove_dc_offset(bool remove_dc_offset) {i_remove_dc_offset = remove_dc_offset;}
 
 void Spectrum::set_preEph(float preEph) {f_PreEph = preEph;}
@@ -74,7 +77,6 @@ int Spectrum::init_spc(int input_size, float sample_rate) {
     i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
   else
     i_NumFrm = (input_size + i_FrmLen / 2) / i_FrmLen;
-//  snprintf(s_WinTyp, sizeof(s_WinTyp), "hamm");
   i_FFTSiz = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))));
   i_NumFrq = i_FFTSiz / 2 + 1;
 
@@ -86,7 +88,6 @@ int Spectrum::init_spc(int input_size, float sample_rate) {
 
 int Spectrum::proc_spc(const float* mic_buf, int input_size) {
   int n, k;
-  bool switch_fbank = true;
 
   /* generate window */
   gen_window(pf_WINDOW, i_WinLen, s_WinTyp);
@@ -143,7 +144,7 @@ int Spectrum::proc_spc(const float* mic_buf, int input_size) {
     dit_r2_fft(win, fftwin, i_FFTSiz, -1);
 
     for (k = 0; k < i_NumFrq; k++) {
-      if (k == 0 && switch_fbank == false){
+      if (k == 0 && i_is_fbank == false){
         fftwin[k].r = sqrt(signal_raw_log_energy);
         fftwin[k].i = 0.0f;
       }

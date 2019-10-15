@@ -30,8 +30,10 @@ class Spectrum(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains four optional parameters:window_length(float, default=0.025),
-          frame_length(float, default=0.010), output_type(int, default=2), sample_rate(float, default=16000.0).
+    :param config: contains ten optional parameters:window_length(float, default=0.025),
+          frame_length(float, default=0.010), output_type(int, default=2), sample_rate(float, default=16000.0),
+          snip_edges(int, default=2), raw_energy(int, default=1), preEph_coeff(float, default=0.97),
+          window_type(string, default='povey'), remove_dc_offset(bool, default=True), is_fbank(bool, default=False).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
@@ -44,6 +46,7 @@ class Spectrum(BaseFrontend):
     preEph_coeff = 0.97
     window_type = 'povey'
     remove_dc_offset = True
+    is_fbank = False
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
@@ -55,6 +58,7 @@ class Spectrum(BaseFrontend):
     hparams.add_hparam('preEph_coeff', preEph_coeff)
     hparams.add_hparam('window_type', window_type)
     hparams.add_hparam('remove_dc_offset', remove_dc_offset)
+    hparams.add_hparam('is_fbank', is_fbank)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -90,6 +94,7 @@ class Spectrum(BaseFrontend):
             raw_energy=p.raw_energy,
             preEph_coeff=p.preEph_coeff,
             window_type=p.window_type,
-            remove_dc_offset=p.remove_dc_offset)
+            remove_dc_offset=p.remove_dc_offset,
+            is_fbank=p.is_fbank)
 
         return spectrum
