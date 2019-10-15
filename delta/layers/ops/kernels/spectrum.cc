@@ -91,7 +91,6 @@ int Spectrum::proc_spc(const float* mic_buf, int input_size) {
 
   /* generate window */
   gen_window(pf_WINDOW, i_WinLen, s_WinTyp);
-  do_preemphasis2();
 
   float tmp;
   xcomplex* win = static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));

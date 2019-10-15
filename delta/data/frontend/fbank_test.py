@@ -19,7 +19,7 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank import Fbank
-
+import numpy as np
 
 class FbankTest(tf.test.TestCase):
 
@@ -31,12 +31,18 @@ class FbankTest(tf.test.TestCase):
     with self.session():
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
+      input_data = input_data * 32768
       config = {'window_length': 0.025, 'output_type': 1, 'frame_length': 0.010, 'snip_edges': 1}
       fbank = Fbank.params(config).instantiate()
       fbank_test = fbank(input_data, sample_rate)
 
       self.assertEqual(tf.rank(fbank_test).eval(), 3)
 
+      real_fank_feats = np.array(
+        [[3.768338, 4.946218, 6.289874, 6.330853, 6.761764, 6.884573],
+         [3.803553, 5.450971, 6.547878, 5.796172, 6.397846, 7.242926]])
+
+      self.assertAllClose(np.squeeze(fbank_test.eval()[0, 0:2, 0:6]), real_fank_feats, rtol=1e-05, atol=1e-05)
 
 if __name__ == '__main__':
   tf.test.main()
