@@ -52,7 +52,7 @@ class TextSeqLabelTask(TextTask):
 
   def generate_data(self):
     """Generate data for offline training."""
-    paths = self.paths
+    paths = self.paths_after_pre_process
     if self.infer_without_label:
       self.column_num = 1
       text_ds = load_textline_dataset(paths, self.column_num)
