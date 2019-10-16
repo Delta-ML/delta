@@ -1,6 +1,16 @@
 # Deltann Serving
 
+## Table of Contents
+- [Quick Start](#quick-start)
+- [RESTful API](#restful-api)
+- [Model status API](#model-status-api)
+- [Predict API](#predict-api)
+- [Demo code](#demo-code)
+
 ## Quick start
+
+After delta/dpl/run.sh is successfully executed, run the following command again.
+
 ```sh
 $ cd example
 $ ./build.sh
@@ -13,13 +23,18 @@ I0927 07:26:37.897394    1057 delta_serving.go:77] delta serving DeltaModelHandl
 [GIN-debug] Listening and serving HTTP on :8004
 ```
 
-## RESTful API
+ ## RESTful API
+ 
+ API interface reference [TensorFlow](https://github.com/tensorflow/serving/blob/master/tensorflow_serving/g3doc/api_rest.md)
+ 
+ In case of error, all APIs will return a JSON object in the response body with error as key and the error message as the value:
+ 
+ ```sh
+ {
+   "error": <error message string>
+ }
+ ```
 
-```sh
-{
-  "error": <error message string>
-}
-```
 ### Model status API
 It returns the status of a model in the ModelServer.
 ```sh
@@ -42,14 +57,14 @@ POST http://host:port/v1/models/${MODEL_NAME}
 #### Predict API
 ```sh
 POST http://host:port/v1/models/${MODEL_NAME}[/versions/${MODEL_VERSION}]:predict
-```
+``` 
  
  ### Demo code
   ```sh   
  $cd deltann/server/examples/
  $ cat main.go
  ```
- 
+
  ```go
  package main
  import (
