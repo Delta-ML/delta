@@ -13,6 +13,7 @@ After delta/dpl/run.sh is successfully executed, run the following command again
 
 ```sh
 $ cd example
+$ source server-env.sh
 $ ./build.sh
 $ cd output/delta-service
 $ ./run.sh

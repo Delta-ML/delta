@@ -1,12 +1,12 @@
 #! /bin/bash
 set -euf -o pipefail
-source server-env.sh
+
 delta_file="delta-service"
+
 if [ -f "$delta_file" ]; then
 rm -rf $delta_file
 fi
-source ~/.profile
-GOOS=linux GOARCH=amd64 go build -o $delta_file  main.go
+
 if [ -d output ]
 then
     rm -rf output
@@ -34,5 +34,8 @@ cp control.sh output/$delta_file
 cp run.sh output/$delta_file
 cp server-env.sh output/$delta_file
 
+cp -R output/dpl ../
+
+GOOS=linux GOARCH=amd64 go build -o $delta_file  main.go
 
 
