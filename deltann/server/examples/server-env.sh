@@ -1,3 +1,6 @@
+#! /bin/bash
+set -euf -o pipefail
+
 export DELTANN_MAIN=../dpl/output/lib/deltann
 export DELTANN_OPS=../dpl/output/lib/custom_ops
 export DELTANN_TENSORFLOW=../dpl/output/lib/tensorflow
