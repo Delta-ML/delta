@@ -31,7 +31,6 @@ class FbankTest(tf.test.TestCase):
     with self.session():
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
-      input_data = input_data * 32768
       config = {'window_length': 0.025, 'output_type': 1, 'frame_length': 0.010, 'snip_edges': 1}
       fbank = Fbank.params(config).instantiate()
       fbank_test = fbank(input_data, sample_rate)

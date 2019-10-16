@@ -30,11 +30,11 @@ class ReadWav(BaseFrontend):
     """
       Set params.
        :param config: contains two optional parameters: audio_channels(int, default=1),
-              sample_rate(float, default=16000.0).
+              sample_rate(int, default=16000).
        :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
        """
     audio_channels = 1
-    sample_rate = 16000.0
+    sample_rate = 16000
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('audio_channels', audio_channels)
@@ -57,6 +57,6 @@ class ReadWav(BaseFrontend):
     audio_data, sample_rate = tf.audio.decode_wav(
         contents, desired_channels=p.audio_channels)
     assert_op = tf.compat.v1.assert_equal(
-        tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+        tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
     with tf.control_dependencies([assert_op]):
-      return tf.squeeze(audio_data, axis=-1), tf.cast(sample_rate, dtype=float)
+      return tf.squeeze(audio_data * 32768, axis=-1), tf.cast(sample_rate, dtype=tf.int32)

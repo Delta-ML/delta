@@ -43,6 +43,5 @@ class SpectrumTest(tf.test.TestCase):
       self.assertEqual(tf.rank(spectrum_test).eval(), 2)
       self.assertAllClose(spectrum_test.eval()[0:2, 0:5], output_true, rtol=1e-05, atol=1e-05)
 
-
 if __name__ == '__main__':
   tf.test.main()
