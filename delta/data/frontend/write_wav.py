@@ -29,11 +29,11 @@ class WriteWav(BaseFrontend):
   def params(cls, config=None):
     """
       Set params.
-       :param config: contains one optional parameters:sample_rate(float, default=16000.0).
+       :param config: contains one optional parameters:sample_rate(int, default=16000).
        :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
        """
 
-    sample_rate = 16000.0
+    sample_rate = 16000
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('sample_rate', sample_rate)
@@ -58,7 +58,7 @@ class WriteWav(BaseFrontend):
       sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
     assert_op = tf.compat.v1.assert_equal(
-        tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+        tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
     with tf.control_dependencies([assert_op]):
       audio_data = tf.cast(audio_data, dtype=tf.float32)
       contents = tf.audio.encode_wav(

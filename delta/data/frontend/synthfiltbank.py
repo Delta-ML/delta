@@ -31,12 +31,12 @@ class Synthfiltbank(BaseFrontend):
     """
     Set params.
     :param config: contains three optional parameters:window_length(float, default=0.030),
-          frame_length(float, default=0.010), sample_rate(float, default=16000.0).
+          frame_length(float, default=0.010), sample_rate(float, default=16000).
     :return:An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
     window_length = 0.030
     frame_length = 0.010
-    sample_rate = 16000.0
+    sample_rate = 16000
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
@@ -61,11 +61,12 @@ class Synthfiltbank(BaseFrontend):
     with tf.name_scope('synthfiltbank'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=float)
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
       assert_op = tf.compat.v1.assert_equal(
-          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
+
 
         audio_data = py_x_ops.synthfiltbank(
             power_spectrum,

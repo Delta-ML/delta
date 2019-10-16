@@ -33,6 +33,7 @@ class ZcrTest(tf.test.TestCase):
     with self.session():
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav.call(wav_path)
+      input_data = input_data / 32768
 
       zcr = Zcr.params({
           'window_length': 0.025,

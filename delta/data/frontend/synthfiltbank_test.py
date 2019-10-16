@@ -33,6 +33,7 @@ class Test(tf.test.TestCase):
 
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
+      input_data = input_data / 32768
 
       analyfiltbank = Analyfiltbank.params().instantiate()
       power_spc, phase_spc = analyfiltbank(input_data.eval(),

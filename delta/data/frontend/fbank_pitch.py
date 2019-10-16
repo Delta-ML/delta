@@ -36,18 +36,25 @@ class FbankPitch(BaseFrontend):
     :param config: contains eight optional parameters:upper_frequency_limit(float, default=4000.0),
     lower_frequency_limit(float, default=20.0), filterbank_channel_count(float, default=40.0),
     window_length(float, default=0.025), frame_length(float, default=0.010),
-    thres_autoc(float, default=0.3), output_type(int, default=2), sample_rate(float, default=16000).
+    thres_autoc(float, default=0.3), output_type(int, default=2), sample_rate(int, default=16000).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
-    upper_frequency_limit = 4000.0
+    upper_frequency_limit = 8000.0
     lower_frequency_limit = 20.0
-    filterbank_channel_count = 40.0
+    filterbank_channel_count = 23.0
     window_length = 0.025
     frame_length = 0.010
+    snip_edges = 2
+    raw_energy = 1
+    preEph_coeff = 0.97
+    window_type = 'povey'
+    remove_dc_offset = True
+    is_fbank = True
+
     thres_autoc = 0.3
-    output_type = 2
-    sample_rate = 16000.0
+    output_type = 1
+    sample_rate = 16000
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -55,9 +62,15 @@ class FbankPitch(BaseFrontend):
     hparams.add_hparam('filterbank_channel_count', filterbank_channel_count)
     hparams.add_hparam('window_length', window_length)
     hparams.add_hparam('frame_length', frame_length)
-    hparams.add_hparam('thres_autoc', thres_autoc)
     hparams.add_hparam('output_type', output_type)
     hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('snip_edges', snip_edges)
+    hparams.add_hparam('raw_energy', raw_energy)
+    hparams.add_hparam('preEph_coeff', preEph_coeff)
+    hparams.add_hparam('window_type', window_type)
+    hparams.add_hparam('remove_dc_offset', remove_dc_offset)
+    hparams.add_hparam('is_fbank', is_fbank)
+    hparams.add_hparam('thres_autoc', thres_autoc)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -76,10 +89,10 @@ class FbankPitch(BaseFrontend):
     with tf.name_scope('fbank_pitch'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=float)
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
       assert_op = tf.compat.v1.assert_equal(
-          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 
         fbank_feats = tf.squeeze(self.fbank(audio_data, sample_rate))

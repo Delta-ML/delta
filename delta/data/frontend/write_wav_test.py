@@ -31,6 +31,7 @@ class WriteWavTest(tf.test.TestCase):
     with self.session() as sess:
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
+      input_data = input_data / 32768
       write_wav = WriteWav.params().instantiate()
       new_path = str(
           Path(os.environ['MAIN_ROOT']).joinpath(
@@ -38,6 +39,7 @@ class WriteWavTest(tf.test.TestCase):
       writewav_op = write_wav(new_path, input_data, sample_rate)
       sess.run(writewav_op)
       test_data, test_sample_rate = read_wav(new_path)
+      test_data = test_data / 32768
       self.assertAllEqual(input_data.eval(), test_data.eval())
       self.assertAllEqual(sample_rate.eval(), test_sample_rate.eval())
 
