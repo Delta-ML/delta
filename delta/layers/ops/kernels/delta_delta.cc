@@ -83,7 +83,7 @@ void DeltaDelta::Compute(const Tensor& input_feats, int frame,
 
   int num_frames = input_feats.dim_size(0);
   int feat_dim = input_feats.dim_size(1);
-  int output_dim = (order_ + 1) * feat_dim;
+  int output_dim = feat_dim * (order_ + 1);
 
   output->resize(output_dim);
   auto input = input_feats.matrix<float>();
