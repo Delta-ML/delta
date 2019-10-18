@@ -50,10 +50,7 @@ APT_INSTALL=apt-get install -y --no-install-recommends
 
 PYTHON=python3
 
-ci.done:
-	pushd ci && /bin/bash build.sh && popd
-	touch ci.done
-
+# test
 PROTOC_ZIP := protoc-3.7.1-linux-x86_64.zip
 protoc:
 	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) curl unzip
@@ -67,7 +64,7 @@ test.deps:
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
 	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git 
 
-test: protoc test.deps
+test: test.deps #protoc
 	make -C test
 
 # install python packages
