@@ -14,16 +14,18 @@ TARGET=$1 #ci, delta or deltann
 DEVICE=$2 # cpu or gpu
 MODE=$3 # push image or generate dockerfile
 
+ADD_USER=false # false for root user
 INSTALL_GCC48=true  # install gcc-4.8
 if [ $TARGET == 'deltann' ];then
   INSTALL_GCC48=false
 fi
-
 SAVE_DOCKERFILE=false
 if [ $MODE == 'dockerfile' ];then
   SAVE_DOCKERFILE=true
 fi
 
+
+# docker file
 DOCKERFILE=$MAIN_ROOT/docker/dockerfile.${TARGET}.${DEVICE} 
 if [ -f $DOCKERFILE ];then
   unlink $DOCKERFILE
@@ -63,6 +65,7 @@ fi
 cp $MAIN_ROOT/tools/requirements.txt .
 
 
+# source images
 cat > $DOCKERFILE <<EOF
 FROM ${IMAGE}
 COPY sources.list.ubuntu18.04 /etc/apt/sources.list
@@ -73,6 +76,8 @@ RUN /bin/bash /install.sh
 
 EOF
 
+# add user
+if [ $ADD_USER == true ];then
 cat >> $DOCKERFILE <<EOF
 #add user
 ENV ROLE ${TARGET}
@@ -86,7 +91,10 @@ RUN adduser --disabled-password --gecos '' --shell '/bin/bash' \$ROLE \
 USER \$ROLE 
 
 EOF
+fi # add user
 
+
+# install gcc
 if [ ${INSTALL_GCC48} == true ]; then
 cat >> $DOCKERFILE <<EOF
 # install gcc
