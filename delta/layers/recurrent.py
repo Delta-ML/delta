@@ -20,7 +20,7 @@ import delta.compat as tf
 
 import delta
 from delta.layers.base_layer import Layer
-from tensorflow.contrib import seq2seq
+from tensorflow_addons import seq2seq
 SOS_ID = 4
 EOS_ID = 5
 

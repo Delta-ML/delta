@@ -69,7 +69,7 @@ def read_wav(wavfile, params):
   '''
   contents = tf.read_file(wavfile)
   #pylint: disable=no-member
-  waveforms = contrib_audio.decode_wav(
+  waveforms = tf.audio.decode_wav(
       contents,
       desired_channels=params.audio_desired_channels,
       desired_samples=params.audio_desired_samples,
@@ -104,7 +104,7 @@ def powspec_feat(samples,
   del preemph
 
   #pylint: disable=no-member
-  feat = contrib_audio.audio_spectrogram(
+  feat = audio_ops.audio_spectrogram(
       samples,
       window_size=winlen * sr,
       stride=winstep * sr,
