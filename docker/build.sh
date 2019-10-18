@@ -15,7 +15,7 @@ DEVICE=$2 # cpu or gpu
 MODE=$3 # push image or generate dockerfile
 
 ADD_USER=false # false for root user
-INSTALL_GCC48=true  # install gcc-4.8
+INSTALL_GCC48=false  # install gcc-4.8
 if [ $TARGET == 'deltann' ];then
   INSTALL_GCC48=false
 fi

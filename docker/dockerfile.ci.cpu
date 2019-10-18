@@ -5,10 +5,6 @@ COPY sources.list.ubuntu18.04 /etc/apt/sources.list
 COPY install.sh /install.sh
 RUN /bin/bash /install.sh
 
-# install gcc
-COPY install_user.sh /ci/install_user.sh
-RUN /bin/bash /ci/install_user.sh
-
 COPY requirements.txt /ci/requirements.txt
 WORKDIR /ci
 RUN sudo pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --upgrade pip && pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --user -r requirements.txt
