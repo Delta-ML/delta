@@ -32,7 +32,8 @@ if [ -f $DOCKERFILE ];then
 fi
 
 
-TAG=1.14.0-${TARGET}-${DEVICE}-py3
+VER=2.0.0
+TAG=${VER}-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
 PIP_INSTALL="pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
 
@@ -53,9 +54,9 @@ if [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'deltann' ];then
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'deltann' ];then
   IMAGE=tensorflow/tensorflow:devel-gpu-py3
 elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:1.14.0-py3
+  IMAGE=tensorflow/tensorflow:${VER}-py3
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:1.14.0-gpu-py3
+  IMAGE=tensorflow/tensorflow:${VER}-gpu-py3
 else
   echo "no support target or device"
   exit -1
