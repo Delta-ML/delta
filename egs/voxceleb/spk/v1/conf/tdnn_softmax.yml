@@ -53,7 +53,7 @@ data:
       cmvn_type: none # global, local, sliding
       cmvn_path: exp/delta_speaker/cmvn.npy # cmvn file
     classes:
-      num: 6153
+      num: 7323
       vocab: null
     num_parallel_calls: 12
     num_prefetch_batch: 2
@@ -201,7 +201,7 @@ solver:
       output_levels: # which level outputs to save, e.g. utt, chunck
         - "utt"
   saver:
-    model_path: "exp/delta_speaker/ckpt"
+    model_path: "__JOB_DIR__"
     max_to_keep: 10
     save_checkpoints_steps: 1000
     keep_checkpoint_every_n_hours: 10000

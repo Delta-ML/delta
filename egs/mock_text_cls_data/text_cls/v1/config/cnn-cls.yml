@@ -2,13 +2,13 @@
 data:
   train:
     paths:
-      - "egs/mock_text_cls_data/text_cls/v1/data/train.split_by_line_mark.txt"
+      - "egs/mock_text_cls_data/text_cls/v1/data/train.chinese_word.txt"
   eval:
     paths:
-      - "egs/mock_text_cls_data/text_cls/v1/data/eval.split_by_line_mark.txt"
+      - "egs/mock_text_cls_data/text_cls/v1/data/eval.chinese_word.txt"
   infer:
     paths:
-      - "egs/mock_text_cls_data/text_cls/v1/data/test.split_by_line_mark.txt"
+      - "egs/mock_text_cls_data/text_cls/v1/data/test.chinese_word.txt"
   task:
     name: TextClsTask
     preparer:
@@ -22,7 +22,7 @@ data:
     use_word: true
     vocab_min_frequency: 20
     use_custom_vocab: True
-    text_vocab: "egs/mock_text_cls_data/text_cls/v1/data/text_vocab.split_by_line_mark.txt"
+    text_vocab: "egs/mock_text_cls_data/text_cls/v1/data/text_vocab.chinese_word.txt"
     label_vocab: "egs/mock_text_cls_data/text_cls/v1/exp/label_vocab.txt"
     max_seq_len: 1024
     num_parallel_calls: 12
@@ -37,27 +37,28 @@ data:
       vocab:
         0: 0
         1: 1
-
 model:
-  name: HierarchicalAttentionModel
+  name: SeqclassCNNModel
   type: keras
-  use_true_length: true
-  split_token: "|"
   use_pre_train_emb: false
   pre_train_emb_path: ""
-  embedding_path: "egs/mock_text_cls_data/text_cls/v1/exp/embeding.pkl"
+  embedding_path: "egs/trec/text_cls/v1/exp/embeding.pkl"
 
   net:
     structure:
-      embedding_size: 200
+      embedding_size: 128
       emb_trainable: true
-      cell_type: gru
-      cell_dim: 100
-      num_layers: 1
-      max_len: 1024
-      max_sen_len: 32
-      max_doc_len: 32
+      num_units: 128
+      num_layers: 2
       dropout_rate: 0.5
+      pooling:
+        - max
+        - mean
+      filter_sizes:
+        - 3
+        - 4
+        - 5
+      num_filters: 128
       l2_reg_lambda: 0
 
 solver:
@@ -74,7 +75,7 @@ solver:
     var_avg_decay: 0.99 # the decay rate of varaibles
   optimizer:
     name: adam
-    loss: CrossEntropyLoss 
+    loss: CrossEntropyLoss
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.0001 # learning rate of Adam optimizer
@@ -101,15 +102,15 @@ solver:
     name: SavePredPostProc
     res_file: "egs/mock_text_cls_data/text_cls/v1/exp/infer_res.txt"
   saver:
-    model_path: "egs/mock_text_cls_data/text_cls/v1/exp/han-cls/ckpt"
+    model_path: "egs/mock_text_cls_data/text_cls/v1/exp/cnn-cls/ckpt"
     max_to_keep: 30
     save_checkpoint_steps: 30
     print_every: 10
   service:
-    model_path: "egs/mock_text_cls_data/text_cls/v1/exp/han-cls/service"
+    model_path: "egs/mock_text_cls_data/text_cls/v1/exp/cnn-cls/service"
     model_version: "1"
     input_sentence: "input_sentence:0"
-    input_x: "hierarchical_attention_model/input_x:0"
+    input_x: "seqclass_cnn_model/input_x:0"
     score: "score:0"
     preds: "preds:0"
 

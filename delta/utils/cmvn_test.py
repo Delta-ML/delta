@@ -25,6 +25,7 @@ class CmvnTest(tf.test.TestCase):
   ''' CMVN unittest Class'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
 
   def tearDown(self):
@@ -104,7 +105,7 @@ class CmvnTest(tf.test.TestCase):
     mean_true = np.expand_dims(mean, axis=0)
     var_true = np.expand_dims(var, axis=0)
 
-    with self.session(use_gpu=False, force_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       mean, var = utils.load_cmvn(temp_file)
       self.assertAllClose(mean.eval(), mean_true)
       self.assertAllClose(var.eval(), var_true)
@@ -128,7 +129,7 @@ class CmvnTest(tf.test.TestCase):
     eps = 1e-9
     feat_out = utils.apply_cmvn(feat, mean, var, epsilon=eps)
     feat_true = (feat - mean) * tf.rsqrt(var + eps)
-    with self.session(use_gpu=False, force_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       self.assertAllClose(feat_out.eval(), feat_true.eval())
 
   def testApplyLocalCmvn(self):  #pylint: disable=invalid-name
@@ -151,7 +152,7 @@ class CmvnTest(tf.test.TestCase):
     feat = tf.constant(feat)
 
     feat_out = utils.apply_local_cmvn(feat, epsilon=eps)
-    with self.session(use_gpu=False, force_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       self.assertAllClose(feat_out.eval(), feat_true)
 
 

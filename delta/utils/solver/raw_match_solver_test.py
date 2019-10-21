@@ -29,6 +29,7 @@ from delta.utils.register import import_all_modules_for_register
 class RawMatchSolverTest(tf.test.TestCase):
   # pylint: disable=invalid-name
   def setUp(self):
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(
@@ -63,7 +64,7 @@ class RawMatchSolverTest(tf.test.TestCase):
     # load the model and run
     graph = tf.Graph()
     with graph.as_default():  # pylint: disable=not-context-manager
-      with self.session() as sess:
+      with self.cached_session(use_gpu=False, force_gpu=False) as sess:
         tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING],
                                    export_path)
 

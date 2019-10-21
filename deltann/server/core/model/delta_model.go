@@ -111,7 +111,7 @@ func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error)
 	graphName := C.CString(conf.DeltaConf.Model.Graph[0].Name)
 	defer C.free(unsafe.Pointer(graphName))
 	ins.graph_name = graphName
-
+	glog.Infof("before DeltaSetInputs")
 	C.DeltaSetInputs(inf, &ins, inNum)
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)

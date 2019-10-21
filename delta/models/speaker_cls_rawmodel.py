@@ -218,13 +218,14 @@ class SpeakerBaseRawModel(RawModel):
 
       for idx, hidden in enumerate(hidden_dims):
         last_layer = idx == (len(hidden_dims) - 1)
+        layer_add_nonlin = not last_layer or not remove_nonlin
         y = common_layers.linear(
             y,
             'dense-matmul-%d' % (idx + 1), [shape, hidden],
-            has_bias=not use_bn)
+            has_bias=(layer_add_nonlin or not use_bn))
         shape = hidden
         embedding = y
-        if not last_layer or not remove_nonlin:
+        if layer_add_nonlin:
           y = tf.nn.relu(y)
         if use_bn:
           y = tf.layers.batch_normalization(
@@ -233,7 +234,7 @@ class SpeakerBaseRawModel(RawModel):
               momentum=0.99,
               training=self.train,
               name='dense-bn-%d' % (idx + 1))
-        if self.netconf['use_dropout'] and not remove_nonlin:
+        if self.netconf['use_dropout'] and layer_add_nonlin:
           y = tf.layers.dropout(
               y, self.netconf['dropout_rate'], training=self.train)
       if self.netconf['embedding_after_linear']:
@@ -405,15 +406,13 @@ class SpeakerTDNNRawModel(SpeakerBaseRawModel):
         unit_name = 'unit-' + str(index + 1)
         with tf.variable_scope(unit_name):
           tdnn_name = 'tdnn-' + str(index + 1)
-          use_bn = self.netconf['use_bn']
-          has_bias = not use_bn
           x = common_layers.tdnn(
               x,
               tdnn_name,
               last_w,
               tdnn_contexts[index],
               channels[index + 1],
-              has_bias=has_bias,
+              has_bias=True,
               method=tdnn_method)
           last_w = channels[index + 1]
           x = tf.nn.relu(x)

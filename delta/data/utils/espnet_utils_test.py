@@ -40,7 +40,7 @@ from delta.data.utils.test_utils import generate_json_data
 class KaldiJsonReaderTest(tf.test.TestCase):
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.conf_str = '''
     data:
       train:

@@ -32,7 +32,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
   ''' speaker task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     self.conf_str = '''
     data:
@@ -306,7 +306,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
     clip_ids = features['clipid']
     soft_labels = features['soft_labels']
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       while True:
         batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot, batch_soft_labels = \
            sess.run([samples, labels, filenames, clip_ids, tf.one_hot(labels, 2), soft_labels])
@@ -337,7 +337,7 @@ class SpeakerClsTaskTest(tf.test.TestCase):
       clip_ids = features['clipid']
       labels = features['labels']
 
-      with self.session() as sess:
+      with self.cached_session(use_gpu=False, force_gpu=False) as sess:
         while True:
           batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot = \
              sess.run([samples, labels, filenames, clip_ids, one_hot_labels])

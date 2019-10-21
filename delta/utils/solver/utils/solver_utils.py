@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import delta.compat as tf
 from absl import logging
+import shutil
 
 from delta import utils
 from delta.utils import metrics
@@ -60,6 +61,12 @@ def to_saved_model(config, sess, inputs: dict, outputs: dict):
       tf.compat.as_bytes(export_path_base), tf.compat.as_bytes(model_version))
   export_path = os.path.abspath(export_path)
   logging.info('Exporting model to: {}'.format(export_path))
+  if os.path.exists(export_path):
+    files = [one.decode() for one in os.listdir(export_path) if isinstance(one, bytes)]
+    if "variables" in files:
+      cmd = input(f"Export directory already exists, and isn't empty. Overwrite? [y/n]").strip().lower()
+      if cmd == "" or cmd == "y":
+        shutil.rmtree(export_path)
   builder = tf.saved_model.builder.SavedModelBuilder(export_path)
   # Build the signature_def_map.
   signature_def = tf.saved_model.predict_signature_def(inputs, outputs)

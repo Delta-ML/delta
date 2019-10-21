@@ -26,7 +26,7 @@ class TokenizerOpsTest(tf.test.TestCase):
   ''' tokenizer op test'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.vocab = [
         '</s>',
         '<unk>',
@@ -42,7 +42,7 @@ class TokenizerOpsTest(tf.test.TestCase):
 
   def test_text_to_tokenid_with_vocab_file(self):
     ''' test label to token id'''
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test batch
       start = time.time()
       batch_op = py_x_ops.sentence_to_ids(
@@ -102,22 +102,25 @@ class TokenizerOpsTest(tf.test.TestCase):
 
   def test_text_to_tokenid(self):
     ''' test label to token id'''
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test batch
       start = time.time()
-      batch_op = py_x_ops.sentence_to_ids(
+      batch_op, batch_padding_op = py_x_ops.sentence_to_ids(
           ['hello world', '你好 hello unknown  world'],
           maxlen=10,
           use_vocab_file=False,
           vocab=self.vocab,
           load_token_ids_from_vocab=False,
           pad_id=-1)
-      token_ids, paddings = sess.run(batch_op)
+      batch_shape_op = tf.shape(batch_op)
+      shape_res, token_ids, paddings = sess.run([batch_shape_op, batch_op, batch_padding_op])
       elapsed = time.time() - start
       logging.info("Time cost: {:.4f}s".format(elapsed))
       logging.info(token_ids)
       logging.info(paddings)
       logging.info("batch_op: {}".format(batch_op))
+      logging.info(f"batch_shape: {shape_res}")
+      self.assertAllEqual(shape_res, [2, 10])
       self.assertAllEqual(token_ids, [[2, 4, -1, -1, -1, -1, -1, -1, -1, -1],
                                       [3, 2, 1, 4, -1, -1, -1, -1, -1, -1]])
       self.assertAllEqual(
@@ -125,15 +128,18 @@ class TokenizerOpsTest(tf.test.TestCase):
           [[0, 0, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1]])
 
       # test single
-      single_op = py_x_ops.sentence_to_ids(
+      single_op, single_padding_op = py_x_ops.sentence_to_ids(
           '你好 hello unknown  world',
           maxlen=10,
           vocab=self.vocab,
           use_vocab_file=False,
           load_token_ids_from_vocab=False,
           pad_id=-1)
-      token_ids, paddings = sess.run(single_op)
+      single_shape_op = tf.shape(single_op)
+      single_shape_res, token_ids, paddings = sess.run([single_shape_op, single_op, single_padding_op])
       logging.info("single_op: {}".format(single_op))
+      logging.info(f"single_shape: {single_shape_res}")
+      self.assertAllEqual(single_shape_res, [10])
       self.assertAllEqual(token_ids, [3, 2, 1, 4, -1, -1, -1, -1, -1, -1])
 
       # test short single

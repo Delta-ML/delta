@@ -102,17 +102,19 @@ class TextPreparer(Preparer):
       infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
       for one_path, one_path_after in zip(paths, paths_after_pre_process):
+        if not os.path.exists(one_path):
+          raise FileNotFoundError("{} does not exist!".format(one_path))
         data_size = get_file_len([one_path])
         self.prepare_one_raw_data([one_path], one_path_after, mode,
                                   infer_without_label, pre_process_pipeline,
-                                  all_texts, all_labels,data_size)
+                                  all_texts, all_labels, data_size)
     if self.output_num <= 1:
       all_labels = [all_labels]
     return all_texts, all_labels
 
   def prepare_one_raw_data(self, one_path, one_path_after, mode,
                            infer_without_label, pre_process_pipeline, all_texts,
-                           all_labels,data_size):
+                           all_labels, data_size):
     """Prepare one raw data."""
     text, label = self.load_a_raw_file(one_path, infer_without_label)
 

@@ -14,9 +14,8 @@
 
 ## What is DELTA?
 
-**DELTA** is a deep learning based end-to-end natural language and speech processing platform. 
-DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models 
-for both academia and industry use cases. DELTA is mainly implemented using TensorFlow and Python 3.
+**DELTA** is a deep learning based end-to-end **natural language and speech processing** platform. 
+DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models for both academia and industry use cases. DELTA is mainly implemented using TensorFlow and Python 3.
 
 For details of DELTA, please refer to this [paper](https://arxiv.org/abs/1908.01853).
 
@@ -55,15 +54,18 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 We use [conda](https://conda.io/) to install required packages. Please [install conda](https://conda.io/en/latest/miniconda.html) if you do not have it in your system. 
 
 We provide two options to install DELTA, `nlp` version or `full` version. 
-`nlp` version need minimal requirements and only installs NLP related packages: 
-Note: Users from mainland China may need to set up conda mirror sources, see [./tools/install/install-delta.sh](tools/install/install-delta.sh) for details.
+`nlp` version needs minimal requirements and only installs NLP related packages: 
+
 ```shell
 # Run the installation script for NLP version, with CPU or GPU.
 cd tools
 ./install/install-delta.sh nlp [cpu|gpu]
 ```
 
+**Note**: Users from mainland China may need to set up conda mirror sources, see [./tools/install/install-delta.sh](tools/install/install-delta.sh) for details.
+
 If you want to use both NLP and speech packages, you can install the `full` version. The full version needs [Kaldi](https://github.com/kaldi-asr/kaldi) library, which can be pre-installed or installed using our installation script.
+
 ```shell
 cd tools
 # If you have installed Kaldi
@@ -130,7 +132,7 @@ There are several modes to start a DELTA pipeline:
 - infer
 - export_model
 
-Before run any command, please make sure you need to `source env.sh` in the current command prompt or a shell script.
+**Note**: Before run any command, please make sure you need to `source env.sh` in the current command prompt or a shell script.
 
 You can use `train_and_eval` to start the model training and evaluation:
 
@@ -164,11 +166,12 @@ For model deployment, we provide many tools in the DELTA-NN package.
 We organize the model deployment scripts under `./dpl` directory.
 
 * Put `SavedModel` and configure `model.yaml` into `dpl/model`.
-* Use scripts under `dpl/gadapter` to convert model to other deployment model.  
+* Use scripts under `dpl/run.sh` to convert model to other deployment model, and compile libraries.
 * All compiled `tensorflow` libs and `delta-nn` libs are in `dpl/lib`.
 * Test, benchmark or serve under docker.
 
 ## Benchmarks
+
 In DELTA, we provide experimental results for each task on public datasets as benchmarks. 
 For each task, we compare our implementation with a similar model chosen from a highly-cited publication.
 You can reproduce the experimental results using the scripts and configuration in the `./egs` directory. 
@@ -209,7 +212,7 @@ For more details, please refer to [the contribution guide](CONTRIBUTING.md).
 ## References
 
 Please cite this [paper](https://arxiv.org/abs/1908.01853) when referencing DELTA.
-```
+```bibtex
 @ARTICLE{delta,
        author = {{Han}, Kun and {Chen}, Junwen and {Zhang}, Hui and {Xu}, Haiyang and
          {Peng}, Yiping and {Wang}, Yun and {Ding}, Ning and {Deng}, Hui and

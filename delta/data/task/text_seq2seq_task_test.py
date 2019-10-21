@@ -29,7 +29,7 @@ class TextS2STaskTest(tf.test.TestCase):
   ''' sequence to sequence task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
@@ -59,7 +59,7 @@ class TextS2STaskTest(tf.test.TestCase):
                     "input_dec_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_enc_x"],
@@ -77,26 +77,21 @@ class TextS2STaskTest(tf.test.TestCase):
       self.assertEqual(np.shape(res[2])[0], 16)
       self.assertEqual(np.shape(res[3])[0], 16)
 
-
     # test offline data for 'infer'
     task = TextS2STask(config, utils.INFER)
     task.infer_without_label = True
     data = task.dataset()
     self.assertTrue("input_x_dict" in data and
                     "input_enc_x" in data["input_x_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
-      res = sess.run([
-        data["input_x_dict"]["input_enc_x"],
-        data["input_x_len"]
-      ])
+      res = sess.run([data["input_x_dict"]["input_enc_x"], data["input_x_len"]])
 
       logging.debug(res[0][0])
       logging.debug(res[1][0])
 
       self.assertEqual(np.shape(res[0])[0], 16)
       self.assertEqual(np.shape(res[1])[0], 16)
-
 
     # test online data
     export_inputs = task.export_inputs()
@@ -105,7 +100,7 @@ class TextS2STaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_enc_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run(
           input_x,

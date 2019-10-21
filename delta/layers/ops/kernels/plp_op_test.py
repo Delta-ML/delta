@@ -29,7 +29,7 @@ class PLPOpTest(tf.test.TestCase):
   ''' plp op unittest'''
 
   def setUp(self):
-    '''set up'''
+    super().setUp()
     self.wavpath = str(
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
@@ -39,7 +39,7 @@ class PLPOpTest(tf.test.TestCase):
 
   def test_plp(self):
     ''' test plp op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 
       output = py_x_ops.plp(input_data, sample_rate)

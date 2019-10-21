@@ -1,1 +1,3 @@
-nohup ./delta-service -log_dir=./log -alsologtostderr=true  -port "8004" -yaml "../dpl/output/conf/model.yaml"  -type "predict"  -debug true &
+#! /bin/bash
+set -euf -o pipefail
+nohup ./delta-service -log_dir=./log -alsologtostderr=true  -port "8004" -yaml "../dpl/output/model/model.yaml"  -type "predict"  -debug true &
