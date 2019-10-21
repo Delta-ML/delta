@@ -30,6 +30,11 @@ popd
 
 cp -R ../../api/c_api.h output/dpl/output/include
 
+if [ -d ../output ]
+then
+    rm -rf ../output
+fi
+
 cp -R output/dpl ../
 
 GOOS=linux GOARCH=amd64 go build -o $delta_file  main.go
