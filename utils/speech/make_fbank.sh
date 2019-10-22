@@ -19,13 +19,19 @@
 #default params
 nj=1
 cmd=utils/run.pl
-sample_rate=16000.0
-upper_frequency_limit=4000.0
+sample_rate=16000
+upper_frequency_limit=0
 lower_frequency_limit=20.0
-filterbank_channel_count=40.0
+filterbank_channel_count=23
 window_length=0.025
 frame_length=0.010
 output_type=1
+snip_edges = 2
+raw_energy = 1
+preEph_coeff = 0.97
+window_type = 'povey'
+remove_dc_offset = True
+is_fbank = True
 write_utt2num_frames=true
 compress=false
 compression_method=2
@@ -111,6 +117,12 @@ if [ -f ${data}/segments ]; then
             --window_length ${window_length} \
             --frame_length ${frame_length} \
             --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preEph_coeff ${preEph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset}
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
@@ -135,6 +147,12 @@ else
             --window_length ${window_length} \
             --frame_length ${frame_length} \
             --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preEph_coeff ${preEph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset}
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \

@@ -79,7 +79,8 @@ int Spectrum::init_spc(int input_size, float sample_rate) {
     i_NumFrm = (input_size + i_FrmLen / 2) / i_FrmLen;
   i_FFTSiz = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))));
   i_NumFrq = i_FFTSiz / 2 + 1;
-
+  if (i_NumFrm < 1)
+    i_NumFrm = 1;
   pf_WINDOW = static_cast<float*>(malloc(sizeof(float) * i_WinLen));
   pf_SPC = static_cast<float*>(malloc(sizeof(float) * i_NumFrq * i_NumFrm));
 
@@ -91,6 +92,9 @@ int Spectrum::proc_spc(const float* mic_buf, int input_size) {
 
   /* generate window */
   gen_window(pf_WINDOW, i_WinLen, s_WinTyp);
+
+  if (input_size < i_WinLen)
+    std::cerr<<"Wraning: The length of input data is shorter than "<< window_length_sec_ << " s." <<std::endl;
 
   float tmp;
   xcomplex* win = static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));

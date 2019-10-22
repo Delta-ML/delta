@@ -76,6 +76,8 @@ class SpecOp : public OpKernel {
     int i_snip_edges = snip_edges_;
     if (i_snip_edges == 2)
         i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
+    if (i_NumFrm < 1)
+        i_NumFrm = 1;
     int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
     OP_REQUIRES_OK(
         context, context->allocate_output(0, TensorShape({i_NumFrm, i_FrqNum}),

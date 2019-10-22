@@ -43,13 +43,13 @@ class Fbank(BaseFrontend):
         --remove_dc_offset		: Subtract mean from waveform on each frame (bool, default = true)
         --is_fbank					  : If true, compute power spetrum without frame energy. If false, using the frame energy instead of the square of the constant component of the signal. (bool, default = true)
         --output_type				  : If 1, return power spectrum. If 2, return log-power spectrum. (int, default = 1)
-        --upper_frequency_limit		        : High cutoff frequency for mel bins (if < 0, offset from Nyquist) (float, default = 8000)
+        --upper_frequency_limit		        : High cutoff frequency for mel bins (if < 0, offset from Nyquist) (float, default = 0)
         --lower_frequency_limit		        : Low cutoff frequency for mel bins (float, default = 20)
         --filterbank_channel_count	      : Number of triangular mel-frequency bins (float, default = 23)
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
-    upper_frequency_limit = 8000.0
+    upper_frequency_limit = 0
     lower_frequency_limit = 20.0
     filterbank_channel_count = 23.0
     window_length = 0.025
@@ -97,6 +97,11 @@ class Fbank(BaseFrontend):
 
       if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
+
+      if p.upper_frequency_limit <= 0:
+        p.upper_frequency_limit = p.sample_rate / 2.0 + p.upper_frequency_limit
+      elif (p.upper_frequency_limit <= p.lower_frequency_limit) or (p.upper_frequency_limit > p.sample_rate / 2.0):
+        p.upper_frequency_limit = p.sample_rate / 2.0
 
       assert_op = tf.compat.v1.assert_equal(
           tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))

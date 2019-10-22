@@ -30,11 +30,11 @@ def get_parser():
       description='Compute fbank features from wav.',
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--sample_rate', type=float, default=16000, help='Sampling frequency')
+      '--sample_rate', type=int, default=16000, help='Sampling frequency')
   parser.add_argument(
       '--upper_frequency_limit',
       type=float,
-      default=4000,
+      default=0,
       help='Maxinum frequency')
   parser.add_argument(
       '--lower_frequency_limit',
@@ -44,7 +44,7 @@ def get_parser():
   parser.add_argument(
       '--filterbank_channel_count',
       type=float,
-      default=40,
+      default=23,
       help='Order of fbank')
   parser.add_argument(
       '--window_length', type=float, default=0.025, help='Length of a frame')
@@ -55,6 +55,18 @@ def get_parser():
       type=int,
       default=1,
       help='1 for power spectrum, 2 for log-power spectrum.')
+  parser.add_argument(
+    '--window_type', type=str, default='povey', help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
+  parser.add_argument(
+    '--snip_edges', type=int, default=2, help='The last frame (shorter than window_length) will not be cutoff.')
+  parser.add_argument(
+    '--raw_energy', type=int, default=1, help='Compute frame energy before preemphasis and windowing.')
+  parser.add_argument(
+    '--preEph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
+  parser.add_argument(
+    '--remove_dc_offset', type=bool, default=True, help=' Subtract mean from waveform on each frame')
+  parser.add_argument(
+    '--is_fbank', type=bool, default=True, help='Compute power spetrum without frame energy')
   parser.add_argument(
       '--write_num_frames',
       type=str,
