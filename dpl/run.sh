@@ -179,6 +179,32 @@ function convert_model(){
   echo "Convert model done."
 }
 
+function dpl_output(){
+    if [ -d output ]
+  then
+      rm -rf output
+  fi
+
+  mkdir -p output/model/
+  mkdir -p output/include/
+  cp -R   lib/ output/
+
+  pushd output/lib/custom_ops
+  mv x_ops.so libx_ops.so
+  popd
+
+  cp -R  ../deltann/api/c_api.h  output/include/
+  cp -R  gadapter/saved_model/ output/model/
+
+  pushd output/model/saved_model/1/saved_model/
+  mv saved_model.pb* ../
+  mv variables ../
+  cd ..
+  rm -rf saved_model
+  popd
+
+}
+
 sudo chown -R deltann:deltann $MAIN_ROOT/tools
 sudo chown -R deltann:deltann $MAIN_ROOT/dpl
 
@@ -210,3 +236,5 @@ compile_deltann_egs
 # 8. run test
 # run test under docker
 
+# 9. dpl output
+dpl_output
