@@ -193,6 +193,33 @@ function convert_model(){
   echo
 }
 
+function dpl_output(){
+  echo "dump output..."
+  if [ -d output ]; then
+      rm -rf output
+  fi
+
+  mkdir -p output/model/
+  mkdir -p output/include/
+  cp -R   lib/ output/
+
+  pushd output/lib/custom_ops
+  mv x_ops.so libx_ops.so
+  popd
+
+  cp -R  ../deltann/api/c_api.h  output/include/
+  cp -R  gadapter/saved_model/ output/model/
+
+  pushd output/model/saved_model/1/saved_model/
+  mv saved_model.pb* ../
+  mv variables ../
+  cd ..
+  rm -rf saved_model
+  popd
+  echo "dump output done."
+  echo
+}
+
 echo
 echo "Input: ${INPUT_MODEL}"
 echo "Output: ${OUTPUT_MODEL}"
@@ -230,12 +257,10 @@ if [ $stage -le 5 ] && [ $stop_stage -ge 5 ];then
   compile_deltann_egs
 fi
 
-# 7. dump model and lib to `output_model`
+# 7. dump model and lib to `dpl/output`
 if [ $stage -le 6 ] && [ $stop_stage -ge 6 ];then
-  echo "dump to output..."
-  echo "dump to output done"
+  dpl_output
 fi
 
 # 8. run test
 # run test under docker
-
