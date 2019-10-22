@@ -25,7 +25,7 @@ cp -R  ../../../dpl/model/ output/dpl/output
 mkdir -p output/dpl/output/model/saved_model/1
 
 pushd output/dpl/output/model/saved_model/
-mv  saved_model.pbtxt variables  1/
+mv  saved_model.pb* variables  1/
 popd
 
 cp -R ../../api/c_api.h output/dpl/output/include
