@@ -13,22 +13,11 @@ then
 fi
 
 mkdir -p output/$delta_file/log
-#cp -R  ../dpl output
-mkdir -p output/dpl/output/include
-cp -R  ../../../dpl/lib/ output/dpl/output
+mkdir -p output/dpl/
 
-pushd output/dpl/output/lib/custom_ops
-mv x_ops.so libx_ops.so
-popd
+cp -R ../../../dpl/output/ output/dpl/
 
-cp -R  ../../../dpl/model/ output/dpl/output
-mkdir -p output/dpl/output/model/saved_model/1
-
-pushd output/dpl/output/model/saved_model/
-mv  saved_model.pb* variables  1/
-popd
-
-cp -R ../../api/c_api.h output/dpl/output/include
+cp -R ../mock_yaml/nlp/model.yaml   output/dpl/output/model/saved_model/1/
 
 if [ -d ../output ]
 then
