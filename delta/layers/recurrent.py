@@ -62,6 +62,9 @@ class BiRnn(Layer):
 
   def compute_output_shape(self, input_shape):
     return tf.TensorShape([input_shape[0], self.cell_dim * 2])
+  
+  def compute_mask(self, inputs, mask=None):
+    return None
 
   def call(self, inputs, training=None, mask=None):
     out = self.bi_rnn(inputs)
@@ -95,6 +98,9 @@ class RnnAttentionEncoder(Layer):  # pylint: disable=too-many-instance-attribute
 
   def compute_output_shape(self, input_shape):
     return tf.TensorShape([input_shape[0], self.cell_dim * 2])
+
+  def compute_mask(self, inputs, mask=None):
+    return None
 
   def call(self, inputs, training=None, mask=None):
     out = self.sen_encoder(inputs)
