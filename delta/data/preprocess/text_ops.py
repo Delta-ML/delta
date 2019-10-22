@@ -17,7 +17,6 @@
 
 import tensorflow as tf
 from absl import logging
-import os
 
 from delta import utils
 from delta.layers.ops import py_x_ops
@@ -54,43 +53,17 @@ def tokenize_sentence(texts, max_seq_len, vocab_path):
 
 def chinese_word_cut_tf(input_str, use_file=False):
   """"""
-  main_root = os.environ["MAIN_ROOT"]
-  dict_path = os.path.join(main_root,
-                           "tools/cppjieba/dict/jieba.dict.utf8")
-  hmm_path = os.path.join(main_root,
-                          "tools/cppjieba/dict/hmm_model.utf8")
-  user_dict_path = os.path.join(main_root,
-                                "tools/cppjieba/dict/user.dict.utf8")
-  idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
-  stop_word_path = os.path.join(main_root,
-                                "tools/cppjieba/dict/stop_words.utf8")
 
   if use_file:
     output_str = py_x_ops.jieba_cut(
       input_str,
       use_file=True,
-      hmm=True,
-      dict_path=dict_path,
-      hmm_path=hmm_path,
-      user_dict_path=user_dict_path,
-      idf_path=idf_path,
-      stop_word_path=stop_word_path)
+      hmm=True)
   else:
-    dict_lines = read_lines_from_text_file(dict_path)
-    model_lines = read_lines_from_text_file(hmm_path)
-    user_dict_lines = read_lines_from_text_file(user_dict_path)
-    idf_lines = read_lines_from_text_file(idf_path)
-    stop_word_lines = read_lines_from_text_file(stop_word_path)
-
     output_str = py_x_ops.jieba_cut(
       input_str,
       use_file=False,
-      hmm=True,
-      dict_lines=dict_lines,
-      model_lines=model_lines,
-      user_dict_lines=user_dict_lines,
-      idf_lines=idf_lines,
-      stop_word_lines=stop_word_lines)
+      hmm=True)
   return output_str
 
 

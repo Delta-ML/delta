@@ -111,3 +111,8 @@ deltann/server/examples/nohup.out
 
 # inner egs
 inner
+
+# setup
+delta_didi.egg-info/
+build
+dist
