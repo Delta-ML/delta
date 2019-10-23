@@ -23,6 +23,7 @@ from absl import logging
 
 from delta.layers.ops import py_x_ops
 from delta.data import feat as feat_lib
+from delta import PACKAGE_ROOT_DIR
 
 
 class SpecOpTest(tf.test.TestCase):
@@ -31,7 +32,7 @@ class SpecOpTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     self.wavpath = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
+        Path(PACKAGE_ROOT_DIR).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
 
   def tearDown(self):

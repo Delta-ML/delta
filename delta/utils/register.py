@@ -134,14 +134,14 @@ PREPROCESS_MODULES = [
     "text_nlu_joint_preparer", "text_seq2seq_preparer"
 ]
 
-ALL_MODULES = [("delta.data.task", TASK_MODULES),
-               ("delta.models", MODLE_MODULES),
-               ("delta.utils.loss", LOSS_MODULES),
-               ("delta.utils.metrics", METRICS_MODULES),
-               ("delta.utils.solver", SOLVER_MODULES),
-               ("delta.utils.postprocess", POSTPROCESS_MODULES),
-               ("delta.serving", SERVING_MODULES),
-               ("delta.data.preprocess", PREPROCESS_MODULES)]
+ALL_SYS_MODULES = [("delta.data.task", TASK_MODULES),
+                   ("delta.models", MODLE_MODULES),
+                   ("delta.utils.loss", LOSS_MODULES),
+                   ("delta.utils.metrics", METRICS_MODULES),
+                   ("delta.utils.solver", SOLVER_MODULES),
+                   ("delta.utils.postprocess", POSTPROCESS_MODULES),
+                   ("delta.serving", SERVING_MODULES),
+                   ("delta.data.preprocess", PREPROCESS_MODULES)]
 
 
 def _handle_errors(errors):
@@ -152,10 +152,13 @@ def _handle_errors(errors):
     logging.fatal("Module {} import failed: {}".format(name, err))
 
 
-def import_all_modules_for_register():
+def import_all_modules_for_register(config=None):
   """Import all modules for register."""
+  all_modules = ALL_SYS_MODULES
   errors = []
-  for base_dir, modules in ALL_MODULES:
+  if config is not None and "custom_modules" in config:
+    all_modules += config["custom_modules"]
+  for base_dir, modules in all_modules:
     for name in modules:
       try:
         full_name = base_dir + "." + name

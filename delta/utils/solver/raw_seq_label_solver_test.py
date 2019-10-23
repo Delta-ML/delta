@@ -23,6 +23,7 @@ import tensorflow as tf
 from delta import utils
 from delta.utils.solver.raw_seq_label_solver import RawSeqLabelSolver
 from delta.utils.register import import_all_modules_for_register
+from delta import PACKAGE_ROOT_DIR
 
 # pylint: disable=missing-docstring
 
@@ -31,10 +32,9 @@ class RawSeqLabelSolverTest(tf.test.TestCase):
 
   def setUp(self):
     super().setUp()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
     self.config = utils.load_config(self.config_file)
     import_all_modules_for_register()
 

@@ -26,6 +26,7 @@ from absl import logging
 from delta import utils
 from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
+from delta import PACKAGE_ROOT_DIR
 
 
 class SpeechClsTaskTest(tf.test.TestCase):
@@ -149,8 +150,8 @@ class SpeechClsTaskTest(tf.test.TestCase):
     if not negtive_path.exists():
       negtive_path.mkdir()
 
-    wav_path = Path(os.environ['MAIN_ROOT']).joinpath(
-        'delta/data/feat/python_speech_features/english.wav')
+    wav_path = Path(PACKAGE_ROOT_DIR).joinpath(
+        'data/feat/python_speech_features/english.wav')
     for i in range(10):
       pos_file = postive_path.joinpath("{}.wav".format(i))
       neg_file = negtive_path.joinpath("{}.wav".format(i))

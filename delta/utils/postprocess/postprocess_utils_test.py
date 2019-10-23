@@ -19,6 +19,7 @@ from pathlib import Path
 import tensorflow as tf
 from delta import utils
 from delta.utils.postprocess.postprocess_utils import ids_to_sentences
+from delta import PACKAGE_ROOT_DIR
 
 
 class PostprocessUtilsTest(tf.test.TestCase):
@@ -26,10 +27,9 @@ class PostprocessUtilsTest(tf.test.TestCase):
 
   def setUp(self):
     super().setUp()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
 
   def tearDown(self):
     ''' tear down '''

@@ -24,6 +24,7 @@ import tensorflow as tf
 from delta import utils
 from delta.data.task.text_match_task import TextMatchTask
 from delta.utils.register import import_all_modules_for_register
+from delta import PACKAGE_ROOT_DIR
 
 
 class TextMatchTaskTest(tf.test.TestCase):
@@ -32,10 +33,9 @@ class TextMatchTaskTest(tf.test.TestCase):
   # pylint: disable=invalid-name
   def setUp(self):
     super().setUp()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_match_data/text_match/v1/config/rnn-match-mock.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_match_data/text_match/v1/config/rnn-match-mock.yml')
     import_all_modules_for_register()
 
   def tearDown(self):

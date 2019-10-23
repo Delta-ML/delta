@@ -22,6 +22,7 @@ from absl import logging
 
 from delta.data.feat.speech_feature import load_wav
 from delta.data.feat import speech_ops as tffeat
+from delta import PACKAGE_ROOT_DIR
 
 
 class SpeechOpsFeatTest(tf.test.TestCase):
@@ -38,8 +39,8 @@ class SpeechOpsFeatTest(tf.test.TestCase):
         audio_desired_samples=1000,
         add_delta_deltas=False)
     self.wavpath = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/data/feat/python_speech_features/english.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'data/feat/python_speech_features/english.wav'))
     _, self.audio_true = load_wav(self.wavpath, sr=self.sr_true)
 
   def test_read_wav(self):

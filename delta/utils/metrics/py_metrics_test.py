@@ -22,6 +22,7 @@ import tensorflow as tf
 
 from delta import utils
 from delta.utils import metrics
+from delta import PACKAGE_ROOT_DIR
 
 
 #pylint: disable=too-many-instance-attributes
@@ -31,10 +32,9 @@ class MetricTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     ''' setup '''
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
+    package_root = Path(PACKAGE_ROOT_DIR)
     self.config_file_crf = \
-      main_root.joinpath('egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+      package_root.joinpath('../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
 
     self.conf_str = '''
       solver:

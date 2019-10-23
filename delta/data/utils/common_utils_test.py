@@ -28,10 +28,9 @@ class CommonUtilsTest(tf.test.TestCase):
 
   def setUp(self):
     super().setUp()
-    main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(
-        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
     self.config = utils.load_config(self.config_file)
 
   def tearDown(self):

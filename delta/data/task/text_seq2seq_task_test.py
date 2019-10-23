@@ -31,8 +31,7 @@ class TextS2STaskTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     import_all_modules_for_register()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
+    package_root = Path(package_root)
     self.config_file = main_root.joinpath(
         'egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
 

@@ -24,7 +24,7 @@ from absl import logging
 import tempfile
 import numpy as np
 from delta import utils
-
+from delta import PACKAGE_ROOT_DIR
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
 from delta.data.preprocess.text_ops import tokenize_label
@@ -37,10 +37,9 @@ class TextOpsTest(tf.test.TestCase):
 
   def setUp(self):
     super().setUp()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
     self.config = utils.load_config(self.config_file)
 
     self.vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']

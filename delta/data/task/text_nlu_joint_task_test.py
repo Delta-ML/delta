@@ -23,6 +23,7 @@ from absl import logging
 from delta import utils
 from delta.data.task.text_nlu_joint_task import TextNLUJointTask
 from delta.utils.register import import_all_modules_for_register
+from delta import PACKAGE_ROOT_DIR
 
 
 class NLUJointTaskTest(tf.test.TestCase):
@@ -31,10 +32,9 @@ class NLUJointTaskTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     import_all_modules_for_register()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_nlu_joint_data/nlu-joint/v1/config/nlu_joint.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_nlu_joint_data/nlu-joint/v1/config/nlu_joint.yml')
 
   def tearDown(self):
     ''' tear down '''

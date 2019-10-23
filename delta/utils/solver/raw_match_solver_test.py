@@ -23,6 +23,7 @@ import tensorflow as tf
 from delta import utils
 from delta.utils.solver.raw_match_solver import RawMatchSolver
 from delta.utils.register import import_all_modules_for_register
+from delta import PACKAGE_ROOT_DIR
 
 
 # pylint: disable=missing-docstring
@@ -30,10 +31,9 @@ class RawMatchSolverTest(tf.test.TestCase):
   # pylint: disable=invalid-name
   def setUp(self):
     super().setUp()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_match_data/text_match/v1/config/rnn-match-mock.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_match_data/text_match/v1/config/rnn-match-mock.yml')
     self.config = utils.load_config(self.config_file)
     import_all_modules_for_register()
 
