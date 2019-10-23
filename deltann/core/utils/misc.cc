@@ -71,4 +71,11 @@ void make_random(float* ptr, int len) {
   }
 }
 
+char gen_random_char() {
+  // return (char)(random(127-33) + 33);
+  char c = 'A' + rand_r(&RANDOM_SEED) % 24;
+  return c;
+}
+
+
 }  // namespace delta

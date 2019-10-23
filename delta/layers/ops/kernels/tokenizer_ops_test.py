@@ -16,7 +16,7 @@
 """Tests for tokenizer_ops."""
 import time
 import tempfile
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.layers.ops import py_x_ops

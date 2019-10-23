@@ -1,6 +1,6 @@
 # Manual Setup
 
-This project has been fully tested on `Python 3.6.8` and  `TensorFlow 1.14` under `Ubuntu 18.04.2 LTS`.
+This project has been fully tested on `Python 3.6.8` and  `TensorFlow 2.0.0` under `Ubuntu 18.04.2 LTS`.
 We recommend that users use `Docker` or a virtual environment such as `conda` to install the python requirements.
 
 ## Conda Package Install 
@@ -15,7 +15,7 @@ source activate <path>/<env_name>
 ### Install Tensorflow
 
 ```shell
-conda install tensorflow-gpu=1.14.0
+conda install tensorflow-gpu=2.0.0
 ```
 
 ### Install dependences
@@ -30,7 +30,7 @@ cd tools && make
 
 ##  Pip Install
 
-For case you want install `Tensorflow Gpu  1.14.0`, under machine which has `Gpu Driver 410.48`.
+For case you want install `Tensorflow Gpu  2.0.0`, under machine which has `Gpu Driver 410.48`.
 It has problem of runtime not compariable with driver version, when isntall using [conda](#conda-package-install).
 Then we can install tensorflow from `Pip` as below:
 
@@ -73,10 +73,10 @@ Other references:
 ### Install Tensorflow
 
 ```shell
-pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple tensorflow-gpu==1.14.0
+pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple tensorflow-gpu==2.0.0
 ```
 
-For tensorflow 1.14.0, [make sure numpy version is 1.16.4](https://github.com/tensorflow/tensorflow/issues/31249).
+For tensorflow 2.0.0, [make sure numpy version is 1.16.4](https://github.com/tensorflow/tensorflow/issues/31249).
 
 ### Install dependences
 

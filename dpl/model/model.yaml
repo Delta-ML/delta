@@ -17,47 +17,37 @@
 # template model.yaml
 
 model:
-  custom_ops_path: "" 
+  custom_ops_path: "../dpl/output/lib/custom_ops/libx_ops.so" 
   graphs:
     -
       # meta data
       id: 0
-      name: "emotion" # model name
+      name: "default" # model name
 
       # deltann type
-      server_type: "remote" # local, remote
+      server_type: "local" # local, remote
       engine: "TF" # TF, TFLITE, TFTRT, TFSERVING
 
       # model config
       version: 1    # model version
       local:  # local run
-        path: "/delta/dpl/output_model" # model path without version info
+        path: "../dpl/output/model/saved_model" # model path without version info
         model_type: "saved_model" # e.g. saved_model, frozen_graph_pb, frozen_graph_txt
-      remote: # serving host
-        host: "http://10.90.55.32"
-        port: 8501
-        model_name: "emotion" 
-
       # inputs and outputs
       inputs:
         -
           id: 0
-          name: "texts"
+          name: "input_sentence"
           shape: [1]
-          dtype: "int"
-        -
-          id: 1
-          name: "inputs"
-          shape: [3000,40,3]
-          dtype: "float"
+          dtype: "char"
       outputs:
         -
           id: 0
-          name: "softmax_output"
+          name: "score"
           dtype: "float"
 
 runtime:
-  num_threads: 1
+  num_threads: 20
 
 serving:
   max_worker: 5

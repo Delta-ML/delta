@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' fbank op unittest'''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers.ops import py_x_ops
 

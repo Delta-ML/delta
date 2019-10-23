@@ -16,7 +16,7 @@
 ''' nlu joint model '''
 
 import pickle
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 import delta.utils as utils

@@ -12,16 +12,16 @@ or using pre-build images as belows:
 All avaible image tags list in [here](https://cloud.docker.com/repository/docker/zh794390558/delta/tags),
 please choose one as needed.
 
-If we choose `1.14.0-delta-cpu-py3`, then download the image as below:
+If we choose `2.0.0-delta-cpu-py3`, then download the image as below:
 
 ```bash
-docker pull zh794390558/delta:1.14.0-delta-cpu-py3
+docker pull zh794390558/delta:2.0.0-delta-cpu-py3
 ```
 
 After the image downloaded, create a container:
 
 ```bash
-cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:1.14.0-delta-cpu-py3 /bin/bash
+cd /path/to/detla && docker run -it -v $PWD:/delta zh794390558/delta:2.0.0-delta-cpu-py3 /bin/bash
 ```
 
 then develop as usual. 

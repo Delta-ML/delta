@@ -19,7 +19,7 @@ import os
 import numpy as np
 import hurry.filesize as hfsize
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 # pylint: disable=no-name-in-module
 from tensorflow.python.framework import graph_util
 

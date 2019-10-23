@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' Text related pre-process in ops.'''
 
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 import os
 

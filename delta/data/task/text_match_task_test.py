@@ -19,7 +19,7 @@ import os
 from pathlib import Path
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.data.task.text_match_task import TextMatchTask

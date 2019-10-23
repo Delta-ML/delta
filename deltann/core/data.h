@@ -34,16 +34,6 @@ namespace delta {
 
 namespace core {
 
-namespace {
-
-inline char gen_random_char() {
-  // return (char)(random(127-33) + 33);
-  char c = 'A' + rand() % 24;
-  return c;
-}
-
-}  // namespace
-
 class BaseInOutData {
  public:
   explicit BaseInOutData(BaseInOut& inout) : _inout(inout) {

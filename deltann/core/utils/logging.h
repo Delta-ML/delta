@@ -96,15 +96,6 @@ class LogMessageFatal : public LogMessage {
 #define LOG_FATAL \
   delta::logging::LogMessageFatal(__FILE__, __LINE__, "FATAL:").stream()
 
-#define DVLOG(level, msg)  \
-  if (level == 0) {        \
-  } else if (level == 1) { \
-  } else if (level == 2) { \
-  } else if (level == 3) { \
-  } else if (level == 4) { \
-  } else {                 \
-  }
-
 }  // namespace logging
 
 }  // namespace delta

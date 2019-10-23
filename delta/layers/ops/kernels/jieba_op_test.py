@@ -17,7 +17,7 @@
 import os
 import time
 import tempfile
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data.utils import read_lines_from_text_file

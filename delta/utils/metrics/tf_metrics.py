@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' tensorflow metcis utils'''
-import tensorflow as tf
+import delta.compat as tf
 
 
 def accuracy(logits, labels):

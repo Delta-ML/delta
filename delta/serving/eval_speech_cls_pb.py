@@ -16,7 +16,7 @@
 ''' Frozen model Evaluater'''
 import os
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from absl import app
 

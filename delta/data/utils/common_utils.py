@@ -20,7 +20,7 @@ import re
 import json
 import numpy as np
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 import subprocess
 
 from delta import utils

@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' ctc python decoder test '''
 
-import tensorflow as tf
+import delta.compat as tf
 from delta.utils.decode import py_ctc
 
 

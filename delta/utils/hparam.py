@@ -13,10 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """Hyperparameter values."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import json
 import numbers
 import re
@@ -24,7 +20,6 @@ from deepdiff import DeepDiff
 
 import six
 
-from tensorflow.contrib.training.python.training import hparam_pb2
 from tensorflow.python.framework import ops
 from tensorflow.python.util import compat
 from tensorflow.python.util import deprecation
@@ -408,7 +403,6 @@ class HParams(object):
     # or the type of the list elements for multidimensional hyperparameters.
     # The bool value is True if the value is a list, False otherwise.
     self._hparam_types = {}
-    assert 'cls' in kwargs
     for name, value in six.iteritems(kwargs):
       self.add_hparam(name, value)
 
@@ -670,6 +664,6 @@ class HParams(object):
     return '_'.join([typename, suffix])
 
   def instantiate(self):
+    assert 'cls' in self._hparam_types
     assert self.cls is not None
-    print(self.cls)
     return self.cls(self)

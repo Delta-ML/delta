@@ -28,7 +28,7 @@ from __future__ import print_function
 
 import numpy as np
 
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.python.framework import ops
 
 # EPS for numerical stability
