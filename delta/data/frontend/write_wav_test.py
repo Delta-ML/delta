@@ -28,7 +28,7 @@ class WriteWavTest(tf.test.TestCase):
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
       input_data = input_data / 32768

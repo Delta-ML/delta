@@ -46,6 +46,7 @@ func init() {
 }
 
 func DeltaListen(opts DeltaOptions) (*gin.Engine, error) {
+	defer glog.Flush()
 	conf.SetConfPath(opts.DeltaModelYaml)
 	dParams := DeltaParam{DeltaYaml: opts.DeltaModelYaml}
 	err := dParams.DeltaModelInit()
@@ -79,6 +80,7 @@ func DeltaListen(opts DeltaOptions) (*gin.Engine, error) {
 }
 
 func DeltaRun(router *gin.Engine) error {
+	defer glog.Flush()
 	err := router.Run(":" + defaultPort)
 	if err != nil {
 		glog.Infof("delta serving init port  %s", defaultPort)

@@ -24,7 +24,7 @@ class MetricUtilsTest(tf.test.TestCase):
   ''' metrics utils unittest'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down '''

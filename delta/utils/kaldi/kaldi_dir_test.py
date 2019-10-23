@@ -27,7 +27,7 @@ class KaldiDirTest(tf.test.TestCase):
   ''' Kaldi dir meta data IO test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down'''

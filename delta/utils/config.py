@@ -17,7 +17,7 @@
 import os
 import json
 import time
-from shutil import copyfile
+from shutil import copyfile, SameFileError
 from pathlib import Path
 import yaml
 from absl import logging
@@ -52,7 +52,10 @@ def copy_config(config_path, config):
   save_config_path = os.path.join(config["solver"]["saver"]["model_path"],
                                   config_name)
   logging.info("Saving config file to {}".format(save_config_path))
-  copyfile(config_path, save_config_path)
+  try:
+    copyfile(config_path, save_config_path)
+  except SameFileError:
+    pass
 
   with open(config_path, 'r') as f:
     logging.info("Config:")

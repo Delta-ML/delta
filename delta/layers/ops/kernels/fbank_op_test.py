@@ -24,6 +24,7 @@ class FbankOpTest(tf.test.TestCase):
   ''' fbank op unittest'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
 
   def tearDown(self):
@@ -31,7 +32,7 @@ class FbankOpTest(tf.test.TestCase):
 
   def test_fbank(self):
     ''' test fbank op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       data = np.arange(513)
       spectrogram = tf.constant(data[None, None, :], dtype=tf.float32)
       sample_rate = tf.constant(22050, tf.int32)
