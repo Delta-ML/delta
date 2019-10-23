@@ -9,6 +9,9 @@ if [ $# != 2 ];then
   exit 1
 fi
 
+# TF_VER, PY_VER
+. ../../env.sh
+
 if [ $1 == 'nlp' ];then
   TARGET='basic'
 elif [ $1 == 'full' ];then
@@ -23,9 +26,9 @@ else
 fi
 
 if [ $2 == 'gpu' ];then
-  TF='tensorflow-gpu=1.14.0'
+  TF="tensorflow-gpu=${TF_VER}"
 elif [ $2 == 'cpu' ];then
-  TF='tensorflow=1.14.0'
+  TF="tensorflow=${TF_VER}"
 else
   echo ${USAGE}
   exit 1
@@ -37,20 +40,20 @@ fi
 # conda config --set show_channel_urls yes
 # pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
-CONDA_ENV=delta-py3.6-tf1.14
+CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
 
 if conda search ${TF} | grep "No match"; then
   echo "Conda: do not have ${TF} for current platform."
   if [ $2 == 'gpu' ];then
-    TF='tensorflow-gpu=1.13.1'
+    TF="tensorflow-gpu=${TF_VER}"
   else
-    TF='tensorflow=1.13.1'
+    TF="tensorflow=${TF_VER}"
   fi
   echo "Conda: install ${TF} instead."
-  CONDA_ENV=delta-py3.6-tf1.13
+  CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
 fi
 
-conda create -n ${CONDA_ENV} python=3.6
+conda create -n ${CONDA_ENV} python=${PY_VER}
 source activate ${CONDA_ENV}
 echo "Conda: ${CONDA_ENV} activated!"
 

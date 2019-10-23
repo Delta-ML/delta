@@ -42,7 +42,7 @@ speech: kaldi.done
 
 nlp_zh: cppjieba.done
 
-extra: nkf.done sentencepiece.done mecab.done moses.done
+extra: sentencepiece.done moses.done
 
 PIP_INSTALL=python3 -m pip --no-cache-dir install
 
@@ -50,10 +50,7 @@ APT_INSTALL=apt-get install -y --no-install-recommends
 
 PYTHON=python3
 
-ci.done:
-	pushd ci && /bin/bash build.sh && popd
-	touch ci.done
-
+# test
 PROTOC_ZIP := protoc-3.7.1-linux-x86_64.zip
 protoc:
 	$(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) curl unzip
@@ -67,7 +64,7 @@ test.deps:
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
 	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git 
 
-test: protoc test.deps
+test: test.deps #protoc
 	make -C test
 
 # install python packages
@@ -105,13 +102,6 @@ espnet.done:
 	if [ -f kaldi.done ] && [ -s kaldi ]; then ln -s `readlink -f kaldi` espnet/tools/kaldi; elif [ -f kaldi.done ] && [ ! -s kaldi ]; then ln -s kaldi espnet/tools/kaldi; fi
 	touch espnet.done
 
-nkf.done:
-	rm -rf nkf
-	mkdir -p nkf
-	cd nkf; wget https://ja.osdn.net/dl/nkf/nkf-2.1.4.tar.gz
-	cd nkf; tar zxvf nkf-2.1.4.tar.gz; cd nkf-2.1.4; $(MAKE) prefix=.
-	touch nkf.done
-
 # google wordpiece subword
 sentencepiece.done:
 	test -d sentencepiece || git clone --depth=1 https://github.com/google/sentencepiece.git
@@ -122,33 +112,6 @@ sentencepiece.done:
 moses.done:
 	test -d moses || git clone --depth=1 https://github.com/moses-smt/mosesdecoder.git moses
 	touch moses.done
-
-# Japanese segment word 
-mecab.done: espnet.done
-	test -d mecab || git clone --depth=1 https://github.com/taku910/mecab.git
-	cd mecab/mecab && ./configure --with-charset=utf8 --prefix=$(PWD)/mecab && $(MAKE) && $(MAKE) check && $(MAKE) install
-	cd mecab/mecab-ipadic && ./configure --with-charset=utf8 --with-mecab-config=$(PWD)/mecab/bin/mecab-config --prefix=$(PWD)/mecab && $(MAKE) && $(MAKE) install
-	cd mecab && git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
-	cd mecab/mecab-ipadic-neologd && export PATH=$(PWD)/mecab/bin:$(PATH) && ./bin/install-mecab-ipadic-neologd -n -y -p $(PWD)/mecab/mecab-ipadic-neologd
-	$(PIP_INSTALL) mojimoji pykakasi
-	if [ `$(PYTHON) --version | cut -c 8` -eq 3 ]; then \
-		if [ ! -e swig.done ]; then \
-			rm -rf swig; \
-			mkdir -p swig; \
-			cd swig; \
-			wget https://sourceforge.net/projects/swig/files/swig/swig-3.0.12/swig-3.0.12.tar.gz; \
-			tar zxvf swig-3.0.12.tar.gz; \
-			cd swig-3.0.12 && ./configure prefix=$(PWD)/swig && $(MAKE) && $(MAKE) install; \
-			touch $(PWD)/swig.done; \
-		fi; \
-		deactivate; \
-		export PATH=$(PWD)/swig/bin:$(PWD)/mecab/bin:$(PATH); \
-		export LD_LIBRARY_PATH=$(LD_LIBRARY_PATH); \
-		$(PIP_INSTALL) mecab-python3; \
-	else \
-		$(PIP_INSTALL) mecab-python; \
-	fi
-	touch mecab.done
 
 # Chinese segment word 
 cppjieba.done:

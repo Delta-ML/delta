@@ -16,7 +16,7 @@
 ''' Solver for speaker classification. '''
 from absl import logging
 import librosa
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.solver.estimator_solver import EstimatorSolver
 from delta.utils.register import registers

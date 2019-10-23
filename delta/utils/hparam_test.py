@@ -15,9 +15,9 @@
 # ==============================================================================
 """hparam test."""
 import copy
-import tensorflow as tf
+import delta.compat as tf
 
-from hparam import HParams
+from delta.utils.hparam import HParams
 
 
 class HParamsTest(tf.test.TestCase):

@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
 import numpy as np
+import delta.compat as tf
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.cepstrum import Cepstrum

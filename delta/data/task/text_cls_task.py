@@ -16,7 +16,7 @@
 """Task class for text classification."""
 
 import collections
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data.task.base_text_task import TextTask

@@ -16,7 +16,7 @@
 """Utilities for building model layers."""
 
 import math
-import tensorflow as tf
+import delta.compat as tf
 # pylint: disable=no-name-in-module
 from tensorflow.python.keras import backend as K
 

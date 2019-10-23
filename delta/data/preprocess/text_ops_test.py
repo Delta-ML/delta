@@ -19,12 +19,13 @@
 
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 import tempfile
 import numpy as np
-from delta import utils
+
 from delta import PACKAGE_ROOT_DIR
+from delta import utils
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
 from delta.data.preprocess.text_ops import tokenize_label

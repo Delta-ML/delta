@@ -16,7 +16,7 @@
 ''' delta-delta op unittest'''
 import tempfile
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from kaldiio import WriteHelper
 

@@ -17,7 +17,7 @@
 
 import random
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import flags
 from absl import app
 from absl import logging

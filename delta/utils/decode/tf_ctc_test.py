@@ -16,7 +16,7 @@
 ''' ctc tensorflow decode unittest '''
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.decode import tf_ctc
 

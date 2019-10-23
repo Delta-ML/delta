@@ -6,6 +6,7 @@ if [ $# != 3 ];then
 fi
 
 if [ -z $MAIN_ROOT ];then
+  # TF_VER, PY_VER
   pushd .. && . env.sh && popd
 fi
 
@@ -14,23 +15,24 @@ TARGET=$1 #ci, delta or deltann
 DEVICE=$2 # cpu or gpu
 MODE=$3 # push image or generate dockerfile
 
-INSTALL_GCC48=true  # install gcc-4.8
+ADD_USER=false # false for root user
+INSTALL_GCC48=false  # install gcc-4.8
 if [ $TARGET == 'deltann' ];then
   INSTALL_GCC48=false
 fi
-
 SAVE_DOCKERFILE=false
 if [ $MODE == 'dockerfile' ];then
   SAVE_DOCKERFILE=true
 fi
 
+
+# docker file
 DOCKERFILE=$MAIN_ROOT/docker/dockerfile.${TARGET}.${DEVICE} 
 if [ -f $DOCKERFILE ];then
   unlink $DOCKERFILE
 fi
 
-
-TAG=1.14.0-${TARGET}-${DEVICE}-py3
+TAG=${TF_VER}-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
 PIP_INSTALL="pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
 
@@ -51,9 +53,9 @@ if [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'deltann' ];then
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'deltann' ];then
   IMAGE=tensorflow/tensorflow:devel-gpu-py3
 elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:1.14.0-py3
+  IMAGE=tensorflow/tensorflow:${TF_VER}-py3
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:1.14.0-gpu-py3
+  IMAGE=tensorflow/tensorflow:${TF_VER}-gpu-py3
 else
   echo "no support target or device"
   exit -1
@@ -63,6 +65,7 @@ fi
 cp $MAIN_ROOT/tools/requirements.txt .
 
 
+# source images
 cat > $DOCKERFILE <<EOF
 FROM ${IMAGE}
 COPY sources.list.ubuntu18.04 /etc/apt/sources.list
@@ -73,6 +76,8 @@ RUN /bin/bash /install.sh
 
 EOF
 
+# add user
+if [ $ADD_USER == true ];then
 cat >> $DOCKERFILE <<EOF
 #add user
 ENV ROLE ${TARGET}
@@ -86,7 +91,10 @@ RUN adduser --disabled-password --gecos '' --shell '/bin/bash' \$ROLE \
 USER \$ROLE 
 
 EOF
+fi # add user
 
+
+# install gcc
 if [ ${INSTALL_GCC48} == true ]; then
 cat >> $DOCKERFILE <<EOF
 # install gcc
@@ -107,7 +115,7 @@ EOF
 
 elif [ ${TARGET} == 'delta' ];then
 cat >> $DOCKERFILE <<EOF
-RUN sudo mkdir workspace && sudo chown delta: /workspace
+RUN sudo mkdir workspace
 RUN cd /workspace && git clone --depth 1 https://github.com/didi/delta.git
 RUN cd /workspace/delta/tools && make basic
 WORKDIR /workspace/delta

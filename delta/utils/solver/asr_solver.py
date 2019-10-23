@@ -19,7 +19,7 @@ from pathlib import Path
 from datetime import datetime
 
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 #pylint: disable=import-error
 from tensorflow.keras.utils import multi_gpu_model

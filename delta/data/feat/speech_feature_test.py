@@ -19,7 +19,7 @@ from pathlib import Path
 
 import librosa
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data.feat import speech_ops

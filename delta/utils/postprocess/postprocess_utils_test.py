@@ -16,7 +16,7 @@
 ''' metrics utils unittest '''
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from delta import utils
 from delta.utils.postprocess.postprocess_utils import ids_to_sentences
 from delta import PACKAGE_ROOT_DIR

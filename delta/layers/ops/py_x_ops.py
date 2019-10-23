@@ -16,7 +16,7 @@
 ''' python custom ops '''
 
 import os
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta import PACKAGE_ROOT_DIR
@@ -24,14 +24,16 @@ from delta.data.utils import read_lines_from_text_file
 
 #pylint: disable=invalid-name
 
+
 so_lib_file = tf.io.gfile.glob(tf.resource_loader.get_data_files_path()
                                + '/x_ops*.so')[0].split('/')[-1]
 path = tf.resource_loader.get_path_to_datafile(so_lib_file)
+
 logging.info('x_ops.so path:{}'.format(path))
 
 
 gen_x_ops = tf.load_op_library(
-    tf.compat.v1.resource_loader.get_path_to_datafile('x_ops.so'))
+    tf.resource_loader.get_path_to_datafile('x_ops.so'))
 
 pitch = gen_x_ops.pitch
 frame_pow = gen_x_ops.frame_pow

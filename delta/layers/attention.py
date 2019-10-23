@@ -15,7 +15,7 @@
 # ==============================================================================
 """Attention layers."""
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers.base_layer import Layer
 

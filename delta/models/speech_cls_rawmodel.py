@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' emotion crnn model support multi-modal'''
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.layers import common_layers
@@ -165,18 +165,18 @@ class EmoCRNNRawModel(RawModel):
     ''' lstm layers'''
     if self.netconf['use_lstm_layer']:
       with tf.variable_scope('lstm'):
-        cell_fw = tf.contrib.rnn.BasicLSTMCell(
+        cell_fw = tf.nn.rnn_cell.BasicLSTMCell(
             self.netconf['cell_num'], forget_bias=1.0)
         if self.netconf['use_dropout']:
-          cell_fw = tf.contrib.rnn.DropoutWrapper(
+          cell_fw = tf.nn.rnn_cell.DropoutWrapper(
               cell=cell_fw,
               output_keep_prob=1 -
               self.netconf['dropout_rate'] if self.train else 1.0)
 
-        cell_bw = tf.contrib.rnn.BasicLSTMCell(
+        cell_bw = tf.nn.rnn_cell.BasicLSTMCell(
             self.netconf['cell_num'], forget_bias=1.0)
         if self.netconf['use_dropout']:
-          cell_bw = tf.contrib.rnn.DropoutWrapper(
+          cell_bw = tf.nn.rnn_cell.DropoutWrapper(
               cell=cell_bw,
               output_keep_prob=1 -
               self.netconf['dropout_rate'] if self.train else 1.0)

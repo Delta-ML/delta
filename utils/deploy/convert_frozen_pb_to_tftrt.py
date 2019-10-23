@@ -22,7 +22,7 @@ from __future__ import print_function
 import argparse
 import os
 
-import tensorflow as tf
+import delta.compat as tf
 import tensorflow.contrib.tensorrt as trt
 from tensorflow.python.platform import gfile
 

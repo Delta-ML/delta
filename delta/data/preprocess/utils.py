@@ -20,7 +20,7 @@ import pickle
 import collections
 import numpy as np
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.data.utils.vocabulary import Vocabulary
 
