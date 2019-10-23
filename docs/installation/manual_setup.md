@@ -1,6 +1,6 @@
 # Manual Setup
 
-This project has been fully tested on `Python 3.6.8` and  `TensorFlow 2.0` under `Ubuntu 18.04.2 LTS`.
+This project has been fully tested on `Python 3.6.8` and  `TensorFlow 2.0.0` under `Ubuntu 18.04.2 LTS`.
 We recommend that users use `Docker` or a virtual environment such as `conda` to install the python requirements.
 
 ## Conda Package Install 
