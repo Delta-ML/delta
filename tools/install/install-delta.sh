@@ -28,7 +28,7 @@ fi
 if [ $2 == 'gpu' ];then
   TF='tensorflow-gpu=${TF_VER}'
 elif [ $2 == 'cpu' ];then
-  TF='tensorflow={TF_VER}'
+  TF='tensorflow=${TF_VER}'
 else
   echo ${USAGE}
   exit 1
