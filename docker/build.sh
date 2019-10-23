@@ -6,6 +6,7 @@ if [ $# != 3 ];then
 fi
 
 if [ -z $MAIN_ROOT ];then
+  # TF_VER, PY_VER
   pushd .. && . env.sh && popd
 fi
 
@@ -31,9 +32,7 @@ if [ -f $DOCKERFILE ];then
   unlink $DOCKERFILE
 fi
 
-
-VER=2.0.0
-TAG=${VER}-${TARGET}-${DEVICE}-py3
+TAG=${TF_VER}-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
 PIP_INSTALL="pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
 
@@ -54,9 +53,9 @@ if [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'deltann' ];then
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'deltann' ];then
   IMAGE=tensorflow/tensorflow:devel-gpu-py3
 elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:${VER}-py3
+  IMAGE=tensorflow/tensorflow:${TF_VER}-py3
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:${VER}-gpu-py3
+  IMAGE=tensorflow/tensorflow:${TF_VER}-gpu-py3
 else
   echo "no support target or device"
   exit -1
@@ -116,7 +115,7 @@ EOF
 
 elif [ ${TARGET} == 'delta' ];then
 cat >> $DOCKERFILE <<EOF
-RUN sudo mkdir workspace && sudo chown delta: /workspace
+RUN sudo mkdir workspace
 RUN cd /workspace && git clone --depth 1 https://github.com/didi/delta.git
 RUN cd /workspace/delta/tools && make basic
 WORKDIR /workspace/delta

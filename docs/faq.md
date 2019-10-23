@@ -15,7 +15,7 @@ If you are a user from mainland China, you can use the comments code in
 ```
 
 >  2. `CondaValueError: prefix already exists:
->  ../miniconda3/envs/delta-py3.6-tf1.14` or `ERROR: unknown command "config"`
+>  ../miniconda3/envs/delta-py3.6-tf2.0.0` or `ERROR: unknown command "config"`
 
 Please update your conda by:
 

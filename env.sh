@@ -13,6 +13,10 @@ else
     export MAIN_ROOT=$PWD/$(dirname $BASH_SOURCE)
 fi
 
+# need version
+export TF_VER=2.0.0
+export PY_VER=3.6
+
 # root dir
 export KALDI_ROOT=$MAIN_ROOT/tools/kaldi
 export ESPNET_ROOT=$MAIN_ROOT/tools/espnet
