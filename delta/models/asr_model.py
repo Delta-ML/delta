@@ -118,7 +118,7 @@ class CTCAsrModel(RawModel):
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
-        DNNLSTM(
+        LSTM(
             units=512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',

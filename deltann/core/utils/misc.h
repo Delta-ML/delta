@@ -24,6 +24,8 @@ limitations under the License.
 
 namespace delta {
 
+unsigned int RANDOM_SEED = 100;
+
 enum class DeltaStatus { STATUS_OK = 0, STATUS_ERROR = 1 };
 
 enum class DataType {
@@ -98,6 +100,8 @@ DataType delta_type_switch(const std::string& type);
 extern std::unordered_map<std::string, EngineType> _global_engines;
 
 void make_random(float* ptr, int len);
+
+char gen_random_char();
 
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
