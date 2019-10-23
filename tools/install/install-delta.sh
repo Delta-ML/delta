@@ -26,9 +26,9 @@ else
 fi
 
 if [ $2 == 'gpu' ];then
-  TF='tensorflow-gpu=${TF_VER}'
+  TF="tensorflow-gpu=${TF_VER}"
 elif [ $2 == 'cpu' ];then
-  TF='tensorflow=${TF_VER}'
+  TF="tensorflow=${TF_VER}"
 else
   echo ${USAGE}
   exit 1
@@ -45,9 +45,9 @@ CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
 if conda search ${TF} | grep "No match"; then
   echo "Conda: do not have ${TF} for current platform."
   if [ $2 == 'gpu' ];then
-    TF='tensorflow-gpu=${TF_VER}'
+    TF="tensorflow-gpu=${TF_VER}"
   else
-    TF='tensorflow=${TF_VER}'
+    TF="tensorflow=${TF_VER}"
   fi
   echo "Conda: install ${TF} instead."
   CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
