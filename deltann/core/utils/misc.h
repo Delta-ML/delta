@@ -24,7 +24,7 @@ limitations under the License.
 
 namespace delta {
 
-unsigned int RANDOM_SEED = 100;
+static unsigned int RANDOM_SEED = 100;
 
 enum class DeltaStatus { STATUS_OK = 0, STATUS_ERROR = 1 };
 
