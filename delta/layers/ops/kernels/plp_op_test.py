@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data import feat as feat_lib
@@ -29,7 +29,7 @@ class PLPOpTest(tf.test.TestCase):
   ''' plp op unittest'''
 
   def setUp(self):
-    '''set up'''
+    super().setUp()
     self.wavpath = str(
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
@@ -39,7 +39,7 @@ class PLPOpTest(tf.test.TestCase):
 
   def test_plp(self):
     ''' test plp op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 
       output = py_x_ops.plp(input_data, sample_rate)
@@ -55,7 +55,7 @@ class PLPOpTest(tf.test.TestCase):
 
       self.assertEqual(tf.rank(output).eval(), 2)
       logging.info('Shape of PLP: {}'.format(output.shape))
-      self.assertAllClose(output.eval()[50:55, 5:10], output_true)
+      self.assertAllClose(output.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

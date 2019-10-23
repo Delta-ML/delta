@@ -20,7 +20,7 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta import utils
@@ -32,7 +32,7 @@ class SpeechClsTaskTest(tf.test.TestCase):
   ''' emotion task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     self.conf_str = '''
     data:
       train:
@@ -235,7 +235,7 @@ class SpeechClsTaskTest(tf.test.TestCase):
     clip_ids = features['clipid']
     soft_labels = features['soft_labels']
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       while True:
         batch_inputs, batch_labels, batch_files, batch_clipids, labels_onehot, batch_soft_labels = \
            sess.run([samples, labels, filenames, clip_ids, tf.one_hot(labels, 2), soft_labels])

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' tdnn kws model '''
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.models.base_model import RawModel
 

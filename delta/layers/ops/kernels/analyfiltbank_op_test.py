@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers.ops import py_x_ops
 from delta.data import feat as feat_lib
@@ -30,7 +30,7 @@ class AfbOpTest(tf.test.TestCase):
   ''' analysis filter bank op unittest'''
 
   def setUp(self):
-    '''set up'''
+    super().setUp()
     self.wavpath = str(
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
@@ -40,7 +40,7 @@ class AfbOpTest(tf.test.TestCase):
 
   def test_afb(self):
     ''' test afb op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 
       power_spc, phase_spc = py_x_ops.analyfiltbank(input_data, sample_rate)

@@ -16,7 +16,7 @@
 ''' delta-delta op unittest'''
 import tempfile
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from kaldiio import WriteHelper
 
@@ -27,7 +27,7 @@ class DeltaDeltaOpTest(tf.test.TestCase):
   ''' delta-delta op test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     self.feat_dim = 80
     self.order = 2
     self.window = 2
@@ -287,7 +287,7 @@ class DeltaDeltaOpTest(tf.test.TestCase):
 
   def test_detla_delta(self):
     ''' test delta delta'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       feat = tf.constant(self.data[None, :], dtype=tf.float32)
       output = py_x_ops.delta_delta(feat, order=self.order, window=self.window)
       self.assertEqual(tf.rank(output).eval(), tf.rank(feat).eval())

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' loss implementation'''
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.loss.base_loss import Loss
 from delta.utils.loss.loss_utils import cross_entropy

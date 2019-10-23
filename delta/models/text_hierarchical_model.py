@@ -17,7 +17,7 @@
 
 import pickle
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 import delta.utils as utils
 import delta.layers
@@ -123,10 +123,9 @@ class HierarchicalAttentionModel(HierarchicalModel):
     logging.info("Initialize HierarchicalAttentionModel done.")
 
   def call(self, inputs, training=None, mask=None):  # pylint: disable=too-many-locals
-    input_x = inputs["input_x"]
+    input_x = tf.identity(inputs["input_x"], name='input_x')
     if self.use_dense_task:
       dense_input = inputs["input_dense"]
-
     if self.use_true_length:
       # [batch_size, max_doc_len, max_sen_len]
       input_hx = self.pad_to_hier_input_true_len(

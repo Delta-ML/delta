@@ -15,7 +15,7 @@
 # ==============================================================================
 
 import os
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from pathlib import Path
 
@@ -28,6 +28,7 @@ from utils.edit_pbtxt import edit_pb_txt
 class EditPbtxtTest(tf.test.TestCase):
 
   def setUp(self):
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     self.main_root = Path(main_root)
     config_file = self.main_root.joinpath(

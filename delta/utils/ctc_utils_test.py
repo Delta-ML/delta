@@ -16,7 +16,7 @@
 ''' ctc utils unittest '''
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils import ctc_utils
 
@@ -25,6 +25,7 @@ class CTCUtilTest(tf.test.TestCase):
   ''' ctc utils unittest'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     self.logits = np.asarray(
         [[[0.633766, 0.221185, 0.0917319, 0.0129757, 0.0142857, 0.0260553],

@@ -20,7 +20,7 @@ import re
 import json
 import numpy as np
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 import subprocess
 
 from delta import utils
@@ -157,7 +157,7 @@ def get_file_len(fname_paths):
                          stderr=subprocess.PIPE)
     result, err = p.communicate()
     if p.returncode != 0:
-      raise IOError("get file len error")
+      raise IOError(err)
     len_res.append(int(result.strip().split()[0]))
 
   return sum(len_res)

@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.layers.ops import py_x_ops
@@ -29,7 +29,7 @@ class SpecOpTest(tf.test.TestCase):
   ''' spectrum op unittest'''
 
   def setUp(self):
-    '''set up'''
+    super().setUp()
     self.wavpath = str(
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
@@ -39,7 +39,7 @@ class SpecOpTest(tf.test.TestCase):
 
   def test_spectrum(self):
     ''' test spectrum op'''
-    with self.session(use_gpu=False, force_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
       logging.info(
           f"input shape: {input_data.shape}, sample rate dtype: {sample_rate.dtype}"

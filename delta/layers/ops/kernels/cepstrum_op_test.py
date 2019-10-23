@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.layers.ops import py_x_ops
@@ -29,7 +29,7 @@ class CepsOpTest(tf.test.TestCase):
   ''' cepstrum op unittest'''
 
   def setUp(self):
-    '''set up'''
+    super().setUp()
     self.wavpath = str(
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
@@ -39,7 +39,7 @@ class CepsOpTest(tf.test.TestCase):
 
   def test_cepstrum(self):
     ''' test cepstrum op'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       sample_rate, input_data = feat_lib.load_wav(self.wavpath, sr=16000)
 
       output = py_x_ops.cepstrum(input_data, sample_rate)

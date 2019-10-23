@@ -16,7 +16,7 @@
 ''' base interface of Frontend '''
 
 import abc
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.hparam import HParams
 

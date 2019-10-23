@@ -17,7 +17,7 @@
 import argparse
 import os
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.python.platform import gfile
 
 

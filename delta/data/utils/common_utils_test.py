@@ -17,7 +17,7 @@
 
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from delta import utils
 from delta.data.utils.common_utils import get_file_len
 
@@ -27,7 +27,7 @@ from delta.data.utils.common_utils import get_file_len
 class CommonUtilsTest(tf.test.TestCase):
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(

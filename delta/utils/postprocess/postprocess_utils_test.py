@@ -16,7 +16,7 @@
 ''' metrics utils unittest '''
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from delta import utils
 from delta.utils.postprocess.postprocess_utils import ids_to_sentences
 
@@ -25,6 +25,7 @@ class PostprocessUtilsTest(tf.test.TestCase):
   ''' metrics utils unittest'''
 
   def setUp(self):
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(

@@ -19,7 +19,7 @@ import os
 import math
 from pathlib import Path
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 import numpy as np
 
 from delta import utils
@@ -102,6 +102,8 @@ class TextPreparer(Preparer):
       infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
       for one_path, one_path_after in zip(paths, paths_after_pre_process):
+        if not os.path.exists(one_path):
+          raise FileNotFoundError("{} does not exist!".format(one_path))
         data_size = get_file_len([one_path])
         self.prepare_one_raw_data([one_path], one_path_after, mode,
                                   infer_without_label, pre_process_pipeline,

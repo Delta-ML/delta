@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
@@ -29,7 +29,7 @@ class PlpTest(tf.test.TestCase):
         Path(os.environ['MAIN_ROOT']).joinpath(
             'delta/layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
 
@@ -48,7 +48,7 @@ class PlpTest(tf.test.TestCase):
            [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
-      self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true)
+      self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ pyAudioAnalysis
 flake8
 sentencepiece
 deepdiff
-tensorflow_probability
+tensorflow-probability
 tensorflow-io
 tensorflow-datasets
 tensorflow-addons

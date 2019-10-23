@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' metrics utils unittest '''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.metrics import metric_utils
 
@@ -24,7 +24,7 @@ class MetricUtilsTest(tf.test.TestCase):
   ''' metrics utils unittest'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down '''

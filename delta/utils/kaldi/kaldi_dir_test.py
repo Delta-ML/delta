@@ -17,7 +17,7 @@
 import os
 
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.kaldi import kaldi_dir
 from delta.utils.kaldi.kaldi_dir_utils import gen_dummy_meta
@@ -27,7 +27,7 @@ class KaldiDirTest(tf.test.TestCase):
   ''' Kaldi dir meta data IO test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down'''

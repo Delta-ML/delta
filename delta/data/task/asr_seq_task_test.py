@@ -18,7 +18,7 @@
 from pathlib import Path
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.data.utils.test_utils import generate_json_data
@@ -32,7 +32,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
   ''' Unit test for AsrSeqTask. '''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.conf_str = '''
     data:
       train:
@@ -233,7 +233,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
       self.config['data']['task']['dummy'] = False
       task = registers.task[task_name](self.config, self.mode)
 
-      with self.session():
+      with self.cached_session(use_gpu=False, force_gpu=False):
         for uttid, feats, src_lens, targets, tgt_lens in task.generate_data():
           logging.debug('uttid : {}'.format(uttid))
           logging.debug("feats : {}, shape : {}".format(feats, feats.shape))
@@ -266,7 +266,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
       self.config['data']['task']['dummy'] = False
       task = registers.task[task_name](self.config, self.mode)
 
-      with self.session():
+      with self.cached_session(use_gpu=False, force_gpu=False):
         for features, labels in task.dataset(
             self.mode, self.batch_size, epoch=1):  # pylint: disable=bad-continuation
           logging.debug("feats : {} : {}".format(features['inputs'],
@@ -296,7 +296,7 @@ class AsrSeqTaskTest(tf.test.TestCase):
       self.config['data']['task']['dummy'] = True
       task = registers.task[task_name](self.config, self.mode)
 
-      with self.session():
+      with self.cached_session(use_gpu=False, force_gpu=False):
         for _ in task.dataset(self.mode, self.batch_size, epoch=1):
           break
         for features, labels in task.dataset(

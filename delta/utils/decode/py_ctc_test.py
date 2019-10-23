@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' ctc python decoder test '''
 
-import tensorflow as tf
+import delta.compat as tf
 from delta.utils.decode import py_ctc
 
 
@@ -23,6 +23,7 @@ class PyCtcTest(tf.test.TestCase):
   ''' ctc python decode unittest'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     self.model_output = [[[0.1, 0.3, 0.5, 0.1], [0.1, 0.3, 0.5, 0.1],
                           [0.5, 0.1, 0.3, 0.1]],

@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' loss implementation function unittest '''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.utils.loss import loss_utils
@@ -25,6 +25,7 @@ class LossUtilTest(tf.test.TestCase):
   ''' loss util unittest'''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     # classfication: shape [2, 6]
     self.logits = np.array([[10, 23, 43, 23, 12, 23], [32, 10, 23, 45, 23, 0]],
@@ -217,8 +218,8 @@ class LossUtilTest(tf.test.TestCase):
                             [0.3, 0.2, 0.5], [0.6, 0.2, 0.2]]],
                           dtype=np.float32)  # [1,5,3]
       trans_params = tf.fill([3, 3], 0.5, name='trans_params')
-      labels = np.asarray([[0, 1, 2, 0, 1]])  # shape=[1,5]
-      sequence_lengths = np.asarray([5])  # shape=[1,]
+      labels = np.asarray([[0, 1, 2, 0, 1]], dtype=np.int32)  # shape=[1,5]
+      sequence_lengths = np.asarray([5], dtype=np.int32)  # shape=[1,]
       loss, _ = loss_utils.crf_log_likelihood(
           tf.constant(logits), tf.constant(labels),
           tf.constant(sequence_lengths), trans_params)

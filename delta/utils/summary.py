@@ -15,7 +15,7 @@
 # ==============================================================================
 """Summary related utilities."""
 
-import tensorflow as tf
+import delta.compat as tf
 
 
 def flush(writer=None, name=None):

@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 from delta.data.frontend.delta_delta import DeltaDelta
 import numpy as np
 import tempfile
@@ -279,7 +279,7 @@ class Delta_delta_Test(tf.test.TestCase):
     ],
                                 dtype=np.float32)
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
 
       self.order = 2
       self.window = 2

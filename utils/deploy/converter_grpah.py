@@ -21,7 +21,7 @@
 from absl import flags
 from absl import app
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 from google.protobuf import text_format
 from tensorflow.python.platform import gfile
 

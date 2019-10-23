@@ -18,7 +18,7 @@
 import os
 from pathlib import Path
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from delta import utils
 from delta.data.task.text_seq2seq_task import TextS2STask
@@ -29,7 +29,7 @@ class TextS2STaskTest(tf.test.TestCase):
   ''' sequence to sequence task test'''
 
   def setUp(self):
-    ''' set up'''
+    super().setUp()
     import_all_modules_for_register()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
@@ -59,7 +59,7 @@ class TextS2STaskTest(tf.test.TestCase):
                     "input_dec_x" in data["input_x_dict"])
     self.assertTrue("input_y_dict" in data and
                     "input_y" in data["input_y_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run([
           data["input_x_dict"]["input_enc_x"],
@@ -83,7 +83,7 @@ class TextS2STaskTest(tf.test.TestCase):
     data = task.dataset()
     self.assertTrue("input_x_dict" in data and
                     "input_enc_x" in data["input_x_dict"])
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run([data["input_x_dict"]["input_enc_x"], data["input_x_len"]])
 
@@ -100,7 +100,7 @@ class TextS2STaskTest(tf.test.TestCase):
     input_sentence = export_inputs["export_inputs"]["input_sentence"]
     input_x = export_inputs["model_inputs"]["input_enc_x"]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sess.run(data["iterator"].initializer)
       res = sess.run(
           input_x,

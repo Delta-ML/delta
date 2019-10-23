@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 import numpy as np
 import time
 import os

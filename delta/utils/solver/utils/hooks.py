@@ -15,7 +15,7 @@
 # ==============================================================================
 """Hooks"""
 
-import tensorflow as tf
+import delta.compat as tf
 from bisect import bisect_right
 from absl import logging
 

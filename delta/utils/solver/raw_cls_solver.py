@@ -15,7 +15,7 @@
 # ==============================================================================
 """Solver for text classification model in raw tensorflow."""
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.register import registers
 from delta.utils.solver.raw_solver import RawSolver
@@ -35,7 +35,7 @@ class RawClassSolver(RawSolver):
     """
 
     model.score = tf.nn.softmax(model.logits, name="score")
-    model.preds = tf.argmax(model.logits, axis=-1)
+    model.preds = tf.argmax(model.logits, axis=-1, name="preds")
     model.y_ground_truth = tf.argmax(model.input_y, axis=-1)
 
   def build_export_output(self, model):  # pylint: disable=no-self-use
@@ -46,5 +46,5 @@ class RawClassSolver(RawSolver):
     """
 
     model.score = tf.nn.softmax(model.logits, name="score")
-    model.preds = tf.argmax(model.logits, axis=-1)
+    model.preds = tf.argmax(model.logits, axis=-1, name="preds")
     model.output_dict = {"score": model.score, "preds": model.preds}

@@ -16,7 +16,7 @@
 """Test for layer utilities."""
 
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers import utils
 from delta.layers.utils import cut_or_padding
@@ -30,7 +30,7 @@ from delta.layers.utils import split_one_doc_to_true_len_sens
 class LayerUtilsTest(tf.test.TestCase):
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down'''
@@ -42,7 +42,7 @@ class LayerUtilsTest(tf.test.TestCase):
     y = utils.gelu(tf.constant([0.5, 0.2], dtype=tf.float32))
     y_true = [0.345714, 0.11585142]
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       y_pred = sess.run(y)
       self.assertAllClose(y_pred, y_true)
 
@@ -51,7 +51,7 @@ class LayerUtilsTest(tf.test.TestCase):
     origin_1_t = tf.placeholder(dtype=tf.int32, shape=[None])
     after_1_t = cut_or_padding(origin_1_t, 3)
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test for padding
       res = sess.run(after_1_t, feed_dict={origin_1_t: [1, 2]})
       self.assertAllEqual(res, [1, 2, 0])
@@ -63,7 +63,7 @@ class LayerUtilsTest(tf.test.TestCase):
     # test for 2d
     origin_2_t = tf.placeholder(dtype=tf.int32, shape=[None, None])
     after_2_t = cut_or_padding(origin_2_t, 3)
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test for padding
       res = sess.run(after_2_t, feed_dict={origin_2_t: [[1, 2], [1, 2]]})
       self.assertAllEqual(res, [[1, 2, 0], [1, 2, 0]])
@@ -77,7 +77,7 @@ class LayerUtilsTest(tf.test.TestCase):
     sentences = tf.placeholder(dtype=tf.int32)
     lens = compute_sen_lens(sentences)
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test for 1d
       res = sess.run(lens, feed_dict={sentences: [1, 2, 0, 0]})
       self.assertEqual(res, 2)
@@ -99,7 +99,7 @@ class LayerUtilsTest(tf.test.TestCase):
     docs = tf.placeholder(dtype=tf.int32)
     lens = compute_doc_lens(docs)
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       # test for 1d
       res = sess.run(lens, feed_dict={docs: [1, 2, 0, 0]})
       self.assertEqual(res, 2)
@@ -117,7 +117,7 @@ class LayerUtilsTest(tf.test.TestCase):
     lens = split_one_doc_to_true_len_sens(doc, split_token, padding_token,
                                           max_doc_len, max_sen_len)
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run(lens, feed_dict={doc: [2, 3, 1, 2, 1, 2, 3, 4, 5, 6, 1]})
       self.assertAllEqual(
           res,

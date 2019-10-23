@@ -18,7 +18,7 @@ import os
 from pathlib import Path
 import tempfile
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.utils import metrics
@@ -29,6 +29,7 @@ class MetricTest(tf.test.TestCase):
   ''' python metrix unittest '''
 
   def setUp(self):
+    super().setUp()
     ''' setup '''
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)

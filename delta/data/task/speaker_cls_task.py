@@ -18,7 +18,7 @@ import random
 import multiprocessing as mp
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 import kaldiio
 from collections import defaultdict
 from pathlib import Path
@@ -581,8 +581,7 @@ class SpeakerClsTask(SpeechTask):
       batch_size = 1
     return data.map(make_example, num_parallel_calls=10).\
                 batch(batch_size, drop_remainder=False).\
-                prefetch(tf.contrib.data.AUTOTUNE)
-
+                prefetch(tf.data.experimental.AUTOTUNE)
 
 class KaldiDir:
 
@@ -923,4 +922,4 @@ class SpeakerUttTask(SpeechTask, tf.keras.utils.Sequence):
 
     return data.map(make_example, num_parallel_calls=30).\
                 batch(batch_size, drop_remainder=False).\
-                prefetch(tf.contrib.data.AUTOTUNE)
+                prefetch(tf.data.experimental.AUTOTUNE)

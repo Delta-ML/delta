@@ -16,7 +16,7 @@
 """Task class for text classification."""
 
 import collections
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data.task.base_text_task import TextTask
@@ -47,6 +47,7 @@ class TextClsTask(TextTask):
     self.label_vocab_file_path = self.task_config['label_vocab']
     self.max_seq_len = self.task_config['max_seq_len']
     self.num_classes = self.task_config['classes']['num_classes']
+    self.use_true_length = self.model_config.get("use_true_length", False)
     self.split_token = self.model_config.get("split_token", "")
     self.use_dense = self.task_config["use_dense"]
     if self.use_dense:
@@ -99,7 +100,7 @@ class TextClsTask(TextTask):
 
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
-    if self.split_token != "":
+    if self.use_true_length and self.split_token != "":
       if self.split_token not in vocab_dict:
         raise ValueError(
             "The Model uses split token: {}, not in corpus.".format(
@@ -126,7 +127,7 @@ class TextClsTask(TextTask):
     """Inputs for exported model."""
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)
     vocab_size = len(vocab_dict)
-    if self.split_token != "":
+    if self.use_true_length and self.split_token != "":
       if self.split_token not in vocab_dict:
         raise ValueError(
             "The Model uses split token: {}, not in corpus.".format(

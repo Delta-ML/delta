@@ -16,7 +16,7 @@
 """Sequence model for text classification."""
 
 import pickle
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta import layers
@@ -101,7 +101,7 @@ class SeqclassCNNModel(SeqclassModel):
         self.num_classes, activation=tf.keras.activations.linear)
 
   def call(self, inputs, training=None, mask=None):
-    input_x = inputs["input_x"]
+    input_x = tf.identity(inputs["input_x"], name="input_x")
     if self.use_dense_task:
       dense_input = inputs["input_dense"]
     embed = self.embed(input_x)

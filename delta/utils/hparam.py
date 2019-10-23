@@ -404,7 +404,6 @@ class HParams(object):
     # or the type of the list elements for multidimensional hyperparameters.
     # The bool value is True if the value is a list, False otherwise.
     self._hparam_types = {}
-    assert 'cls' in kwargs
     for name, value in six.iteritems(kwargs):
       self.add_hparam(name, value)
 
@@ -666,8 +665,10 @@ class HParams(object):
     return '_'.join([typename, suffix])
 
   def instantiate(self, *args, **kwargs):
+    """Instantiate self.cls object. """
+    assert 'cls' in self._hparam_types
     assert self.cls is not None
     logging.info(
         f"Instantiate [CLASS: {self.cls.__name__}] with HPARAMS:{self} ARGS:{args} KWARGS:{kwargs}"
     )
-    return self.cls(self, *args, **kwargs)
+    return self.cls(self)

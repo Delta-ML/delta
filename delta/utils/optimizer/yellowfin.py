@@ -24,7 +24,7 @@ license: Apache-2.0
 """
 import numpy as np
 
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.python.framework import ops
 
 # EPS for numerical stability

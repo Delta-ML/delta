@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
@@ -56,7 +56,7 @@ class ReadWav(BaseFrontend):
     contents = tf.io.read_file(wavfile)
     audio_data, sample_rate = tf.audio.decode_wav(
         contents, desired_channels=p.audio_channels)
-    assert_op = tf.compat.v1.assert_equal(
+    assert_op = tf.assert_equal(
         tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
     with tf.control_dependencies([assert_op]):
       return tf.squeeze(audio_data, axis=-1), tf.cast(sample_rate, dtype=float)

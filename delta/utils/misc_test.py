@@ -15,7 +15,7 @@
 # ==============================================================================
 ''' misc.py unittest'''
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils import misc
 
@@ -24,6 +24,7 @@ class MiscTest(tf.test.TestCase):
   ''' misc unittest'''
 
   def setUp(self):
+    super().setUp()
     '''setup'''
     self.length = [3, 5, 2]
     self.mask_true = np.array([
@@ -37,19 +38,19 @@ class MiscTest(tf.test.TestCase):
 
   def test_len_to_mask(self):
     ''' len to mask unittest'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       mask = misc.len_to_mask(self.length, dtype=tf.int32)
       self.assertAllEqual(mask.eval(), self.mask_true)
 
   def test_len_to_padding(self):
     ''' len to padding unittest'''
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       padding = misc.len_to_padding(self.length, dtype=tf.int32)
       self.assertAllEqual(padding.eval(), 1 - self.mask_true)
 
   def test_gpu_device_names(self):
     ''' gpu device names unittest'''
-    with self.session(use_gpu=False, force_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       devices, ngpus = misc.gpu_device_names()
       self.assertListEqual(devices, [])
       self.assertEqual(ngpus, 0)
@@ -84,7 +85,7 @@ class MiscTest(tf.test.TestCase):
 
     iterator = data_set.make_one_shot_iterator()
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       data, label = iterator.get_next()
       self.assertAllEqual(data.eval(),
                           np.ones(shape=input_shape, dtype=np.float32))

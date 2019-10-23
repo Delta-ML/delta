@@ -19,12 +19,12 @@
 
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 import tempfile
 import numpy as np
-from delta import utils
 
+from delta import utils
 from delta.data.preprocess.text_ops import clean_english_str_tf
 from delta.data.preprocess.text_ops import char_cut_tf
 from delta.data.preprocess.text_ops import tokenize_label
@@ -36,7 +36,7 @@ from delta.data.preprocess.text_ops import process_multi_label_dataset
 class TextOpsTest(tf.test.TestCase):
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     main_root = os.environ['MAIN_ROOT']
     main_root = Path(main_root)
     self.config_file = main_root.joinpath(
@@ -71,7 +71,7 @@ class TextOpsTest(tf.test.TestCase):
     label_tokenize_t = tokenize_label(label, maxlen, self.vocab_label_filepath,
                                       -1)
 
-    with self.session() as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       res = sess.run([text_tokenize_t, label_tokenize_t])
       logging.debug(res)
       self.assertAllEqual(res[0], [[3, 3]])
@@ -80,7 +80,7 @@ class TextOpsTest(tf.test.TestCase):
   def test_clean_english_str_tf(self):
     t_sentence_in = tf.placeholder(dtype=tf.string)
     t_sentence_out = clean_english_str_tf(t_sentence_in)
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sentence_out = sess.run(t_sentence_out,
                               {t_sentence_in: "I'd like to have an APPLE! "})
       logging.info(sentence_out)
@@ -95,7 +95,7 @@ class TextOpsTest(tf.test.TestCase):
   def test_char_cut_tf_str(self):
     t_sen_in = tf.placeholder(dtype=tf.string, shape=())
     t_sen_out = char_cut_tf(t_sen_in)
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sen_out = sess.run(t_sen_out, {t_sen_in: "我爱北京天安门"})
       logging.info(sen_out.decode("utf-8"))
       self.assertEqual("我 爱 北 京 天 安 门", sen_out.decode("utf-8"))
@@ -103,7 +103,7 @@ class TextOpsTest(tf.test.TestCase):
   def test_char_cut_tf_list(self):
     t_sen_in = tf.placeholder(dtype=tf.string, shape=(None,))
     t_sen_out = char_cut_tf(t_sen_in)
-    with self.session(use_gpu=False) as sess:
+    with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       sen_out = sess.run(t_sen_out, {t_sen_in: ["我爱北京天安门", "天安门前太阳升啊"]})
       logging.info([one.decode("utf-8") for one in sen_out])
       self.assertAllEqual(["我 爱 北 京 天 安 门", "天 安 门 前 太 阳 升 啊"],
