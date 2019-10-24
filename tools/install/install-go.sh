@@ -12,13 +12,17 @@ sudo tar -C /usr/local -xzf go"${latest}".linux-amd64.tar.gz
 echo "Create the skeleton for your local users go directory"
 mkdir -p ~/go/{bin,pkg,src}
 echo "Setting up GOPATH"
-echo "export GOPATH=~/go" >> ~/.profile && source ~/.profile
+echo "export GOPATH=~/go" >> ../../env.sh
 echo "Setting PATH to include golang binaries"
-echo "export PATH='$PATH':/usr/local/go/bin:$GOPATH/bin" >> ~/.profile && source ~/.profile
-echo "export GO111MODULE=on" >> ~/.profile && source ~/.profile
+echo "export PATH='$PATH':/usr/local/go/bin:$GOPATH/bin" >> ../../env.sh
+echo "export GO111MODULE=on" >> ../../env.sh
 
 # Remove Download
 rm go"${latest}".linux-amd64.tar.gz
 
 # Print Go Version
 /usr/local/go/bin/go version
+
+pushd ../../
+source env.sh
+popd
