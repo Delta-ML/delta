@@ -55,7 +55,8 @@ class PLPOpTest(tf.test.TestCase):
 
       self.assertEqual(tf.rank(output).eval(), 2)
       logging.info('Shape of PLP: {}'.format(output.shape))
-      self.assertAllClose(output.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          output.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

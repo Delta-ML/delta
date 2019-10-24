@@ -40,9 +40,9 @@ class TextMatchPreparer(TextPreparer):
     """
 
     if infer_without_label:
-      column_num=2
+      column_num = 2
     else:
-      column_num=3
+      column_num = 3
 
     ds_list = load_textline_dataset([one_path], column_num)
     if infer_without_label:
@@ -52,7 +52,7 @@ class TextMatchPreparer(TextPreparer):
       text = ds_list[1:]
       label = ds_list[:1]
 
-    return (text,label)
+    return (text, label)
 
   def save_a_raw_file(self, label, text_after, one_path_after,
                       infer_without_label):

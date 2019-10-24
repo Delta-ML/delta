@@ -48,7 +48,8 @@ class PlpTest(tf.test.TestCase):
            [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
-      self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          plp_test.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

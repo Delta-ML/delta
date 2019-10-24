@@ -153,7 +153,6 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
   return DeltaStatus::STATUS_OK;
 }
 
-
 // get all out result
 DeltaStatus Runtime::get_outputs(std::vector<string>* results) {
   // get resulst
@@ -189,7 +188,6 @@ DeltaStatus Runtime::get_outputs(std::vector<string>* results) {
 
   return DeltaStatus::STATUS_OK;
 }
-
 
 // run
 // only support one Graph now!!!! how to support multi-graphs ???
@@ -304,8 +302,7 @@ DeltaStatus Runtime::warmup() {
     std::vector<InputData> inputs_data;
     std::vector<OutputData> outputs_data;
 
-    std::unordered_map<std::string, Input>& inputs =
-        graph.second.get_inputs();
+    std::unordered_map<std::string, Input>& inputs = graph.second.get_inputs();
     for (auto& input : inputs) {
       InputData in(input.second);
       in.feed_random_data();
@@ -327,8 +324,6 @@ DeltaStatus Runtime::warmup() {
 
   return DeltaStatus::STATUS_OK;
 }
-
-
 
 }  // namespace core
 

@@ -72,7 +72,7 @@ class Runtime {
     return names;
   }
 
-  //load custom ops
+  // load custom ops
   DeltaStatus load_custom_ops();
 
   // load model

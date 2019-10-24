@@ -77,5 +77,4 @@ char gen_random_char() {
   return c;
 }
 
-
 }  // namespace delta
