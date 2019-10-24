@@ -15,7 +15,7 @@
 # ==============================================================================
 
 # Find where we're running from, so we can store generated files here.
-.PHONY: all example clean
+.PHONY: all examples clean
 
 SHELL=/bin/bash
 
@@ -125,7 +125,7 @@ $(OBJDIR)%.o:%.cc
 	-@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-example:
+examples:
 	$(MAKE) -C $(EXAMPLE_DIR)
 
 clean:
