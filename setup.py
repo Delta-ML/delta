@@ -1,4 +1,6 @@
-from setuptools import setup, find_packages, Extension
+from setuptools import setup
+from setuptools import find_packages
+from setuptools import Extension
 from datetime import date
 import os
 import sys
@@ -6,7 +8,7 @@ from glob import glob
 import tensorflow as tf
 from absl import logging
 
-logging.set_verbosity(logging.info)
+logging.set_verbosity(logging.INFO)
 
 
 TF_INCLUDE, TF_CFLAG = tf.sysconfig.get_compile_flags()
