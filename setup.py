@@ -4,6 +4,10 @@ import os
 import sys
 from glob import glob
 import tensorflow as tf
+from absl import logging
+
+logging.set_verbosity(logging.info)
+
 
 TF_INCLUDE, TF_CFLAG = tf.sysconfig.get_compile_flags()
 TF_INCLUDE = TF_INCLUDE.split('-I')[1]
@@ -14,15 +18,15 @@ TF_SO_LIB = TF_SO_LIB.replace('-l:libtensorflow_framework.1.dylib',
 TF_LIB_INC = TF_LIB_INC.split('-L')[1]
 TF_SO_LIB = TF_SO_LIB.split('-l')[1]
 
-print("TF_INCLUDE: {}".format(TF_INCLUDE))
-print("TF_CFLAG: {}".format(TF_CFLAG))
-print("TF_LIB_INC: {}".format(TF_LIB_INC))
-print("TF_SO_LIB: {}".format(TF_SO_LIB))
+logging.info("TF_INCLUDE: {}".format(TF_INCLUDE))
+logging.info("TF_CFLAG: {}".format(TF_CFLAG))
+logging.info("TF_LIB_INC: {}".format(TF_LIB_INC))
+logging.info("TF_SO_LIB: {}".format(TF_SO_LIB))
 
 NAME = "delta-didi"
 GITHUB_USER_NAME = "didi"
 AUTHOR = "Speech@DiDi"
-AUTHOR_EMAIL = "soeech@didiglobal.com"
+AUTHOR_EMAIL = "speech@didiglobal.com"
 MAINTAINER = "applenob"
 MAINTAINER_EMAIL = "chenjunwen@didiglobal.com"
 REPO_NAME = os.path.basename(os.getcwd())
@@ -31,11 +35,11 @@ GITHUB_RELEASE_TAG = str(date.today())
 DOWNLOAD_URL = "https://github.com/{0}/{1}/tarball/{2}".format(
     GITHUB_USER_NAME, REPO_NAME, GITHUB_RELEASE_TAG)
 SHORT_DESCRIPTION = "DELTA is a deep learning based natural language and speech processing platform."
-PLATFORMS = ["Windows", "MacOS", "Unix"]
+PLATFORMS = ["MacOS", "Unix"]
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
-    "Intended Audience :: Education",
-    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
@@ -60,7 +64,7 @@ def get_license():
               encoding='utf-8') as f:
       license = f.read()
   except:
-    print("license not found in '%s.__init__.py'!" % NAME)
+    logging.info("license not found in '%s.__init__.py'!" % NAME)
     license = ""
   return license
 
@@ -70,7 +74,7 @@ def get_requires():
     f = open("requirements.txt")
     requires = [i.strip() for i in f.read().split("\n")]
   except:
-    print("'requirements.txt' not found!")
+    logging.info("'requirements.txt' not found!")
     requires = list()
   return requires
 
@@ -92,9 +96,16 @@ module = Extension('delta.layers.ops.x_ops',
 long_description = get_long_description()
 license_ = get_license()
 packages = find_packages()
-print("long_description: {}".format(long_description))
-print("license: {}".format(license_))
-print("packages: {}".format(packages))
+logging.info("long_description: {}".format(long_description))
+logging.info("license: {}".format(license_))
+logging.info("packages: {}".format(packages))
+
+custom_op_files = glob("delta/layers/ops/x_ops*.so")
+if len(custom_op_files) > 0:
+  for custom_op_file in custom_op_files:
+    if os.path.exists(custom_op_file):
+      logging.info("Remove file {}.".format(custom_op_file))
+      os.remove(custom_op_file)
 
 setup(
     name=NAME,
@@ -108,6 +119,9 @@ setup(
     maintainer_email=MAINTAINER_EMAIL,
     packages=packages,
     package_data={"delta": ["resources/cppjieba_dict/*.utf8"]},
+    entry_points={
+        'console_scripts': [
+            'delta = delta.main:entry']},
     url=URL,
     download_url=DOWNLOAD_URL,
     classifiers=CLASSIFIERS,

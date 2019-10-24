@@ -21,6 +21,7 @@ import numpy as np
 import delta.compat as tf
 from absl import logging
 from delta import utils
+from delta import PACKAGE_ROOT_DIR
 from delta.data.task.text_seq2seq_task import TextS2STask
 from delta.utils.register import import_all_modules_for_register
 
@@ -31,9 +32,9 @@ class TextS2STaskTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     import_all_modules_for_register()
-    package_root = Path(package_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_seq2seq_data/seq2seq/v1/config/transformer-s2s.yml')
 
   def tearDown(self):
     ''' tear down '''

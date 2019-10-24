@@ -16,6 +16,8 @@
 """Module register."""
 
 import importlib
+import os
+import sys
 from absl import logging
 
 
@@ -152,16 +154,31 @@ def _handle_errors(errors):
     logging.fatal("Module {} import failed: {}".format(name, err))
 
 
+def path_to_module_format(py_path):
+  """Transform a python file path to module format."""
+  return py_path.replace("/", ".").rstrip(".py")
+
+
 def import_all_modules_for_register(config=None):
   """Import all modules for register."""
+  current_word_dir = os.getcwd()
+  if current_word_dir not in sys.path:
+    sys.path.append(current_word_dir)
   all_modules = ALL_SYS_MODULES
   errors = []
   if config is not None and "custom_modules" in config:
-    all_modules += config["custom_modules"]
+    custom_modules =config["custom_modules"]
+    if not isinstance(custom_modules, list):
+      custom_modules = [custom_modules]
+    all_modules += [("", [path_to_module_format(module)])
+                    for module in custom_modules]
   for base_dir, modules in all_modules:
     for name in modules:
       try:
-        full_name = base_dir + "." + name
+        if base_dir != "":
+          full_name = base_dir + "." + name
+        else:
+          full_name = name
         importlib.import_module(full_name)
       except ImportError as error:
         errors.append((name, error))

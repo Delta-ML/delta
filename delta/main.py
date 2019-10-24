@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -13,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
 """Main entrance of the program."""
 
 import random
@@ -61,7 +63,7 @@ def main(argv):
   utils.copy_config(FLAGS.config, config)
   set_seed(config)
 
-  import_all_modules_for_register()
+  import_all_modules_for_register(config)
 
   solver_name = config['solver']['name']
   solver = registers.solver[solver_name](config)
@@ -105,8 +107,12 @@ def main(argv):
     raise ValueError("Not support command: {}.".format(FLAGS.cmd))
 
 
-if __name__ == '__main__':
+def entry():
   define_flags()
   logging.info("Deep Language Technology Platform start...")
   app.run(main)
   logging.info("OK. Done!")
+
+
+if __name__ == '__main__':
+  entry()

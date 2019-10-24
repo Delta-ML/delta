@@ -32,8 +32,7 @@ path = tf.resource_loader.get_path_to_datafile(so_lib_file)
 logging.info('x_ops.so path:{}'.format(path))
 
 
-gen_x_ops = tf.load_op_library(
-    tf.resource_loader.get_path_to_datafile('x_ops.so'))
+gen_x_ops = tf.load_op_library(path)
 
 pitch = gen_x_ops.pitch
 frame_pow = gen_x_ops.frame_pow

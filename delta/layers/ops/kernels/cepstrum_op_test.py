@@ -32,8 +32,8 @@ class CepsOpTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     self.wavpath = str(
-        Path(PACKAGE_ROOT_DIR.joinpath(
-            'delta/layers/ops/data/sm1_cln.wav')))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'delta/layers/ops/data/sm1_cln.wav'))
 
   def tearDown(self):
     '''tear down'''

@@ -33,7 +33,7 @@ class SpecOpTest(tf.test.TestCase):
     super().setUp()
     self.wavpath = str(
         Path(PACKAGE_ROOT_DIR).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+            'layers/ops/data/sm1_cln.wav'))
 
   def tearDown(self):
     '''tear down'''
