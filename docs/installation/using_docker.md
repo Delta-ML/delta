@@ -2,13 +2,13 @@
 
 You can directly pull the pre-build docker images for DELTA and DELTANN. We have created the following docker images:
 
-- TF2.0.0-delta-gpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:2.0.0-delta-gpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
+- delta-gpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:delta-gpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
 
-- TF2.0.0-delta-cpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:2.0.0-delta-cpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
+- delta-cpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:delta-cpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
 
-- TF2.0.0-deltann-gpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:2.0.0-deltann-gpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
+- deltann-gpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:deltann-gpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
 
-- TF2.0.0-deltann-cpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:2.0.0-deltann-cpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
+- deltann-cpu-py3 [![](https://images.microbadger.com/badges/image/zh794390558/delta:deltann-cpu-py3.svg)](https://hub.docker.com/r/zh794390558/delta)
 
 
 
@@ -24,10 +24,10 @@ or using pre-build images as belows:
 All avaible image tags list in [here](https://cloud.docker.com/repository/docker/zh794390558/delta/tags),
 please choose one as needed.
 
-If you choose `2.0.0-delta-cpu-py3`, then download the image as below:
+If you choose `delta-cpu-py3`, then download the image as below:
 
 ```bash
-docker pull zh794390558/delta:2.0.0-delta-cpu-py3
+docker pull zh794390558/delta:delta-cpu-py3
 ```
 
 ## Create Container
@@ -37,7 +37,7 @@ After the image downloaded, create a container.
 For **delta** usage (model development):
 
 ```bash
-cd /path/to/detla && docker run -v `pwd`:/delta -it zh794390558/delta:2.0.0-delta-cpu-py3 /bin/bash
+cd /path/to/detla && docker run -v `pwd`:/delta -it zh794390558/delta:delta-cpu-py3 /bin/bash
 ```
 
 The basic version of **delta** (except Kaldi) was already installed in this container. You can develop in this container like:
@@ -60,7 +60,7 @@ For **deltann** usage (model deployment):
 ```bash
 cd /path/to/detla 
 WORKSPACE=$PWD
-docker run -it -v $WORKSPACE:$WORKSPACE zh794390558/delta:2.0.0-deltann-cpu-py3 /bin/bash
+docker run -it -v $WORKSPACE:$WORKSPACE zh794390558/delta:deltann-cpu-py3 /bin/bash
 ```
 
 We recommend using a high-end machine to develop DELTANN, since it needs to compile
