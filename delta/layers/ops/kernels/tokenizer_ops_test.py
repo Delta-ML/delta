@@ -113,7 +113,8 @@ class TokenizerOpsTest(tf.test.TestCase):
           load_token_ids_from_vocab=False,
           pad_id=-1)
       batch_shape_op = tf.shape(batch_op)
-      shape_res, token_ids, paddings = sess.run([batch_shape_op, batch_op, batch_padding_op])
+      shape_res, token_ids, paddings = sess.run(
+          [batch_shape_op, batch_op, batch_padding_op])
       elapsed = time.time() - start
       logging.info("Time cost: {:.4f}s".format(elapsed))
       logging.info(token_ids)
@@ -136,7 +137,8 @@ class TokenizerOpsTest(tf.test.TestCase):
           load_token_ids_from_vocab=False,
           pad_id=-1)
       single_shape_op = tf.shape(single_op)
-      single_shape_res, token_ids, paddings = sess.run([single_shape_op, single_op, single_padding_op])
+      single_shape_res, token_ids, paddings = sess.run(
+          [single_shape_op, single_op, single_padding_op])
       logging.info("single_op: {}".format(single_op))
       logging.info(f"single_shape: {single_shape_res}")
       self.assertAllEqual(single_shape_res, [10])

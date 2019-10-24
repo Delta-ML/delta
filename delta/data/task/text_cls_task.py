@@ -41,7 +41,7 @@ class TextClsTask(TextTask):
   def __init__(self, config, mode):
     super().__init__(config, mode)
     self.infer_no_label = self.config["data"][utils.INFER].get(
-      'infer_no_label', False)
+        'infer_no_label', False)
     self.vocab_min_frequency = self.task_config['vocab_min_frequency']
     self.text_vocab_file_path = self.task_config['text_vocab']
     self.label_vocab_file_path = self.task_config['label_vocab']
@@ -68,7 +68,8 @@ class TextClsTask(TextTask):
       text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
     else:
       column_num = 2
-      label_ds, text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
+      label_ds, text_ds = load_textline_dataset(self.paths_after_pre_process,
+                                                column_num)
 
     input_pipeline_func = self.get_input_pipeline(for_export=False)
 
@@ -106,8 +107,8 @@ class TextClsTask(TextTask):
                 self.split_token))
       self.config['data']['split_token'] = int(vocab_dict[self.split_token])
     self.config['data']['vocab_size'] = vocab_size
-    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(self.paths_after_pre_process)
-
+    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(
+        self.paths_after_pre_process)
 
     return data_set
 

@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
   fprintf(stderr, "The output num is %d\n", out_num);
   for (int i = 0; i < out_num; ++i) {
     int byte_size = DeltaGetOutputByteSize(inf, i);
-    fprintf(stderr, "The %d output byte size is %d\n", i, byte_size);
+    fprintf(stderr, "The %d output size is %d (bytes).\n", i, byte_size);
 
     float* data = reinterpret_cast<float*>(malloc(byte_size));
     DeltaCopyToBuffer(inf, i, reinterpret_cast<void*>(data), byte_size);

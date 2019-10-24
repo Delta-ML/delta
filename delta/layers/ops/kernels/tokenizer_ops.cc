@@ -38,22 +38,21 @@ class SentenceToIdsOp : public OpKernel {
                                      &load_token_ids_from_vocab));
 
     bool use_vocab_file;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("use_vocab_file",
-                                     &use_vocab_file));
+    OP_REQUIRES_OK(ctx, ctx->GetAttr("use_vocab_file", &use_vocab_file));
     bool check_tokens;
     OP_REQUIRES_OK(ctx, ctx->GetAttr("check_tokens", &check_tokens));
     OP_REQUIRES_OK(ctx, ctx->GetAttr("delimiter", &delimiter_));
     CHECK_GT(maxlen_, 0);
 
-    if (use_vocab_file){
+    if (use_vocab_file) {
       OP_REQUIRES_OK(ctx, ctx->GetAttr("vocab_filepath", &vocab_filepath_));
-      OP_REQUIRES_OK(ctx, vocab_.Load(vocab_filepath_, load_token_ids_from_vocab,
-                                    check_tokens));
-    }
-    else{
+      OP_REQUIRES_OK(ctx, vocab_.Load(vocab_filepath_,
+                                      load_token_ids_from_vocab, check_tokens));
+    } else {
       std::vector<string> vocab;
       OP_REQUIRES_OK(ctx, ctx->GetAttr("vocab", &vocab));
-      OP_REQUIRES_OK(ctx, vocab_.Load(vocab, load_token_ids_from_vocab, check_tokens));
+      OP_REQUIRES_OK(
+          ctx, vocab_.Load(vocab, load_token_ids_from_vocab, check_tokens));
     }
   }
 
