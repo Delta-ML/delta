@@ -671,4 +671,4 @@ class HParams(object):
     logging.info(
         f"Instantiate [CLASS: {self.cls.__name__}] with HPARAMS:{self} ARGS:{args} KWARGS:{kwargs}"
     )
-    return self.cls(self)
+    return self.cls(self, *args, **kwargs)
