@@ -41,18 +41,6 @@ fi
 #pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
-
-if conda search ${TF} | grep "No match"; then
-  echo "Conda: do not have ${TF} for current platform."
-  if [ $2 == 'gpu' ];then
-    TF="tensorflow-gpu==${TF_VER}"
-  else
-    TF="tensorflow==${TF_VER}"
-  fi
-  echo "Conda: install ${TF} instead."
-  CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
-fi
-
 conda create -n ${CONDA_ENV} python=${PY_VER}
 source activate ${CONDA_ENV}
 echo "Conda: ${CONDA_ENV} activated!"
