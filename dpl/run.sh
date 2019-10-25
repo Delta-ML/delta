@@ -178,7 +178,7 @@ function compile_deltann(){
 function compile_deltann_egs(){
   echo "Compile deltann examples..."
   pushd ${MAIN_ROOT}/deltann
-  make example || { echo "Compile deltann examples error"; exit 1; }
+  make examples || { echo "Compile deltann examples error"; exit 1; }
   popd
   echo "Compile deltann examples done."
   echo
