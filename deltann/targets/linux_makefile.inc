@@ -3,8 +3,8 @@ ifeq ($(TARGET), linux)
     CXX := g++
     CC := gcc
     AR := ar
-    CXXFLAGS += -std=c++11 -fPIC -mavx -O3
-    CCFLAGS += -fPIC -mavx -O3
+    CXXFLAGS += -std=c++11 -fPIC -O3
+    CCFLAGS += -fPIC -O3
 
     ifeq ($(ENGINE),TF)
         $(info this will compile with $(ENGINE))
