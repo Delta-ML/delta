@@ -10,7 +10,7 @@ if [ $# != 2 ];then
 fi
 
 # TF_VER, PY_VER
-. ../../env.sh
+. ../env.sh
 
 if [ $1 == 'nlp' ];then
   TARGET='basic'
@@ -26,28 +26,28 @@ else
 fi
 
 if [ $2 == 'gpu' ];then
-  TF="tensorflow-gpu=${TF_VER}"
+  TF="tensorflow-gpu==${TF_VER}"
 elif [ $2 == 'cpu' ];then
-  TF="tensorflow=${TF_VER}"
+  TF="tensorflow==${TF_VER}"
 else
   echo ${USAGE}
   exit 1
 fi
 
 # If you are a user from mainland China, you can use following codes to speed up the installation.
-# conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-# conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
-# conda config --set show_channel_urls yes
-# pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+#conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+#conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+#conda config --set show_channel_urls yes
+#pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
 
 if conda search ${TF} | grep "No match"; then
   echo "Conda: do not have ${TF} for current platform."
   if [ $2 == 'gpu' ];then
-    TF="tensorflow-gpu=${TF_VER}"
+    TF="tensorflow-gpu==${TF_VER}"
   else
-    TF="tensorflow=${TF_VER}"
+    TF="tensorflow==${TF_VER}"
   fi
   echo "Conda: install ${TF} instead."
   CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
@@ -57,8 +57,12 @@ conda create -n ${CONDA_ENV} python=${PY_VER}
 source activate ${CONDA_ENV}
 echo "Conda: ${CONDA_ENV} activated!"
 
-conda install ${TF}
-echo "Conda: TensorFlow installed!"
+pip install ${TF}
+echo "Pip: TensorFlow installed!"
+if [ $2 == 'gpu' ];then
+  conda install cudnn=7.6.0
+  conda install cudatoolkit=10.0.130
+fi
 
 CURRENT_VER="$(g++ -dumpversion)"
 REQUIRE_VER="5.0.0"

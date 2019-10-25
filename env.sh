@@ -14,7 +14,7 @@ else
 fi
 
 # need version
-export TF_VER=2.0.0
+export TF_VER=2.0.0b1
 export PY_VER=3.6
 
 # root dir
