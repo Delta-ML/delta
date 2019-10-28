@@ -26,7 +26,7 @@ limitations under the License.
 
 #include "core/base_model.h"
 #include "core/io.h"
-#include "core/utils/misc.h"
+#include "core/misc.h"
 
 namespace delta {
 namespace core {
