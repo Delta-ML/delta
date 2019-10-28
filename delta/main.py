@@ -63,6 +63,7 @@ def main(argv):
   utils.copy_config(FLAGS.config, config)
   set_seed(config)
 
+  logging.info("Loading all modules ...")
   import_all_modules_for_register(config)
 
   solver_name = config['solver']['name']

@@ -25,7 +25,7 @@ logging.info("TF_CFLAG: {}".format(TF_CFLAG))
 logging.info("TF_LIB_INC: {}".format(TF_LIB_INC))
 logging.info("TF_SO_LIB: {}".format(TF_SO_LIB))
 
-NAME = "delta-didi"
+NAME = "delta-nlp"
 GITHUB_USER_NAME = "didi"
 AUTHOR = "Speech@DiDi"
 AUTHOR_EMAIL = "speech@didiglobal.com"
@@ -37,6 +37,13 @@ GITHUB_RELEASE_TAG = str(date.today())
 DOWNLOAD_URL = "https://github.com/{0}/{1}/tarball/{2}".format(
     GITHUB_USER_NAME, REPO_NAME, GITHUB_RELEASE_TAG)
 SHORT_DESCRIPTION = "DELTA is a deep learning based natural language and speech processing platform."
+LONG_DESCRIPTION = """
+# DELTA - A DEep learning Language Technology plAtform
+
+DELTA is a deep learning based end-to-end natural language and speech processing platform. DELTA aims to provide easy and fast experiences for using, deploying, and developing natural language processing and speech models for both academia and industry use cases. DELTA is mainly implemented using TensorFlow and Python 3.
+
+Refer to github for more information: https://github.com/didi/delta
+"""
 PLATFORMS = ["MacOS", "Unix"]
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
@@ -45,38 +52,18 @@ CLASSIFIERS = [
     "Natural Language :: English",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.6"
 ]
 this_directory = os.path.abspath(os.path.dirname(__file__))
 
 
-def get_long_description():
-  try:
-    with open(os.path.join(this_directory, 'README.md'),
-              encoding='utf-8') as f:
-      long_description = f.read()
-  except:
-    long_description = "No long description!"
-  return long_description
-
-
-def get_license():
-  try:
-    with open(os.path.join(this_directory, 'LICENSE'),
-              encoding='utf-8') as f:
-      license = f.read()
-  except:
-    logging.info("license not found in '%s.__init__.py'!" % NAME)
-    license = ""
-  return license
-
-
 def get_requires():
+  require_file = "tools/requirements.txt"
   try:
-    f = open("requirements.txt")
+    f = open(require_file)
     requires = [i.strip() for i in f.read().split("\n")]
   except:
-    logging.info("'requirements.txt' not found!")
+    logging.info("{} not found!".format(require_file))
     requires = list()
   return requires
 
@@ -95,10 +82,9 @@ module = Extension('delta.layers.ops.x_ops',
                    library_dirs=[TF_LIB_INC],
                    libraries=[TF_SO_LIB],
                    language='c++')
-long_description = get_long_description()
-license_ = get_license()
+license_ = "Apache Software License"
 packages = find_packages()
-logging.info("long_description: {}".format(long_description))
+logging.info("LONG_DESCRIPTION: {}".format(LONG_DESCRIPTION))
 logging.info("license: {}".format(license_))
 logging.info("packages: {}".format(packages))
 
@@ -112,7 +98,7 @@ if len(custom_op_files) > 0:
 setup(
     name=NAME,
     description=SHORT_DESCRIPTION,
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     version="0.2",
     author=AUTHOR,

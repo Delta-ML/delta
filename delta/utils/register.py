@@ -86,15 +86,10 @@ TASK_MODULES = [
 
 MODLE_MODULES = [
     "speech_cls_rawmodel",
-    "speech_cls_rawmodel",
-    "speech_cls_rawmodel",
     "speaker_cls_rawmodel",
-    "speech_cls_model",
     "speech_cls_model",
     "kws_model",
     "asr_model",
-    "text_seq_model",
-    "text_seq_model",
     "text_seq_model",
     "text_hierarchical_model",
     "text_seq_label_model",
@@ -151,7 +146,7 @@ def _handle_errors(errors):
   if not errors:
     return
   for name, err in errors:
-    logging.fatal("Module {} import failed: {}".format(name, err))
+    logging.warning("Module {} import failed: {}".format(name, err))
 
 
 def path_to_module_format(py_path):
@@ -161,17 +156,19 @@ def path_to_module_format(py_path):
 
 def import_all_modules_for_register(config=None):
   """Import all modules for register."""
+  logging.warning("test")
   current_word_dir = os.getcwd()
   if current_word_dir not in sys.path:
     sys.path.append(current_word_dir)
   all_modules = ALL_SYS_MODULES
   errors = []
   if config is not None and "custom_modules" in config:
-    custom_modules =config["custom_modules"]
+    custom_modules = config["custom_modules"]
     if not isinstance(custom_modules, list):
       custom_modules = [custom_modules]
     all_modules += [("", [path_to_module_format(module)])
                     for module in custom_modules]
+  logging.debug(f"All modules: {all_modules}")
   for base_dir, modules in all_modules:
     for name in modules:
       try:
@@ -180,6 +177,7 @@ def import_all_modules_for_register(config=None):
         else:
           full_name = name
         importlib.import_module(full_name)
+        logging.debug(f"{full_name} loaded.")
       except ImportError as error:
         errors.append((name, error))
   _handle_errors(errors)

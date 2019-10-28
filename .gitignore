@@ -114,6 +114,8 @@ dpl/output/
 inner
 
 # setup
-delta_didi.egg-info/
+delta_nlp.egg-info/
+wheelhouse
 build
 dist
+py36venv
