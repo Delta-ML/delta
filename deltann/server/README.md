@@ -9,15 +9,17 @@
 
 ## Quick start
 
-After delta/dpl/run.sh is successfully executed, run the following command again.
+After `delta/dpl/run.sh` is successfully executed, run the following command again.
 
-```sh
+```shell
 $ cd example
-$ source server-env.sh
 $ ./build.sh
+```
+
+```shell
 $ cd output/delta-service
-$ ./run.sh
-$ cat nohup.out
+$ ./run.sh start &
+$ cat log/delta-service.INFO
 ...
 I0927 07:26:37.897093    1057 delta_serving.go:76] delta serving DeltaPredictHandler path /v1/models/saved_model/versions/1:predict
 I0927 07:26:37.897394    1057 delta_serving.go:77] delta serving DeltaModelHandler  path /v1/models/saved_model/versions/1

@@ -45,3 +45,8 @@ export PATH=$PATH:~/.local/bin
 
 # delta
 export PYTHONPATH=${PYTHONPATH}:$MAIN_ROOT:$MAIN_ROOT/tools/espnet
+
+# go
+if [ -e $MAIN_ROOT/tools/go.env ];then
+  source $MAIN_ROOT/tools/go.env
+fi
