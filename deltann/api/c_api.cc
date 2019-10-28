@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "api/c_api.h"
 #include "core/runtime.h"
-#include "core/utils/config.h"
+#include "core/config.h"
 
 #ifdef __cplusplus
 extern "C" {

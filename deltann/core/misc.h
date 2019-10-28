@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_MISC_H_
-#define DELTANN_UTILS_MISC_H_
+#ifndef DELTANN_CORE_MISC_H_
+#define DELTANN_CORE_MISC_H_
 
 #include <iostream>
 #include <string>
@@ -118,4 +118,4 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 }
 
 }  // namespace delta
-#endif  // DELTANN_UTILS_MISC_H_
+#endif  // DELTANN_CORE_MISC_H_

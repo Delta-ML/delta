@@ -54,16 +54,10 @@ def tokenize_sentence(texts, max_seq_len, vocab_path):
 def chinese_word_cut_tf(input_str, use_file=False):
   """"""
 
-  if use_file:
-    output_str = py_x_ops.jieba_cut(
-      input_str,
-      use_file=True,
-      hmm=True)
-  else:
-    output_str = py_x_ops.jieba_cut(
-      input_str,
-      use_file=False,
-      hmm=True)
+  output_str = py_x_ops.jieba_cut(
+    input_str,
+    use_file=use_file,
+    hmm=True)
   return output_str
 
 
@@ -109,7 +103,8 @@ def char_cut_tf(input_str):
 def load_textline_dataset(paths, column_num):
   """Load raw data for text task."""
   ds = tf.data.TextLineDataset(paths)
-  ds = ds.map(lambda x: tf.strings.split(x, sep="\t", result_type="RaggedTensor"))
+  ds = ds.map(
+      lambda x: tf.strings.split(x, sep="\t", result_type="RaggedTensor"))
   ds = ds.filter(lambda line: tf.equal(tf.size(line), column_num))
   ds_list = []
   for i in range(column_num):
@@ -135,13 +130,13 @@ def process_one_label_dataset(label_ds, config, output_index=None):
     label_vocab_file_path = config["data"]["task"]["label_vocab"]
 
   label_ds = label_ds.map(
-    lambda x: tokenize_label(
-      x, maxlen=1, label_vocab_file_path=label_vocab_file_path, pad_id=0),
-    num_parallel_calls=num_parallel_calls)
+      lambda x: tokenize_label(
+          x, maxlen=1, label_vocab_file_path=label_vocab_file_path, pad_id=0),
+      num_parallel_calls=num_parallel_calls)
 
   label_ds = label_ds.map(
-    lambda l: tf.one_hot(l, num_classes, dtype=tf.int32),
-    num_parallel_calls=num_parallel_calls)
+      lambda l: tf.one_hot(l, num_classes, dtype=tf.int32),
+      num_parallel_calls=num_parallel_calls)
 
   label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
 
@@ -158,7 +153,7 @@ def process_multi_label_dataset(label_ds, config, output_index=None):
   label_vocab_file_path = config["data"]["task"]["label_vocab"]
   if isinstance(label_vocab_file_path, list):
     if output_index is None or output_index not in range(
-      len(label_vocab_file_path)):
+        len(label_vocab_file_path)):
       raise IndexError("output_index:{} not in the range of classes length: "
                        "{}!".format(output_index, len(label_vocab_file_path)))
     label_vocab_file_path = label_vocab_file_path[output_index]
@@ -167,12 +162,12 @@ def process_multi_label_dataset(label_ds, config, output_index=None):
     label_vocab_file_path = label_vocab_file_path
 
   label_ds = label_ds.map(
-    lambda x: tokenize_label(
-      x,
-      maxlen=max_seq_len,
-      label_vocab_file_path=label_vocab_file_path,
-      pad_id=0),
-    num_parallel_calls=num_parallel_calls)
+      lambda x: tokenize_label(
+          x,
+          maxlen=max_seq_len,
+          label_vocab_file_path=label_vocab_file_path,
+          pad_id=0),
+      num_parallel_calls=num_parallel_calls)
   label_ds = label_ds.map(tf.squeeze, num_parallel_calls=num_parallel_calls)
 
   return label_ds

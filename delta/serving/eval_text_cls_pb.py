@@ -42,13 +42,13 @@ class TextClsInfer(FrozenModel):
     self.inspect_ops()
 
     self.input_sentence = self.graph.get_tensor_by_name(
-      config['solver']['service']['input_sentence'])
+        config['solver']['service']['input_sentence'])
     self.input_x = self.graph.get_tensor_by_name(
-      config['solver']['service']['input_x'])
+        config['solver']['service']['input_x'])
     self.score = self.graph.get_tensor_by_name(
-      config['solver']['service']['score'])
+        config['solver']['service']['score'])
     self.preds = self.graph.get_tensor_by_name(
-      config['solver']['service']['preds'])
+        config['solver']['service']['preds'])
 
   @property
   def config(self):
@@ -61,13 +61,15 @@ class TextClsInfer(FrozenModel):
   def infer_one(self):
     feed_dict = self.get_test_feed_dict()
 
-    input_x, score, preds = self.sess.run([self.input_x, self.score, self.preds], feed_dict=feed_dict)
+    input_x, score, preds = self.sess.run(
+        [self.input_x, self.score, self.preds], feed_dict=feed_dict)
     logging.info(f"input_x: {input_x}")
     logging.info(f"preds: {preds}")
     logging.info(f"score: {score}")
 
   def eval_or_infer(self):
     pass
+
 
 def main(_):
   ''' main func '''
@@ -110,7 +112,10 @@ def main(_):
 
 def define_flags():
   ''' define flags for evaluator'''
-  app.flags.DEFINE_string('config', 'egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml', help='config path')
+  app.flags.DEFINE_string(
+      'config',
+      'egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml',
+      help='config path')
   app.flags.DEFINE_string('mode', 'eval', 'eval, infer, debug, infer_one')
   # The GPU devices which are visible for current process
   app.flags.DEFINE_string('gpu', '', 'gpu number')

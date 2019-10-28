@@ -23,8 +23,8 @@ from absl import logging
 from delta.data.utils import read_lines_from_text_file
 from delta.layers.ops import py_x_ops
 
-
 # pylint: disable=not-context-manager, invalid-name
+
 
 def test_one(sess, ops, inputs):
   ''' elapse time of op '''
@@ -100,8 +100,9 @@ class JiebaOpsTest(tf.test.TestCase):
         sentence_out_res = test_one(sess, sentence_out,
                                     {sentence_in: ["吉林省长春药店"]})
         self.assertEqual("吉林省 长春 药店", sentence_out_res[0].decode("utf-8"))
-        sentence_out_res, shape_res = test_one(sess, [sentence_out, shape_op],
-                                    {sentence_in: ["吉林省长春药店", "南京市长江大桥"]})
+        sentence_out_res, shape_res = test_one(
+            sess, [sentence_out, shape_op],
+            {sentence_in: ["吉林省长春药店", "南京市长江大桥"]})
         self.assertEqual(
             "吉林省 长春 药店\n南京市 长江大桥",
             "\n".join([one_sen.decode("utf-8") for one_sen in sentence_out_res
