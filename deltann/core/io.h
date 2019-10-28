@@ -20,7 +20,7 @@ limitations under the License.
 #include <string>
 
 #include "core/shape.h"
-#include "core/utils/misc.h"
+#include "core/misc.h"
 
 #ifdef USE_TF
 #include "tensorflow/core/framework/tensor_shape.h"

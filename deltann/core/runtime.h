@@ -27,8 +27,8 @@ limitations under the License.
 #include "core/tflite_model.h"
 #include "core/tfmodel.h"
 #include "core/tfserving_model.h"
-#include "core/utils/config.h"
-#include "core/utils/misc.h"
+#include "core/config.h"
+#include "core/misc.h"
 
 #ifdef USE_TF
 #include "tensorflow/c/c_api.h"

@@ -61,8 +61,8 @@ CC := gcc
 CXX := g++
 AR := ar
 
-CFLAGS := -g -O2
-CXXFLAGS := -O2 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG
+CFLAGS := -O2
+CXXFLAGS := -O3 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG
 LDFLAGS := -Wl,--version-script=deltann_version_script.lds
 ARFLAGS := -r
 

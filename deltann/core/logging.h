@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_LOGGING_H_
-#define DELTANN_UTILS_LOGGING_H_
+#ifndef DELTANN_CORE_LOGGING_H_
+#define DELTANN_CORE_LOGGING_H_
 
 #include <cstring>
 #include <ctime>
 #include <sstream>
 #include <string>
 
-#include "core/utils/misc.h"
+#include "core/misc.h"
 
 namespace delta {
 namespace logging {
@@ -100,4 +100,4 @@ class LogMessageFatal : public LogMessage {
 
 }  // namespace delta
 
-#endif  // DELTANN_UTILS_LOGGING_H_
+#endif  // DELTANN_CORE_LOGGING_H_

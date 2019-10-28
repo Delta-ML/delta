@@ -18,8 +18,8 @@ limitations under the License.
 #include <cstddef>
 #include <random>
 
-#include "core/utils/logging.h"
-#include "core/utils/misc.h"
+#include "core/logging.h"
+#include "core/misc.h"
 
 namespace delta {
 
@@ -28,7 +28,7 @@ std::size_t delta_sizeof(DataType type) {
     case DataType::DELTA_FLOAT32:
       return sizeof(float);
     case DataType::DELTA_FLOAT16:
-      return sizeof(short);
+      return sizeof(float) / 2;
     case DataType::DELTA_DOUBLE:
       return sizeof(double);
     case DataType::DELTA_INT32:

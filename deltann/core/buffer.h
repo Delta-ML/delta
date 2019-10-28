@@ -18,8 +18,8 @@ limitations under the License.
 #define DELTANN_CORE_BUFFER_H_
 
 #include <cstdlib>
-#include "core/utils/logging.h"
-#include "core/utils/misc.h"
+#include "core/logging.h"
+#include "core/misc.h"
 
 namespace delta {
 
