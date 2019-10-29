@@ -43,10 +43,6 @@ class ABCFrozenModel(metaclass=abc.ABCMeta):
     ''' sess '''
     raise NotImplementedError()
 
-  @abc.abstractmethod
-  def predict(self):
-    raise NotImplementedError()
-
 
 class FrozenModel(ABCFrozenModel):
   '''FrozenModel'''
@@ -128,3 +124,10 @@ class FrozenModel(ABCFrozenModel):
   @property
   def sess(self):
     return self._sess
+
+class Evaluater(FrozenModel):
+
+  @abc.abstractmethod
+  def predict(self):
+    raise NotImplementedError()
+
