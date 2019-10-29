@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -13,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' Frozen model Evaluater'''
+''' Saved & Frozen & Checkpoint model Evaluater'''
 import os
 from absl import logging
 from absl import app
