@@ -4,6 +4,7 @@
 
 if [[ $# != 2 ]];then
   echo "usage: $0 saved_model_dir output_nodes"
+  echo "   Make sure delta/env.sh is sourced"
   exit 1
 fi
 
