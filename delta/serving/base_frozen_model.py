@@ -43,6 +43,10 @@ class ABCFrozenModel(metaclass=abc.ABCMeta):
     ''' sess '''
     raise NotImplementedError()
 
+  @abc.abstractmethod
+  def predict(self):
+    raise NotImplementedError()
+
 
 class FrozenModel(ABCFrozenModel):
   '''FrozenModel'''
@@ -69,7 +73,7 @@ class FrozenModel(ABCFrozenModel):
 
       if tf.saved_model.maybe_saved_model_directory(model):
         #saved model
-        logging.info('saved model dir : {}'.format(model))
+        logging.info('saved model dir: {}'.format(model))
         self._sess = tf.Session(graph=self._graph, config=config)
         tf.saved_model.loader.load(self._sess,
                                    [tf.saved_model.tag_constants.SERVING],
@@ -101,7 +105,7 @@ class FrozenModel(ABCFrozenModel):
 
   def inspect_ops(self):
     for op in self._graph.get_operations():
-      logging.info(op.name)
+      logging.info(f"ops: {op.name}")
 
   def debug(self):
     feed_dict = self.get_test_feed_dict()
