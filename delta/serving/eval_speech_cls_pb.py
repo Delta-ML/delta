@@ -22,6 +22,7 @@ from absl import app
 
 from delta import utils
 from delta.utils.register import registers
+from delta.utils.register import import_all_modules_for_register
 from delta.serving.base_frozen_model import FrozenModel
 
 
@@ -34,9 +35,11 @@ class Evaluate(FrozenModel):
     self._mode = mode
     model = config['serving']['model']
     super().__init__(model, gpu_str='0')
+    input_name = config['serving']['inputs']
+    output_name = config['serving']['outputs']
 
-    self.audio_ph = self.graph.get_tensor_by_name('inputs:0')
-    self.pred_valid = self.graph.get_tensor_by_name('softmax_output:0')
+    self.audio_ph = self.graph.get_tensor_by_name(input_name)
+    self.pred_valid = self.graph.get_tensor_by_name(output_name)
 
   @property
   def config(self):
@@ -127,6 +130,7 @@ def main(_):
   config = utils.load_config(FLAGS.config)
 
   # process config
+  import_all_modules_for_register()
   solver_name = config['solver']['name']
   solver = registers.solver[solver_name](config)
   config = solver.config
