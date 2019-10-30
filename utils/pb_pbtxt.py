@@ -65,8 +65,10 @@ def main(_):
   logging.info(f"dump graph to {dump_dir}")
 
 if __name__ == '__main__':
+  # flags usage: https://abseil.io/docs/python/guides/flags
   logging.set_verbosity(logging.INFO)
-  flags.DEFINE_string('graph', default=None, help='graph.pb file name')
-  flags.DEFINE_bool('binary_in', default=True, help='input graph is binary or not')
+  flags.DEFINE_string('graph', default=None, help='graph.pb file name', short_name='g')
+  flags.DEFINE_bool('binary_in', default=True, help='input graph is binary or not', short_name='b')
+  flags.mark_flag_as_required('graph')
 
   app.run(main)
