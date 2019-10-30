@@ -226,24 +226,30 @@ def path_to_module_format(py_path):
   return py_path.replace("/", ".").rstrip(".py")
 
 
-def import_all_modules_for_register(config=None, only_nlp=False):
-  """Import all modules for register."""
-  logging.warning("test")
+def add_custom_modules(all_modules, config=None):
+  """Add custom modules to all_modules"""
   current_work_dir = os.getcwd()
   if current_work_dir not in sys.path:
     sys.path.append(current_work_dir)
-  if only_nlp:
-    all_modules = ALL_NLP_MODULES
-  else:
-    all_modules = ALL_MODULES
-  errors = []
   if config is not None and "custom_modules" in config:
     custom_modules = config["custom_modules"]
     if not isinstance(custom_modules, list):
       custom_modules = [custom_modules]
     all_modules += [("", [path_to_module_format(module)])
                     for module in custom_modules]
+
+
+def import_all_modules_for_register(config=None, only_nlp=False):
+  """Import all modules for register."""
+  if only_nlp:
+    all_modules = ALL_NLP_MODULES
+  else:
+    all_modules = ALL_MODULES
+
+  add_custom_modules(all_modules, config)
+
   logging.debug(f"All modules: {all_modules}")
+  errors = []
   for base_dir, modules in all_modules:
     for name in modules:
       try:
