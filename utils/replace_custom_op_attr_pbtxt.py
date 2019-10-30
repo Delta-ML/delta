@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #

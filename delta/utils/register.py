@@ -49,7 +49,11 @@ class Register:
     return lambda x: decorator(param, x)
 
   def __getitem__(self, key):
-    return self._dict[key]
+    try:
+      return self._dict[key]
+    except Exception as e:
+      logging.error(f"module {e} not found")
+      raise e
 
   def __contains__(self, key):
     return key in self._dict
@@ -127,7 +131,12 @@ POSTPROCESS_MODULES = [
     "text_seq_label_proc", "text_seq2seq_proc"
 ]
 
-SERVING_MODULES = ["knowledge_distilling"]
+SERVING_MODULES = [
+  "knowledge_distilling",
+  "eval_asr_pb",
+  "eval_speech_cls_pb",
+  "eval_text_cls_pb",
+]
 
 PREPROCESS_MODULES = [
     "text_cls_preparer", "text_match_preparer", "text_seq_label_preparer",

@@ -36,7 +36,7 @@ all: delta deltann
 # delta
 delta: basic speech check_install
 
-basic: linux.done python.done espnet.done nlp_zh compile_ops.done
+basic: linux.done python.done tensorflow.done espnet.done nlp_zh compile_ops.done
 
 speech: kaldi.done
 
@@ -60,7 +60,6 @@ protoc:
 
 # only for test cpp
 test.deps:
-#	test -d tensorflow || git clone --depth=1 --branch=master https://github.com/tensorflow/tensorflow.git
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
 	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git 
 
@@ -94,6 +93,9 @@ kaldi.done:
 	cd kaldi/src; ./configure --shared --use-cuda=no; $(MAKE) depend; $(MAKE) all
 	touch kaldi.done
 endif
+
+tensorflow.done:
+	test -d tensorflow || git clone --depth=1 --branch=master https://github.com/tensorflow/tensorflow.git
 
 # deps on the package, for kaldi input pipeline and kaldi io utils
 espnet.done:
@@ -154,7 +156,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then rm -rf tensorflow && $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:
