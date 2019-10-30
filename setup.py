@@ -109,7 +109,7 @@ setup(
     package_data={"delta": ["resources/cppjieba_dict/*.utf8"]},
     entry_points={
         'console_scripts': [
-            'delta = delta.main:entry']},
+            'delta = delta.main:nlp_entry']},
     url=URL,
     download_url=DOWNLOAD_URL,
     classifiers=CLASSIFIERS,

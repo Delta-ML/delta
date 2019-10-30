@@ -64,7 +64,7 @@ def main(argv):
   set_seed(config)
 
   logging.info("Loading all modules ...")
-  import_all_modules_for_register(config)
+  import_all_modules_for_register(config, only_nlp=FLAGS.only_nlp)
 
   solver_name = config['solver']['name']
   solver = registers.solver[solver_name](config)
@@ -110,6 +110,15 @@ def main(argv):
 
 def entry():
   define_flags()
+  flags.DEFINE_bool('only_nlp', 'False', 'only use nlp modules')
+  logging.info("Deep Language Technology Platform start...")
+  app.run(main)
+  logging.info("OK. Done!")
+
+
+def nlp_entry():
+  define_flags()
+  flags.DEFINE_bool('only_nlp', 'True', 'only use nlp modules')
   logging.info("Deep Language Technology Platform start...")
   app.run(main)
   logging.info("OK. Done!")
