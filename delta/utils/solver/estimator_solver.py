@@ -107,7 +107,7 @@ class EstimatorSolver(ABCEstimatorSolver):
             predictions=predictions,
             scaffold=self.get_scaffold(mode),
             export_outputs={
-                'predictions': tf.estimator.export.PredictOutput(softmax) #pylint: disable=no-member
+                'predictions': tf.estimator.export.PredictOutput(predictions) #pylint: disable=no-member
             })
 
       if 'soft_labels' in features.keys():
@@ -479,13 +479,12 @@ class EstimatorSolver(ABCEstimatorSolver):
   def export_model(self):
     saver_conf = self.config['solver']['saver']
     nn = self.create_estimator()  #pylint: disable=invalid-name
-    nn.export_savedmodel(
+    nn.export_saved_model(
         export_dir_base=os.path.join(saver_conf['model_path'], 'export'),
         serving_input_receiver_fn=self.create_serving_input_receiver_fn(),
         assets_extra=None,
         as_text=False,
         checkpoint_path=None,
-        strip_default_attrs=False,
     )
 
   def postproc_fn(self):
