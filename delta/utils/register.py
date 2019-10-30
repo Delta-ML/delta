@@ -157,9 +157,9 @@ def path_to_module_format(py_path):
 def import_all_modules_for_register(config=None):
   """Import all modules for register."""
   logging.warning("test")
-  current_word_dir = os.getcwd()
-  if current_word_dir not in sys.path:
-    sys.path.append(current_word_dir)
+  current_work_dir = os.getcwd()
+  if current_work_dir not in sys.path:
+    sys.path.append(current_work_dir)
   all_modules = ALL_SYS_MODULES
   errors = []
   if config is not None and "custom_modules" in config:
