@@ -19,14 +19,15 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.write_wav import WriteWav
+from delta import PACKAGE_ROOT_DIR
 
 
 class WriteWavTest(tf.test.TestCase):
 
   def test_write_wav(self):
     wav_path = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       read_wav = ReadWav.params().instantiate()

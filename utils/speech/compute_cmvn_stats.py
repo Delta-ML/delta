@@ -44,6 +44,9 @@ def get_parser():
   return parser
 
 def compute_cmvn_stats():
+  """
+  e.g. compute_cmvn_stats.py scp:data/train/feats.scp ark,scp:data/train/cmvn.ark,data/train/cmvn.scp
+  """
   args = get_parser().parse_args()
 
   is_wspecifier = ':' in args.wspecifier
