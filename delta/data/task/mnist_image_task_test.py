@@ -17,8 +17,8 @@
 
 import yaml
 from absl import logging
-import numpy as np
 import tensorflow as tf
+import numpy as np
 
 from delta import utils
 from delta.utils.register import registers

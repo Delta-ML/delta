@@ -27,5 +27,5 @@ from tensorflow.python.compat import v2_compat
 from tensorflow.python.framework import function
 # pylint: enable=g-direct-tensorflow-import
 
-v2_compat.disable_v2_behavior()
+#v2_compat.disable_v2_behavior()
 Defun = function.Defun

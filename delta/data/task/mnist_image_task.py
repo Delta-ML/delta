@@ -23,7 +23,6 @@ from delta.utils.hparam import HParams
 from delta.utils.register import registers
 from delta.data.task.base_task import Task
 
-
 @registers.task.register
 class FashionMnistTask(Task):
   ''' fashion mnist dataset '''

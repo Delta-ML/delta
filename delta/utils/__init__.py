@@ -14,9 +14,11 @@
 # limitations under the License.
 # ==============================================================================
 ''' utils module '''
-from delta.utils.cmvn import *
-from delta.utils.misc import *
-from delta.utils.plot import *
-from delta.utils.model import *
-from delta.utils.config import *
-from delta.utils.logger import *
+#from delta.utils.cmvn import *
+from delta.utils.misc import TRAIN
+from delta.utils.misc import EVAL
+from delta.utils.misc import INFER
+#from delta.utils.plot import *
+#from delta.utils.model import *
+#from delta.utils.config import *
+#from delta.utils.logger import *

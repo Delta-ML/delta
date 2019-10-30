@@ -23,7 +23,6 @@ import tensorflow as tf
 from tensorflow.python.keras import backend as K
 from delta.models.base_model import Model
 
-from delta import utils
 from delta.utils.hparam import HParams
 from delta.utils.register import registers
 

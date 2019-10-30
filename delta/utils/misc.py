@@ -18,7 +18,7 @@ import os
 from absl import logging
 
 import numpy as np
-import delta.compat as tf
+import tensorflow as tf
 #pylint: disable=no-name-in-module,no-member
 from tensorflow.python.client import device_lib
 from tensorflow.python.estimator.canned import metric_keys
