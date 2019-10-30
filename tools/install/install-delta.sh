@@ -2,7 +2,7 @@
 
 set -e
 
-USAGE="USAGE: $0 [nlp|full] [gpu|cpu]"
+USAGE="USAGE: $0 [nlp|basic|full] [gpu|cpu]"
 
 if [ $# != 2 ];then
   echo ${USAGE}
@@ -10,9 +10,15 @@ if [ $# != 2 ];then
 fi
 
 # TF_VER, PY_VER
-. ../../env.sh
+BASH_DIR=`dirname "$BASH_SOURCE"`
+
+pushd ${BASH_DIR}/../..
+source env.sh
+popd
 
 if [ $1 == 'nlp' ];then
+  TARGET='nlp'
+elif [ $1 == 'basic' ];then
   TARGET='basic'
 elif [ $1 == 'full' ];then
   if [ -n ${KALDI} ]; then

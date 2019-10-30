@@ -29,3 +29,4 @@ flake8
 sentencepiece
 deepdiff
 tensorflow_addons
+tensorflow-model-optimization

@@ -115,9 +115,6 @@ class AsrSeqTaskTest(tf.test.TestCase):
             name:
     solver:
       name: AsrSolver
-      quantization:
-        enable: false # whether to quantization model
-        quant_delay: 0 # Number of steps after which weights and activations are quantized during training
       adversarial:
         enable: false # whether to using adversiral training
         adv_alpha: 0.5 # adviseral alpha of loss
@@ -143,7 +140,6 @@ class AsrSeqTaskTest(tf.test.TestCase):
           decay_rate: 0.99  # the lr decay rate
           decay_steps: 100  # the lr decay_step for optimizer
         clip_global_norm: 3.0 # clip global norm
-        multitask: False # whether is multi-task
         early_stopping: # keras early stopping
           enable: true
           monitor: val_loss

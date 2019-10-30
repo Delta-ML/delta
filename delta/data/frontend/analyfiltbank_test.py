@@ -14,12 +14,13 @@
 # limitations under the License.
 # ==============================================================================
 
-import delta.compat as tf
 from pathlib import Path
+import numpy as np
+
+import delta.compat as tf
+from delta import PACKAGE_ROOT_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.analyfiltbank import Analyfiltbank
-import numpy as np
-from delta import PACKAGE_ROOT_DIR
 
 class Test(tf.test.TestCase):
 

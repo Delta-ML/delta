@@ -152,7 +152,7 @@ def mask_sequence_loss(logits,
     weights = tf.cast(utils.len_to_mask(label_length), tf.float32)
   else:
     weights = tf.ones_like(labels)
-  loss = tf.contrib.seq2seq.sequence_loss(logits, labels, weights)
+  loss = tfa.seq2seq.loss.sequence_loss(logits, labels, weights)
   return loss
 
 
@@ -187,7 +187,7 @@ def arcface_loss(embedding,
       weights = tf.get_variable(
           name='weights',
           shape=[embedding.shape[-1].value, out_num],
-          initializer=tf.contrib.layers.xavier_initializer(uniform=True))
+          initializer=tf.initializer.glorot_unifrom())
     weights_norm = tf.norm(weights, axis=0, keep_dims=True)
     weights = tf.div(weights, weights_norm, name='norm_weights')
     # cos(theta+m)
@@ -243,9 +243,5 @@ def focal_loss(logits, labels, alpha, gamma=2, name='focal_loss'):
   L *= alpha * ((1 - y_pred)**gamma)
   loss = tf.reduce_sum(L)
 
-  if tf.executing_eagerly():
-    tf.contrib.summary.scalar(name, loss)
-  else:
-    tf.summary.scalar(name, loss)
-
+  tf.summary.scalar(name, loss)
   return loss

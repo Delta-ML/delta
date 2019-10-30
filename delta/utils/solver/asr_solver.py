@@ -166,7 +166,7 @@ class AsrSolver(Solver):
     run_opts = None
     return run_opts, run_metas
 
-  def get_optimizer(self, multitask):
+  def get_optimizer(self):
     ''' keras optimizer '''
     optconf = self.config['solver']['optimizer']
     method = optconf['name']
@@ -215,8 +215,7 @@ class AsrSolver(Solver):
     assert self.model
 
     loss = self.get_loss()
-    multitask = self.config['solver']['optimizer']['multitask']
-    optimizer = self.get_optimizer(multitask)
+    optimizer = self.get_optimizer()
 
     run_opts, run_metas = self.get_run_opts_metas()
 

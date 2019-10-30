@@ -40,6 +40,8 @@ basic: linux.done python.done tensorflow.done espnet.done nlp_zh compile_ops.don
 
 speech: kaldi.done
 
+nlp: python_nlp.done nlp_zh compile_ops.done
+
 nlp_zh: cppjieba.done
 
 extra: sentencepiece.done moses.done
@@ -71,6 +73,10 @@ python.done:
 	$(PIP_INSTALL) --user -r requirements.txt
 	if [ -f /etc/lsb-release ]; then $(SUDO) $(APT_INSTALL) libsndfile1; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install libsndfile; else $(SUDO) yum install -y libsndfile-devel; fi;
 	touch python.done
+
+python_nlp.done:
+	$(PIP_INSTALL) --user -r requirements.txt
+	touch python_nlp.done
 
 linux.done:
 	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install bc sox; else $(SUDO) yum install -y bc sox; fi;
