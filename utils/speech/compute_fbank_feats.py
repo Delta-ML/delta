@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -99,13 +101,18 @@ def compute_fbank():
   args = parser.parse_args()
 
   config = {}
-  config['sample_rate'] = float(args.sample_rate)
+  config['sample_rate'] = int(args.sample_rate)
   config['upper_frequency_limit'] = float(args.upper_frequency_limit)
   config['lower_frequency_limit'] = float(args.lower_frequency_limit)
   config['filterbank_channel_count'] = float(args.filterbank_channel_count)
   config['window_length'] = args.window_length
   config['frame_length'] = args.frame_length
   config['output_type'] = args.output_type
+  config['window_type'] = args.window_type
+  config['snip_edges'] = args.snip_edges
+  config['preEph_coeff'] = args.preEph_coeff
+  config['remove_dc_offset'] = args.remove_dc_offset
+  config['is_fbank'] = args.is_fbank
 
   fbank = Fbank.params(config).instantiate()
 
@@ -119,7 +126,7 @@ def compute_fbank():
       array = array.astype(np.float32)
       audio_data = tf.constant(array, dtype=tf.float32)
       fbank_test = tf.squeeze(fbank(audio_data, args.sample_rate))
-      sess = tf.compat.v1.Session()
+      sess = tf.Session()
       fbank_feats = fbank_test.eval(session=sess)
       writer[utt_id] = fbank_feats
 

@@ -19,7 +19,7 @@
 #default params
 nj=1
 cmd=utils/run.pl
-sample_rate=16000.0
+sample_rate=16000
 window_length=0.030
 frame_length=0.010
 output_type=1

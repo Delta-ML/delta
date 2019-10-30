@@ -32,7 +32,7 @@ def get_parser():
       description='Compute power specturm or phase specturm features from wav.',
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--sample_rate', type=float, default=16000, help='Sampling frequency')
+      '--sample_rate', type=int, default=16000, help='Sampling frequency')
   parser.add_argument(
       '--window_length', type=float, default=0.030, help='Length of a frame')
   parser.add_argument(
@@ -74,7 +74,7 @@ def compute_stft():
   args = parser.parse_args()
 
   config = {}
-  config['sample_rate'] = float(args.sample_rate)
+  config['sample_rate'] = int(args.sample_rate)
   config['window_length'] = args.window_length
   config['frame_length'] = args.frame_length
 
