@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 from delta.data.frontend.delta_delta import DeltaDelta
 import numpy as np
 import tempfile

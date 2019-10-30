@@ -16,7 +16,7 @@
 ''' NLU joint learning task '''
 
 import collections
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data.task.base_text_task import TextTask
@@ -50,7 +50,7 @@ class TextNLUJointTask(TextTask):
         one_path + ".after" for one_path in self.paths
     ]
     self.infer_no_label = self.config["data"][utils.INFER].get(
-      'infer_no_label', False)
+        'infer_no_label', False)
     self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
     self.prepare()
@@ -75,15 +75,16 @@ class TextNLUJointTask(TextTask):
       text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
     else:
       column_num = 3
-      intent_label_ds, slots_label_ds, text_ds = load_textline_dataset(self.paths_after_pre_process, column_num)
+      intent_label_ds, slots_label_ds, text_ds = load_textline_dataset(
+          self.paths_after_pre_process, column_num)
 
     logging.info("Loading text dataset...")
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds = text_ds.map(
-      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
     text_size_ds = text_ds.map(
-      lambda x: compute_sen_lens(x, padding_token=0),
-      num_parallel_calls=self.num_parallel_calls)
+        lambda x: compute_sen_lens(x, padding_token=0),
+        num_parallel_calls=self.num_parallel_calls)
     text_ds = tf.data.Dataset.zip((text_ds, text_size_ds))
 
     if self.infer_without_label:
@@ -97,7 +98,8 @@ class TextNLUJointTask(TextTask):
 
     self.config['data']['vocab_size'] = get_vocab_size(
         self.text_vocab_file_path)
-    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(self.paths_after_pre_process)
+    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(
+        self.paths_after_pre_process)
 
     return data_set
 

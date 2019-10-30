@@ -18,7 +18,7 @@
 import os
 from pathlib import Path
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 from delta import utils
 from delta.data.task.text_seq2seq_task import TextS2STask

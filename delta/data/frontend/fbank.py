@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
@@ -103,7 +103,7 @@ class Fbank(BaseFrontend):
       elif (p.upper_frequency_limit <= p.lower_frequency_limit) or (p.upper_frequency_limit > p.sample_rate / 2.0):
         p.upper_frequency_limit = p.sample_rate / 2.0
 
-      assert_op = tf.compat.v1.assert_equal(
+      assert_op = tf.assert_equal(
           tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 

@@ -37,9 +37,8 @@ class JiebaCutOp : public OpKernel {
  public:
   explicit JiebaCutOp(OpKernelConstruction* ctx) : OpKernel(ctx) {
     bool use_file;
-    OP_REQUIRES_OK(ctx, ctx->GetAttr("use_file",
-                                     &use_file));
-    if (use_file){
+    OP_REQUIRES_OK(ctx, ctx->GetAttr("use_file", &use_file));
+    if (use_file) {
       std::string dict_path;
       OP_REQUIRES_OK(ctx, ctx->GetAttr("dict_path", &dict_path));
       std::string hmm_path;
@@ -51,10 +50,9 @@ class JiebaCutOp : public OpKernel {
       std::string stop_word_path;
       OP_REQUIRES_OK(ctx, ctx->GetAttr("stop_word_path", &stop_word_path));
       OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm", &hmm));
-      jieba_ = new cppjieba::Jieba(dict_path, hmm_path, user_dict_path, idf_path,
-                                 stop_word_path);
-    }
-    else{
+      jieba_ = new cppjieba::Jieba(dict_path, hmm_path, user_dict_path,
+                                   idf_path, stop_word_path);
+    } else {
       std::vector<std::string> dict_lines;
       OP_REQUIRES_OK(ctx, ctx->GetAttr("dict_lines", &dict_lines));
       std::vector<std::string> model_lines;
@@ -66,8 +64,8 @@ class JiebaCutOp : public OpKernel {
       std::vector<std::string> stop_word_lines;
       OP_REQUIRES_OK(ctx, ctx->GetAttr("stop_word_lines", &stop_word_lines));
       OP_REQUIRES_OK(ctx, ctx->GetAttr("hmm", &hmm));
-      jieba_ = new cppjieba::Jieba(dict_lines, model_lines, user_dict_lines, idf_lines,
-                                 stop_word_lines);
+      jieba_ = new cppjieba::Jieba(dict_lines, model_lines, user_dict_lines,
+                                   idf_lines, stop_word_lines);
     }
   }
 

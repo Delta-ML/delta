@@ -15,7 +15,7 @@
 # ==============================================================================
 
 # Find where we're running from, so we can store generated files here.
-.PHONY: all example clean
+.PHONY: all examples clean
 
 SHELL=/bin/bash
 
@@ -61,8 +61,8 @@ CC := gcc
 CXX := g++
 AR := ar
 
-CFLAGS := -g -O2
-CXXFLAGS := -O2 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG
+CFLAGS := -O2
+CXXFLAGS := -O3 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG
 LDFLAGS := -Wl,--version-script=deltann_version_script.lds
 ARFLAGS := -r
 
@@ -125,7 +125,7 @@ $(OBJDIR)%.o:%.cc
 	-@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-example:
+examples:
 	$(MAKE) -C $(EXAMPLE_DIR)
 
 clean:

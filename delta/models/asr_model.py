@@ -14,14 +14,14 @@
 # limitations under the License.
 # ==============================================================================
 ''' asr ctc model '''
-import tensorflow as tf
+import delta.compat as tf
 #pylint: disable=import-error,unused-import
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
 
 from tensorflow.keras.layers import Bidirectional
 from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import CuDNNLSTM
+from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import TimeDistributed
 from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import Reshape
@@ -118,7 +118,7 @@ class CTCAsrModel(RawModel):
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             units=512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -128,7 +128,7 @@ class CTCAsrModel(RawModel):
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -138,7 +138,7 @@ class CTCAsrModel(RawModel):
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -148,7 +148,7 @@ class CTCAsrModel(RawModel):
 
     x = TimeDistributed(Dropout(0.2))(x)
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -199,7 +199,7 @@ class CTC5BlstmAsrModel(CTCAsrModel):
     x = Reshape((-1, output_dim))(x)
 
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -208,7 +208,7 @@ class CTC5BlstmAsrModel(CTCAsrModel):
                 x)
 
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -217,7 +217,7 @@ class CTC5BlstmAsrModel(CTCAsrModel):
                 x)
 
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -226,7 +226,7 @@ class CTC5BlstmAsrModel(CTCAsrModel):
                 x)
 
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -235,7 +235,7 @@ class CTC5BlstmAsrModel(CTCAsrModel):
                 x)
 
     x = Bidirectional(
-        CuDNNLSTM(
+        LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',

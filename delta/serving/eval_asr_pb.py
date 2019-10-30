@@ -14,20 +14,18 @@
 # limitations under the License.
 # ==============================================================================
 ''' Frozen ASR model Evaluater'''
-import os
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
-from absl import app
 
 from delta import utils
 from delta.utils import metrics as metrics_lib
 from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
-from delta.serving.base_frozen_model import FrozenModel
+from delta.serving.base_frozen_model import Evaluater 
 
 
 @registers.serving.register
-class ASREvaluate(FrozenModel):
+class ASREvaluater(Evaluater):
   ''' infer from forzen model '''
 
   def __init__(self, config, gpu_str=None, mode=utils.INFER):
@@ -93,49 +91,3 @@ class ASREvaluate(FrozenModel):
         target_seq_list=target_seq_list,
         eos_id=0)
     logging.info('Token ERR: {}'.format(token_errors))
-
-
-def main(_):
-  ''' main func '''
-  FLAGS = app.flags.FLAGS  #pylint: disable=invalid-name
-
-  logging.info("config is {}".format(FLAGS.config))
-  logging.info("mode is {}".format(FLAGS.mode))
-  logging.info("gpu is {}".format(FLAGS.gpu))
-  assert FLAGS.config, 'give a config.yaml'
-  assert FLAGS.mode, 'give mode eval, infer or eval_and_infer'
-
-  os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu  #selects a specific device
-
-  #create dataset
-  if FLAGS.mode == 'infer':
-    mode = utils.INFER
-  else:
-    mode = utils.EVAL
-
-  # load config
-  config = utils.load_config(FLAGS.config)
-
-  # process config
-  import_all_modules_for_register()
-  solver_name = config['solver']['name']
-  solver = registers.solver[solver_name](config)
-  config = solver.config
-
-  eval_obj = ASREvaluate(config, gpu_str=FLAGS.gpu, mode=mode)
-  eval_obj.predict()
-
-
-def define_flags():
-  ''' define flags for evaluator'''
-  app.flags.DEFINE_string('config', 'conf/asr-ctc.yml', help='config path')
-  app.flags.DEFINE_string('mode', 'eval', 'eval, infer, eval_and_infer')
-  # The GPU devices which are visible for current process
-  app.flags.DEFINE_string('gpu', '0', 'gpu number')
-
-
-if __name__ == '__main__':
-  logging.set_verbosity(logging.INFO)
-  define_flags()
-  app.run(main)
-  logging.info("OK. Done!")

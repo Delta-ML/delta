@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
@@ -63,7 +63,7 @@ class Framepow(BaseFrontend):
       if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
-      assert_op = tf.compat.v1.assert_equal(
+      assert_op = tf.assert_equal(
           tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 

@@ -20,7 +20,6 @@ from delta.data.preprocess.text_ops import load_textline_dataset
 from delta.data import utils as data_utils
 from delta.utils.register import registers
 
-
 # pylint: disable=too-many-instance-attributes
 
 
@@ -46,12 +45,11 @@ class TextClsPreparer(TextPreparer):
     ds_list = load_textline_dataset(one_path, column_num)
     if infer_without_label:
       text = ds_list
-      label = []         #to modifiy
+      label = []  #to modifiy
     else:
       text = ds_list[1:]
       label = ds_list[:1]
     return (text, label)
-
 
   def save_a_raw_file(self, label, text_after, one_path_after,
                       infer_without_label):

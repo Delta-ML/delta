@@ -19,7 +19,7 @@ import os
 import math
 from pathlib import Path
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 import numpy as np
 
 from delta import utils
@@ -121,18 +121,17 @@ class TextPreparer(Preparer):
     batch_num = int(math.ceil(data_size / float(self.batch_size)))
     if self.multi_text:
       one_text_after = []
-      for i, one_text in enumerate(text):   #to be confirmed
+      for i, one_text in enumerate(text):  #to be confirmed
         one_text_iterator = get_pre_process_text_ds_iter(
             one_text, pre_process_pipeline, self.num_parallel_calls,
             self.batch_size)
-        text_after_arr = self.run_dataset(one_text_iterator,batch_num)
+        text_after_arr = self.run_dataset(one_text_iterator, batch_num)
         text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
         all_texts += text_after
         one_text_after.append(text_after)
     else:
       text = text[0]
-      text_iterator = get_pre_process_text_ds_iter(text,
-                                                   pre_process_pipeline,
+      text_iterator = get_pre_process_text_ds_iter(text, pre_process_pipeline,
                                                    self.num_parallel_calls,
                                                    self.batch_size)
       text_after_arr = self.run_dataset(text_iterator, batch_num)
@@ -147,7 +146,9 @@ class TextPreparer(Preparer):
           label_ds = label[i].batch(self.batch_size)
           label_iterator = label_ds.make_initializable_iterator()
           label_after_arr = self.run_dataset(label_iterator, batch_num)
-          label_after_one = [one_line.decode("utf-8") for one_line in label_after_arr]
+          label_after_one = [
+              one_line.decode("utf-8") for one_line in label_after_arr
+          ]
           one_label_after.append(label_after_one)
           all_labels[i] += label_after_one
       else:
@@ -155,14 +156,16 @@ class TextPreparer(Preparer):
         label_ds = label.batch(self.batch_size)
         label_iterator = label_ds.make_initializable_iterator()
         label_after_arr = self.run_dataset(label_iterator, batch_num)
-        one_label_after = [one_line.decode("utf-8") for one_line in label_after_arr]
+        one_label_after = [
+            one_line.decode("utf-8") for one_line in label_after_arr
+        ]
         all_labels += one_label_after
 
     logging.debug(f"one_text_after: {len(one_text_after)}")
     self.save_a_raw_file(one_label_after, one_text_after, one_path_after,
                          infer_without_label)
 
-  def run_dataset(self, data_iterator,batch_num):
+  def run_dataset(self, data_iterator, batch_num):
     """Run the text pre-process pipeline, fetch data in numpy array format."""
     data_after = []
     data_t = data_iterator.get_next()
@@ -175,7 +178,6 @@ class TextPreparer(Preparer):
           break
     data_after_arr = np.concatenate(data_after, axis=0)
     return data_after_arr
-
 
   def load_a_raw_file(self, one_path, infer_without_label):
     """

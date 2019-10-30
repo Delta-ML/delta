@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav

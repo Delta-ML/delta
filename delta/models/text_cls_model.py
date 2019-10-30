@@ -15,7 +15,7 @@
 # ==============================================================================
 """Base class for text classification."""
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.models.base_model import Model
 from delta.layers.utils import get_pad_mask_from_token_idx

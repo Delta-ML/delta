@@ -18,7 +18,7 @@ import os
 import sys
 import abc
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 
@@ -69,7 +69,7 @@ class FrozenModel(ABCFrozenModel):
 
       if tf.saved_model.maybe_saved_model_directory(model):
         #saved model
-        logging.info('saved model dir : {}'.format(model))
+        logging.info('saved model dir: {}'.format(model))
         self._sess = tf.Session(graph=self._graph, config=config)
         tf.saved_model.loader.load(self._sess,
                                    [tf.saved_model.tag_constants.SERVING],
@@ -101,7 +101,7 @@ class FrozenModel(ABCFrozenModel):
 
   def inspect_ops(self):
     for op in self._graph.get_operations():
-      logging.info(op.name)
+      logging.info(f"ops: {op.name}")
 
   def debug(self):
     feed_dict = self.get_test_feed_dict()
@@ -124,3 +124,10 @@ class FrozenModel(ABCFrozenModel):
   @property
   def sess(self):
     return self._sess
+
+class Evaluater(FrozenModel):
+
+  @abc.abstractmethod
+  def predict(self):
+    raise NotImplementedError()
+

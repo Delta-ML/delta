@@ -16,7 +16,7 @@
 ''' sequence labeling task '''
 
 import collections
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.data.task.base_text_task import TextTask
@@ -63,10 +63,10 @@ class TextSeqLabelTask(TextTask):
     logging.info("process text ds...")
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds = text_ds.map(
-      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
     text_size_ds = text_ds.map(
-      lambda x: compute_sen_lens(x, padding_token=0),
-      num_parallel_calls=self.num_parallel_calls)
+        lambda x: compute_sen_lens(x, padding_token=0),
+        num_parallel_calls=self.num_parallel_calls)
     text_ds = tf.data.Dataset.zip((text_ds, text_size_ds))
 
     logging.info("process label ds...")
@@ -78,7 +78,8 @@ class TextSeqLabelTask(TextTask):
 
     self.config['data']['vocab_size'] = get_vocab_size(
         self.text_vocab_file_path)
-    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(self.paths)
+    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(
+        self.paths)
 
     return data_set
 

@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_LOGGING_H_
-#define DELTANN_UTILS_LOGGING_H_
+#ifndef DELTANN_CORE_LOGGING_H_
+#define DELTANN_CORE_LOGGING_H_
 
 #include <cstring>
 #include <ctime>
 #include <sstream>
 #include <string>
 
-#include "core/utils/misc.h"
+#include "core/misc.h"
 
 namespace delta {
 namespace logging {
@@ -96,17 +96,8 @@ class LogMessageFatal : public LogMessage {
 #define LOG_FATAL \
   delta::logging::LogMessageFatal(__FILE__, __LINE__, "FATAL:").stream()
 
-#define DVLOG(level, msg)  \
-  if (level == 0) {        \
-  } else if (level == 1) { \
-  } else if (level == 2) { \
-  } else if (level == 3) { \
-  } else if (level == 4) { \
-  } else {                 \
-  }
-
 }  // namespace logging
 
 }  // namespace delta
 
-#endif  // DELTANN_UTILS_LOGGING_H_
+#endif  // DELTANN_CORE_LOGGING_H_

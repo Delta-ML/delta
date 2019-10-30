@@ -17,7 +17,7 @@
 import tempfile
 
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 

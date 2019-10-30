@@ -15,7 +15,8 @@
 # ==============================================================================
 ''' loss implementation function '''
 import math
-import tensorflow as tf
+import delta.compat as tf
+import tensorflow_addons as tfa
 
 from delta import utils
 from delta.utils import ctc_utils
@@ -120,7 +121,7 @@ def crf_log_likelihood(tags_scores, labels, input_length, transitions):
   :param transitions: [num_tags, num_tags]
   :return: loss, transition_params
   '''
-  log_likelihood, transition_params = tf.contrib.crf.crf_log_likelihood(
+  log_likelihood, transition_params = tfa.text.crf_log_likelihood(
       inputs=tags_scores,
       tag_indices=labels,
       sequence_lengths=input_length,

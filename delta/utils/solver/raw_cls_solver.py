@@ -15,7 +15,7 @@
 # ==============================================================================
 """Solver for text classification model in raw tensorflow."""
 
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.utils.register import registers
 from delta.utils.solver.raw_solver import RawSolver

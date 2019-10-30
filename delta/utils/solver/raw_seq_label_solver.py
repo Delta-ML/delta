@@ -17,8 +17,8 @@
 
 # pylint: disable=too-many-instance-attributes, not-context-manager, bad-continuation, no-name-in-module
 
-import tensorflow as tf
-from tensorflow.contrib.crf import crf_decode
+import delta.compat as tf
+from tensorflow_addons.text import crf_decode
 from delta.utils.register import registers
 from delta.utils.solver.raw_solver import RawSolver
 

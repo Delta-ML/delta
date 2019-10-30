@@ -22,7 +22,7 @@ limitations under the License.
 #include <vector>
 
 #include "core/data.h"
-#include "core/utils/misc.h"
+#include "core/misc.h"
 
 namespace delta {
 namespace core {

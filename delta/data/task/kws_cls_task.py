@@ -17,7 +17,7 @@
 # data format see: docs/data/kws.md
 import struct
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.utils.register import registers
@@ -153,4 +153,4 @@ class KwsClsTask(SpeechTask):
     return ds.apply(
         tf.data.experimental.map_and_batch(
             make_sample, batch_size,
-            drop_remainder=False)).prefetch(tf.contrib.data.AUTOTUNE)
+            drop_remainder=False)).prefetch(tf.data.experimental.AUTOTUNE)

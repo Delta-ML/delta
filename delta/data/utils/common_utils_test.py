@@ -17,7 +17,7 @@
 
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from delta import utils
 from delta.data.utils.common_utils import get_file_len
 

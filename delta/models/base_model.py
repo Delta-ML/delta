@@ -16,7 +16,7 @@
 """Base class for model."""
 
 import re
-import tensorflow as tf
+import delta.compat as tf
 from tensorflow.python.keras import backend as K  # pylint: disable=no-name-in-module
 
 

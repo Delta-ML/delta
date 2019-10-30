@@ -24,7 +24,7 @@ limitations under the License.
 #include "core/buffer.h"
 #include "core/io.h"
 #include "core/shape.h"
-#include "core/utils/misc.h"
+#include "core/misc.h"
 
 #ifdef USE_TF
 #include "tensorflow/core/framework/tensor_shape.h"
@@ -33,16 +33,6 @@ limitations under the License.
 namespace delta {
 
 namespace core {
-
-namespace {
-
-inline char gen_random_char() {
-  // return (char)(random(127-33) + 33);
-  char c = 'A' + rand() % 24;
-  return c;
-}
-
-}  // namespace
 
 class BaseInOutData {
  public:

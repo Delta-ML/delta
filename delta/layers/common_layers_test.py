@@ -15,7 +15,7 @@
 # ==============================================================================
 """Common layers test."""
 
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 import common_layers as cl
@@ -23,17 +23,6 @@ import common_layers as cl
 
 class LossUtilTest(tf.test.TestCase):
   ''' common layer unittest '''
-
-  def test_depthwise_separable_conv(self):
-    '''test depthwise separable conv'''
-    inputs = tf.random_uniform(shape=[1, 5, 5, 1], dtype=tf.float32, maxval=1.0)
-    num_pwc_filters = 3  #out filters num
-    width_multiplier = 1
-    scope = 'depthwise'
-    output = cl.depthwise_separable_conv(inputs, num_pwc_filters,
-                                         width_multiplier, scope)
-    shape = [1, 5, 5, 3]
-    self.assertAllEqual(tf.shape(output), shape)
 
   def test_splice_layer(self):
     '''test splice layer'''

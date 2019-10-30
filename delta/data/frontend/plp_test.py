@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
@@ -50,7 +50,6 @@ class PlpTest(tf.test.TestCase):
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
       # self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true)
-
 
 if __name__ == '__main__':
   tf.test.main()

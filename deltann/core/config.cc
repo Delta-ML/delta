@@ -20,11 +20,11 @@ limitations under the License.
 #include <utility>
 
 #include "core/io.h"
-#include "core/utils/config.h"
+#include "core/config.h"
 
 #include "yaml-cpp/yaml.h"
 
-using namespace ::delta::core;
+// using namespace ::delta::core;
 
 namespace delta {
 

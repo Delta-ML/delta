@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_MISC_H_
-#define DELTANN_UTILS_MISC_H_
+#ifndef DELTANN_CORE_MISC_H_
+#define DELTANN_CORE_MISC_H_
 
 #include <iostream>
 #include <string>
@@ -23,6 +23,8 @@ limitations under the License.
 #include <vector>
 
 namespace delta {
+
+static unsigned int RANDOM_SEED = 100;
 
 enum class DeltaStatus { STATUS_OK = 0, STATUS_ERROR = 1 };
 
@@ -99,6 +101,8 @@ extern std::unordered_map<std::string, EngineType> _global_engines;
 
 void make_random(float* ptr, int len);
 
+char gen_random_char();
+
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
   out << "{";
@@ -114,4 +118,4 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 }
 
 }  // namespace delta
-#endif  // DELTANN_UTILS_MISC_H_
+#endif  // DELTANN_CORE_MISC_H_

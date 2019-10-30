@@ -17,7 +17,7 @@
 
 import collections
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta.data.task.base_text_task import TextTask
 from delta.data.utils.common_utils import get_file_len
@@ -48,7 +48,7 @@ class TextMatchTask(TextTask):
         one_path + ".after" for one_path in self.paths
     ]
     self.infer_no_label = self.config["data"][utils.INFER].get(
-      'infer_no_label', False)
+        'infer_no_label', False)
     self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
     self.prepare()
@@ -57,11 +57,13 @@ class TextMatchTask(TextTask):
   def generate_data(self):
     """Generate data for offline training."""
     if self.infer_without_label:
-      column_num=2
-      text_ds_left, text_ds_right = load_textline_dataset(self.paths_after_pre_process, column_num)
+      column_num = 2
+      text_ds_left, text_ds_right = load_textline_dataset(
+          self.paths_after_pre_process, column_num)
     else:
-      column_num=3
-      label,text_ds_left, text_ds_right=load_textline_dataset(self.paths_after_pre_process, column_num)
+      column_num = 3
+      label, text_ds_left, text_ds_right = load_textline_dataset(
+          self.paths_after_pre_process, column_num)
 
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds_left = text_ds_left.map(
@@ -86,7 +88,8 @@ class TextMatchTask(TextTask):
     vocab_size = len(vocab_dict)
 
     self.config['data']['vocab_size'] = vocab_size
-    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(self.paths_after_pre_process)
+    self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(
+        self.paths_after_pre_process)
 
     return data_set_left_right, text_len_left_right
 

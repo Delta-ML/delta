@@ -18,7 +18,7 @@
 import os
 from pathlib import Path
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.utils.solver.raw_cls_solver import RawClassSolver

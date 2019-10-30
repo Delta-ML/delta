@@ -18,7 +18,7 @@
 from pathlib import Path
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 from delta import utils
 from delta.data.utils.test_utils import generate_json_data

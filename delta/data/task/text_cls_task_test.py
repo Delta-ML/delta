@@ -20,7 +20,7 @@ import os
 from pathlib import Path
 from absl import logging
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 
 # delta
 from delta import utils
@@ -246,7 +246,8 @@ class TextClsTaskTest(tf.test.TestCase):
     shape_op = tf.shape(input_x)
 
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
-      res, shape_res = sess.run([input_x, shape_op], feed_dict={input_sentence: ["我很愤怒"]})
+      res, shape_res = sess.run([input_x, shape_op],
+                                feed_dict={input_sentence: ["我很愤怒"]})
       logging.debug(res[0])
       logging.debug(np.shape(res[0]))
       logging.debug(f"shape: {shape_res}")

@@ -17,12 +17,12 @@
 import functools
 
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 import scipy.signal
 #pylint: disable=ungrouped-imports,no-name-in-module
-from tensorflow.contrib.framework.python.ops import audio_ops as contrib_audio
 
 from delta import utils
+from delta.utils.hparam import HParams
 
 
 def add_delta_deltas(filterbanks, name=None):
@@ -61,8 +61,7 @@ def compute_mel_filterbank_features(waveforms,
                                     frame_step=10,
                                     fft_length=None,
                                     window_fn=functools.partial(
-                                        tf.contrib.signal.hann_window,
-                                        periodic=True),
+                                        tf.signal.hann_window, periodic=True),
                                     lower_edge_hertz=80.0,
                                     upper_edge_hertz=7600.0,
                                     num_mel_bins=80,
@@ -109,7 +108,7 @@ def compute_mel_filterbank_features(waveforms,
   if fft_length is None:
     fft_length = int(2**(np.ceil(np.log2(frame_length))))
 
-  stfts = tf.contrib.signal.stft(
+  stfts = tf.signal.stft(
       waveforms,
       frame_length=frame_length,
       frame_step=frame_step,
@@ -130,11 +129,9 @@ def compute_mel_filterbank_features(waveforms,
   # Warp the linear-scale, magnitude spectrograms into the mel-scale.
   num_spectrogram_bins = magnitude_spectrograms.shape[-1].value
   linear_to_mel_weight_matrix = (
-      tf.contrib.signal.linear_to_mel_weight_matrix(num_mel_bins,
-                                                    num_spectrogram_bins,
-                                                    sample_rate,
-                                                    lower_edge_hertz,
-                                                    upper_edge_hertz))
+      tf.signal.linear_to_mel_weight_matrix(num_mel_bins, num_spectrogram_bins,
+                                            sample_rate, lower_edge_hertz,
+                                            upper_edge_hertz))
   mel_spectrograms = tf.tensordot(magnitude_spectrograms,
                                   linear_to_mel_weight_matrix, 1)
   # Note: Shape inference for tensordot does not currently handle this case.
@@ -153,7 +150,7 @@ def read_wav(wavfile, params):
   ''' samples of shape [nsample] '''
   contents = tf.read_file(wavfile)
   #pylint: disable=no-member
-  waveforms = contrib_audio.decode_wav(
+  waveforms = tf.audio.decode_wav(
       contents,
       desired_channels=params.audio_channels,
       #desired_samples=params.audio_sample_rate,
@@ -176,7 +173,7 @@ def speech_params(sr=16000,
                   cmvn=False,
                   cmvn_path=''):
   ''' feat params '''
-  p = tf.contrib.training.HParams()
+  p = HParams()
   p.add_hparam("audio_sample_rate", sr)
   p.add_hparam("audio_channels", 1)
   p.add_hparam("audio_preemphasis", 0.97)

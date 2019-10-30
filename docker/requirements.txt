@@ -28,3 +28,4 @@ pyAudioAnalysis
 flake8
 sentencepiece
 deepdiff
+tensorflow_addons

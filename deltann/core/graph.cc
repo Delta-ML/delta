@@ -15,7 +15,7 @@ limitations under the License.
 ==============================================================================*/
 
 #include "core/graph.h"
-#include "core/utils/config.h"
+#include "core/config.h"
 
 namespace delta {
 namespace core {

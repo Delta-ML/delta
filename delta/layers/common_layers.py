@@ -15,38 +15,12 @@
 # ==============================================================================
 """Common layers."""
 
-import tensorflow as tf
-import tensorflow.contrib.slim as slim  #pylint: disable=no-name-in-module
+import delta.compat as tf
 from absl import logging
 
 from delta.data.feat import speech_ops
 
 #pylint: disable=invalid-name
-
-
-def depthwise_separable_conv(inputs,
-                             num_pwc_filters,
-                             width_multiplier,
-                             scope,
-                             downsample=False):
-  """Depth-wise separable convolution."""
-  num_pwc_filters = round(num_pwc_filters * width_multiplier)
-  _stride = 2 if downsample else 1
-
-  # skip pointwise by setting num_outputs=None
-  depthwise_conv = slim.separable_convolution2d(
-      inputs,
-      num_outputs=None,
-      stride=_stride,
-      depth_multiplier=1,
-      kernel_size=[3, 3],
-      scope=scope + '/depthwise_conv')
-
-  bn = slim.batch_norm(depthwise_conv, scope=scope + '/dw_batch_norm')
-  pointwise_conv = slim.convolution2d(
-      bn, num_pwc_filters, kernel_size=[1, 1], scope=scope + '/pointwise_conv')
-  bn = slim.batch_norm(pointwise_conv, scope=scope + '/pw_batch_norm')
-  return bn
 
 
 def splice_layer(x, name, context):
@@ -136,7 +110,7 @@ def tdnn(x,
           name='DW',
           shape=[context, in_dim, out_dim],
           dtype=tf.float32,
-          initializer=tf.contrib.layers.xavier_initializer())
+          initializer=tf.glorot_uniform_initializer())
       x = tf.nn.conv1d(x, kernel, stride=1, padding='SAME')
       if has_bias:
         b = tf.get_variable(

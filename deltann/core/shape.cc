@@ -17,7 +17,7 @@ limitations under the License.
 #include <assert.h>
 
 #include "core/shape.h"
-#include "core/utils/logging.h"
+#include "core/logging.h"
 
 namespace delta {
 

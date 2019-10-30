@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Please run this script using `docker`
-# dpl input: 
-#  from `model` dir which has `saved_model` dir 
+# dpl input:
+#  from `model` dir which has `saved_model` dir
 #  and `model.yaml` config
-# dpl output: 
-#  graph: 
+# dpl output:
+#  graph:
 #    saved_model
 #    model.tflite
 #    model.tftrt
@@ -18,45 +18,53 @@
 #    deltann.so
 #    deltann.out
 # dpl test:
-#  ci unittest 
+#  ci unittest
 #  offline model with one graph
 #  offline model with multi graphs
 #  online model
 #  combined offline and online
 
-USAGE="usage: $0 [linux] [x86_64]"
-
-if [ $# != 2 ]; then
-  echo ${USAGE}
-  exit -1
-fi
+#USAGE="usage: $0 --TARGET=[linux] --ARCH=[x86_64]"
 
 if [ -z $MAIN_ROOT ];then
   source ../env.sh
   echo "source env.sh"
 fi
 
-TARGET=$1
-ARCH=$2
+stage=-1
+stop_stage=100
+
+TARGET=linux
+ARCH=x86_64
 
 # input and output model dir
 INPUT_MODEL="${MAIN_ROOT}/dpl/model"
-MODEL_YAML="${INPUT_MODEL}/model.yaml"
+INPUT_YAML="${INPUT_MODEL}/model.yaml"
 OUTPUT_MODEL="${MAIN_ROOT}/dpl/.gen"
 
 . ${MAIN_ROOT}/utils/parse_options.sh  # e.g. this parses the --stage option if supplied.
+
+echo
+echo "Params:"
+echo "stage: ${stage} - ${stop_stage}"
+echo "TARGET: ${TARGET}"
+echo "ARCH: ${ARCH}"
+echo "INPUT_MODEL: ${INPUT_MODEL}"
+echo "INPUT_YAML: ${INPUT_YAML}"
+echo "OUTPUT_MODEL: ${OUTPUT_MODEL}"
+echo
 
 set -e
 set -u
 set -o pipefail
 
-# 0. dpl and model config 
+# 0. dpl and model config
 # config from model.yaml
-ENGINE=`cat ${MODEL_YAML} | shyaml get-value model.graphs.0.engine`
+ENGINE=`cat ${INPUT_YAML} | shyaml get-value model.graphs.0.engine`
 
 # 1. convert graph
 # convert saved_model under `model` with `model.yaml`
-# to `tf`, `tflite`, `tftrt` model 
+# to `tf`, `tflite`, `tftrt` model
 # and save under `gadapter` dir
 
 # 2. prepare third_party lib
@@ -79,6 +87,7 @@ function clear_lib(){
   done
   popd
   echo "Clear library done."
+  echo
 }
 
 function compile_tensorflow(){
@@ -95,10 +104,9 @@ function compile_tensorflow(){
     #    unlink libtensorflow_cc.so.1
     #fi
     #ln -s libtensorflow_cc.so.1 libtensorflow_cc.so
-    #if [ -L libtensorflow_framework.so.1 ];then
-      #unlink libtensorflow_framework.so.1
-    #fi
-    #ln -s libtensorflow_framework.so.1 libtensorflow_framework.so
+    if [ ! -L libtensorflow_framework.so ];then
+      ln -s libtensorflow_framework.so.2 libtensorflow_framework.so
+    fi
     cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
     popd
     popd
@@ -109,6 +117,7 @@ function compile_tensorflow(){
     echo "Not support: $target $arch"
     exit 1
   fi
+  echo
 }
 
 function compile_tflite(){
@@ -127,6 +136,7 @@ function compile_tflite(){
     echo "Not support: $target $arch"
     exit 1
   fi
+  echo
 }
 
 function compile_custom_ops(){
@@ -148,6 +158,7 @@ function compile_custom_ops(){
     echo "Not support: $platform"
     exit 1
   fi
+  echo
 }
 
 function compile_deltann(){
@@ -155,20 +166,22 @@ function compile_deltann(){
   local target=$1 # linux
   local arch=$2   # x86_64
   local engine=$3   # [tf|tflite|tfserving]
-  
+
   pushd ${MAIN_ROOT}/deltann
   bash build.sh $target $arch $engine || { echo "build deltann error"; exit 1; }
   cp .gen/lib/* $MAIN_ROOT/dpl/lib/deltann || { echo "copy deltann error"; exit 1; }
   popd
   echo "Compile deltann successfully."
+  echo
 }
 
 function compile_deltann_egs(){
   echo "Compile deltann examples..."
   pushd ${MAIN_ROOT}/deltann
-  make example || { echo "Compile deltann examples error"; exit 1; }
+  make examples || { echo "Compile deltann examples error"; exit 1; }
   popd
   echo "Compile deltann examples done."
+  echo
 }
 
 function convert_model(){
@@ -177,11 +190,12 @@ function convert_model(){
   bash run.sh || { echo "convert model error"; exit 1; }
   popd
   echo "Convert model done."
+  echo
 }
 
 function dpl_output(){
-    if [ -d output ]
-  then
+  echo "dump output..."
+  if [ -d output ]; then
       rm -rf output
   fi
 
@@ -202,39 +216,52 @@ function dpl_output(){
   cd ..
   rm -rf saved_model
   popd
-
+  echo "dump output done."
+  echo
 }
 
-sudo chown -R deltann:deltann $MAIN_ROOT/tools
-sudo chown -R deltann:deltann $MAIN_ROOT/dpl
-
+echo
 echo "Input: ${INPUT_MODEL}"
 echo "Output: ${OUTPUT_MODEL}"
+echo
 
-# 1. convert graph 
-convert_model
+# 1. convert graph
+if [ $stage -le 0 ] && [ $stop_stage -ge 0 ];then
+  convert_model
+fi
 
 # 2. clear old libs
-clear_lib
+if [ $stage -le 1 ] && [ $stop_stage -ge 1 ];then
+  clear_lib
+fi
 
 # 3. compile tensorflow
-compile_tensorflow ${TARGET}  ${ARCH}
-# compile_tflite $TARGET $ARCH
+if [ $stage -le 2 ] && [ $stop_stage -ge 2 ];then
+  compile_tensorflow ${TARGET}  ${ARCH}
+  # compile_tflite $TARGET $ARCH
+fi
 
 # 4. compile deltann
-compile_deltann ${TARGET} ${ARCH} ${ENGINE}
-# compile_deltann $TARGET $ARCH tflite
+if [ $stage -le 3 ] && [ $stop_stage -ge 3 ];then
+  compile_deltann ${TARGET} ${ARCH} ${ENGINE}
+  # compile_deltann $TARGET $ARCH tflite
+fi
 
 # 5. compile custom ops
-compile_custom_ops tensorflow deltann
+if [ $stage -le 4 ] && [ $stop_stage -ge 4 ];then
+  compile_custom_ops tensorflow deltann
+fi
 
 # 6. compile deltann egs
-compile_deltann_egs
+if [ $stage -le 5 ] && [ $stop_stage -ge 5 ];then
+  compile_deltann_egs
+fi
 
-# 7. dump model and lib to `output_model`
+# 7. dump model and lib to `dpl/output`
+if [ $stage -le 6 ] && [ $stop_stage -ge 6 ];then
+  dpl_output
+fi
 
 # 8. run test
 # run test under docker
 
-# 9. dpl output
-dpl_output

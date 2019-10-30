@@ -19,7 +19,7 @@ import os
 import re
 from pathlib import Path
 import numpy as np
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 import shutil
 
@@ -62,9 +62,15 @@ def to_saved_model(config, sess, inputs: dict, outputs: dict):
   export_path = os.path.abspath(export_path)
   logging.info('Exporting model to: {}'.format(export_path))
   if os.path.exists(export_path):
-    files = [one.decode() for one in os.listdir(export_path) if isinstance(one, bytes)]
+    files = [
+        one.decode()
+        for one in os.listdir(export_path)
+        if isinstance(one, bytes)
+    ]
     if "variables" in files:
-      cmd = input(f"Export directory already exists, and isn't empty. Overwrite? [y/n]").strip().lower()
+      cmd = input(
+          f"Export directory already exists, and isn't empty. Overwrite? [y/n]"
+      ).strip().lower()
       if cmd == "" or cmd == "y":
         shutil.rmtree(export_path)
   builder = tf.saved_model.builder.SavedModelBuilder(export_path)

@@ -16,7 +16,7 @@
 # ==============================================================================
 ''' global ASR CTC utils '''
 
-import tensorflow as tf
+import delta.compat as tf
 
 
 def transform_preprocess(labels=None, blank_index=None, num_class=None):
