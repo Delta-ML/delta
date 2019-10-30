@@ -89,9 +89,6 @@ Welcome to DELTA's documentation!
 Indices and tables
 ==================
 
-Introduction
-============
-
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
