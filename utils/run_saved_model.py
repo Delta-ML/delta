@@ -17,6 +17,7 @@
 ''' Saved & Frozen & Checkpoint model Evaluater'''
 import os
 from absl import logging
+from absl import flags
 from absl import app
 
 from delta import utils
@@ -59,10 +60,12 @@ def main(_):
 def define_flags():
   ''' define flags for evaluator'''
   # The GPU devices which are visible for current process
-  app.flags.DEFINE_string('gpu', '', 'same to CUDA_VISIBLE_DEVICES')
-  app.flags.DEFINE_string('config', 'conf/xxx.yml', help='path to yaml config file')
-  app.flags.DEFINE_string('mode', 'eval', 'one of eval, infer, eval_and_infer')
-  app.flags.DEFINE_boolean('debug', False, 'debug mode')
+  flags.DEFINE_string('gpu', '', 'same to CUDA_VISIBLE_DEVICES')
+  flags.DEFINE_string('config', None, help='path to yaml config file')
+  flags.DEFINE_enum('mode', 'eval',['eval', 'infer', 'eval_and_infer'], 'eval or infer')
+  flags.DEFINE_bool('debug', False, 'debug mode')
+  # https://github.com/abseil/abseil-py/blob/master/absl/flags/_validators.py#L330
+  flags.mark_flags_as_required(['config', 'mode'])
 
 if __name__ == '__main__':
   logging.set_verbosity(logging.INFO)

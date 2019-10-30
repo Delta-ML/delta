@@ -209,7 +209,8 @@ ALL_MODULES = [("delta.data.task", TASK_MODULES),
                ("delta.utils.metrics", METRICS_MODULES),
                ("delta.utils.solver", SOLVER_MODULES),
                ("delta.utils.postprocess", POSTPROCESS_MODULES),
-               ("delta.serving", SERVING_MODULES)]
+               ("delta.serving", SERVING_MODULES),
+               ("delta.data.preprocess", PREPROCESS_MODULES)]
 
 
 def _handle_errors(errors):
