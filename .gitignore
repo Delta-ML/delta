@@ -113,3 +113,10 @@ dpl/output/
 
 # inner egs
 delta_inner
+
+# setup
+delta_nlp.egg-info/
+wheelhouse
+build
+dist
+py36venv

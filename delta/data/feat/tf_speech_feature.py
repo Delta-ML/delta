@@ -155,13 +155,6 @@ def read_wav(wavfile, params):
       desired_channels=params.audio_channels,
       #desired_samples=params.audio_sample_rate,
   )
-  #waveforms = tf.contrib.ffmpeg.decode_audio(
-  #  contents,
-  #  file_format='wav',
-  #  samples_per_second = params.audio_sample_rate,
-  #  channel_count=params.audio_channels,
-  #)
-  #return waveforms[:, 0]
   return tf.squeeze(waveforms.audio, axis=-1)
 
 

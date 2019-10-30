@@ -18,12 +18,12 @@ import os
 from pathlib import Path
 
 import numpy as np
+from absl import logging
 import delta.compat as tf
 
 from delta.layers.ops import py_x_ops
 from delta.data import feat as feat_lib
-
-from absl import logging
+from delta import PACKAGE_ROOT_DIR
 
 
 class AfbOpTest(tf.test.TestCase):
@@ -32,8 +32,8 @@ class AfbOpTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     self.wavpath = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'layers/ops/data/sm1_cln.wav'))
 
   def tearDown(self):
     '''tear down'''

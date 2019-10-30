@@ -15,16 +15,27 @@
 # ==============================================================================
 ''' python custom ops '''
 
+import os
 import delta.compat as tf
 from absl import logging
 
+from delta import PACKAGE_ROOT_DIR
+from delta.data.utils import read_lines_from_text_file
+
 #pylint: disable=invalid-name
 
-path = tf.resource_loader.get_path_to_datafile('x_ops.so')
+
+file_dir = tf.resource_loader.get_data_files_path()
+try:
+  so_lib_file = tf.io.gfile.glob(file_dir + '/x_ops*.so')[0].split('/')[-1]
+except IndexError as e:
+  raise FileNotFoundError(f"No x_ops*.so match under dir: {file_dir}")
+path = tf.resource_loader.get_path_to_datafile(so_lib_file)
+
 logging.info('x_ops.so path:{}'.format(path))
 
-gen_x_ops = tf.load_op_library(
-    tf.resource_loader.get_path_to_datafile('x_ops.so'))
+
+gen_x_ops = tf.load_op_library(path)
 
 pitch = gen_x_ops.pitch
 frame_pow = gen_x_ops.frame_pow
@@ -40,6 +51,50 @@ vocab_token_to_id = gen_x_ops.vocab_token_to_id
 vocab_id_to_token = gen_x_ops.vocab_id_to_token
 token_in_vocab = gen_x_ops.token_in_vocab
 str_lower = gen_x_ops.str_lower
-jieba_cut = gen_x_ops.jieba_cut
 sentence_to_ids = gen_x_ops.sentence_to_ids
 delta_delta = gen_x_ops.delta_delta
+
+
+def jieba_cut(input_sentence,
+              use_file=True,
+              hmm=True):
+
+  dict_path = os.path.join(PACKAGE_ROOT_DIR,
+                           "./resources/cppjieba_dict/jieba.dict.utf8")
+  hmm_path = os.path.join(PACKAGE_ROOT_DIR,
+                          "./resources/cppjieba_dict/hmm_model.utf8")
+  user_dict_path = os.path.join(PACKAGE_ROOT_DIR,
+                                "./resources/cppjieba_dict/user.dict.utf8")
+  idf_path = os.path.join(PACKAGE_ROOT_DIR,
+                          "./resources/cppjieba_dict/idf.utf8")
+  stop_word_path = os.path.join(PACKAGE_ROOT_DIR,
+                                "./resources/cppjieba_dict/stop_words.utf8")
+
+  if use_file:
+    output_sentence = gen_x_ops.jieba_cut(
+      input_sentence,
+      use_file=use_file,
+      hmm=hmm,
+      dict_path=dict_path,
+      hmm_path=hmm_path,
+      user_dict_path=user_dict_path,
+      idf_path=idf_path,
+      stop_word_path=stop_word_path)
+  else:
+    dict_lines = read_lines_from_text_file(dict_path)
+    model_lines = read_lines_from_text_file(hmm_path)
+    user_dict_lines = read_lines_from_text_file(user_dict_path)
+    idf_lines = read_lines_from_text_file(idf_path)
+    stop_word_lines = read_lines_from_text_file(stop_word_path)
+
+    output_sentence = gen_x_ops.jieba_cut(
+      input_sentence,
+      use_file=use_file,
+      hmm=hmm,
+      dict_lines=dict_lines,
+      model_lines=model_lines,
+      user_dict_lines=user_dict_lines,
+      idf_lines=idf_lines,
+      stop_word_lines=stop_word_lines)
+
+  return output_sentence

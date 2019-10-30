@@ -15,10 +15,11 @@
 # ==============================================================================
 
 import delta.compat as tf
-import os
 from pathlib import Path
-from delta.data.frontend.read_wav import ReadWav
 import librosa
+from delta import PACKAGE_ROOT_DIR
+
+from delta.data.frontend.read_wav import ReadWav
 from delta import PACKAGE_ROOT_DIR
 
 

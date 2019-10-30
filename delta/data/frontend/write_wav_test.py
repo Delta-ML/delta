@@ -35,8 +35,8 @@ class WriteWavTest(tf.test.TestCase):
       input_data = input_data / 32768
       write_wav = WriteWav.params().instantiate()
       new_path = str(
-          Path(os.environ['MAIN_ROOT']).joinpath(
-              'delta/layers/ops/data/sm1_cln_new.wav'))
+          Path(PACKAGE_ROOT_DIR).joinpath(
+              'layers/ops/data/sm1_cln_new.wav'))
       writewav_op = write_wav(new_path, input_data, sample_rate)
       sess.run(writewav_op)
       test_data, test_sample_rate = read_wav(new_path)

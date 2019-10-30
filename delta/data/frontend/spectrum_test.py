@@ -14,15 +14,14 @@
 # limitations under the License.
 # ==============================================================================
 
-import delta.compat as tf
-from tensorflow.python.framework.ops import disable_eager_execution
-disable_eager_execution()
 import os
+import numpy as np
 from pathlib import Path
+import delta.compat as tf
+
+from delta import PACKAGE_ROOT_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.spectrum import Spectrum
-import numpy as np
-from delta import PACKAGE_ROOT_DIR
 
 
 class SpectrumTest(tf.test.TestCase):
