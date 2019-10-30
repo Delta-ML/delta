@@ -156,7 +156,7 @@ class RnnEncoder(Layer):  # pylint: disable=too-many-instance-attributes
           inputs)
       state_h = tf.keras.layers.concatenate([forward_h, backward_h])
       state_c = tf.keras.layers.concatenate([forward_c, backward_c])
-      states = tf.contrib.rnn.LSTMStateTuple(state_h, state_c)
+      states = tf.nn.rnn_cell.LSTMStateTuple(state_h, state_c)
     else:
       out, forward_h, backward_h = self.sen_encoder(inputs)
       states = tf.keras.layers.concatenate([forward_h, backward_h])

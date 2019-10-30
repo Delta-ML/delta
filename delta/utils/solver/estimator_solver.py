@@ -21,8 +21,6 @@ import delta.compat as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
 from tensorflow.python.estimator.canned import metric_keys
 # See: tensorboard/tensorboard/plugins/pr_curve/README.md
-# Note: tf.contrib.metrics.streaming_curve_points will only produce a series of points
-#  which won't be displayed by Tensorboard.
 from tensorboard.plugins.pr_curve import summary as pr_summary
 
 from delta import utils
