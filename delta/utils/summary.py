@@ -20,50 +20,32 @@ import delta.compat as tf
 
 def flush(writer=None, name=None):
   """Flush"""
-  if tf.executing_eagerly():
-    tf.contrib.summary.flush(writer, name)
-  else:
-    tf.summary.flush(writer, name)  # pylint: disable=no-member
+  tf.summary.flush(writer, name)  # pylint: disable=no-member
 
 
 def scalar(name, value):  # pylint: redefined-outer-name
   "Scalar"
-  if tf.executing_eagerly():
-    tf.contrib.summary.scalar(name, value)
-  else:
-    tf.summary.scalar(name, value)
+  tf.summary.scalar(name, value)
 
 
 def histogram(name, values):
   "Histogram"
-  if tf.executing_eagerly():
-    tf.contrib.summary.histogram(name, values)
-  else:
-    tf.summary.histogram(name, values)
+  tf.summary.histogram(name, values)
 
 
 def text(name, tensor):
   "Text"
-  if tf.executing_eagerly():
-    tf.contrib.summary.text(name, tensor)
-  else:
-    tf.summary.text(name, tensor)
+  tf.summary.text(name, tensor)
 
 
 def audio(name, tensor, sample_rate, max_outputs=3):
   "Audio"
-  if tf.executing_eagerly():
-    tf.contrib.summary.audio(name, tensor, sample_rate, max_outputs)
-  else:
-    tf.summary.audio(name, tensor, sample_rate, max_outputs)
+  tf.summary.audio(name, tensor, sample_rate, max_outputs)
 
 
 def image(name, tensor, max_images=3):
   "Image"
-  if tf.executing_eagerly():
-    tf.contrib.summary.image(name, tensor, max_images=max_images)
-  else:
-    tf.summary.image(name, tensor, max_outputs=max_images)
+  tf.summary.image(name, tensor, max_outputs=max_images)
 
 
 # pylint: disable=too-many-arguments
@@ -76,12 +58,9 @@ def summary_writer(logdir,
                    session=None,
                    name=None):
   """Summary writer."""
-  if tf.executing_eagerly():
-    return tf.contrib.summary.create_file_writer(
-        logdir,
-        max_queue=max_queue,
-        flush_millis=flush_secs * 1000,
-        filename_suffix=filename_suffix,
-        name=name)
-  return tf.summary.FileWriter(logdir, graph, max_queue, flush_secs, graph_def,
-                               filename_suffix, session)
+  return tf.summary.create_file_writer(
+      logdir,
+      max_queue=max_queue,
+      flush_millis=flush_secs * 1000,
+      filename_suffix=filename_suffix,
+      name=name)
