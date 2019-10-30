@@ -218,7 +218,8 @@ def _handle_errors(errors):
   if not errors:
     return
   for name, err in errors:
-    logging.fatal("Module {} import failed: {}".format(name, err))
+    logging.warning("Module {} import failed: {}".format(name, err))
+  logging.fatal("Please check these modules.")
 
 
 def path_to_module_format(py_path):
