@@ -168,7 +168,10 @@ We organize the model deployment scripts under `./dpl` directory.
 * Put `SavedModel` and configure `model.yaml` into `dpl/model`.
 * Use scripts under `dpl/run.sh` to convert model to other deployment model, and compile libraries.
 * All compiled `tensorflow` libs and `delta-nn` libs are in `dpl/lib`.
+* All things need for deployment are under `dpl/output` dir.
 * Test, benchmark or serve under docker.
+
+For more information, please see [dpl/README.md](dpl/README.md).
 
 ## Benchmarks
 
