@@ -101,7 +101,6 @@ class SpeechClsTaskTest(tf.test.TestCase):
           decay_rate: 0.99  # the lr decay rate
           decay_steps: 100  # the lr decay_step for optimizer
         clip_global_norm: 3.0 # clip global norm
-        multitask: False # whether is multi-task
       metrics:
         pos_label: 1 # int, same to sklearn
         cals:

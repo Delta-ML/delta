@@ -121,7 +121,6 @@ class EstimatorSolver(ABCEstimatorSolver):
       )
 
       if mode == utils.TRAIN:  #pylint: disable=no-else-return
-        multitask = self.config['solver']['optimizer']['multitask']
         if self.config['solver']['adversarial']['enable']:
           x = features['inputs']  #pylint: disable=invalid-name
           grad, = tf.gradients(loss, x)
@@ -139,14 +138,13 @@ class EstimatorSolver(ABCEstimatorSolver):
           )
           adv_alpha = self.config['solver']['adversarial']['adv_alpha']
           loss_all = (1 - adv_alpha) * loss + adv_alpha * loss_adv
-          multitask = True
         else:
           loss_all = loss
 
         # L2 loss
         loss_all += self.l2_loss()
 
-        train_op = self.get_train_op(loss_all, multitask=multitask)
+        train_op = self.get_train_op(loss_all)
         train_hooks = self.get_train_hooks(labels, logits, alpha=alignment)
 
         utils.log_vars('Global Vars', tf.global_variables())

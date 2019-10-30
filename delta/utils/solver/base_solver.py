@@ -18,6 +18,7 @@
 import abc
 import math
 import delta.compat as tf
+import tensorflow_addons as tfa
 from absl import logging
 
 from delta import utils
