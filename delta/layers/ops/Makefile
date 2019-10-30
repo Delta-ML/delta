@@ -93,4 +93,4 @@ ${TEST_BIN}: $(TEST_OBJ) $(STATIC_LIB)
 .PHONY: clean
 clean:
 	-rm -rf $(GENDIR)
-	-rm -f x_ops.so
+	-rm -f x_ops.*so

@@ -24,6 +24,7 @@ from absl import logging
 
 from delta.data import feat as feat_lib
 from delta.layers.ops import py_x_ops
+from delta import PACKAGE_ROOT_DIR
 
 
 class FrmPowOpTest(tf.test.TestCase):
@@ -32,8 +33,8 @@ class FrmPowOpTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     self.wavpath = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'layers/ops/data/sm1_cln.wav'))
 
   def tearDown(self):
     '''tear down'''

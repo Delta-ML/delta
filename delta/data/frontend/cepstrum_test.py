@@ -14,12 +14,12 @@
 # limitations under the License.
 # ==============================================================================
 
+import numpy as np
 import delta.compat as tf
-import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.cepstrum import Cepstrum
-import numpy as np
+from delta import PACKAGE_ROOT_DIR
 
 
 class CepstrumTest(tf.test.TestCase):
@@ -27,8 +27,8 @@ class CepstrumTest(tf.test.TestCase):
   def test_cepstrum(self):
 
     wav_path = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
