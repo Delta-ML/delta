@@ -7,13 +7,90 @@ Welcome to DELTA's documentation!
 =================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Introduction 
+   :name: sec-intro
+
+   introduction
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Installation
+   :name: sec-install
+
+   installation/using_docker
+   installation/manual_setup
+   installation/deltann_compile
+   installation/install_on_macos
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials 
+   :name: sec-tutorials
+
+   tutorials/training/egs
+   tutorials/training/speech_features
+   tutorials/training/text_class_example
+   tutorials/training/data/asr_example
+   tutorials/training/data/emotion-speech-cls
+   tutorials/training/data/kws-cls
+   tutorials/deployment/dpl
+   tutorials/deployment/deltann
+ 
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer guide
+   :name: sec-devel
+  
+   development/docker
+   development/adding_op
+   development/serving
+   development/tensorrt
+   development/model_optimization
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contributing 
+   :name: sec-contributing
+
+   development/contributing
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Released model 
+   :name: sec-rele-model
+
+   released_models
+
+.. toctree::
+   :maxdepth: 1
+   :caption: FAQ
+   :name: sec-faq
+
+   faq
+
+.. toctree::
+   :maxdepth: 1
+   :caption: References
+   :name: sec-refs
+
+   references
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Version
+   :name: sec-ver
+
+   version
 
 
 
 Indices and tables
 ==================
+
+Introduction
+============
 
 * :ref:`genindex`
 * :ref:`modindex`
