@@ -49,12 +49,35 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 
 ## Installation
 
-### Quick Installation
+### Installation by pip
 
-We use [conda](https://conda.io/) to install required packages. Please [install conda](https://conda.io/en/latest/miniconda.html) if you do not have it in your system. 
+We provide the pip install support for our `nlp` version of DELTA for
+**pure NLP users** and the **quick demo of the features**. 
 
-We provide two options to install DELTA, `nlp` version or `full` version. 
-`nlp` version needs minimal requirements and only installs NLP related packages: 
+**Note**: Users can still use both `nlp` and `speech` tasks by installing
+from our source code.
+
+We recommend to use [conda](https://conda.io/) or
+[virtualenv](https://virtualenv.pypa.io/en/latest/) to install DELTA
+from pip.
+
+Before our installation, make sure you have installed the Tensorflow
+(2.0.0 is required now).
+
+```bash
+pip install delta-nlp
+```
+
+### Installation from Source Code
+
+To install from the source code, We use [conda](https://conda.io/) to
+install required packages. Please
+[install conda](https://conda.io/en/latest/miniconda.html) if you do not
+have it in your system.
+
+Also, we provide two options to install DELTA, `nlp` version or `full`
+version. `nlp` version needs minimal requirements and only installs NLP
+related packages:
 
 ```shell
 # Run the installation script for NLP version, with CPU or GPU.
