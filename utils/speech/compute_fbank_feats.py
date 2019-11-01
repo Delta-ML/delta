@@ -130,6 +130,5 @@ def compute_fbank():
       fbank_feats = fbank_test.eval(session=sess)
       writer[utt_id] = fbank_feats
 
-
 if __name__ == "__main__":
   compute_fbank()

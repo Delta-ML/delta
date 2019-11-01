@@ -124,7 +124,7 @@ class CMVN(BaseFrontend):
 
     return hparams
 
-  def call(self, stats, x, uttid=None):
+  def call(self, stats):
 
     p = self.config
 
@@ -164,12 +164,17 @@ class CMVN(BaseFrontend):
       var = stats[1, :-1] / count - mean * mean
       std = np.maximum(np.sqrt(var), p.std_floor)
       self.bias[spk] = -mean
-      self.sacle[spk] = 1 / std
+      self.scale[spk] = 1 / std
 
-    if self.utt2spk is not  None:
-      spk = self.utt2spk[uttid]
-    else:
-      spk = uttid
+  def apply_cmvn(self, x, uttid):
+
+    p = self.config
+
+    # if self.utt2spk is not None:
+    #   spk = self.utt2spk[uttid]
+    # else:
+    #   spk = uttid
+    spk = uttid
 
     if not p.reverse:
       if p.norm_means:
@@ -182,4 +187,4 @@ class CMVN(BaseFrontend):
       if p.norm_vars:
         x = np.divide(x, self.scale[spk])
 
-    return x
+    return spk, x

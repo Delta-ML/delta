@@ -17,8 +17,6 @@
 import delta.compat as tf
 from pathlib import Path
 import librosa
-from delta import PACKAGE_ROOT_DIR
-
 from delta.data.frontend.read_wav import ReadWav
 from delta import PACKAGE_ROOT_DIR
 

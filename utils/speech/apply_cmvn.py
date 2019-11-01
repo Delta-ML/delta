@@ -17,11 +17,11 @@
 # ==============================================================================
 
 import argparse
-from distutils.util import strtobool
-import kaldiio
+# from distutils.util import strtobool
+from kaldiio import WriteHelper
 import numpy as np
 from espnet.utils.cli_writers import KaldiWriter
-from espnet.utils.cli_readers import KaldiReader
+from espnet.utils.cli_readers import file_reader_helper
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from delta.data.frontend.cmvn import CMVN
@@ -29,18 +29,20 @@ from delta.data.frontend.cmvn import CMVN
 def get_parser():
   parser = argparse.ArgumentParser(
     description='Apply mean-variance normalization to files',
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
-  )
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
   parser.add_argument(
-    '--norm_means', type=strtobool, default=True,
+    '--norm_means', type=bool, default=True,
     help='Do mean normalization or not.')
   parser.add_argument(
-    '--norm_vars', type=strtobool, default=False,
+    '--norm_vars', type=bool, default=False,
     help='Do variance normalization or not.')
   parser.add_argument(
-    '--reverse', type=strtobool, default=False,
+    '--reverse', type=bool, default=False,
     help='Do reverse mode or not')
+  parser.add_argument(
+    '--std_floor', type=float, default=1e-20,
+    help='The std floor of norm_vars')
   parser.add_argument(
     '--spk2utt', type=str,
     help='A text file of speaker to utterance-list map. '
@@ -53,7 +55,7 @@ def get_parser():
     '--write_num_frames', type=str,
     help='Specify wspecifer for utt2num_frames')
   parser.add_argument(
-    '--compress', type=strtobool, default=False,
+    '--compress', type=bool, default=False,
     help='Save data in compressed format')
   parser.add_argument(
     '--compression_method', type=int, default=2,
@@ -84,12 +86,14 @@ def apply_cmvn():
   config['std_floor'] = args.std_floor
   cmvn = CMVN.params(config).instantiate()
 
-  stats_dict = dict(KaldiReader(args.stats_rspecifier, 'mat'))
+  stats_dict = dict(file_reader_helper(args.stats_rspecifier, 'mat'))
+  cmvn(stats_dict)
+
   with KaldiWriter(args.wspecifier, write_num_frames=args.write_num_frames,
                 compress=args.compress, compression_method=args.compression_method) as writer:
-    for utt, mat in KaldiReader(args.rspecifier):
-      mat = cmvn(stats_dict, mat, utt)
-      writer[utt] = mat
+    for utt, mat in file_reader_helper(args.rspecifier, 'mat'):
+      spk, mat = cmvn.apply_cmvn(mat, utt)
+      writer[spk] = mat
 
 if __name__ == '__main__':
   apply_cmvn()
