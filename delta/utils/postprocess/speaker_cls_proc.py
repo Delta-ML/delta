@@ -73,6 +73,8 @@ class SpeakerPostProc(PostProc):
         output_file_name = '%s_%s' % (output_level, output_key)
         self.output_files[output_level][output_key] = \
             os.path.join(self.output_dir, output_file_name)
+
+    logging.info(f"save to: {self.output_files}")
     self.pred_metrics_path = os.path.join(self.output_dir, 'metrics.txt')
 
   # pylint: disable=arguments-differ
@@ -230,8 +232,7 @@ class SpkUttPostProc(SpeakerPostProc):
 
         value = (batch['clipid'][i],)
         for key in self.outputs:
-          value += (batch[key][i],)
-        # utt -> (clipid, skpid, embeddings, ...)
+          value += (batch[key][i],) # utt -> (clipid, skpid, embeddings, ...)
         utt2clips[utt].append(value)
         logging.debug(f"utt2clips: {utt} {value[0]} {len(utt2clips[utt])}")
 
