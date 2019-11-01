@@ -54,7 +54,7 @@ class ClsMetric:
     acc = (self.TP + self.TN) / (self.TP + self.TN + self.FP + self.FN)
     precision = self.TP / (self.TP + self.FP)
     recall = self.TP / (self.TP + self.FN)
-    return acc, precission, recall
+    return acc, precision, recall
 
 
 class SpeechEvaluater(Evaluater):
