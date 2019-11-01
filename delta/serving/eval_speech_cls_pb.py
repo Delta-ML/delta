@@ -15,9 +15,9 @@
 # ==============================================================================
 ''' Frozen model Evaluater'''
 import numpy as np
-import delta.compat as tf
 from absl import logging
 
+import delta.compat as tf
 from delta import utils
 from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
@@ -125,7 +125,7 @@ class EmoSpeechEvaluater(SpeechEvaluater):
       logging.info("Process End")
 
     if self._mode == utils.EVAL:
-      acc, precistion, recall = self.metric.result()
+      acc, precision, recall = self.metric.result()
       logging.info('acc {}'.format(acc))
       logging.info('precision {}'.format(precision))
       logging.info('recall {}'.format(recall))
@@ -174,4 +174,3 @@ class SpkSpeechEvaluater(SpeechEvaluater):
         self.run()
     except tf.errors.OutOfRangeError:
       logging.info("Process End")
-
