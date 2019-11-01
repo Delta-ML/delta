@@ -68,6 +68,9 @@ Before our installation, make sure you have installed the Tensorflow
 pip install delta-nlp
 ```
 
+Follow the usage steps here if you install by pip:
+[A Text Classification Usage Example for pip users](docs/tutorials/training/text_class_pip_example.md)
+
 ### Installation from Source Code
 
 To install from the source code, We use [conda](https://conda.io/) to

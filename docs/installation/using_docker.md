@@ -1,4 +1,4 @@
-# Intallation using Docker
+# Installation using Docker
 
 You can directly pull the pre-build docker images for DELTA and DELTANN. We have created the following docker images:
 
