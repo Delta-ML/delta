@@ -15,7 +15,7 @@ pip install delta-nlp
 ```
 
 Check here for
-[the tutorial for usage of `delta-nlp`](tutorials/training/text_class_pip_example).
+[the tutorial for usage of delta-nlp](../tutorials/training/text_class_pip_example.html).
 
 **Requirements**: You need `tensorflow==2.0.0` and `python==3.6` in
 MacOS or Linux.
@@ -25,7 +25,8 @@ MacOS or Linux.
 For users who need **whole function of delta** (including speech and
 nlp), you can clone our repository and install from the source code.
 
-Please follow the steps here: [Install from the source code](installation/install_from_source)
+Please follow the steps here:
+[Install from the source code](install_from_source.html)
 
 ## Use docker
 
@@ -33,5 +34,5 @@ For users who are **capable of use docker**, you can pull our images
 directly. This maybe the best choice for docker users.
 
 Please follow the steps here:
-[Installation using Docker](installation/using_docker)
+[Installation using Docker](using_docker.html)
 
