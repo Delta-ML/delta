@@ -15,8 +15,8 @@ TF_INCLUDE, TF_CFLAG = tf.sysconfig.get_compile_flags()
 TF_INCLUDE = TF_INCLUDE.split('-I')[1]
 
 TF_LIB_INC, TF_SO_LIB = tf.sysconfig.get_link_flags()
-TF_SO_LIB = TF_SO_LIB.replace('-l:libtensorflow_framework.1.dylib',
-                              '-ltensorflow_framework.1')
+TF_SO_LIB = TF_SO_LIB.replace('-l:libtensorflow_framework.2.dylib',
+                              '-ltensorflow_framework.2')
 TF_LIB_INC = TF_LIB_INC.split('-L')[1]
 TF_SO_LIB = TF_SO_LIB.split('-l')[1]
 
@@ -100,7 +100,7 @@ setup(
     description=SHORT_DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    version="0.2",
+    version="0.2.1",
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     maintainer=MAINTAINER,
