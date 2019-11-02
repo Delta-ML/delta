@@ -18,7 +18,8 @@ Welcome to DELTA's documentation!
    :caption: Installation
    :name: sec-install
 
-   installation/pick_install
+   installation/pick_installation
+   installation/install_from_source
    installation/using_docker
    installation/manual_setup
    installation/deltann_compile
