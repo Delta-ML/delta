@@ -27,6 +27,7 @@ limitations under the License.
 #endif
 
 using std::string;
+using std::ostream;
 
 namespace delta {
 
@@ -34,7 +35,7 @@ namespace core {
 
 enum class InOut { DELTA_IN = 0, DELTA_OUT };
 
-// model input/output identifier
+// model input/output metadatag
 class BaseInOut {
  public:
   BaseInOut(std::string name, int id, Shape shape, DataType dtype)
@@ -63,8 +64,17 @@ class BaseInOut {
     _shape.set_shape(shape);
   }
 #endif
-
   void set_shape(const Shape& shape) { _shape.set_shape(shape); }
+
+  friend std::ostream& operator<<(std::ostream& os, const BaseInOut& inout) {
+	if (inout.inout_type() == InOut::DELTA_IN){
+		os << "Input: ";
+	} else {
+		os << "Output: ";
+	}
+	os << inout._name << inout._id << inout._shape << delta_dtype_str(inout._dtype) << std::endl;
+	return os;
+}
 
  protected:
   InOut _inout;
@@ -87,6 +97,12 @@ class Input : public BaseInOut {
     _inout = InOut::DELTA_IN;
   }
 
+  //Input(Input& oth)
+  //    : BaseInOut(oth.name(), oth.id(), oth.shape(), oth.dtype()) {
+  //  _inout = InOut::DELTA_IN;
+  //}
+
+
   ~Input() {}
 };
 
@@ -105,6 +121,7 @@ class Output : public BaseInOut {
 
   ~Output() {}
 };
+
 
 }  // namespace core
 

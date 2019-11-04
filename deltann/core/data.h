@@ -39,7 +39,7 @@ class BaseInOutData {
   explicit BaseInOutData(BaseInOut& inout) : _inout(inout) {
     if (inout.dtype() != DataType::DELTA_NONE && 0 != inout.size()) {
       _data =
-          std::make_shared<Buffer>(inout.size() * delta_sizeof(inout.dtype()));
+          std::make_shared<Buffer>(inout.size() * delta_dtype_size(inout.dtype()));
     } else {
       _data = std::make_shared<Buffer>();
     }
@@ -56,7 +56,7 @@ class BaseInOutData {
   const size_t size(void) const { return _inout.size(); }
 
   const size_t byte_size(void) const {
-    return _inout.size() * delta_sizeof(_inout.dtype());
+    return _inout.size() * delta_dtype_size(_inout.dtype());
   }
 
   DataType dtype() const { return _inout.dtype(); }
@@ -98,7 +98,7 @@ class BaseInOutData {
   void copy_from(const void* src, std::size_t size) {
     DataType dtype = this->dtype();
     if (dtype != DataType::DELTA_NONE) {
-      std::size_t bytes = size * delta_sizeof(dtype);
+      std::size_t bytes = size * delta_dtype_size(dtype);
       resize(bytes);
       _data->copy_from(src, bytes);
     } else {
@@ -111,7 +111,7 @@ class BaseInOutData {
   void copy_from(const float* src, std::size_t size) {
     DataType dtype = this->dtype();
     if (dtype != DataType::DELTA_NONE) {
-      _data->copy_from(src, size * delta_sizeof(dtype));
+      _data->copy_from(src, size * delta_dtype_size(dtype));
     } else {
       LOG_FATAL << "_dtype is DataType::DELTA_NONE ";
     }
@@ -124,7 +124,7 @@ class BaseInOutData {
   void resize(const std::size_t size) {
     DataType dtype = this->dtype();
     if (dtype != DataType::DELTA_NONE) {
-      _data->resize(size * delta_sizeof(dtype));
+      _data->resize(size * delta_dtype_size(dtype));
     } else {
       LOG_FATAL << "Data type is DELTA_NONE";
     }
@@ -142,7 +142,7 @@ class BaseInOutData {
     tensorflow::TensorShape ts;
     status = tensorflow::TensorShapeUtils::MakeShape(tmp_shape, &ts);
     if (!status.ok()) {
-      LOG_FATAL << "Error when make shape from vector: " << status;
+      LOG_FATAL << "Error when make shape from vector: " << tmp_shape << ", " << status;
     }
     return ts;
   }

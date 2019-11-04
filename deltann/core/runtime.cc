@@ -134,23 +134,110 @@ DeltaStatus Runtime::load_model() {
 
 DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
   _inputs_data.clear();
+
   for (auto& in : inputs) {
-    LOG_INFO << "Graph name " << in._graph_name;
+    LOG_INFO << "Graph name: " << in._graph_name;
     auto search = _graphs.find(in._graph_name);
     if (search != _graphs.end()) {
       Graph& graph = search->second;
+
       // std::unordered_map<std::string, Input>& inputs = graph.get_inputs();
-      LOG_INFO << "input name " << in._input_name;
-      Input& input = graph.get_inputs().at(in._input_name);
-      DELTA_CHECK_GE(in._size, input.size());
-      InputData input_data(input);
-      input_data.copy_from(in._ptr, in._size);
-      _inputs_data.push_back(input_data);
+      LOG_INFO << "input name: " << in._input_name;
+      try {
+        Input& input = graph.get_inputs().at(in._input_name);
+
+        if (input.shape().is_partial()) {
+            LOG_INFO << "Override partial shape: " << input.shape() << " to " <<  in._shape;
+            input.set_shape(in._shape);
+        }
+        DELTA_CHECK_EQ(in._size, input.size() * delta_dtype_size(input.dtype())) << in._size << ":" << input.size() * delta_dtype_size(input.dtype());
+
+        //LOG_INFO << input;
+        InputData input_data(input);
+        input_data.copy_from(in._ptr, in._size);
+        _inputs_data.push_back(input_data);
+      } catch (std::out_of_range& e) {
+	 LOG_FATAL << "Can not find [" << in._input_name << "] node in [" << in._graph_name <<"] graph: " << e.what();
+      }
     } else {
       LOG_FATAL << "Error, Graph " << in._graph_name << " not exist!";
     }
   }
   return DeltaStatus::STATUS_OK;
+}
+
+// load model if not loaded, then warmup model;
+DeltaStatus Runtime::warmup() {
+  if (DeltaStatus::STATUS_OK != load_custom_ops()) {
+    LOG_FATAL << "load custom ops failed";
+    return DeltaStatus::STATUS_ERROR;
+  }
+
+  if (DeltaStatus::STATUS_OK != load_model()) {
+    LOG_FATAL << "load model failed";
+    return DeltaStatus::STATUS_ERROR;
+  }
+
+  LOG_INFO << "Warmup ...";
+  for (auto& graph : _graphs) {
+    std::vector<InputData> inputs_data;
+    std::vector<OutputData> outputs_data;
+
+    std::unordered_map<std::string, Input>& inputs = graph.second.get_inputs();
+    for (auto& input : inputs) {
+      Input in(input.second);
+
+      if (in.shape().is_partial()) {
+	  auto s = Shape();
+	  //auto s = in.shape();
+	  //s.set_dim(0, 1);
+	  s.set_shape(in.shape());
+	  s.set_dim(0, 1);
+	  LOG_INFO << "Override partial shape: " << in.shape() << " to " <<  s;
+	  in.set_shape(s);
+      }
+
+      InputData in_data(in);
+      in_data.feed_random_data();
+      inputs_data.push_back(in_data);
+    }
+
+    std::unordered_map<std::string, Output>& outputs =
+        graph.second.get_outputs();
+    for (auto& output : outputs) {
+      outputs_data.push_back(OutputData(output.second));
+    }
+
+    if (DeltaStatus::STATUS_OK !=
+        this->run(&(graph.second), inputs_data, &outputs_data)) {
+      LOG_FATAL << "run failed";
+      return DeltaStatus::STATUS_ERROR;
+    }
+  }
+
+  LOG_INFO << "Warmup Done!";
+  return DeltaStatus::STATUS_OK;
+}
+
+// run
+// only support one Graph now!!!! how to support multi-graphs ???
+DeltaStatus Runtime::run() {
+  _outputs_data.clear();
+
+  Graph& graph = _graphs.begin()->second;
+
+  // out
+  std::unordered_map<std::string, Output>& outputs = graph.get_outputs();
+  for (auto& output : outputs) {
+    _outputs_data.push_back(OutputData(output.second));
+  }
+
+  // run
+  if (DeltaStatus::STATUS_OK !=
+      this->run(&(graph), _inputs_data, &_outputs_data)) {
+    LOG_FATAL << "run failed";
+    return DeltaStatus::STATUS_ERROR;
+  }
 }
 
 // get all out result
@@ -189,141 +276,7 @@ DeltaStatus Runtime::get_outputs(std::vector<string>* results) {
   return DeltaStatus::STATUS_OK;
 }
 
-// run
-// only support one Graph now!!!! how to support multi-graphs ???
-DeltaStatus Runtime::run() {
-  _outputs_data.clear();
 
-  Graph& graph = _graphs.begin()->second;
-
-  // out
-  std::unordered_map<std::string, Output>& outputs = graph.get_outputs();
-  for (auto& output : outputs) {
-    _outputs_data.push_back(OutputData(output.second));
-  }
-
-  // run
-  if (DeltaStatus::STATUS_OK !=
-      this->run(&(graph), _inputs_data, &_outputs_data)) {
-    LOG_FATAL << "run failed";
-    return DeltaStatus::STATUS_ERROR;
-  }
-}
-
-#if 0
-DeltaStatus Runtime::run(const string name, float* buffer, const int size,
-                vector<string>* results) {
-  LOG_WARN << "graph name is " << name;
-  auto search = _graphs.find(name);
-
-  if (search != _graphs.end()) {
-    Graph& graph = search->second;
-    std::vector<InputData> inputs_data;
-    std::vector<OutputData> outputs_data;
-    // feed data
-    std::unordered_map<std::string, Input>& inputs = graph.get_inputs();
-
-    int in_size = 0;
-    for (auto& input : inputs) {
-      in_size += input.second.size();
-    }
-
-    DELTA_CHECK_GE(size, in_size);
-
-    // in
-    float* src = buffer;
-    for (auto& input : inputs) {
-      InputData in(input.second);
-      in.copy_from(src);
-      inputs_data.push_back(in);
-      src += input.second.size() * sizeof(float);
-    }
-
-    // out
-    std::unordered_map<std::string, Output>& outputs = graph.get_outputs();
-    for (auto& output : outputs) {
-      outputs_data.push_back(OutputData(output.second));
-    }
-
-    // run
-    if (DeltaStatus::STATUS_OK !=
-        this->run(&(graph), inputs_data, &outputs_data)) {
-      LOG_FATAL << "run failed";
-      return DeltaStatus::STATUS_ERROR;
-    }
-
-    // get resulst
-    results->clear();
-    for (auto& output_data : outputs_data) {
-      LOG_INFO << "out shape is " << output_data.shape();
-      DataType dtype = output_data.dtype();
-      int size = output_data.size();
-      LOG_INFO << "out size is " << size;
-      std::stringstream ss;
-      switch (dtype) {
-        case DataType::DELTA_FLOAT32: {
-          float* ptr = static_cast<float*>(output_data.ptr());
-          for (int i = 0; i < size; ++i) {
-            ss << ptr[i] << ",";
-          }
-        } break;
-        case DataType::DELTA_INT32: {
-          int* ptr = static_cast<int*>(output_data.ptr());
-          for (int i = 0; i < size; ++i) {
-            ss << ptr[i] << ",";
-          }
-        } break;
-        default:
-          LOG_FATAL << "Error, not support dtype ";
-      }
-      results->push_back(ss.str());
-      LOG_INFO << "results are " << *results;
-    }
-  } else {
-    LOG_FATAL << "Error, run failed, graph " << name << " not exist.";
-  }
-  return DeltaStatus::STATUS_OK;
-}
-#endif
-
-// load model if not loaded, then warmup model;
-DeltaStatus Runtime::warmup() {
-  if (DeltaStatus::STATUS_OK != load_custom_ops()) {
-    LOG_FATAL << "load custom ops failed";
-    return DeltaStatus::STATUS_ERROR;
-  }
-
-  if (DeltaStatus::STATUS_OK != load_model()) {
-    LOG_FATAL << "load model failed";
-    return DeltaStatus::STATUS_ERROR;
-  }
-
-  for (auto& graph : _graphs) {
-    std::vector<InputData> inputs_data;
-    std::vector<OutputData> outputs_data;
-
-    std::unordered_map<std::string, Input>& inputs = graph.second.get_inputs();
-    for (auto& input : inputs) {
-      InputData in(input.second);
-      in.feed_random_data();
-      inputs_data.push_back(in);
-    }
-
-    std::unordered_map<std::string, Output>& outputs =
-        graph.second.get_outputs();
-    for (auto& output : outputs) {
-      outputs_data.push_back(OutputData(output.second));
-    }
-
-    if (DeltaStatus::STATUS_OK !=
-        this->run(&(graph.second), inputs_data, &outputs_data)) {
-      LOG_FATAL << "run failed";
-      return DeltaStatus::STATUS_ERROR;
-    }
-  }
-
-  return DeltaStatus::STATUS_OK;
-}
 
 }  // namespace core
 

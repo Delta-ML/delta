@@ -23,7 +23,8 @@ limitations under the License.
 
 namespace delta {
 
-std::size_t delta_sizeof(DataType type) {
+// convert dtype to bytes
+std::size_t delta_dtype_size(DataType type) {
   switch (type) {
     case DataType::DELTA_FLOAT32:
       return sizeof(float);
@@ -36,12 +37,31 @@ std::size_t delta_sizeof(DataType type) {
     case DataType::DELTA_CHAR:
       return sizeof(char);
     default:
-      assert(false);
+      LOG_FATAL<<"Not support delta dtype";
       return 0;
   }
 }
 
-DataType delta_type_switch(const std::string& type) {
+// convert dtype to string
+std::string delta_dtype_str(DataType type) {
+  switch (type) {
+    case DataType::DELTA_FLOAT32:
+      return "float";
+    case DataType::DELTA_FLOAT16:
+      return "float16";
+    case DataType::DELTA_DOUBLE:
+      return "double";
+    case DataType::DELTA_INT32:
+      return "int";
+    case DataType::DELTA_CHAR:
+      return "char";
+    default:
+      return "Not support delta dtype";
+  }
+}
+
+// convert string to dtype
+DataType delta_str_dtype(const std::string& type) {
   if (type == "float") {
     return DataType::DELTA_FLOAT32;
   } else if (type == "double") {

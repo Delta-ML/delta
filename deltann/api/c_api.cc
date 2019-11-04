@@ -38,9 +38,7 @@ ModelHandel DeltaLoadModel(const char* yaml_file) {
 InferHandel DeltaCreate(ModelHandel model) {
   RuntimeConfig* rt_cfg = static_cast<RuntimeConfig*>(model);
   Runtime* rt = new Runtime(*rt_cfg);
-  LOG_INFO << " Warmup Start!";
   rt->warmup();
-  LOG_INFO << " Warmup Done!";
   return static_cast<InferHandel>(rt);
 }
 
@@ -48,8 +46,14 @@ DeltaStatus DeltaSetInputs(InferHandel inf, Input* inputs, int num) {
   Runtime* rt = static_cast<Runtime*>(inf);
   std::vector<In> ins;
   for (int i = 0; i < num; ++i) {
-    ins.push_back(In(inputs[i].graph_name, inputs[i].input_name, inputs[i].ptr,
+    if (inputs[i].shape == NULL){
+      ins.push_back(In(inputs[i].graph_name, inputs[i].input_name, inputs[i].ptr,
                      inputs[i].size));
+    }
+    else{
+      ins.push_back(In(inputs[i].graph_name, inputs[i].input_name, inputs[i].shape, inputs[i].shape_size, inputs[i].ptr,
+                     inputs[i].size));
+    }
   }
   rt->set_inputs(ins);
   return DeltaStatus::kDeltaOk;

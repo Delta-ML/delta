@@ -39,18 +39,31 @@ namespace delta {
 namespace core {
 
 using std::string;
+using std::vector;
 
 struct In {
+  // Input for Constant TensorShape
   In(string graph_name, string input_name, const void* ptr, std::size_t size)
       : _graph_name(graph_name),
         _input_name(input_name),
         _ptr(ptr),
-        _size(size) {}
+        _size(size),
+        _shape()	{}
+
+  // Input for PartialTensorShape
+  In(string graph_name, string input_name, const int* shape, const int ndims, const void* ptr, std::size_t size)
+      : _graph_name(graph_name),
+        _input_name(input_name),
+        _ptr(ptr),
+        _size(size) {
+	  _shape = Shape(shape, ndims);
+	}
 
   std::string _graph_name;
   std::string _input_name;
   const void* _ptr;
   std::size_t _size;
+  Shape _shape;
 };
 
 // run graph

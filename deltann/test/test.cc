@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
   InferHandel inf = DeltaCreate(model);
 
   int in_num = 2;
-  Input ins[2];
+  Input ins[2] = {0};
   int text = 1;
   ins[0].ptr = reinterpret_cast<void*>(&text);
   ins[0].size = 1;

@@ -37,7 +37,7 @@ tensorflow::DataType tf_data_type(DataType type) {
     case DataType::DELTA_CHAR:
       return tensorflow::DataTypeToEnum<string>::v();
     default:
-      assert(false);
+      LOG_FATAL << "Not support dtype:" <<  delta_dtype_str(type);
       return tensorflow::DataType::DT_INVALID;
   }
 }
@@ -74,9 +74,10 @@ void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
       char* cstr = static_cast<char*>(input.ptr());
       std::string str = std::string(cstr);
       tensor->scalar<std::string>()() = str;
-    } break;
+      break;
+    }
     default:
-      assert(false);
+      LOG_FATAL << "Not support dtype:" <<  delta_dtype_str(input.dtype());
   }
 }
 
@@ -168,6 +169,7 @@ int TFModel::run(const std::vector<InputData>& inputs,
 
   get_featches(output_tensors, output);
 
+  LOG_INFO << "TFModel run done";
   return 0;
 }
 

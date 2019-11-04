@@ -6,8 +6,6 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
@@ -48,6 +46,8 @@ TARGET_ARCH := $(HOST_ARCH)
 # engine
 ENGINE := TF
 $(info $(origin ENGINE))
+# debug mode
+DEBUG :=
 
 GENDIR := $(MAKEFILE_DIR)/.gen/
 OBJDIR := $(GENDIR)obj/
@@ -62,8 +62,14 @@ CXX := g++
 AR := ar
 
 CFLAGS := -O2
-CXXFLAGS := -O3 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG
-LDFLAGS := -Wl,--version-script=deltann_version_script.lds
+CXXFLAGS := -O3 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\"
+LDFLAGS :=
+ifeq ($(DEBUG), true)
+  CXXFLAGS += -g
+else
+  CXXFLAGS += -DNDEBUG 
+  LDFLAGS += -Wl,--version-script=deltann_version_script.lds
+endif
 ARFLAGS := -r
 
 YAML := $(ROOT_DIR)/../tools/yaml/yaml-cpp
