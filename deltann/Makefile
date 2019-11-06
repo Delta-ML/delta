@@ -49,7 +49,7 @@ TARGET_ARCH := $(HOST_ARCH)
 ENGINE := TF
 $(info $(origin ENGINE))
 # debug mode
-DEBUG :=
+DEBUG := false
 
 GENDIR := $(MAKEFILE_DIR)/.gen/
 OBJDIR := $(GENDIR)obj/

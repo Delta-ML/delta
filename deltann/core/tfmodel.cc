@@ -23,6 +23,7 @@ limitations under the License.
 #include "core/tfmodel.h"
 #include "tensorflow/c/c_api.h"
 #include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/lib/core/errors.h"
 
 namespace delta {
 namespace core {
@@ -47,19 +48,20 @@ tensorflow::DataType tf_data_type(DataType type) {
 using std::string;
 using tensorflow::ConfigProto;
 using tensorflow::GraphDef;
+using tensorflow::MaybeSavedModelDirectory;
 using tensorflow::NewSession;
-using tensorflow::Session;
 using tensorflow::ReadBinaryProto;
-using tensorflow::RunOptions;
 using tensorflow::RunMetadata;
+using tensorflow::RunOptions;
+using tensorflow::Session;
 using tensorflow::SessionOptions;
+using tensorflow::errors::NotFound;
 
 TFModel::TFModel(ModelMeta model_meta, int num_threads)
     : BaseModel(model_meta, num_threads) {
+  DELTA_CHECK(model_meta.server_type == "local");
 
- DELTA_CHECK(model_meta.server_type == "local");
-
- if (model_meta.local.model_type == ModelType::MODEL_SAVED_MODEL) {
+  if (model_meta.local.model_type == ModelType::MODEL_SAVED_MODEL) {
     LOG_INFO << "Load SavedModel";
     load_from_saved_model();
   } else {
@@ -125,14 +127,13 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
 
 int TFModel::set_feeds(std::vector<std::pair<string, Tensor>>* feeds,
                        const std::vector<InputData>& inputs) {
-  LOG_INFO << "xxx";
   // set input
   DELTA_CHECK(inputs.size()) << "inputs size is 0";
   for (auto& input : inputs) {
-    LOG_INFO << "set feeds:" << input.name() ;
-    LOG_INFO << "set feeds:" << delta_dtype_str(input.dtype()) ;
-    LOG_INFO << "set feeds:" << input.shape() ;
-    LOG_INFO << "set feeds:" << input.ptr() ;
+    // LOG_INFO << "set feeds:" << input.name() ;
+    // LOG_INFO << "set feeds:" << delta_dtype_str(input.dtype()) ;
+    // LOG_INFO << "set feeds:" << input.shape() ;
+    // LOG_INFO << "set feeds:" << input.ptr() ;
     feeds->emplace_back(std::pair<string, Tensor>(
         input.name(),
         std::move(Tensor(tf_data_type(input.dtype()), input.tensor_shape()))));
@@ -146,10 +147,10 @@ int TFModel::set_fetches(std::vector<string>* fetches,
                          const std::vector<OutputData>& outputs) {
   // set input
   DELTA_CHECK(outputs.size()) << "outputs size is 0";
-  for (auto& output : outputs) {  
-    LOG_INFO << "set fetchs:" << output.name() ;
-    LOG_INFO << "set fetchs:" << delta_dtype_str(output.dtype()) ;
-    LOG_INFO << "set fetchs:" << output.shape() ;
+  for (auto& output : outputs) {
+    // LOG_INFO << "set fetchs:" << output.name() ;
+    // LOG_INFO << "set fetchs:" << delta_dtype_str(output.dtype()) ;
+    // LOG_INFO << "set fetchs:" << output.shape() ;
     fetches->push_back(output.name());
   }
 }
@@ -172,16 +173,16 @@ int TFModel::run(const std::vector<InputData>& inputs,
   std::vector<std::string> fetches;
   std::vector<Tensor> output_tensors;
 
-  LOG_INFO << "set feeds ...";
+  // LOG_INFO << "set feeds ...";
   set_feeds(&feeds, inputs);
-  LOG_INFO << "set  fetches ...";
+  // LOG_INFO << "set  fetches ...";
   set_fetches(&fetches, *output);
 
   // Session run
   RunOptions run_options;
   RunMetadata run_meta;
   Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
-                                  &(output_tensors), &(run_meta));
+                                       &(output_tensors), &(run_meta));
   if (!s.ok()) {
     LOG_FATAL << "Error, TF Model run failed: " << s;
     exit(-1);
@@ -189,13 +190,12 @@ int TFModel::run(const std::vector<InputData>& inputs,
 
   get_featches(output_tensors, output);
 
-  LOG_INFO << "TFModel run done";
+  // LOG_INFO << "TFModel run done";
   return 0;
 }
 
 Status TFModel::load_from_frozen_graph() {
   Status s;
-  std::unique_ptr<GraphDef> graph_def;
   std::string path = _model_meta.local.model_path;
   if (path.empty()) {
     LOG_FATAL << "model path is empty" << path;
@@ -203,6 +203,7 @@ Status TFModel::load_from_frozen_graph() {
   }
   std::string model_name = path + "/frozen_graph.pb";
 
+  std::unique_ptr<GraphDef> graph_def;
   graph_def.reset(new GraphDef());
   // Read graph from disk
   s = ReadBinaryProto(tensorflow::Env::Default(), model_name, graph_def.get());
@@ -226,12 +227,17 @@ Status TFModel::load_from_frozen_graph() {
   LOG_INFO << "Got config, " << _num_threads << " threads";
 
   // create session
-  _bundle.session.reset(tensorflow::NewSession(options));
-  s = _bundle.session->Create(*(graph_def.get()));
+  tensorflow::SavedModelBundle legacy_bundle;
+  legacy_bundle.session.reset(tensorflow::NewSession(options));
+  s = legacy_bundle.GetSession()->Create(*(graph_def.get()));
   if (!s.ok()) {
     LOG_FATAL << "Could not create TensorFlow Session: " << s;
     return s;
   }
+  // do not call GetSignatures
+  _bundle = tensorflow::SavedModelBundleLite(
+      std::move(legacy_bundle.session),
+      std::move(*legacy_bundle.meta_graph_def.mutable_signature_def()));
   LOG_INFO << "Created Session.";
 
   return Status::OK();
@@ -253,6 +259,10 @@ Status TFModel::load_from_saved_model() {
   RunOptions run_options;
   std::string path = _model_meta.local.model_path;
   LOG_INFO << "load saved model from path: " << path;
+  if (!MaybeSavedModelDirectory(path)) {
+    LOG_FATAL << "SaveModel not in :" << path;
+    return Status(NotFound("Not a saved model dir"));
+  }
 
   Status s = LoadSavedModel(options, run_options, path,
                             {tensorflow::kSavedModelTagServe}, &_bundle);

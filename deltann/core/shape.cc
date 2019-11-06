@@ -65,9 +65,9 @@ Shape& Shape::operator=(const Shape& s) {
   mark_partial();
 }
 
-void Shape::set_dim(int idx, int size) {
-  assert(idx < (_ndim - 1));
-  _data[idx] = size;
+void Shape::set_dim(int dim, int val) {
+  DELTA_CHECK(dim < _ndim);
+  _data[dim] = val;
 }
 
 Shape::~Shape() {}

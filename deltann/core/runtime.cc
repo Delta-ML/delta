@@ -136,13 +136,12 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
   _inputs_data.clear();
 
   for (auto& in : inputs) {
-    LOG_INFO << "Graph name: " << in._graph_name;
+    // LOG_INFO << "Graph name: " << in._graph_name;
     auto search = _graphs.find(in._graph_name);
     if (search != _graphs.end()) {
       Graph& graph = search->second;
 
-      // std::unordered_map<std::string, Input>& inputs = graph.get_inputs();
-      LOG_INFO << "input name: " << in._input_name;
+      // LOG_INFO << "input name: " << in._input_name;
       try {
         Input& input = graph.get_inputs().at(in._input_name);
 
@@ -191,6 +190,9 @@ DeltaStatus Runtime::warmup() {
     for (auto& input : inputs) {
       Input& in(input.second);
 
+      // LOG_INFO << in;
+      // LOG_INFO << in.shape().ndim();
+
       if (in.shape().is_partial()) {
         auto s = Shape();
         s.set_shape(in.shape());
@@ -202,7 +204,6 @@ DeltaStatus Runtime::warmup() {
       LOG_INFO << in;
 
       InputData in_data(in);
-      //InputData in_data(input.second);
       in_data.feed_random_data();
       inputs_data.push_back(in_data);
     }

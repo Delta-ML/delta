@@ -58,13 +58,11 @@ class LogMessage {
     _log_stream << "[" << _pretty_date.human_date() << "] " << base_file << ":"
                 << line << ": " << _type.c_str() << " ";
   }
-
   ~LogMessage() {
     fprintf(stdout, "DELTA: %s \n", _log_stream.str().c_str());
     fflush(stdout);
   }
-
-  std::ostringstream& stream() { return _log_stream; }
+  virtual std::ostringstream& stream() { return _log_stream; }
 
  protected:
   std::ostringstream _log_stream;
@@ -72,7 +70,6 @@ class LogMessage {
  private:
   DateLogger _pretty_date;
   std::string _type;
-
   DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
@@ -82,7 +79,7 @@ class LogMessageFatal : public LogMessage {
       : LogMessage(file, line, type) {}
 
   ~LogMessageFatal() {
-    fprintf(stdout, "DELTA: %s\n", _log_stream.str().c_str());
+    fprintf(stdout, "DELTA: %s\n", stream().str().c_str());
     abort();
   }
 

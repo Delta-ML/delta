@@ -37,7 +37,7 @@ model:
       inputs:
         -
           id: 0
-          name: "input_sentence:0"
+          name: "input_sentence"
           shape: [1]
           dtype: "char"
       outputs:
@@ -45,9 +45,10 @@ model:
           id: 0
           name: "score"
           dtype: "float"
+          shape: [2] 
 
 runtime:
-  num_threads: 20
+  num_threads: 2
 
 serving:
   max_worker: 5

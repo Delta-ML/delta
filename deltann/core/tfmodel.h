@@ -34,7 +34,7 @@ limitations under the License.
 namespace delta {
 namespace core {
 
-using tensorflow::SavedModelBundle;
+using tensorflow::SavedModelBundleLite;
 using tensorflow::Status;
 using tensorflow::Tensor;
 
@@ -45,7 +45,6 @@ class TFModel : public BaseModel {
           std::vector<OutputData>* output) override;
 
  private:
-  SavedModelBundle _bundle;
   Status load_from_saved_model();
   Status load_from_frozen_graph();
   void feed_tensor(Tensor* tensor, const InputData& input);
@@ -56,6 +55,9 @@ class TFModel : public BaseModel {
                   const std::vector<OutputData>& outputs);
   int get_featches(const std::vector<Tensor>& output_tensors,
                    std::vector<OutputData>* outputs);
+
+ private:
+  SavedModelBundleLite _bundle;
 };
 
 }  // namespace core

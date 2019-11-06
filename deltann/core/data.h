@@ -149,7 +149,6 @@ class BaseInOutData {
   }
 #endif
 
-
   virtual BaseInOut& meta(void) const { return _inout; }
 
  protected:

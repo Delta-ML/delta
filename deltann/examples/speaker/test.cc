@@ -78,34 +78,44 @@ int main(int argc, char** argv) {
 
   DeltaModel m = DeltaModel(yaml_file);
 
-  int shape[] = {1, 260, 40, 1};
-  int bytes = 1*260*40*1 * sizeof(float);
-  float *buf = (float*)malloc(bytes); 
-  memset(buf, 0, bytes);
-  m.SetInputs(buf, bytes, shape, sizeof(shape)/ sizeof(shape[0]) );
+  float avg = 0;
+  int cnt = 2;
+  for (int i = 0; i < cnt; i++){
+     int shape[] = {1, 260, 40, 1};
+     shape[0] = i+1;
 
-  float dur = m.TimeRun();
-  fprintf(stderr, "Duration %04f sec.\n", dur);
-  free(buf);
+     int bytes = sizeof(float);
+     for (auto i : shape)
+        bytes *= i;
 
-  int out_num = DeltaGetOutputCount(m.inf_);
-  fprintf(stderr, "The output num is %d\n", out_num);
-  for (int i = 0; i < out_num; ++i) {
-    int byte_size = DeltaGetOutputByteSize(m.inf_, i);
-    int elems = byte_size / sizeof(float);
-    fprintf(stderr, "The %d output size is %d (bytes) %d (elems).\n", i, byte_size, elems);
+     float *buf = (float*)malloc(bytes); 
+     memset(buf, 0, bytes);
+     m.SetInputs(buf, bytes, shape, sizeof(shape)/ sizeof(shape[0]) );
 
-    float* data = (float*)(malloc(byte_size));
-    DeltaCopyToBuffer(m.inf_, i, (void*)(data), byte_size);
+     float dur = m.TimeRun();
+     avg += dur;
+     fprintf(stderr, "Duration %04f sec.\n", dur);
+     free(buf);
 
-    fprintf(stderr, "spk embeddings:\n");
-    for (int j = 0; j < elems; ++j) {
-      fprintf(stderr, "%2.7f\t", data[j]);
-      if ((j+1) % 16 == 0) fprintf(stderr, "\n");
-    }
-    fprintf(stderr, "\n");
-    free(data);
+     int out_num = DeltaGetOutputCount(m.inf_);
+     fprintf(stderr, "The output num is %d\n", out_num);
+     for (int i = 0; i < out_num; ++i) {
+       int byte_size = DeltaGetOutputByteSize(m.inf_, i);
+       int elems = byte_size / sizeof(float);
+       fprintf(stderr, "The %d output size is %d (bytes) %d (elems).\n", i, byte_size, elems);
+
+       float* data = (float*)(malloc(byte_size));
+       DeltaCopyToBuffer(m.inf_, i, (void*)(data), byte_size);
+
+       fprintf(stderr, "spk embeddings:\n");
+       for (int j = 0; j < elems; ++j) {
+         fprintf(stderr, "%2.7f\t", data[j]);
+         if ((j+1) % 16 == 0) fprintf(stderr, "\n");
+       }
+       fprintf(stderr, "\n");
+       free(data);
+     }
   }
-
+  fprintf(stderr, "Avg Duration %04f sec.\n", avg/cnt);
   return 0;
 }
