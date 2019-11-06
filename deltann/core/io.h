@@ -35,7 +35,7 @@ namespace core {
 
 enum class InOut { DELTA_IN = 0, DELTA_OUT };
 
-// model input/output metadatag
+// model input/output metadata
 class BaseInOut {
  public:
   BaseInOut(std::string name, int id, Shape shape, DataType dtype)
