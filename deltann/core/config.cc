@@ -19,8 +19,8 @@ limitations under the License.
 #include <unordered_map>
 #include <utility>
 
-#include "core/io.h"
 #include "core/config.h"
+#include "core/io.h"
 
 #include "yaml-cpp/yaml.h"
 

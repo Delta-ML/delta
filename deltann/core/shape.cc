@@ -16,8 +16,8 @@ limitations under the License.
 
 #include <assert.h>
 
-#include "core/shape.h"
 #include "core/logging.h"
+#include "core/shape.h"
 
 namespace delta {
 
@@ -43,7 +43,7 @@ Shape::Shape(const std::initializer_list<int>& s) {
 
 Shape::Shape(const int* arr, const int size) {
   _ndim = size;
-  for (auto i = 0; i < _ndim; ++ i){
+  for (auto i = 0; i < _ndim; ++i) {
     _data[i] = arr[i];
   }
   mark_partial();
@@ -72,8 +72,8 @@ void Shape::set_dim(int idx, int size) {
 
 Shape::~Shape() {}
 
-void Shape::mark_partial(void){
-  if (_data[0] == -1)  _partial = true;
+void Shape::mark_partial(void) {
+  if (_data[0] == -1) _partial = true;
 }
 
 int Shape::ndim() const { return _ndim; }
@@ -116,17 +116,17 @@ void Shape::set_shape(const Shape& shape) {
 
 std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   if (shape.is_partial()) {
-	  os << "PartialShape: ";
+    os << "PartialShape: ";
   } else {
-	  os << "Shape: ";
+    os << "Shape: ";
   }
   os << '[';
   for (int i = 0; i < shape.ndim(); ++i) {
     if (i != 0) os << ',';
-    if (shape.is_partial() && i == 0) 
-	    os << "-1";
-    else 
-	    os << shape[i];
+    if (shape.is_partial() && i == 0)
+      os << "-1";
+    else
+      os << shape[i];
   }
   if (shape.ndim() == 1) {
     os << ',';

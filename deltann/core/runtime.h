@@ -21,14 +21,14 @@ limitations under the License.
 #include <unordered_map>
 #include <vector>
 
+#include "core/config.h"
 #include "core/data.h"
 #include "core/graph.h"
 #include "core/io.h"
+#include "core/misc.h"
 #include "core/tflite_model.h"
 #include "core/tfmodel.h"
 #include "core/tfserving_model.h"
-#include "core/config.h"
-#include "core/misc.h"
 
 #ifdef USE_TF
 #include "tensorflow/c/c_api.h"
@@ -48,16 +48,17 @@ struct In {
         _input_name(input_name),
         _ptr(ptr),
         _size(size),
-        _shape()	{}
+        _shape() {}
 
   // Input for PartialTensorShape
-  In(string graph_name, string input_name, const int* shape, const int ndims, const void* ptr, std::size_t size)
+  In(string graph_name, string input_name, const int* shape, const int ndims,
+     const void* ptr, std::size_t size)
       : _graph_name(graph_name),
         _input_name(input_name),
         _ptr(ptr),
         _size(size) {
-	  _shape = Shape(shape, ndims);
-	}
+    _shape = Shape(shape, ndims);
+  }
 
   std::string _graph_name;
   std::string _input_name;

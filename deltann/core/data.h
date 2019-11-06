@@ -23,8 +23,8 @@ limitations under the License.
 
 #include "core/buffer.h"
 #include "core/io.h"
-#include "core/shape.h"
 #include "core/misc.h"
+#include "core/shape.h"
 
 #ifdef USE_TF
 #include "tensorflow/core/framework/tensor_shape.h"
@@ -38,8 +38,8 @@ class BaseInOutData {
  public:
   explicit BaseInOutData(BaseInOut& inout) : _inout(inout) {
     if (inout.dtype() != DataType::DELTA_NONE && 0 != inout.size()) {
-      _data =
-          std::make_shared<Buffer>(inout.size() * delta_dtype_size(inout.dtype()));
+      _data = std::make_shared<Buffer>(inout.size() *
+                                       delta_dtype_size(inout.dtype()));
     } else {
       _data = std::make_shared<Buffer>();
     }
@@ -142,7 +142,8 @@ class BaseInOutData {
     tensorflow::TensorShape ts;
     status = tensorflow::TensorShapeUtils::MakeShape(tmp_shape, &ts);
     if (!status.ok()) {
-      LOG_FATAL << "Error when make shape from vector: " << tmp_shape << ", " << status;
+      LOG_FATAL << "Error when make shape from vector: " << tmp_shape << ", "
+                << status;
     }
     return ts;
   }

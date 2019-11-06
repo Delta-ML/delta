@@ -19,15 +19,15 @@ limitations under the License.
 
 #include <string>
 
-#include "core/shape.h"
 #include "core/misc.h"
+#include "core/shape.h"
 
 #ifdef USE_TF
 #include "tensorflow/core/framework/tensor_shape.h"
 #endif
 
-using std::string;
 using std::ostream;
+using std::string;
 
 namespace delta {
 
@@ -67,14 +67,15 @@ class BaseInOut {
   void set_shape(const Shape& shape) { _shape.set_shape(shape); }
 
   friend std::ostream& operator<<(std::ostream& os, const BaseInOut& inout) {
-	if (inout.inout_type() == InOut::DELTA_IN){
-		os << "Input: ";
-	} else {
-		os << "Output: ";
-	}
-	os << inout._name << inout._id << inout._shape << delta_dtype_str(inout._dtype) << std::endl;
-	return os;
-}
+    if (inout.inout_type() == InOut::DELTA_IN) {
+      os << "Input: ";
+    } else {
+      os << "Output: ";
+    }
+    os << inout._name << inout._id << inout._shape
+       << delta_dtype_str(inout._dtype) << std::endl;
+    return os;
+  }
 
  protected:
   InOut _inout;
@@ -97,11 +98,10 @@ class Input : public BaseInOut {
     _inout = InOut::DELTA_IN;
   }
 
-  //Input(Input& oth)
+  // Input(Input& oth)
   //    : BaseInOut(oth.name(), oth.id(), oth.shape(), oth.dtype()) {
   //  _inout = InOut::DELTA_IN;
   //}
-
 
   ~Input() {}
 };
@@ -121,7 +121,6 @@ class Output : public BaseInOut {
 
   ~Output() {}
 };
-
 
 }  // namespace core
 

@@ -61,7 +61,6 @@ enum class EngineType {
 #endif
 #endif
 
-
 std::size_t delta_dtype_size(DataType type);
 
 DataType delta_str_dtype(const std::string& type);

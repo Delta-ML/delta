@@ -37,7 +37,7 @@ std::size_t delta_dtype_size(DataType type) {
     case DataType::DELTA_CHAR:
       return sizeof(char);
     default:
-      LOG_FATAL<<"Not support delta dtype";
+      LOG_FATAL << "Not support delta dtype";
       return 0;
   }
 }

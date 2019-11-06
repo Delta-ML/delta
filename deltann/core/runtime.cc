@@ -147,17 +147,21 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
         Input& input = graph.get_inputs().at(in._input_name);
 
         if (input.shape().is_partial()) {
-            LOG_INFO << "Override partial shape: " << input.shape() << " to " <<  in._shape;
-            input.set_shape(in._shape);
+          LOG_INFO << "Override partial shape: " << input.shape() << " to "
+                   << in._shape;
+          input.set_shape(in._shape);
         }
-        DELTA_CHECK_EQ(in._size, input.size() * delta_dtype_size(input.dtype())) << in._size << ":" << input.size() * delta_dtype_size(input.dtype());
+        DELTA_CHECK_EQ(in._size, input.size() * delta_dtype_size(input.dtype()))
+            << in._size << ":"
+            << input.size() * delta_dtype_size(input.dtype());
 
-        //LOG_INFO << input;
+        // LOG_INFO << input;
         InputData input_data(input);
         input_data.copy_from(in._ptr, in._size);
         _inputs_data.push_back(input_data);
       } catch (std::out_of_range& e) {
-	 LOG_FATAL << "Can not find [" << in._input_name << "] node in [" << in._graph_name <<"] graph: " << e.what();
+        LOG_FATAL << "Can not find [" << in._input_name << "] node in ["
+                  << in._graph_name << "] graph: " << e.what();
       }
     } else {
       LOG_FATAL << "Error, Graph " << in._graph_name << " not exist!";
@@ -188,13 +192,11 @@ DeltaStatus Runtime::warmup() {
       Input in(input.second);
 
       if (in.shape().is_partial()) {
-	  auto s = Shape();
-	  //auto s = in.shape();
-	  //s.set_dim(0, 1);
-	  s.set_shape(in.shape());
-	  s.set_dim(0, 1);
-	  LOG_INFO << "Override partial shape: " << in.shape() << " to " <<  s;
-	  in.set_shape(s);
+        auto s = Shape();
+        s.set_shape(in.shape());
+        s.set_dim(0, 1);
+        LOG_INFO << "Override partial shape: " << in.shape() << " to " << s;
+        in.set_shape(s);
       }
 
       InputData in_data(in);
@@ -275,8 +277,6 @@ DeltaStatus Runtime::get_outputs(std::vector<string>* results) {
 
   return DeltaStatus::STATUS_OK;
 }
-
-
 
 }  // namespace core
 

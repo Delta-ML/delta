@@ -70,8 +70,6 @@ struct DeltaModel{
      return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1000000000.0;
   }
 
-  
-
 };
 
 int main(int argc, char** argv) {
@@ -94,15 +92,18 @@ int main(int argc, char** argv) {
   fprintf(stderr, "The output num is %d\n", out_num);
   for (int i = 0; i < out_num; ++i) {
     int byte_size = DeltaGetOutputByteSize(m.inf_, i);
-    fprintf(stderr, "The %d output size is %d (bytes).\n", i, byte_size);
+    fprintf(stderr, "The %d output size is %d (bytes) %d (elems).\n", i, byte_size, byte_size / sizeof(float));
 
     float* data = (float*)(malloc(byte_size));
     DeltaCopyToBuffer(m.inf_, i, (void*)(data), byte_size);
 
+    fprintf(stderr, "spk embeddings:\n");
     int num = byte_size / sizeof(float);
     for (int j = 0; j < num; ++j) {
-      fprintf(stderr, "score is %f\n", data[j]);
+      fprintf(stderr, "%f\t", data[j]);
+      if ((j+1) % 16 == 0) fprintf(stderr, "\n");
     }
+    fprintf(stderr, "\n");
     free(data);
   }
 

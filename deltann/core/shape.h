@@ -36,7 +36,7 @@ class Shape {
 
   explicit Shape(const std::vector<int>& v);
 
-  // `size` is number of ndims 
+  // `size` is number of ndims
   Shape(const int* arr, const int size);
 
   Shape(const std::initializer_list<int>& s);
@@ -48,9 +48,7 @@ class Shape {
   ~Shape();
 
   // only support -1 for batch size
-  bool is_partial(void) const {
-      return _partial;
-  };
+  bool is_partial(void) const { return _partial; }
 
   int ndim() const;
 
@@ -72,7 +70,7 @@ class Shape {
   static constexpr int _MAXDIM = 7;
   int _ndim;
   int _data[_MAXDIM];
-  bool _partial; // ture: firt dim is -1, false: other wise
+  bool _partial;  // ture: firt dim is -1, false: other wise
   void mark_partial(void);
 };
 

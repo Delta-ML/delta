@@ -37,7 +37,7 @@ tensorflow::DataType tf_data_type(DataType type) {
     case DataType::DELTA_CHAR:
       return tensorflow::DataTypeToEnum<string>::v();
     default:
-      LOG_FATAL << "Not support dtype:" <<  delta_dtype_str(type);
+      LOG_FATAL << "Not support dtype:" << delta_dtype_str(type);
       return tensorflow::DataType::DT_INVALID;
   }
 }
@@ -77,7 +77,7 @@ void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
       break;
     }
     default:
-      LOG_FATAL << "Not support dtype:" <<  delta_dtype_str(input.dtype());
+      LOG_FATAL << "Not support dtype:" << delta_dtype_str(input.dtype());
   }
 }
 

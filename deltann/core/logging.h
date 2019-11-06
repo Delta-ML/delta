@@ -23,8 +23,8 @@ limitations under the License.
 #include <string>
 
 #define DISALLOW_COPY_AND_ASSIGN(type) \
-   type(const type&);                  \
-   void operator = (const type&)
+  type(const type&);                   \
+  void operator=(const type&)
 
 namespace delta {
 namespace logging {
