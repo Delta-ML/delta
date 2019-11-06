@@ -54,7 +54,7 @@ struct DeltaModel{
      ins[0].graph_name = "spk-resnet";
      ins[0].input_name = "inputs:0"; 
      ins[0].shape = shape;
-     ins[0].shape_size = ndims;
+     ins[0].ndims = ndims;
      return DeltaSetInputs(inf_, ins, sizeof(ins)/sizeof(ins[0]));
   }
 
@@ -86,27 +86,26 @@ int main(int argc, char** argv) {
 
   float dur = m.TimeRun();
   fprintf(stderr, "Duration %04f sec.\n", dur);
-
+  free(buf);
 
   int out_num = DeltaGetOutputCount(m.inf_);
   fprintf(stderr, "The output num is %d\n", out_num);
   for (int i = 0; i < out_num; ++i) {
     int byte_size = DeltaGetOutputByteSize(m.inf_, i);
-    fprintf(stderr, "The %d output size is %d (bytes) %d (elems).\n", i, byte_size, byte_size / sizeof(float));
+    int elems = byte_size / sizeof(float);
+    fprintf(stderr, "The %d output size is %d (bytes) %d (elems).\n", i, byte_size, elems);
 
     float* data = (float*)(malloc(byte_size));
     DeltaCopyToBuffer(m.inf_, i, (void*)(data), byte_size);
 
     fprintf(stderr, "spk embeddings:\n");
-    int num = byte_size / sizeof(float);
-    for (int j = 0; j < num; ++j) {
-      fprintf(stderr, "%f\t", data[j]);
+    for (int j = 0; j < elems; ++j) {
+      fprintf(stderr, "%2.7f\t", data[j]);
       if ((j+1) % 16 == 0) fprintf(stderr, "\n");
     }
     fprintf(stderr, "\n");
     free(data);
   }
 
-  free(buf);
   return 0;
 }

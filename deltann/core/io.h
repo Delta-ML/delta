@@ -98,11 +98,6 @@ class Input : public BaseInOut {
     _inout = InOut::DELTA_IN;
   }
 
-  // Input(Input& oth)
-  //    : BaseInOut(oth.name(), oth.id(), oth.shape(), oth.dtype()) {
-  //  _inout = InOut::DELTA_IN;
-  //}
-
   ~Input() {}
 };
 

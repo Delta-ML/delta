@@ -41,8 +41,8 @@ Shape::Shape(const std::initializer_list<int>& s) {
   mark_partial();
 }
 
-Shape::Shape(const int* arr, const int size) {
-  _ndim = size;
+Shape::Shape(const int* arr, const int ndims) {
+  _ndim = ndims;
   for (auto i = 0; i < _ndim; ++i) {
     _data[i] = arr[i];
   }

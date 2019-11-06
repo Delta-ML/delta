@@ -32,8 +32,8 @@ typedef struct {
   int size;  // byte_size;
   const char* input_name;
   const char* graph_name;
-  const int*  shape;
-  int   shape_size; // ndims
+  const int* shape;
+  int ndims;
 } Input;
 
 typedef void* ModelHandel;
