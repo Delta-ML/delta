@@ -4,6 +4,8 @@ if [ $# != 1 ];then
   exit 1
 fi
 
+set -e
+
 make examples
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/../dpl/lib/tensorflow:$PWD/../dpl/lib/deltann/

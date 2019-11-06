@@ -17,17 +17,18 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "api/c_api.h"
 
-float time_run(InferHandel inf){
+float time_run(InferHandel inf) {
   struct timespec start, end;
   clock_gettime(CLOCK_MONOTONIC, &start);
   DeltaRun(inf);
   clock_gettime(CLOCK_MONOTONIC, &end);
-  return (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1000000000.0;
+  return (end.tv_sec - start.tv_sec) +
+         (end.tv_nsec - start.tv_nsec) / 1000000000.0;
 }
 
 int main(int argc, char** argv) {
@@ -41,10 +42,10 @@ int main(int argc, char** argv) {
   Input ins[1] = {0};
   const char* text = "I'm angry.";
   int bytes = sizeof(text) + 1;
-  char *buf = (char*)malloc(bytes);
+  char* buf = (char*)malloc(bytes);
   memset(buf, 0, bytes);
   memcpy(buf, text, bytes);
-  //ins[0].ptr = reinterpret_cast<void*>(&text);
+  // ins[0].ptr = reinterpret_cast<void*>(&text);
   ins[0].ptr = reinterpret_cast<void*>(buf);
   ins[0].size = sizeof(text) + 1;
   ins[0].input_name = "input_sentence";

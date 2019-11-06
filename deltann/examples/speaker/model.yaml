@@ -47,7 +47,7 @@ model:
           dtype: "float"
 
 runtime:
-  num_threads: 1
+  num_threads: 10
 
 serving:
   max_worker: 5

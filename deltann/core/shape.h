@@ -36,7 +36,6 @@ class Shape {
 
   explicit Shape(const std::vector<int>& v);
 
-  // `size` is number of ndims
   Shape(const int* arr, const int ndims);
 
   Shape(const std::initializer_list<int>& s);

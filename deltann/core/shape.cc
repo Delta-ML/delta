@@ -74,6 +74,7 @@ Shape::~Shape() {}
 
 void Shape::mark_partial(void) {
   if (_data[0] == -1) _partial = true;
+  else _partial = false;
 }
 
 int Shape::ndim() const { return _ndim; }

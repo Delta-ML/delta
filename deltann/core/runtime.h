@@ -47,8 +47,7 @@ struct In {
       : _graph_name(graph_name),
         _input_name(input_name),
         _ptr(ptr),
-        _size(size),
-        _shape() {}
+        _size(size) {}
 
   // Input for PartialTensorShape
   In(string graph_name, string input_name, const int* shape, const int ndims,
