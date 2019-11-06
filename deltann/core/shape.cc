@@ -23,58 +23,44 @@ namespace delta {
 
 namespace core {
 
-Shape::Shape() : _ndim(0), _partial(false) {}
+Shape::Shape() : _ndim(0) {}
 
 Shape::Shape(const std::vector<int>& v) {
   _ndim = v.size();
   for (size_t i = 0; i < v.size(); i++) {
-    _data[i] = v[i];
+    _data[i] = _data_aux[i] = v[i];
   }
-  mark_partial();
 }
 
 Shape::Shape(const std::initializer_list<int>& s) {
   _ndim = 0;
   for (auto item : s) {
-    _data[_ndim++] = item;
+    _data[_ndim] = _data_aux[_ndim] = item;
+    _ndim++;
   }
-  mark_partial();
 }
 
 Shape::Shape(const int* arr, const int ndims) {
   _ndim = ndims;
   for (auto i = 0; i < _ndim; ++i) {
-    _data[i] = arr[i];
+    _data[i] = _data_aux[i] = arr[i];
   }
-  mark_partial();
 }
+
+Shape::~Shape() {}
 
 Shape::Shape(const Shape& s) {
   _ndim = s.ndim();
   for (int i = 0; i < _ndim; ++i) {
-    _data[i] = s[i];
+    _data[i] = _data_aux[i] = s[i];
   }
-  mark_partial();
 }
 
 Shape& Shape::operator=(const Shape& s) {
   _ndim = s.ndim();
   for (int i = 0; i < _ndim; ++i) {
-    _data[i] = s[i];
+    _data[i] = _data_aux[i] = s[i];
   }
-  mark_partial();
-}
-
-void Shape::set_dim(int dim, int val) {
-  DELTA_CHECK(dim < _ndim);
-  _data[dim] = val;
-}
-
-Shape::~Shape() {}
-
-void Shape::mark_partial(void) {
-  if (_data[0] == -1) _partial = true;
-  else _partial = false;
 }
 
 int Shape::ndim() const { return _ndim; }
@@ -82,18 +68,23 @@ int Shape::ndim() const { return _ndim; }
 const int Shape::operator[](int i) const {
   assert(i < _ndim);
   assert(i >= 0);
-  return _data[i];
+  return _data_aux[i];
+}
+
+void Shape::set_dim(int dim, int val) {
+  DELTA_CHECK(dim < _ndim);
+  _data_aux[dim] = val;
 }
 
 size_t Shape::size(void) const {
   if (_ndim < 1) {
     return 0;
   } else {
-    assert(_ndim >= 1);
-    size_t size = _data[0];
+    DELTA_CHECK(_ndim >= 1);
+    size_t size = _data_aux[0];
     for (int i = 1; i < _ndim; ++i) {
-      assert(_data[i] >= 0);
-      size *= _data[i];
+      DELTA_CHECK(_data_aux[i] >= 0);
+      size *= _data_aux[i];
     }
     return size;
   }
@@ -115,6 +106,13 @@ void Shape::set_shape(const Shape& shape) {
   }
 }
 
+bool Shape::is_partial(void) const {
+  for (int i = 0; i < _ndim; i++){
+    if (_data_aux[i] < 0) return true;
+  }
+  return false;
+}
+
 std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   if (shape.is_partial()) {
     os << "PartialShape: ";
@@ -123,16 +121,13 @@ std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   }
   os << '[';
   for (int i = 0; i < shape.ndim(); ++i) {
+    os <<  shape[i];
     if (i != 0) os << ',';
-    if (shape.is_partial() && i == 0)
-      os << "-1";
-    else
-      os << shape[i];
   }
   if (shape.ndim() == 1) {
     os << ',';
   }
-  os << ']';
+  os << "]";
   return os;
 }
 

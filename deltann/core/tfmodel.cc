@@ -130,10 +130,10 @@ int TFModel::set_feeds(std::vector<std::pair<string, Tensor>>* feeds,
   // set input
   DELTA_CHECK(inputs.size()) << "inputs size is 0";
   for (auto& input : inputs) {
-    // LOG_INFO << "set feeds:" << input.name() ;
-    // LOG_INFO << "set feeds:" << delta_dtype_str(input.dtype()) ;
-    // LOG_INFO << "set feeds:" << input.shape() ;
-    // LOG_INFO << "set feeds:" << input.ptr() ;
+    LOG_INFO << "set feeds:" << input.name() ;
+    LOG_INFO << "set feeds:" << delta_dtype_str(input.dtype()) ;
+    LOG_INFO << "set feeds:" << input.shape() ;
+    LOG_INFO << "set feeds:" << input.ptr() ;
     feeds->emplace_back(std::pair<string, Tensor>(
         input.name(),
         std::move(Tensor(tf_data_type(input.dtype()), input.tensor_shape()))));
@@ -173,9 +173,9 @@ int TFModel::run(const std::vector<InputData>& inputs,
   std::vector<std::string> fetches;
   std::vector<Tensor> output_tensors;
 
-  // LOG_INFO << "set feeds ...";
+  LOG_INFO << "set feeds ...";
   set_feeds(&feeds, inputs);
-  // LOG_INFO << "set  fetches ...";
+  LOG_INFO << "set  fetches ...";
   set_fetches(&fetches, *output);
 
   // Session run
@@ -190,7 +190,7 @@ int TFModel::run(const std::vector<InputData>& inputs,
 
   get_featches(output_tensors, output);
 
-  // LOG_INFO << "TFModel run done";
+  LOG_INFO << "TFModel run done";
   return 0;
 }
 

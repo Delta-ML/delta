@@ -49,7 +49,7 @@ class BaseInOut {
 
   int id() { return _id; }
 
-  const Shape& shape(void) const { return _shape; }
+  Shape& shape(void) { return _shape; }
 
   const size_t size(void) const { return _shape.size(); }
 

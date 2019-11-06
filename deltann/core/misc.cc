@@ -84,6 +84,7 @@ std::unordered_map<std::string, EngineType> _global_engines{
     {"SERVING", EngineType::DELTA_EIGINE_SERVING}};
 
 void make_random(float* ptr, int len) {
+  DELTA_CHECK(ptr);
   static std::mt19937 random_engine;
   std::uniform_real_distribution<float> distribution(-1, 1);
   for (int i = 0; i < len; ++i) {

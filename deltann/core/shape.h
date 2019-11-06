@@ -46,8 +46,7 @@ class Shape {
 
   ~Shape();
 
-  // only support -1 for batch size
-  bool is_partial(void) const { return _partial; }
+  bool is_partial(void) const;
 
   int ndim() const;
 
@@ -65,12 +64,11 @@ class Shape {
 
   friend std::ostream& operator<<(std::ostream& os, const Shape& shape);
 
- private:
+ public:
   static constexpr int _MAXDIM = 7;
   int _ndim;
-  int _data[_MAXDIM];
-  bool _partial;  // ture: firt dim is -1, false: other wise
-  void mark_partial(void);
+  int _data[_MAXDIM]; // read only, set by constructor
+  int _data_aux[_MAXDIM]; // will be changed by set_shape, will not has -1 
 };
 
 }  // namespace core

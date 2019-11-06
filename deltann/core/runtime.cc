@@ -136,12 +136,12 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
   _inputs_data.clear();
 
   for (auto& in : inputs) {
-    // LOG_INFO << "Graph name: " << in._graph_name;
+    LOG_INFO << "Graph name: " << in._graph_name;
     auto search = _graphs.find(in._graph_name);
     if (search != _graphs.end()) {
       Graph& graph = search->second;
 
-      // LOG_INFO << "input name: " << in._input_name;
+      LOG_INFO << "input name: " << in._input_name;
       try {
         Input& input = graph.get_inputs().at(in._input_name);
 
@@ -154,7 +154,7 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
             << in._size << ":"
             << input.size() * delta_dtype_size(input.dtype());
 
-        // LOG_INFO << input;
+        LOG_INFO << input;
         InputData input_data(input);
         input_data.copy_from(in._ptr, in._size);
         _inputs_data.push_back(input_data);
@@ -190,18 +190,15 @@ DeltaStatus Runtime::warmup() {
     for (auto& input : inputs) {
       Input& in(input.second);
 
-      // LOG_INFO << in;
-      // LOG_INFO << in.shape().ndim();
+      LOG_INFO << in;
+      LOG_INFO << in.shape().ndim();
 
       if (in.shape().is_partial()) {
-        auto s = Shape();
-        s.set_shape(in.shape());
-        s.set_dim(0, 1);
-        LOG_INFO << "Override partial shape: " << in.shape() << " to " << s;
-        in.set_shape(s);
+	in.shape().set_dim(0, 1);
       }
 
       LOG_INFO << in;
+      LOG_INFO << in.size();
 
       InputData in_data(in);
       in_data.feed_random_data();
