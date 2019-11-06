@@ -37,7 +37,7 @@ model:
       inputs:
         -
           id: 0
-          name: "input_sentence"
+          name: "input_sentence:0"
           shape: [1]
           dtype: "char"
       outputs:

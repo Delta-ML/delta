@@ -149,6 +149,9 @@ class BaseInOutData {
   }
 #endif
 
+
+  virtual BaseInOut& meta(void) const { return _inout; }
+
  protected:
   BaseInOut& _inout;
   std::shared_ptr<Buffer> _data;

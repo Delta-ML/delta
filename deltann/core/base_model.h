@@ -44,15 +44,16 @@ struct ModelMeta {
   int version;
 
   struct {
-    std::string model_path;  // model path
     ModelType model_type;    // saved_model, pb
+    std::string model_path;  // model path
   } local;
 
   struct {
+    // serving  model tag
+    string model_name;
     // serving config
     string hostname;
     unsigned short port;
-    string model_name;  // serving id
   } remote;
 };
 

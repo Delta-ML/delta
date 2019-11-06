@@ -48,15 +48,24 @@ using std::string;
 using tensorflow::ConfigProto;
 using tensorflow::GraphDef;
 using tensorflow::NewSession;
+using tensorflow::Session;
 using tensorflow::ReadBinaryProto;
 using tensorflow::RunOptions;
+using tensorflow::RunMetadata;
 using tensorflow::SessionOptions;
 
 TFModel::TFModel(ModelMeta model_meta, int num_threads)
     : BaseModel(model_meta, num_threads) {
-  load_from_saved_model();
-  // TODO(gaoyonghu): load frozen graph
-  // load_from_frozen_graph();
+
+ DELTA_CHECK(model_meta.server_type == "local");
+
+ if (model_meta.local.model_type == ModelType::MODEL_SAVED_MODEL) {
+    LOG_INFO << "Load SavedModel";
+    load_from_saved_model();
+  } else {
+    LOG_INFO << "Load Forzen Model";
+    load_from_frozen_graph();
+  }
 }
 
 void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
@@ -116,9 +125,14 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
 
 int TFModel::set_feeds(std::vector<std::pair<string, Tensor>>* feeds,
                        const std::vector<InputData>& inputs) {
+  LOG_INFO << "xxx";
   // set input
   DELTA_CHECK(inputs.size()) << "inputs size is 0";
   for (auto& input : inputs) {
+    LOG_INFO << "set feeds:" << input.name() ;
+    LOG_INFO << "set feeds:" << delta_dtype_str(input.dtype()) ;
+    LOG_INFO << "set feeds:" << input.shape() ;
+    LOG_INFO << "set feeds:" << input.ptr() ;
     feeds->emplace_back(std::pair<string, Tensor>(
         input.name(),
         std::move(Tensor(tf_data_type(input.dtype()), input.tensor_shape()))));
@@ -132,7 +146,10 @@ int TFModel::set_fetches(std::vector<string>* fetches,
                          const std::vector<OutputData>& outputs) {
   // set input
   DELTA_CHECK(outputs.size()) << "outputs size is 0";
-  for (auto& output : outputs) {
+  for (auto& output : outputs) {  
+    LOG_INFO << "set fetchs:" << output.name() ;
+    LOG_INFO << "set fetchs:" << delta_dtype_str(output.dtype()) ;
+    LOG_INFO << "set fetchs:" << output.shape() ;
     fetches->push_back(output.name());
   }
 }
@@ -155,15 +172,18 @@ int TFModel::run(const std::vector<InputData>& inputs,
   std::vector<std::string> fetches;
   std::vector<Tensor> output_tensors;
 
+  LOG_INFO << "set feeds ...";
   set_feeds(&feeds, inputs);
+  LOG_INFO << "set  fetches ...";
   set_fetches(&fetches, *output);
 
   // Session run
   RunOptions run_options;
-  Status s = _bundle.session->Run(run_options, feeds, fetches, {},
-                                  &(output_tensors), nullptr);
+  RunMetadata run_meta;
+  Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
+                                  &(output_tensors), &(run_meta));
   if (!s.ok()) {
-    LOG_FATAL << "Error, TF Model run failed " << s;
+    LOG_FATAL << "Error, TF Model run failed: " << s;
     exit(-1);
   }
 

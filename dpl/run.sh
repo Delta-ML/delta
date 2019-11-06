@@ -75,8 +75,8 @@ ENGINE=`cat ${INPUT_YAML} | shyaml get-value model.graphs.0.engine`
 
 BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
 mkdir -p $BAZEL_CACHE
-#BAZEL="bazel --output_base=${BAZEL_CACHE}"
-BAZEL=bazel
+BAZEL="bazel --output_base=${BAZEL_CACHE}"
+#BAZEL=bazel
 
 function clear_lib(){
   echo "Clear library under dpl/lib..."
@@ -241,15 +241,15 @@ if [ $stage -le 2 ] && [ $stop_stage -ge 2 ];then
   # compile_tflite $TARGET $ARCH
 fi
 
-# 4. compile deltann
+# 4. compile custom ops
 if [ $stage -le 3 ] && [ $stop_stage -ge 3 ];then
-  compile_deltann ${TARGET} ${ARCH} ${ENGINE}
-  # compile_deltann $TARGET $ARCH tflite
+  compile_custom_ops tensorflow deltann
 fi
 
-# 5. compile custom ops
+# 5. compile deltann
 if [ $stage -le 4 ] && [ $stop_stage -ge 4 ];then
-  compile_custom_ops tensorflow deltann
+  compile_deltann ${TARGET} ${ARCH} ${ENGINE}
+  # compile_deltann $TARGET $ARCH tflite
 fi
 
 # 6. compile deltann egs

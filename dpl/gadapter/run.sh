@@ -31,12 +31,15 @@ function convert_graph(){
   if [ ${engine} == 'TF' ];then
     if [ ${model_type} == 'saved_model' ]; then
       GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${version}"
+      rm -rf $GADAPTER_PATH
       mkdir -p $GADAPTER_PATH
       echo "copy saved model to $GADAPTER_PATH"
       cp -r ${input_model_path}/*  ${GADAPTER_PATH} || { echo "copy saved_model error"; exit 1; }
     elif [ ${model_type} == 'frozen_graph_pb' ]; then
       echo "forzen graph"
       GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tfgraph"
+      rm -rf $GADAPTER_PATH
+      mkdir -p $GADAPTER_PATH
       bash ${UTILS}/frozen_saved_model.sh ${GADAPTER_PATH} ${OUTPUT_NAMES} || { echo "forzen graph error"; exit 1; }
     else
       echo "MODEL_TYPE: ${model_type} and ENGINE: ${engine} error!"
@@ -44,15 +47,18 @@ function convert_graph(){
     fi
   elif [ ${engine} == 'TFLITE' ];then
     GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tflite"
+    rm -rf $GADAPTER_PATH
     echo "tflite to be added."
     exit 1
   elif [ ${engine} == 'TFTRT' ];then
     GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/tfrt"
+    rm -rf $GADAPTER_PATH
     echo "tfrt to be added."
     exit 1
   elif [ ${engine} == 'TFSERVING' ];then
     echo "copy saved model for tfserving"
     GADAPTER_PATH="${MAIN_ROOT}/dpl/gadapter/saved_model/${version}"
+    rm -rf $GADAPTER_PATH
     cp -r ${input_model_path}/* ${GADAPTER_PATH} || { echo "copy saved model for tfserving error"; exit 1; }
   else
     echo "MODEL_TYPE: ${model_type} and ENGINE: ${engine} error!"

@@ -72,8 +72,8 @@ class BaseInOut {
     } else {
       os << "Output: ";
     }
-    os << inout._name << inout._id << inout._shape
-       << delta_dtype_str(inout._dtype) << std::endl;
+    os << inout._name << " id:" << inout._id << " shape: " << inout._shape
+       << " dtype: " << delta_dtype_str(inout._dtype);
     return os;
   }
 

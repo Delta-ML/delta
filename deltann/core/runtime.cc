@@ -189,7 +189,7 @@ DeltaStatus Runtime::warmup() {
 
     std::unordered_map<std::string, Input>& inputs = graph.second.get_inputs();
     for (auto& input : inputs) {
-      Input in(input.second);
+      Input& in(input.second);
 
       if (in.shape().is_partial()) {
         auto s = Shape();
@@ -199,7 +199,10 @@ DeltaStatus Runtime::warmup() {
         in.set_shape(s);
       }
 
+      LOG_INFO << in;
+
       InputData in_data(in);
+      //InputData in_data(input.second);
       in_data.feed_random_data();
       inputs_data.push_back(in_data);
     }
@@ -207,6 +210,7 @@ DeltaStatus Runtime::warmup() {
     std::unordered_map<std::string, Output>& outputs =
         graph.second.get_outputs();
     for (auto& output : outputs) {
+      LOG_INFO << output.second;
       outputs_data.push_back(OutputData(output.second));
     }
 

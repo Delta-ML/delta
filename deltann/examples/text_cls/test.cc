@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
   const char* text = "I'm angry.";
   ins[0].ptr = reinterpret_cast<void*>(&text);
   ins[0].size = sizeof(text) + 1;
-  ins[0].input_name = "input_sentence";
+  ins[0].input_name = "input_sentence:0";
   ins[0].graph_name = "default";
 
   DeltaSetInputs(inf, ins, in_num);
