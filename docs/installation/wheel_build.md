@@ -13,16 +13,16 @@ platform from source.
 
 ## Prepare
 
-Before build the wheel file, you need to install the `DELTA` before. Run the Makefile script for NLP version.
-
-```bash
-cd tools && make${nlp}
-```
-
 For linux wheel building, you will need the docker image:
 
 ```bash
 docker pull tensorflow/tensorflow:custom-op-ubuntu16
+```
+
+Before build the wheel file, you need to install the `DELTA` before. Run the Makefile script for NLP version.
+
+```bash
+cd tools && make nlp
 ```
 
 ## Start to build
