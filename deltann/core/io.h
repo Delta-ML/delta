@@ -183,7 +183,7 @@ class BaseInOutData {
   void resize(const std::size_t bytes) {
     DataType dtype = this->dtype();
     DELTA_CHECK(dtype != DataType::DELTA_NONE);
-    _data->resize(bytes * delta_dtype_size(dtype));
+    _data->resize(bytes);
   }
 
   void copy_from(const void* src, std::size_t size) {
@@ -223,6 +223,12 @@ class BaseInOutData {
 #endif
 
   virtual BaseInOut& meta(void) const { return _inout; }
+
+  friend std::ostream& operator<<(std::ostream& os, const BaseInOutData& data) {
+    os << data.meta();
+    os << "DataPtr: " << data.ptr();
+    return os;
+  }
 
  protected:
   BaseInOut& _inout;

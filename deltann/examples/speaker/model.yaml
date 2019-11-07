@@ -45,6 +45,7 @@ model:
           id: 0
           name: "speaker_res_net_raw_model_1/model/output_layer/dense-bn/batchnorm/add_1:0"
           dtype: "float"
+          shape: [-1, 512]
 
 runtime:
   num_threads: 10

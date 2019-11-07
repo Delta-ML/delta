@@ -99,26 +99,31 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
 
   // copy data
   std::size_t num_elements = tensor.NumElements();
-
+  std::size_t total_bytes = tensor.TotalBytes();
+  DELTA_CHECK(num_elements == output->size()) << "expect " << num_elements << "elems, but given " << output->size();
   switch (tensor.dtype()) {
     case tensorflow::DT_FLOAT: {
       output->set_dtype(DataType::DELTA_FLOAT32);
-      output->resize(num_elements);
+      output->resize(total_bytes);
+
       auto c = tensor.flat<float>();
       float* ptr = static_cast<float*>(output->ptr());
       for (int i = 0; i < num_elements; i++) {
         ptr[i] = c(i);
       }
-    } break;
+      break;
+    }
     case tensorflow::DT_INT32: {
       output->set_dtype(DataType::DELTA_INT32);
-      output->resize(num_elements);
+      output->resize(total_bytes);
+
       auto c = tensor.flat<int>();
       int* ptr = static_cast<int*>(output->ptr());
       for (int i = 0; i < num_elements; i++) {
         ptr[i] = c(i);
       }
-    } break;
+      break;
+    }
     default:
       LOG_FATAL << "not support tensorflow datatype" << tensor.dtype();
       break;
@@ -130,10 +135,7 @@ int TFModel::set_feeds(std::vector<std::pair<string, Tensor>>* feeds,
   // set input
   DELTA_CHECK(inputs.size()) << "inputs size is 0";
   for (auto& input : inputs) {
-    LOG_INFO << "set feeds:" << input.name() ;
-    LOG_INFO << "set feeds:" << delta_dtype_str(input.dtype()) ;
-    LOG_INFO << "set feeds:" << input.shape() ;
-    LOG_INFO << "set feeds:" << input.ptr() ;
+    LOG_INFO << "set feeds:" << input;
     feeds->emplace_back(std::pair<string, Tensor>(
         input.name(),
         std::move(Tensor(tf_data_type(input.dtype()), input.tensor_shape()))));
@@ -148,9 +150,7 @@ int TFModel::set_fetches(std::vector<string>* fetches,
   // set input
   DELTA_CHECK(outputs.size()) << "outputs size is 0";
   for (auto& output : outputs) {
-    // LOG_INFO << "set fetchs:" << output.name() ;
-    // LOG_INFO << "set fetchs:" << delta_dtype_str(output.dtype()) ;
-    // LOG_INFO << "set fetchs:" << output.shape() ;
+    LOG_INFO << "set fetchs:" << output;
     fetches->push_back(output.name());
   }
 }

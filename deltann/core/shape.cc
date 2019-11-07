@@ -123,7 +123,6 @@ std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   } else {
     os << "Shape: ";
   }
-  os << shape.ndim();
   os << '[';
   for (int i = 0; i < shape.ndim(); ++i) {
     os <<  shape[i];
@@ -132,7 +131,9 @@ std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   if (shape.ndim() == 1) {
     os << ',';
   }
-  os << "]";
+  os << "] ";
+
+  os << "Rank: " << shape.ndim();
   return os;
 }
 
