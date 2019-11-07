@@ -20,6 +20,7 @@ limitations under the License.
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
+#include <vector>
 
 #include "api/c_api.h"
 
@@ -37,6 +38,7 @@ typedef struct {
   int elems;
 } Output;
 
+template <class T> 
 struct DeltaModel {
   ModelHandel model_;
   InferHandel inf_;
@@ -52,7 +54,29 @@ struct DeltaModel {
     DeltaUnLoadModel(model_);
   }
 
-  DeltaStatus SetInputs(float* buf, int bytes, const int* shape,
+  std::size_t NumElems(const std::vector<int> shape){
+	  std::size_t size = 1;
+    for (auto i : shape) size *= i;
+    return size;
+  }
+
+  std::size_t Bytes(const std::vector<int> shape){
+     std::size_t bytes = sizeof(T);
+     return bytes * this->NumElems(shape);
+  }
+
+  T* AllocInputs(const std::vector<int> shape){
+    std::size_t bytes = this->Bytes(shape);
+    T* buf = (T*)malloc(bytes);
+    memset(buf, 0, bytes);
+    return buf;
+  }
+
+  DeltaStatus SetInputs(T* buf, const std::vector<int> shape){
+    return this->SetInputs(buf, this->Bytes(shape), shape.data(), shape.size());
+  }
+
+  DeltaStatus SetInputs(T* buf, int bytes, const int* shape,
                         const int ndims) {
     Input ins[1];
     memset(ins, 0, sizeof(ins));
@@ -79,12 +103,12 @@ struct DeltaModel {
 
   int GetOutputCnt() { return DeltaGetOutputCount(inf_); }
 
-  DeltaStatus GetOutputs(float** buf, int* elems) {
+  DeltaStatus GetOutputs(T** buf, int* elems) {
     int out_num = GetOutputCnt();
     for (int i = 0; i < out_num; ++i) {
       int byte_size = DeltaGetOutputByteSize(inf_, i);
-      *elems = byte_size / sizeof(float);
-      float* tmp = (float*)malloc(byte_size);
+      *elems = byte_size / sizeof(T);
+      T* tmp = (T*)malloc(byte_size);
       DeltaCopyToBuffer(inf_, i, (void*)(tmp), byte_size);
       buf[i] = tmp;
     }
@@ -95,64 +119,74 @@ struct DeltaModel {
     int out_num = GetOutputCnt();
     for (int i = 0; i < out_num; ++i) {
       int byte_size = DeltaGetOutputByteSize(inf_, i);
-      int elems = byte_size / sizeof(float);
-      float* tmp = (float*)malloc(byte_size);
+      int elems = byte_size / sizeof(T);
+      T* tmp = (T*)malloc(byte_size);
       DeltaCopyToBuffer(inf_, i, (void*)(tmp), byte_size);
       outs[i].ptr = tmp;
       outs[i].elems = elems;
     }
     return kDeltaOk;
   }
+
+  Output* AllocOutputs(int cnt) {
+    int bytes = cnt * sizeof(Output);
+    Output* outs = (Output*)malloc(bytes);
+    memset(outs, 0, bytes);
+    return outs;
+  }
+
+  Output* AllocOutputs(){
+    int out_num = GetOutputCnt();
+    return AllocOutputs(out_num);
+  }
+
+  DeltaStatus FreeOutputs(Output* outs, int cnt){
+    for (int i = 0; i < cnt; i++) {
+      T* data = (T*)outs[i].ptr;
+      free(data);
+    }
+    free(outs);
+    return kDeltaOk;
+  }
+
+  DeltaStatus FreeOutputs(Output* outs){
+    int out_num = GetOutputCnt();
+    return FreeOutputs(outs, out_num);
+  }
 };
+
+template struct DeltaModel<float>;
 
 int main(int argc, char** argv) {
   const char* yaml_file = argv[1];
 
-  DeltaModel m = DeltaModel(yaml_file);
+  DeltaModel<float> m(yaml_file);
 
   float avg = 0;
   int cnt = 2;
   for (int i = 0; i < cnt; i++) {
-    int shape[] = {1, 260, 40, 1};
+    std::vector<int> shape = {1, 260, 40, 1};
     shape[0] = i + 1;
 
-    int bytes = sizeof(float);
-    for (auto i : shape) bytes *= i;
-    fprintf(stderr, "num elements %d\n", bytes);
-
-    float* buf = (float*)malloc(bytes);
-    memset(buf, 0, bytes);
-    m.SetInputs(buf, bytes, shape, sizeof(shape) / sizeof(shape[0]));
+    float *buf = m.AllocInputs(shape);
+    auto nelems = m.NumElems(shape);
+    for (auto i = 0; i < nelems; i++){
+	 buf[i] = 0;
+    }
+    m.SetInputs(buf, shape);
 
     float dur = m.TimeRun();
-    avg += dur;
     fprintf(stderr, "Duration %04f sec.\n", dur);
+    avg += dur;
+
     free(buf);
     buf = nullptr;
 
+    Output* outs = m.AllocOutputs();
+    m.GetOutputs(outs);
+
     int out_num = m.GetOutputCnt();
     fprintf(stderr, "The output num is %d\n", out_num);
-
-    // float** data = (float**)malloc(out_num * sizeof(nullptr));
-    // memset(data, 0, out_num * sizeof(nullptr));
-
-    // int elems = 0;
-    // m.GetOutputs(data, &elems);
-    // fprintf(stderr, "%d elements\n", elems);
-    // fprintf(stderr, "%x ptr\n", data);
-
-    // fprintf(stderr, "spk embeddings:\n");
-    // for (int j = 0; j < elems; ++j) {
-    //  fprintf(stderr, "%2.7f\t", data[0][j]);
-    //  if ((j + 1) % 16 == 0) fprintf(stderr, "\n");
-    //}
-    // fprintf(stderr, "\n");
-    // free(data[0]);
-    // free(data);
-    // data = nullptr;
-
-    Output* outs = (Output*)malloc(out_num * sizeof(Output));
-    m.GetOutputs(outs);
     for (int i = 0; i < out_num; i++) {
       fprintf(stderr, "Out Node %d\n", i);
       float* data = (float*)outs[i].ptr;
@@ -160,9 +194,9 @@ int main(int argc, char** argv) {
         fprintf(stderr, "%2.7f\t", data[j]);
         if ((j + 1) % 16 == 0) fprintf(stderr, "\n");
       }
-      free(data);
     }
-    free(outs);
+
+    m.FreeOutputs(outs);
   }
   fprintf(stderr, "Avg Duration %04f sec.\n", avg / cnt);
   return 0;
