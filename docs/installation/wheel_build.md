@@ -13,16 +13,10 @@ platform from source.
 
 ## Prepare
 
-Before build the wheel file, you need to install the `DELTA` before. Run the installation script for NLP version, with CPU or GPU.
+Before build the wheel file, you need to install the `DELTA` before. Run the Makefile script for NLP version.
 
 ```bash
-bash ./tools/install/install-delta.sh nlp gpu
-```
-
-Enter the virtual environment:
-
-```bash
-conda activate delta-py3.6-tf2.0.0
+cd tools && make${nlp}
 ```
 
 For linux wheel building, you will need the docker image:
@@ -50,13 +44,7 @@ Wheel building in linux is more complicated. You need to run a docker
 docker run --name delta_pip_tf2_u16 -it -v $PWD:/delta  tensorflow/tensorflow:custom-op-ubuntu16 /bin/bash
 ```
 
-In the docker environment, you need install the tensorflow-addons for the first time.
-
-```bash
-pip install tensorflow-addons
-```
-
-After tensorflow-addons is installed, run:
+In the docker environment, run:
 
 ```bash
 bash ./tools/install/build_pip_pkg.sh
