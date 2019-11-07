@@ -113,6 +113,10 @@ void Shape::set_shape(const Shape& shape) {
   }
 }
 
+std::vector<int> Shape::vec(void) const {
+  return std::vector<int>(_data_aux, _data_aux + _ndim);
+}
+
 std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   if (shape.is_partial()) {
     os << "PartialShape: ";

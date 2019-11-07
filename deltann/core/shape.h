@@ -62,10 +62,12 @@ class Shape {
 
   void set_shape(const Shape& shape);
 
+  std::vector<int> vec(void) const;
+
   friend std::ostream& operator<<(std::ostream& os, const Shape& shape);
 
  public:
-  static constexpr int _MAXDIM = 7;
+  static constexpr int _MAXDIM = 5;
   int _ndim;
   int _data[_MAXDIM]; // read only, set by constructor
   int _data_aux[_MAXDIM]; // will be changed by set_shape, will not has -1 

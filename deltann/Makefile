@@ -64,12 +64,12 @@ CXX := g++
 AR := ar
 
 CFLAGS := -O2
-CXXFLAGS := -O3 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\"
+CXXFLAGS := -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\"
 LDFLAGS :=
 ifeq ($(DEBUG), true)
   CXXFLAGS += -g
 else
-  CXXFLAGS += -DNDEBUG 
+  CXXFLAGS += -DNDEBUG -O3 
   LDFLAGS += -Wl,--version-script=deltann_version_script.lds
 endif
 ARFLAGS := -r
