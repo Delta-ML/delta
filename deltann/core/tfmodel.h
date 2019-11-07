@@ -23,7 +23,7 @@ limitations under the License.
 #include <vector>
 
 #include "core/base_model.h"
-#include "core/data.h"
+#include "core/io.h"
 #include "core/logging.h"
 #include "core/misc.h"
 

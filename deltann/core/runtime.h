@@ -22,7 +22,6 @@ limitations under the License.
 #include <vector>
 
 #include "core/config.h"
-#include "core/data.h"
 #include "core/graph.h"
 #include "core/io.h"
 #include "core/misc.h"
@@ -146,7 +145,7 @@ class Runtime {
 
   int get_output_bytesize(int output_index) {
     CHECK_OUTPUT_INDEX(output_index);
-    return _outputs_data[output_index].byte_size();
+    return _outputs_data[output_index].bytes();
   }
 
   int copy_to_buffer(int output_index, void* data, int data_byte_size) {

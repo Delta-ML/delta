@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
   DeltaModel m = DeltaModel(yaml_file);
 
   float avg = 0;
-  int cnt = 1;
+  int cnt = 10;
   for (int i = 0; i < cnt; i++) {
     int shape[] = {1, 260, 40, 1};
     shape[0] = i + 1;

@@ -132,10 +132,10 @@ DeltaStatus Runtime::load_model() {
   return DeltaStatus::STATUS_OK;
 }
 
-DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
+DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
   _inputs_data.clear();
 
-  for (auto& in : inputs) {
+  for (auto& in : ins) {
     LOG_INFO << "Graph name: " << in._graph_name;
     auto search = _graphs.find(in._graph_name);
     if (search != _graphs.end()) {
@@ -154,7 +154,6 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& inputs) {
             << in._size << ":"
             << input.size() * delta_dtype_size(input.dtype());
 
-        LOG_INFO << input;
         InputData input_data(input);
         input_data.copy_from(in._ptr, in._size);
         _inputs_data.push_back(input_data);

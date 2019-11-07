@@ -21,7 +21,7 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
-#include "core/data.h"
+#include "core/io.h"
 #include "core/misc.h"
 
 namespace delta {
