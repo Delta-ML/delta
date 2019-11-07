@@ -17,6 +17,7 @@
 # ==============================================================================
 
 import argparse
+import logging
 import kaldiio
 import numpy as np
 from espnet.utils.cli_writers import KaldiWriter
@@ -27,7 +28,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 def get_parser():
   parser = argparse.ArgumentParser(
     description='Compute cepstral mean and variance normalization statistics'
-                'per-utterance by default, or per-speaker if spk2utt option provided',
+                'per-utterance by default, or per-speaker if spk2utt option provided,'
+                'if wxfilename: global',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
     '--spk2utt', type=str, default=None,
@@ -39,17 +41,18 @@ def get_parser():
     'rspecifier', type=str,
     help='Read specifier id. e.g. scp:some.scp')
   parser.add_argument(
-    'wspecifier', type=str,
+    'wspecifier_or_wxfilename', type=str,
     help='Write specifier id. e.g. ark:some.ark')
   return parser
 
 def compute_cmvn_stats():
   """
-  e.g. compute_cmvn_stats.py scp:data/train/feats.scp ark,scp:data/train/cmvn.ark,data/train/cmvn.scp
+  e.g. compute_cmvn_stats.py scp:data/train/feats.scp data/train/cmvn.ark # compute global cmvn
   """
   args = get_parser().parse_args()
 
-  is_wspecifier = ':' in args.wspecifier
+  is_wspecifier = ':' in args.wspecifier_or_wxfilename
+
   if is_wspecifier:
     if args.spk2utt is not None:
       utt2spk_dict = {}
@@ -62,12 +65,19 @@ def compute_cmvn_stats():
       def utt2spk(x):
         return utt2spk_dict[x]
     else:
+      logging.info('Performing as utterance CMVN mode')
       def utt2spk(x):
         return x
+
   else:
+    logging.info('Performing as gloabl CMVN model')
+    if args.spk2utt is not None:
+      logging.warning('spk2utt is not used for global CMVN mode')
+
     def utt2spk(x):
       return None
 
+  # Calculate stats for each speaker
   counts = {}
   sum_feats = {}
   square_sum_feats = {}
@@ -102,12 +112,12 @@ def compute_cmvn_stats():
     cmvn_stats[spk] = _cmvn_stats
 
   if is_wspecifier:
-    with KaldiWriter(args.wspecifier) as writer:
+    with KaldiWriter(args.wspecifier_or_wxfilename) as writer:
       for spk, mat in cmvn_stats.items():
         writer[spk] = mat
   else:
     matrix = cmvn_stats[None]
-    kaldiio.save_mat(args.wspecifier, matrix)
+    kaldiio.save_mat(args.wspecifier_or_wxfilename, matrix)
 
 if __name__ == "__main__":
   compute_cmvn_stats()

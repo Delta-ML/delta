@@ -106,8 +106,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     utils/subset_data_dir.sh --last data/train ${n} data/${train_set}
 
     # compute global CMVN
-    speech/compute_cmvn_stats.py scp:data/${train_set}/feats.scp \
-        ark,scp:data/${train_set}/cmvn.ark,data/${train_set}/cmvn.scp
+    speech/compute_cmvn_stats.py scp:data/${train_set}/feats.scp data/${train_set}/cmvn.ark
 
     # dump features
     dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \

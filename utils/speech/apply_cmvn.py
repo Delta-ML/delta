@@ -17,8 +17,7 @@
 # ==============================================================================
 
 import argparse
-# from distutils.util import strtobool
-from kaldiio import WriteHelper
+import kaldiio
 import numpy as np
 from espnet.utils.cli_writers import KaldiWriter
 from espnet.utils.cli_readers import file_reader_helper
@@ -63,8 +62,8 @@ def get_parser():
   parser.add_argument(
     '--verbose', '-V', default=0, type=int, help='Verbose option')
   parser.add_argument(
-    'stats_rspecifier',
-    help='Input stats. e.g. ark:stats.ark')
+    'stats_rspecifier_or_rxfilename',
+    help='Input stats. e.g. ark:stats.ark or stats.ark')
   parser.add_argument(
     'rspecifier', type=str,
     help='Read specifier id. e.g. scp:some.scp')
@@ -77,6 +76,16 @@ def get_parser():
 def apply_cmvn():
   args = get_parser().parse_args()
 
+  if ':' in args.stats_rspecifier_or_rxfilename:
+    is_rspcifier = True
+    stats_filetype = 'ark'
+    stats_dict = dict(file_reader_helper(args.stats_rspecifier_or_rxfilename, 'mat'))
+  else:
+    is_rspcifier = False
+    stats_filetype = 'mat'
+    stats = kaldiio.load_mat(args.stats_rspecifier_or_rxfilename)
+    stats_dict = {None: stats}
+
   config = {}
   config['norm_means'] = args.norm_means
   config['norm_vars'] = args.norm_vars
@@ -84,16 +93,17 @@ def apply_cmvn():
   config['spk2utt'] = args.spk2utt
   config['reverse'] = args.reverse
   config['std_floor'] = args.std_floor
-  cmvn = CMVN.params(config).instantiate()
+  config['filetype'] = stats_filetype
 
-  stats_dict = dict(file_reader_helper(args.stats_rspecifier, 'mat'))
-  cmvn(stats_dict)
+  cmvn = CMVN.params(config).instantiate()
+  cmvn.call(stats_dict)
 
   with KaldiWriter(args.wspecifier, write_num_frames=args.write_num_frames,
                 compress=args.compress, compression_method=args.compression_method) as writer:
-    for utt, mat in file_reader_helper(args.rspecifier, 'mat'):
-      spk, mat = cmvn.apply_cmvn(mat, utt)
-      writer[spk] = mat
+      for utt, mat in file_reader_helper(args.rspecifier, 'mat'):
+        print(utt, mat)
+        mat_new = cmvn.apply_cmvn(mat, utt)
+        writer[utt] = mat_new
 
 if __name__ == '__main__':
   apply_cmvn()
