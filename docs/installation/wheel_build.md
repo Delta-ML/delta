@@ -19,6 +19,12 @@ Before build the wheel file, you need to install the `DELTA` before. Run the ins
 bash ./tools/install/install-delta.sh nlp gpu
 ```
 
+Enter the virtual environment:
+
+```bash
+conda activate delta-py3.6-tf2.0.0
+```
+
 For linux wheel building, you will need the docker image:
 
 ```bash
