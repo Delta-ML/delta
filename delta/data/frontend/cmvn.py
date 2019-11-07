@@ -63,7 +63,6 @@ class CMVN(BaseFrontend):
         stats_dict = dict(kaldiio.load_ark(stats))
       else:
         raise ValueError('Not supporting filetype={}'.format(p.filetype))
-    print(stats_dict)
 
     if p.utt2spk is not None:
       self.utt2spk = {}
@@ -97,7 +96,6 @@ class CMVN(BaseFrontend):
       std = np.maximum(np.sqrt(var), p.std_floor)
       self.bias[spk] = -mean
       self.scale[spk] = 1 / std
-      print(self.bias[spk])
 
   def apply_cmvn(self, x, uttid):
 

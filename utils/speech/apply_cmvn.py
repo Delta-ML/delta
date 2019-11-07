@@ -101,7 +101,6 @@ def apply_cmvn():
   with KaldiWriter(args.wspecifier, write_num_frames=args.write_num_frames,
                 compress=args.compress, compression_method=args.compression_method) as writer:
       for utt, mat in file_reader_helper(args.rspecifier, 'mat'):
-        print(utt, mat)
         mat_new = cmvn.apply_cmvn(mat, utt)
         writer[utt] = mat_new
 
