@@ -34,7 +34,7 @@ bash ./tools/install/build_pip_pkg.sh
 ```
 
 The generated wheel will be under `dist` like
-`delta_nlp-0.2.1-cp36-cp36m-macosx_10_7_x86_64.whl`
+`delta_nlp-{version}-cp36-cp36m-macosx_10_7_x86_64.whl`
 
 ### Linux
 
@@ -51,7 +51,7 @@ bash ./tools/install/build_pip_pkg.sh
 ```
 
 The generated wheel will be under `dist` like
-`delta_nlp-0.2.1-cp36-cp36m-linux_x86_64.whl`
+`delta_nlp-{version}-cp36-cp36m-linux_x86_64.whl`
 
 Repair the wheel file for multiple linux platform support:
 
@@ -60,7 +60,7 @@ auditwheel repair dist/xxx.whl
 ```
 
 The final wheel will be under `wheelhouse` like
-`delta_nlp-0.2.1-cp36-cp36m-manylinux1_x86_64.whl`.
+`delta_nlp-{version}-cp36-cp36m-manylinux1_x86_64.whl`.
 
 ## Upload
 
