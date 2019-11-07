@@ -13,7 +13,7 @@ platform from source.
 
 ## Prepare
 
-Before build the wheel file, you need to install the `DELTA` before.
+Before build the wheel file, you need to install the `DELTA` before. Run the installation script for NLP version, with CPU or GPU.
 
 ```bash
 bash ./tools/install/install-delta.sh nlp gpu
@@ -22,7 +22,7 @@ bash ./tools/install/install-delta.sh nlp gpu
 For linux wheel building, you will need the docker image:
 
 ```bash
-docker pull didi0speech0nlu/delta_pip:tf2_ub16
+docker pull tensorflow/tensorflow:custom-op-ubuntu16
 ```
 
 ## Start to build
@@ -34,7 +34,7 @@ bash ./tools/install/build_pip_pkg.sh
 ```
 
 The generated wheel will be under `dist` like
-`delta_nlp-0.2-cp36-cp36m-macosx_10_7_x86_64.whl`
+`delta_nlp-0.2.1-cp36-cp36m-macosx_10_7_x86_64.whl`
 
 ### Linux
 
@@ -44,14 +44,20 @@ Wheel building in linux is more complicated. You need to run a docker
 docker run --name delta_pip_tf2_u16 -it -v $PWD:/delta  tensorflow/tensorflow:custom-op-ubuntu16 /bin/bash
 ```
 
-In the docker environment, run:
+In the docker environment, you need install the tensorflow-addons for the first time.
+
+```bash
+pip install tensorflow-addons
+```
+
+After tensorflow-addons is installed, run:
 
 ```bash
 bash ./tools/install/build_pip_pkg.sh
 ```
 
 The generated wheel will be under `dist` like
-`delta_nlp-0.2-cp36-cp36m-linux_x86_64.whl`
+`delta_nlp-0.2.1-cp36-cp36m-linux_x86_64.whl`
 
 Repair the wheel file for multiple linux platform support:
 
@@ -60,7 +66,7 @@ auditwheel repair dist/xxx.whl
 ```
 
 The final wheel will be under `wheelhouse` like
-`delta_nlp-0.2-cp36-cp36m-manylinux1_x86_64.whl`.
+`delta_nlp-0.2.1-cp36-cp36m-manylinux1_x86_64.whl`.
 
 ## Upload
 
