@@ -194,6 +194,26 @@ Status FbankShapeFn(InferenceContext* c) {
   return Status::OK();
 }
 
+Status MfccShapeFn(InferenceContext* c) {
+  ShapeHandle fbank;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 3, &fbank));
+  ShapeHandle unused;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 0, &unused));
+
+  int32 coefficient_count;
+  TF_RETURN_IF_ERROR(
+      c->GetAttr("coefficient_count", &coefficient_count));
+
+  DimensionHandle audio_channels = c->Dim(fbank, 0);
+  DimensionHandle fbank_length = c->Dim(fbank, 1);
+
+  DimensionHandle output_channels = c->MakeDim(coefficient_count);
+
+  c->set_output(
+      0, c->MakeShape({audio_channels, fbank_length, output_channels}));
+  return Status::OK();
+}
+
 Status NgramShapeFn(InferenceContext* c) {
   int word_ngrams = 2;
   TF_RETURN_IF_ERROR(c->GetAttr("word_ngrams", &word_ngrams));
@@ -449,6 +469,22 @@ upper_frequency_limit: float, the highest frequency to use when calculating the 
 lower_frequency_limit: float, the lowest frequency to use when calculating the ceptstrum.
 filterbank_channel_count: int, resolution of the Mel bank used internally. 
 output: float, fbank features, a tensor of shape [audio_channels, spectrogram_length, bank_feat_dim].
+)doc");
+
+REGISTER_OP("MfccDct")
+    .Input("fbank: float")
+    .Input("sample_rate: int32")
+    .Attr("coefficient_count: int = 13")
+    .Attr("cepstral_lifter: float = 22")
+    .Output("output: float")
+    .SetShapeFn(MfccShapeFn)
+    .Doc(R"doc(
+Create MFCC feature files.
+fbank: float, A tensor of shape  a tensor of shape [audio_channels, fbank_length, fbank_feat_dim].
+sample_rate: int32, how many samples per second the source audio used. e.g. 16000, 8000.
+coefficient_count: int, Number of cepstra in MFCC computation.
+cepstral_lifter: float, Constant that controls scaling of MFCCs.
+output: float, mfcc features, a tensor of shape [audio_channels, fbank_length, mfcc_feat_dim].
 )doc");
 
 // ref: https//github.com/kaldi-asr/kaldi/src/featbin/add-deltas.cc

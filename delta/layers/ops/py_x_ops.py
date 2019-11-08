@@ -28,6 +28,7 @@ from delta.data.utils import read_lines_from_text_file
 file_dir = tf.resource_loader.get_data_files_path()
 try:
   so_lib_file = tf.io.gfile.glob(file_dir + '/x_ops*.so')[0].split('/')[-1]
+  print(so_lib_file)
 except IndexError as e:
   raise FileNotFoundError(f"No x_ops*.so match under dir: {file_dir}")
 path = tf.resource_loader.get_path_to_datafile(so_lib_file)
@@ -53,7 +54,7 @@ token_in_vocab = gen_x_ops.token_in_vocab
 str_lower = gen_x_ops.str_lower
 sentence_to_ids = gen_x_ops.sentence_to_ids
 delta_delta = gen_x_ops.delta_delta
-
+mfcc = gen_x_ops.mfcc_dct
 
 def jieba_cut(input_sentence,
               use_file=True,

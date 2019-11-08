@@ -19,9 +19,15 @@ limitations under the License.
 
 #include "tensorflow/core/platform/logging.h"
 
-namespace tensorflow {
+namespace delta {
 
-MfccDct::MfccDct() : initialized_(false) {}
+const float kDefaultCepstralLifter = 22;
+const int kDefaultCoefficientCount = 13;
+
+MfccDct::MfccDct()
+    : initialized_(false),
+      coefficient_count_(kDefaultCoefficientCount),
+      cepstral_lifter_(kDefaultCepstralLifter) {}
 
 bool MfccDct::Initialize(int input_length, int coefficient_count) {
   coefficient_count_ = coefficient_count;
@@ -54,8 +60,21 @@ bool MfccDct::Initialize(int input_length, int coefficient_count) {
       cosines_[i][j] = fnorm * cos(i * arg * (j + 0.5));
     }
   }
+
+  lifter_coeffs_.resize(coefficient_count_);
+  for (int j = 0; j < coefficient_count_; ++j)
+        lifter_coeffs_[j] = 1.0 + 0.5 * cepstral_lifter_ * sin(PI * j / cepstral_lifter_);
+
   initialized_ = true;
   return true;
+}
+
+void MfccDct::set_coefficient_count(int coefficient_count){
+    coefficient_count_ = coefficient_count;
+}
+
+void MfccDct::set_cepstral_lifter(float cepstral_lifter){
+    cepstral_lifter_ = cepstral_lifter;
 }
 
 void MfccDct::Compute(const std::vector<double> &input,
@@ -71,13 +90,17 @@ void MfccDct::Compute(const std::vector<double> &input,
     length = input_length_;
   }
 
+  double res;
   for (int i = 0; i < coefficient_count_; ++i) {
     double sum = 0.0;
     for (int j = 0; j < length; ++j) {
       sum += cosines_[i][j] * input[j];
     }
-    (*output)[i] = sum;
+    res = sum;
+    if (cepstral_lifter_ != 0)
+        res *= lifter_coeffs_[i];
+    (*output)[i] = res;
   }
 }
 
-}  // namespace tensorflow
+}  // namespace delta
