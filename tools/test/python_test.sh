@@ -15,7 +15,7 @@
 # limitations under the License.
 # ==============================================================================
 
-set -eu # Check for undefined variables
+set -e
 
 if [ -z $MAIN_ROOT ];then
   if [ -f env.sh ];then 
