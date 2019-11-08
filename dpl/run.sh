@@ -220,6 +220,12 @@ function dpl_output(){
   echo
 }
 
+function deltann_unit_test() {
+  echo "deltann unit test ..."
+  pushd $MAIN_ROOT/tools/test && ./cpp_test.sh && popd
+  echo "deltann unit test done."
+}
+
 echo
 echo "Input: ${INPUT_MODEL}"
 echo "Output: ${OUTPUT_MODEL}"
@@ -252,13 +258,17 @@ if [ $stage -le 4 ] && [ $stop_stage -ge 4 ];then
   # compile_deltann $TARGET $ARCH tflite
 fi
 
-# 6. compile deltann egs
 if [ $stage -le 5 ] && [ $stop_stage -ge 5 ];then
+  deltann_unit_test
+fi
+ 
+# 6. compile deltann egs
+if [ $stage -le 6 ] && [ $stop_stage -ge 6 ];then
   compile_deltann_egs
 fi
 
 # 7. dump model and lib to `dpl/output`
-if [ $stage -le 6 ] && [ $stop_stage -ge 6 ];then
+if [ $stage -le 7 ] && [ $stop_stage -ge 7 ];then
   dpl_output
 fi
 

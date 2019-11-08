@@ -103,7 +103,8 @@ export JSONCPP
 
 export LIBS
 
-SRCS := $(wildcard core/*.cc core/utils/*.cc api/*.cc)
+TEST := $(wildcard core/*_test.cc core/utils/*_test.cc api/*_test.cc)
+SRCS := $(filter-out $(TEST) , $(wildcard core/*.cc core/utils/*.cc api/*.cc))
 OBJS := $(addprefix $(OBJDIR), $(patsubst %.cc, %.o,$(SRCS)))
 STATIC_LIB := $(LIBDIR)libdeltann.a
 SHARED_LIB := $(LIBDIR)libdeltann.so
