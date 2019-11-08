@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include <gtest/gtest.h>
 #include "core/shape.h"
+#include <gtest/gtest.h>
 
 using delta::core::Shape;
 
-TEST(ShapeTest, Construct){
-   std::vector<int> v({1, 2, 3});
-   Shape s(v); 
-   EXPECT_EQ(s.ndim(), v.size());
+TEST(ShapeTest, Construct) {
+  std::vector<int> v({1, 2, 3});
+  Shape s(v);
+  EXPECT_EQ(s.ndim(), v.size());
 }

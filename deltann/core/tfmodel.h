@@ -24,8 +24,8 @@ limitations under the License.
 
 #include "core/base_model.h"
 #include "core/io.h"
-#include "core/misc.h"
 #include "core/logging.h"
+#include "core/misc.h"
 
 #include "tensorflow/cc/saved_model/loader.h"
 #include "tensorflow/cc/saved_model/tag_constants.h"

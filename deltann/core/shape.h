@@ -69,8 +69,8 @@ class Shape {
  public:
   static constexpr int _MAXDIM = 5;
   int _ndim;
-  int _data[_MAXDIM]; // read only, set by constructor
-  int _data_aux[_MAXDIM]; // will be changed by set_shape, will not has -1 
+  int _data[_MAXDIM];      // read only, set by constructor
+  int _data_aux[_MAXDIM];  // will be changed by set_shape, will not has -1
 };
 
 }  // namespace core

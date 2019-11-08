@@ -18,10 +18,12 @@ limitations under the License.
 #define DELTANN_CORE_IO_H_
 
 #include <string>
+#include <utility>
+#include <memory>
 
+#include "core/buffer.h"
 #include "core/misc.h"
 #include "core/shape.h"
-#include "core/buffer.h"
 
 #ifdef USE_TF
 #include "tensorflow/core/framework/tensor_shape.h"
@@ -90,11 +92,9 @@ class BaseInOut {
 class Input : public BaseInOut {
  public:
   Input(std::string name, int id, Shape shape, DataType dtype)
-      : BaseInOut(name, id, shape, dtype, InOut::DELTA_IN) {
-  }
+      : BaseInOut(name, id, shape, dtype, InOut::DELTA_IN) {}
   Input(std::string name, int id, DataType dtype)
-      : BaseInOut(name, id, Shape(), dtype, InOut::DELTA_IN) {
-  }
+      : BaseInOut(name, id, Shape(), dtype, InOut::DELTA_IN) {}
   ~Input() {}
 };
 
@@ -102,22 +102,15 @@ class Input : public BaseInOut {
 class Output : public BaseInOut {
  public:
   Output(std::string name, int id, Shape shape, DataType dtype)
-      : BaseInOut(name, id, shape, dtype, InOut::DELTA_OUT) {
-  }
+      : BaseInOut(name, id, shape, dtype, InOut::DELTA_OUT) {}
   Output(std::string name, int id, DataType dtype)
-      : BaseInOut(name, id, Shape(), dtype, InOut::DELTA_OUT) {
-  }
+      : BaseInOut(name, id, Shape(), dtype, InOut::DELTA_OUT) {}
   ~Output() {}
-
-
-
 };
 
 class BaseInOutData {
  public:
-  explicit BaseInOutData(BaseInOut& inout) : _inout(inout) {
-    allocate();
-  }
+  explicit BaseInOutData(BaseInOut& inout) : _inout(inout) { allocate(); }
 
   void allocate(void) {
     if (this->dtype() != DataType::DELTA_NONE && 0 != this->size()) {
@@ -125,7 +118,6 @@ class BaseInOutData {
     } else {
       _data = std::make_shared<Buffer>();
     }
-
   }
 
   ~BaseInOutData() { _data = nullptr; }
@@ -213,7 +205,8 @@ class BaseInOutData {
     tensorflow::Status status;
     const Shape& shape = this->shape();
     tensorflow::TensorShape ts;
-    status = tensorflow::TensorShapeUtils::MakeShape(std::move(shape.vec()), &ts);
+    status =
+        tensorflow::TensorShapeUtils::MakeShape(std::move(shape.vec()), &ts);
     if (!status.ok()) {
       LOG_FATAL << "Error when make shape from vector: " << shape.vec() << ", "
                 << status;
@@ -244,7 +237,6 @@ class OutputData : public BaseInOutData {
  public:
   explicit OutputData(BaseInOut& inout) : BaseInOutData(inout) {}
 };
-
 
 }  // namespace core
 

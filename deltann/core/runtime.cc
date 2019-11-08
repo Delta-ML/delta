@@ -193,7 +193,7 @@ DeltaStatus Runtime::warmup() {
       LOG_INFO << in.shape().ndim();
 
       if (in.shape().is_partial()) {
-	in.shape().set_dim(0, 1);
+        in.shape().set_dim(0, 1);
       }
 
       LOG_INFO << in;

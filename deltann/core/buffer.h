@@ -85,14 +85,16 @@ class Buffer {
   void copy_from(const void* src, const std::size_t size) {
     DELTA_CHECK(_ptr);
     DELTA_CHECK(src);
-    DELTA_CHECK(size <= _size) << "expect size: " << size << " real size:" << _size;
+    DELTA_CHECK(size <= _size)
+        << "expect size: " << size << " real size:" << _size;
     std::memcpy(_ptr, src, size);
   }
 
   void copy_to(void* dst, const std::size_t size) {
     DELTA_CHECK(_ptr);
     DELTA_CHECK(dst);
-    DELTA_CHECK(size <= _size) << "expect size: " << size << " real size:" << _size;
+    DELTA_CHECK(size <= _size)
+        << "expect size: " << size << " real size:" << _size;
     std::memcpy(dst, _ptr, size);
   }
 

@@ -64,7 +64,7 @@ Shape& Shape::operator=(const Shape& s) {
 }
 
 bool Shape::is_partial(void) const {
-  for (int i = 0; i < _ndim; i++){
+  for (int i = 0; i < _ndim; i++) {
     if (_data[i] < 0) return true;
   }
   return false;
@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& os, const Shape& shape) {
   }
   os << '[';
   for (int i = 0; i < shape.ndim(); ++i) {
-    os <<  shape[i];
+    os << shape[i];
     os << ',';
   }
   if (shape.ndim() == 1) {

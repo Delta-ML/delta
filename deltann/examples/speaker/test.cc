@@ -38,7 +38,7 @@ typedef struct {
   int elems;
 } Output;
 
-template <class T> 
+template <class T>
 struct DeltaModel {
   ModelHandel model_;
   InferHandel inf_;
@@ -54,30 +54,29 @@ struct DeltaModel {
     DeltaUnLoadModel(model_);
   }
 
-  std::size_t NumElems(const std::vector<int> shape){
-	  std::size_t size = 1;
+  std::size_t NumElems(const std::vector<int> shape) {
+    std::size_t size = 1;
     for (auto i : shape) size *= i;
     return size;
   }
 
-  std::size_t Bytes(const std::vector<int> shape){
-     std::size_t bytes = sizeof(T);
-     return bytes * this->NumElems(shape);
+  std::size_t Bytes(const std::vector<int> shape) {
+    std::size_t bytes = sizeof(T);
+    return bytes * this->NumElems(shape);
   }
 
-  T* AllocInputs(const std::vector<int> shape){
+  T* AllocInputs(const std::vector<int> shape) {
     std::size_t bytes = this->Bytes(shape);
     T* buf = (T*)malloc(bytes);
     memset(buf, 0, bytes);
     return buf;
   }
 
-  DeltaStatus SetInputs(T* buf, const std::vector<int> shape){
+  DeltaStatus SetInputs(T* buf, const std::vector<int> shape) {
     return this->SetInputs(buf, this->Bytes(shape), shape.data(), shape.size());
   }
 
-  DeltaStatus SetInputs(T* buf, int bytes, const int* shape,
-                        const int ndims) {
+  DeltaStatus SetInputs(T* buf, int bytes, const int* shape, const int ndims) {
     Input ins[1];
     memset(ins, 0, sizeof(ins));
 
@@ -135,12 +134,12 @@ struct DeltaModel {
     return outs;
   }
 
-  Output* AllocOutputs(){
+  Output* AllocOutputs() {
     int out_num = GetOutputCnt();
     return AllocOutputs(out_num);
   }
 
-  DeltaStatus FreeOutputs(Output* outs, int cnt){
+  DeltaStatus FreeOutputs(Output* outs, int cnt) {
     for (int i = 0; i < cnt; i++) {
       T* data = (T*)outs[i].ptr;
       free(data);
@@ -149,7 +148,7 @@ struct DeltaModel {
     return kDeltaOk;
   }
 
-  DeltaStatus FreeOutputs(Output* outs){
+  DeltaStatus FreeOutputs(Output* outs) {
     int out_num = GetOutputCnt();
     return FreeOutputs(outs, out_num);
   }
@@ -168,10 +167,10 @@ int main(int argc, char** argv) {
     std::vector<int> shape = {1, 260, 40, 1};
     shape[0] = i + 1;
 
-    float *buf = m.AllocInputs(shape);
+    float* buf = m.AllocInputs(shape);
     auto nelems = m.NumElems(shape);
-    for (auto i = 0; i < nelems; i++){
-	 buf[i] = 0;
+    for (auto i = 0; i < nelems; i++) {
+      buf[i] = 0;
     }
     m.SetInputs(buf, shape);
 
