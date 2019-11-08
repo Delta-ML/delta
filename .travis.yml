@@ -20,4 +20,4 @@ jobs:
     - stage: test
       script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/python_test.sh"
     - script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/lint.sh"
-    - script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
+   #- script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
