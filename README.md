@@ -49,31 +49,45 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 
 ## Installation
 
-### Installation by pip
+We provide several approach to install DELTA:
 
-We provide the pip install support for our `nlp` version of DELTA for
-**pure NLP users** and the **quick demo of the features**. 
+- If you are only interested in NLP tasks, you can [use `pip` to install](#install-from-pip
+) DELTA.
 
-**Note**: Users can still use both `nlp` and `speech` tasks by installing
-from our source code.
+- If you are interested in both NLP and speech tasks, you can install DELTA [from the source code](#install-from-source-code).
 
-We recommend to use [conda](https://conda.io/) or
-[virtualenv](https://virtualenv.pypa.io/en/latest/) to install DELTA
-from pip.
+- If you are intersted in model deployment, you may install DELTA [from the source code](#install-from-source-code) or [from `docker`](#install-from-docker).
 
-Before our installation, make sure you have installed the Tensorflow
-(2.0.0 is required now).
+### Install from pip
 
+We provide the pip install support for `nlp` version of DELTA.
+
+**Note**: Users can still install DELTA from the source for both `nlp` and `speech` tasks.
+
+We recommend to create [conda](https://conda.io/) or
+[virtualenv](https://virtualenv.pypa.io/en/latest/) and install DELTA
+from pip in the virtual environment. For example
+```bash
+conda create -n delta-pip-py3.6 python=3.6
+conda activate delta-pip-py3.6
+```
+
+Please install TensorFlow 2.x if you have not installed it in your system.
+```bash
+pip install tensorflow
+```
+
+Then, simply install DELTA use the following command:
 ```bash
 pip install delta-nlp
 ```
 
-Follow the usage steps here if you install by pip:
+After install DELTA, you can follow this example to train NLP models or develop new models.
 [A Text Classification Usage Example for pip users](docs/tutorials/training/text_class_pip_example.md)
 
-### Installation from Source Code
+### Install from Source Code
 
-To install from the source code, We use [conda](https://conda.io/) to
+To install from the source code, we use [conda](https://conda.io/) to
 install required packages. Please
 [install conda](https://conda.io/en/latest/miniconda.html) if you do not
 have it in your system.
@@ -124,7 +138,7 @@ python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_
 
 For advanced installation, full version users, or more details, please refer to [manual installation](docs/installation/manual_setup.md).
 
-### Docker install
+### Install from Docker
 
 For Docker users, we provide images with DELTA installed. Please refer to [docker installation](docs/installation/using_docker.md).
 
