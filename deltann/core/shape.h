@@ -21,6 +21,7 @@ limitations under the License.
 #include <iostream>
 #include <vector>
 
+#include "core/misc.h"
 #ifdef USE_TF
 #include "tensorflow/core/framework/tensor_shape.h"
 #endif
@@ -35,15 +36,17 @@ class Shape {
 
   explicit Shape(const std::vector<int>& v);
 
+  Shape(const int* arr, const int ndims);
+
   Shape(const std::initializer_list<int>& s);
 
   Shape(const Shape& s);
 
   Shape& operator=(const Shape& s);
 
-  void set_dim(int idx, int size);
-
   ~Shape();
+
+  bool is_partial(void) const;
 
   int ndim() const;
 
@@ -51,18 +54,23 @@ class Shape {
 
   size_t size(void) const;
 
+  void set_dim(int idx, int size);
+
 #ifdef USE_TF
   void set_shape(const tensorflow::TensorShape& shape);
 #endif
 
   void set_shape(const Shape& shape);
 
+  std::vector<int> vec(void) const;
+
   friend std::ostream& operator<<(std::ostream& os, const Shape& shape);
 
- private:
-  static constexpr int _MaxDim = 7;
+ public:
+  static constexpr int _MAXDIM = 5;
   int _ndim;
-  int _data[_MaxDim];
+  int _data[_MAXDIM];      // read only, set by constructor
+  int _data_aux[_MAXDIM];  // will be changed by set_shape, will not has -1
 };
 
 }  // namespace core

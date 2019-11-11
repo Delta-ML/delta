@@ -48,6 +48,8 @@ TARGET_ARCH := $(HOST_ARCH)
 # engine
 ENGINE := TF
 $(info $(origin ENGINE))
+# debug mode
+DEBUG := true
 
 GENDIR := $(MAKEFILE_DIR)/.gen/
 OBJDIR := $(GENDIR)obj/
@@ -62,8 +64,14 @@ CXX := g++
 AR := ar
 
 CFLAGS := -O2
-CXXFLAGS := -O3 -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG
-LDFLAGS := -Wl,--version-script=deltann_version_script.lds
+CXXFLAGS := -std=c++11 -fPIC -DDELTANN_VERSION=\"$(shell git rev-parse --short HEAD)\"
+LDFLAGS :=
+ifeq ($(DEBUG), true)
+  CXXFLAGS += -g
+else
+  CXXFLAGS += -DNDEBUG -O3 
+  LDFLAGS += -Wl,--version-script=deltann_version_script.lds
+endif
 ARFLAGS := -r
 
 YAML := $(ROOT_DIR)/../tools/yaml/yaml-cpp
@@ -95,7 +103,8 @@ export JSONCPP
 
 export LIBS
 
-SRCS := $(wildcard core/*.cc core/utils/*.cc api/*.cc)
+TEST := $(wildcard core/*_test.cc core/utils/*_test.cc api/*_test.cc)
+SRCS := $(filter-out $(TEST) , $(wildcard core/*.cc core/utils/*.cc api/*.cc))
 OBJS := $(addprefix $(OBJDIR), $(patsubst %.cc, %.o,$(SRCS)))
 STATIC_LIB := $(LIBDIR)libdeltann.a
 SHARED_LIB := $(LIBDIR)libdeltann.so

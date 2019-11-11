@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -15,26 +14,19 @@
 # limitations under the License.
 # ==============================================================================
 
+CXXFLAGS := -std=c++11 -fPIC -DINFERENCE_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG -O2
 
-if [ -z ${MAIN_ROOT} ];then
-  if [ -f env.sh ];then 
-      source env.sh
-  else
-      source ../../env.sh
-  fi
-fi
+ABSEIL := $(ROOT_DIR)/../tools/abseil-cpp
 
-# Set bash to 'debug' mode, it will exit on :
-# -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
-set -e
-set -u
-set -o pipefail
+INCLUDES := -I$(ROOT_DIR) -I$(JSONCPP) -I$(ABSEIL)
 
-echo "Integration Testing..."
+TEST_SRC := test.cc
+TEST_BIN := test.bin
 
-#TODO(https://github.com/didi/delta/issues/61)
-#pushd ${MAIN_ROOT}/egs/mini_an4/asr/v1
-#bash run_delta.sh || echo "mini an4 error" && exit 1
-#popd
+$(TEST_BIN): $(TEST_SRC)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_SRC) -o $(TEST_BIN) -L $(LIBDIR) -ldeltann $(LIBS)
 
-echo "Integration Testing Done."
+all: $(TEST_BIN)
+
+clean:
+	$(RM) $(TEST_BIN)

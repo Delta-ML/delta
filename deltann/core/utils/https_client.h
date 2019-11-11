@@ -20,8 +20,8 @@ limitations under the License.
 #ifdef USE_TF_SERVING
 
 #include <cstdio>
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 #include "core/data.h"
