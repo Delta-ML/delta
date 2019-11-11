@@ -25,7 +25,7 @@ if [ -z ${MAIN_ROOT} ];then
 fi
 
 if [ -d ${MAIN_ROOT}/tools/kaldi ];then
-  pushd ${MAIN_ROOT}/tools/kalid/tools && git clone --depth=1 https://github.com/kaldi-asr/kaldi.git && popd
+  pushd ${MAIN_ROOT}/tools && git clone --depth=1 https://github.com/kaldi-asr/kaldi.git && popd
 fi
 
 pushd ${MAIN_ROOT}/tools/kaldi/tools
