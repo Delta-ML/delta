@@ -21,14 +21,13 @@ limitations under the License.
 #include <unordered_map>
 #include <vector>
 
-#include "core/data.h"
+#include "core/config.h"
 #include "core/graph.h"
 #include "core/io.h"
+#include "core/misc.h"
 #include "core/tflite_model.h"
 #include "core/tfmodel.h"
 #include "core/tfserving_model.h"
-#include "core/config.h"
-#include "core/misc.h"
 
 #ifdef USE_TF
 #include "tensorflow/c/c_api.h"
@@ -39,18 +38,31 @@ namespace delta {
 namespace core {
 
 using std::string;
+using std::vector;
 
 struct In {
+  // Input for Constant TensorShape
   In(string graph_name, string input_name, const void* ptr, std::size_t size)
       : _graph_name(graph_name),
         _input_name(input_name),
         _ptr(ptr),
         _size(size) {}
 
+  // Input for PartialTensorShape
+  In(string graph_name, string input_name, const int* shape, const int ndims,
+     const void* ptr, std::size_t size)
+      : _graph_name(graph_name),
+        _input_name(input_name),
+        _ptr(ptr),
+        _size(size) {
+    _shape = Shape(shape, ndims);
+  }
+
   std::string _graph_name;
   std::string _input_name;
   const void* _ptr;
   std::size_t _size;
+  Shape _shape;
 };
 
 // run graph
@@ -133,7 +145,7 @@ class Runtime {
 
   int get_output_bytesize(int output_index) {
     CHECK_OUTPUT_INDEX(output_index);
-    return _outputs_data[output_index].byte_size();
+    return _outputs_data[output_index].bytes();
   }
 
   int copy_to_buffer(int output_index, void* data, int data_byte_size) {

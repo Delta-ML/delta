@@ -104,12 +104,12 @@ DeltaStatus Graph::add_inputs() {
         v.push_back(s[i].as<int>());
       }
       _inputs.insert(pair<string, Input>(
-          name, Input(name, id, Shape(v), delta_type_switch(dtype))));
+          name, Input(name, id, Shape(v), delta_str_dtype(dtype))));
     } else {
       LOG_INFO << "graph " << _name << " shape is None"
                << _cfg["inputs"][i]["shape"];
       _inputs.insert(
-          pair<string, Input>(name, Input(name, id, delta_type_switch(dtype))));
+          pair<string, Input>(name, Input(name, id, delta_str_dtype(dtype))));
     }
   }
 
@@ -129,7 +129,7 @@ DeltaStatus Graph::add_outputs() {
 
     int id = _cfg["outputs"][i]["id"].as<int>();
     _outputs.insert(
-        pair<string, Output>(name, Output(name, id, delta_type_switch(dtype))));
+        pair<string, Output>(name, Output(name, id, delta_str_dtype(dtype))));
   }
   return DeltaStatus::STATUS_OK;
 }
