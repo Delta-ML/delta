@@ -60,8 +60,6 @@ class AddRirNoiseAecresTest(tf.test.TestCase):
       sess.run(writewav_op)
 
 if __name__ == '__main__':
-    if tf.__version__ < '2.0.0':
-        tf.compat.v1.disable_eager_execution()
     tf.test.main()
 
 
