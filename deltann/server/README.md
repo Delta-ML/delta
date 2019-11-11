@@ -5,6 +5,7 @@
 - [RESTful API](#restful-api)
 - [Model status API](#model-status-api)
 - [Predict API](#predict-api)
+- [Request format](#Request-format)
 - [Demo code](#demo-code)
 
 ## Quick start
@@ -61,6 +62,17 @@ POST http://host:port/v1/models/${MODEL_NAME}
 ```sh
 POST http://host:port/v1/models/${MODEL_NAME}[/versions/${MODEL_VERSION}]:predict
 ``` 
+ 
+ #### Request format
+ 
+The request body for predict API must be JSON object formatted as follows:
+
+```javascript
+{
+  "inputs": <value>
+}
+```
+
  
  ### Demo code
   ```sh   

@@ -3,6 +3,12 @@ set -euf -o pipefail
 
 source server-env.sh
 
+pushd ../
+if [ -d dpl ]; then
+    rm -rf dpl
+fi
+popd
+
 delta_file="delta-service"
 
 if [ -f "$delta_file" ]; then
