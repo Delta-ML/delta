@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 from delta.utils.hparam import HParams
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.add_rir_noise_aecres import Add_rir_noise_aecres

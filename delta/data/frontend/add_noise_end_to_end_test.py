@@ -16,7 +16,7 @@
 
 import os
 from pathlib import Path
-import tensorflow as tf
+import delta.compat as tf
 from delta.data.frontend.add_noise_end_to_end import AddNoiseEndToEnd
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 from delta import PACKAGE_ROOT_DIR
