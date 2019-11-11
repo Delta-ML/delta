@@ -28,7 +28,7 @@ frame_length=0.010
 output_type=1
 snip_edges=1
 raw_energy=1
-preEph_coeff=0.97
+preeph_coeff=0.97
 window_type='povey'
 remove_dc_offset=true
 is_fbank=true
@@ -121,7 +121,7 @@ if [ -f ${data}/segments ]; then
             --output_type ${output_type} \
             --snip_edges ${snip_edges} \
             --raw_energy ${raw_energy} \
-            --preEph_coeff ${preEph_coeff} \
+            --preeph_coeff ${preeph_coeff} \
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
@@ -153,7 +153,7 @@ else
             --output_type ${output_type} \
             --snip_edges ${snip_edges} \
             --raw_energy ${raw_energy} \
-            --preEph_coeff ${preEph_coeff} \
+            --preeph_coeff ${preeph_coeff} \
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \

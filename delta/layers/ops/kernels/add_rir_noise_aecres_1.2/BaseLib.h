@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __BASELIB_H_
-#define  __BASELIB_H_
+#ifndef __BASELIB_H_
+#define __BASELIB_H_
 
-#include	"typedefs_sh.h"
+#include "typedefs_sh.h"
 
 void FFT(COMPLEX *pFFTData, int nFFTOrder);
 

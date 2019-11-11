@@ -220,16 +220,15 @@ Status MfccShapeFn(InferenceContext* c) {
   TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 0, &unused));
 
   int32 coefficient_count;
-  TF_RETURN_IF_ERROR(
-      c->GetAttr("coefficient_count", &coefficient_count));
+  TF_RETURN_IF_ERROR(c->GetAttr("coefficient_count", &coefficient_count));
 
   DimensionHandle audio_channels = c->Dim(fbank, 0);
   DimensionHandle fbank_length = c->Dim(fbank, 1);
 
   DimensionHandle output_channels = c->MakeDim(coefficient_count);
 
-  c->set_output(
-      0, c->MakeShape({audio_channels, fbank_length, output_channels}));
+  c->set_output(0,
+                c->MakeShape({audio_channels, fbank_length, output_channels}));
   return Status::OK();
 }
 

@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __TYPEDEFS_SH_H_
-#define  __TYPEDEFS_SH_H_
+#ifndef __TYPEDEFS_SH_H_
+#define __TYPEDEFS_SH_H_
 
-const double c = 340.0f;	//	sound speed
+const double c = 340.0f;  //	sound speed
 
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
@@ -29,7 +29,7 @@ typedef long LONG;
 typedef unsigned long ULONG;
 typedef LONG HRESULT;
 
-#define _MAX_PATH   260 /*  max. length of full pathname */
+#define _MAX_PATH 260 /*  max. length of full pathname */
 
 #define S_OK ((HRESULT)0L)
 #define S_FALSE ((HRESULT)1L)
@@ -37,31 +37,33 @@ typedef LONG HRESULT;
 #define FALSE false
 #define TRUE true
 
-#ifndef	PI
-#define	PI 3.1415926535f
+#ifndef PI
+#define PI 3.1415926535f
 #endif
 
-#define DECLARE_HANDLE(name) struct name##__{int unused;}; typedef struct name##__ *name
+#define DECLARE_HANDLE(name) \
+  struct name##__ {          \
+    int unused;              \
+  };                         \
+  typedef struct name##__ *name
 
 #ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
 #ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef EPSILON
 #define EPSILON 1e-5
 #endif
 
-#define	RIR_LENGTH 16000
+#define RIR_LENGTH 16000
 
-typedef struct
-{
-	float	real;
-	float	image;
+typedef struct {
+  float real;
+  float image;
 } COMPLEX;
 
 #endif  //__TYPEDEFS_SH_H_
-

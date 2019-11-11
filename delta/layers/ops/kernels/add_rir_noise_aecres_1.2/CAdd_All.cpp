@@ -14,25 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "conv.h"
 #include "CAdd_All.h"
-        
-CAdd_All::CAdd_All()
-{
-    st_rir = conv_init(16000, 0); 
-}
-        
-CAdd_All::~CAdd_All()
-{
-    conv_exit(st_rir);
-}
+#include "conv.h"
 
-int CAdd_All::add_rir(void* st, short* inputdata, int inputdata_length, 
-                short* outputdata, int* outputdata_size, char* filelist)
-{
-    int ret;
-    ret = conv_process(st, inputdata, inputdata_length, 
-            outputdata, outputdata_size, filelist);
-    return ret;
-}
+CAdd_All::CAdd_All() { st_rir = conv_init(16000, 0); }
 
+CAdd_All::~CAdd_All() { conv_exit(st_rir); }
+
+int CAdd_All::add_rir(void* st, short* inputdata, int inputdata_length,
+                      short* outputdata, int* outputdata_size, char* filelist) {
+  int ret;
+  ret = conv_process(st, inputdata, inputdata_length, outputdata,
+                     outputdata_size, filelist);
+  return ret;
+}

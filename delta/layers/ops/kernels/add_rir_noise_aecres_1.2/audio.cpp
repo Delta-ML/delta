@@ -16,29 +16,21 @@ limitations under the License.
 
 #include "audio.h"
 
-audio::audio(int nFs)
-{
-    st = add_rir_noise_aecres_init(nFs);
-}
-    
-audio::~audio()
-{
-    add_rir_noise_aecres_exit(st);
-}
+audio::audio(int nFs) { st = add_rir_noise_aecres_init(nFs); }
+
+audio::~audio() { add_rir_noise_aecres_exit(st); }
 
 int audio::audio_pre_proc(short* inputdata, int inputdata_length,
-        short* outputdata, int* outputdata_size,
-        bool if_add_rir, char* rir_filelist,
-        bool if_add_noise, char* noise_filelist, float snr_min, float snr_max,
-        bool if_add_aecres, char* aecres_filelist)
-{
-    int ret;
-    ret = add_rir_noise_aecres_process(st, inputdata, inputdata_length,
-        outputdata, outputdata_size,
-        if_add_rir, rir_filelist, 
-        if_add_noise, noise_filelist, snr_min, snr_max,
-        if_add_aecres, aecres_filelist);
+                          short* outputdata, int* outputdata_size,
+                          bool if_add_rir, char* rir_filelist,
+                          bool if_add_noise, char* noise_filelist,
+                          float snr_min, float snr_max, bool if_add_aecres,
+                          char* aecres_filelist) {
+  int ret;
+  ret = add_rir_noise_aecres_process(
+      st, inputdata, inputdata_length, outputdata, outputdata_size, if_add_rir,
+      rir_filelist, if_add_noise, noise_filelist, snr_min, snr_max,
+      if_add_aecres, aecres_filelist);
 
-    return ret;
+  return ret;
 }
-

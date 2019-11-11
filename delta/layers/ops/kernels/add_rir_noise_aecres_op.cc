@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#include <string.h>
 #include "add_rir_noise_aecres_1.2/audio.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
@@ -21,20 +22,22 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor_shape.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/status.h"
-#include <string.h>
 
 namespace delta {
 class AddRirNoiseAecresOp : public OpKernel {
  public:
-  explicit AddRirNoiseAecresOp(OpKernelConstruction* context) : OpKernel(context) {
+  explicit AddRirNoiseAecresOp(OpKernelConstruction* context)
+      : OpKernel(context) {
     OP_REQUIRES_OK(context, context->GetAttr("snr_min", &snr_min_));
     OP_REQUIRES_OK(context, context->GetAttr("snr_max", &snr_max_));
     OP_REQUIRES_OK(context, context->GetAttr("if_add_rir", &if_add_rir_));
     OP_REQUIRES_OK(context, context->GetAttr("rir_filelist", &rir_filelist_));
     OP_REQUIRES_OK(context, context->GetAttr("if_add_noise", &if_add_noise_));
-    OP_REQUIRES_OK(context, context->GetAttr("noise_filelist", &noise_filelist_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("noise_filelist", &noise_filelist_));
     OP_REQUIRES_OK(context, context->GetAttr("if_add_aecres", &if_add_aecres_));
-    OP_REQUIRES_OK(context, context->GetAttr("aecres_filelist", &aecres_filelist_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("aecres_filelist", &aecres_filelist_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -53,32 +56,32 @@ class AddRirNoiseAecresOp : public OpKernel {
 
     // shape
     const int L = input_tensor.dim_size(0);
-    char* rir_filelist = const_cast<char *>(rir_filelist_.c_str());
-    char* noise_filelist = const_cast<char *>(noise_filelist_.c_str());
-    char* aecres_filelist = const_cast<char *>(aecres_filelist_.c_str());
+    char* rir_filelist = const_cast<char*>(rir_filelist_.c_str());
+    char* noise_filelist = const_cast<char*>(noise_filelist_.c_str());
+    char* aecres_filelist = const_cast<char*>(aecres_filelist_.c_str());
 
     // init input && output array
     const float* input_flat = input_tensor.flat<float>().data();
     short* input_data = new short[L];
     for (int i = 0; i < L; i++)
-    	input_data[i] = static_cast<short>(input_flat[i]);
+      input_data[i] = static_cast<short>(input_flat[i]);
     int outputdata_length[2];
     Tensor* output_tensor = nullptr;
-    OP_REQUIRES_OK(
-        context, context->allocate_output(0, TensorShape({1, L}),
-                                          &output_tensor));
+    OP_REQUIRES_OK(context, context->allocate_output(0, TensorShape({1, L}),
+                                                     &output_tensor));
     float* output_flat = output_tensor->flat<float>().data();
     short* output_data = new short[L];
 
     audio add_noise(sample_rate1);
     int ret;
-    ret = add_noise.audio_pre_proc(input_data, L, output_data, &outputdata_length[0],
-    	if_add_rir_, rir_filelist, if_add_noise_, noise_filelist, snr_min_, snr_max_,
-    	if_add_aecres_, aecres_filelist);
+    ret = add_noise.audio_pre_proc(
+        input_data, L, output_data, &outputdata_length[0], if_add_rir_,
+        rir_filelist, if_add_noise_, noise_filelist, snr_min_, snr_max_,
+        if_add_aecres_, aecres_filelist);
     for (int i = 0; i < L; i++)
-    	output_flat[i] = static_cast<float>(output_data[i]);
-    delete [] input_data;
-    delete [] output_data;
+      output_flat[i] = static_cast<float>(output_data[i]);
+    delete[] input_data;
+    delete[] output_data;
   }
 
  private:
@@ -92,6 +95,7 @@ class AddRirNoiseAecresOp : public OpKernel {
   string aecres_filelist_;
 };
 
-REGISTER_KERNEL_BUILDER(Name("AddRirNoiseAecres").Device(DEVICE_CPU), AddRirNoiseAecresOp);
+REGISTER_KERNEL_BUILDER(Name("AddRirNoiseAecres").Device(DEVICE_CPU),
+                        AddRirNoiseAecresOp);
 
 }  // namespace delta

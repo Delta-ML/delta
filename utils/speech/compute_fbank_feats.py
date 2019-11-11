@@ -53,10 +53,7 @@ def get_parser():
   parser.add_argument(
       '--frame_length', type=float, default=0.010, help='Hop size of window')
   parser.add_argument(
-      '--output_type',
-      type=int,
-      default=1,
-      help='1 for power spectrum, 2 for log-power spectrum.')
+      '--output_type', type=int, default=1, help='1 for power spectrum, 2 for log-power spectrum.')
   parser.add_argument(
     '--window_type', type=str, default='povey', help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
@@ -64,7 +61,7 @@ def get_parser():
   parser.add_argument(
     '--raw_energy', type=int, default=1, help='Compute frame energy before preemphasis and windowing.')
   parser.add_argument(
-    '--preEph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
+    '--preeph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
   parser.add_argument(
     '--remove_dc_offset', type=bool, default=True, help=' Subtract mean from waveform on each frame')
   parser.add_argument(
@@ -110,7 +107,7 @@ def compute_fbank():
   config['output_type'] = args.output_type
   config['window_type'] = args.window_type
   config['snip_edges'] = args.snip_edges
-  config['preEph_coeff'] = args.preEph_coeff
+  config['preeph_coeff'] = args.preeph_coeff
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
 

@@ -126,7 +126,7 @@ bool MfccMelFilterbank::Initialize(int input_length, double input_sample_rate,
         weights_[i] = (center_frequencies_[0] - FreqToMel(i * hz_per_sbin)) /
                       (center_frequencies_[0] - mel_low);
       }
-//      std::cerr<<weights_[i]<<std::endl;
+      //      std::cerr<<weights_[i]<<std::endl;
     }
   }
   // Check the sum of FFT bin weights for every mel band to identify

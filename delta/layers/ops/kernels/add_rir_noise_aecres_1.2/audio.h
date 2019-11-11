@@ -22,18 +22,17 @@ limitations under the License.
 using namespace tensorflow;
 
 class audio {
-private:
-    void* st;
+ private:
+  void* st;
 
-public:
-    audio(int nFs);
-    ~audio();
+ public:
+  audio(int nFs);
+  ~audio();
 
-    int audio_pre_proc(short* inputdata, int inputdata_length,
-            short* outputdata, int* outputdata_size,
-            bool if_add_rir, char* rir_filelist,
-            bool if_add_noise, char* noise_filelist, float snr_min, float snr_max,
-            bool if_add_aecres, char* aecres_filelist);
+  int audio_pre_proc(short* inputdata, int inputdata_length, short* outputdata,
+                     int* outputdata_size, bool if_add_rir, char* rir_filelist,
+                     bool if_add_noise, char* noise_filelist, float snr_min,
+                     float snr_max, bool if_add_aecres, char* aecres_filelist);
 };
 
 #endif  // AUDIO_H_

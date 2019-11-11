@@ -16,7 +16,7 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+import delta.compat as tf
 import argparse
 from distutils.util import strtobool
 import kaldiio
@@ -90,7 +90,7 @@ def compute_stft():
       array = array.astype(np.float32)
       audio_data = tf.constant(array, dtype=tf.float32)
       power_spectrum, phase_spectrum = stft(audio_data, args.sample_rate)
-      sess = tf.compat.v1.Session()
+      sess = tf.Session()
       if args.output_type == 1:
         out_feats = power_spectrum.eval(session=sess)
       else:

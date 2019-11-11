@@ -52,6 +52,20 @@ def get_parser():
   parser.add_argument(
       '--frame_length', type=float, default=0.010, help='Hop size of window')
   parser.add_argument(
+      '--output_type', type=int, default=1, help='1 for power spectrum, 2 for log-power spectrum.')
+  parser.add_argument(
+    '--window_type', type=str, default='povey', help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
+  parser.add_argument(
+    '--snip_edges', type=int, default=2, help='The last frame (shorter than window_length) will not be cutoff.')
+  parser.add_argument(
+    '--raw_energy', type=int, default=1, help='Compute frame energy before preemphasis and windowing.')
+  parser.add_argument(
+    '--preeph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
+  parser.add_argument(
+    '--remove_dc_offset', type=bool, default=True, help=' Subtract mean from waveform on each frame')
+  parser.add_argument(
+    '--is_fbank', type=bool, default=True, help='Compute power spetrum without frame energy')
+  parser.add_argument(
       '--thres_autoc', type=float, default=0.3, help='Threshold of autoc')
   parser.add_argument(
       '--output_type',
@@ -90,14 +104,19 @@ def compute_fbank_pitch():
   args = parser.parse_args()
 
   config = {}
-  config['sample_rate'] = float(args.sample_rate)
+  config['sample_rate'] = int(args.sample_rate)
   config['upper_frequency_limit'] = float(args.upper_frequency_limit)
   config['lower_frequency_limit'] = float(args.lower_frequency_limit)
   config['filterbank_channel_count'] = float(args.filterbank_channel_count)
   config['window_length'] = args.window_length
   config['frame_length'] = args.frame_length
-  config['thres_autoc'] = args.thres_autoc
   config['output_type'] = args.output_type
+  config['window_type'] = args.window_type
+  config['snip_edges'] = args.snip_edges
+  config['preeph_coeff'] = args.preeph_coeff
+  config['remove_dc_offset'] = args.remove_dc_offset
+  config['is_fbank'] = args.is_fbank
+  config['thres_autoc'] = args.thres_autoc
 
   fbank_pitch = FbankPitch.params(config).instantiate()
 

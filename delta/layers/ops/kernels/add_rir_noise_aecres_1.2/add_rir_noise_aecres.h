@@ -14,21 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __ADD_RIR_NOISE_AECRES_H_
-#define  __ADD_RIR_NOISE_AECRES_H_
+#ifndef __ADD_RIR_NOISE_AECRES_H_
+#define __ADD_RIR_NOISE_AECRES_H_
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void* add_rir_noise_aecres_init(int nFs);
 
-int add_rir_noise_aecres_process(void* st, short* inputdata, int inputdata_length, 
-        short* outputdata, int* outputdata_size,
-        bool if_add_rir, char* rir_filelist, 
-        bool if_add_noise, char* noise_filelist, float snr_min, float snr_max,
-        bool if_add_aecres, char* aecres_filelist);
+int add_rir_noise_aecres_process(void* st, short* inputdata,
+                                 int inputdata_length, short* outputdata,
+                                 int* outputdata_size, bool if_add_rir,
+                                 char* rir_filelist, bool if_add_noise,
+                                 char* noise_filelist, float snr_min,
+                                 float snr_max, bool if_add_aecres,
+                                 char* aecres_filelist);
 
 void add_rir_noise_aecres_exit(void* st);
 
@@ -36,4 +37,3 @@ void add_rir_noise_aecres_exit(void* st);
 }
 #endif
 #endif  //__ADD_RIR_NOISE_AECRES_H_
-

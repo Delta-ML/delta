@@ -14,18 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __ADD_ECHO_H_
-#define  __ADD_ECHO_H_
+#ifndef __ADD_ECHO_H_
+#define __ADD_ECHO_H_
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-void* add_echo_init(int nFs, float echo_snr_min, float echo_snr_max, float echo_ratio);
+void* add_echo_init(int nFs, float echo_snr_min, float echo_snr_max,
+                    float echo_ratio);
 
-int add_echo_process(void* st, short* inputdata, int inputdata_length, 
-        short* outputdata, int* outputdata_size, char* filelist);
+int add_echo_process(void* st, short* inputdata, int inputdata_length,
+                     short* outputdata, int* outputdata_size, char* filelist);
 
 void add_echo_exit(void* st);
 
@@ -33,4 +33,3 @@ void add_echo_exit(void* st);
 }
 #endif
 #endif  //__ADD_ECHO_H_
-

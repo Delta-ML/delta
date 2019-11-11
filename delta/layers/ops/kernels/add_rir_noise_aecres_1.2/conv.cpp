@@ -14,44 +14,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include <string.h>
-#include <stdio.h>
-#include "CConv.h"
 #include "conv.h"
+#include <stdio.h>
+#include <string.h>
+#include "CConv.h"
 
-void* conv_init(int nFs, int normflag)
-{
-    if(nFs != 16000 && nFs != 8000)
-    {
-        printf("SamplingRate Error!\n");
-        return NULL;
-    }
+void* conv_init(int nFs, int normflag) {
+  if (nFs != 16000 && nFs != 8000) {
+    printf("SamplingRate Error!\n");
+    return NULL;
+  }
 
-    CConv* MyConv = new CConv(normflag);
+  CConv* MyConv = new CConv(normflag);
 
-    return (void*)MyConv;
+  return (void*)MyConv;
 }
 
-int conv_process(void* st, short* inputdata, int inputdata_length, 
-        short* outputdata, int* outputdata_size, char* rir_list)
-{
-    CConv* MyConv = (CConv*)st;
+int conv_process(void* st, short* inputdata, int inputdata_length,
+                 short* outputdata, int* outputdata_size, char* rir_list) {
+  CConv* MyConv = (CConv*)st;
 
-    int ret;
-    ret = MyConv->SelectH(rir_list);  
-    if(ret < 0)
-    {
-        return ret;
-    }
-    MyConv->ConvProcess(inputdata, (long)inputdata_length, MyConv->H, RIR_LENGTH, outputdata);
-    outputdata_size[0] = inputdata_length;
+  int ret;
+  ret = MyConv->SelectH(rir_list);
+  if (ret < 0) {
+    return ret;
+  }
+  MyConv->ConvProcess(inputdata, (long)inputdata_length, MyConv->H, RIR_LENGTH,
+                      outputdata);
+  outputdata_size[0] = inputdata_length;
 
-    return 0;
+  return 0;
 }
 
-void conv_exit(void* st)
-{
-    CConv* MyConv = (CConv*)st;
-    delete MyConv;
+void conv_exit(void* st) {
+  CConv* MyConv = (CConv*)st;
+  delete MyConv;
 }
-

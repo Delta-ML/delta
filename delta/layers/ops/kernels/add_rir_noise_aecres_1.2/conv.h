@@ -14,18 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __CONV_H_
-#define  __CONV_H_
+#ifndef __CONV_H_
+#define __CONV_H_
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 void* conv_init(int nFs, int normflag);
 
-int conv_process(void* st, short* inputdata, int inputdata_length, 
-        short* outputdata, int* outputdata_size, char* rir_list);
+int conv_process(void* st, short* inputdata, int inputdata_length,
+                 short* outputdata, int* outputdata_size, char* rir_list);
 
 void conv_exit(void* st);
 
@@ -33,4 +32,3 @@ void conv_exit(void* st);
 }
 #endif
 #endif  //__CONV_H_
-

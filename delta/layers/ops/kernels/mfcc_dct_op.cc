@@ -28,10 +28,10 @@ namespace delta {
 class MfccDctOp : public OpKernel {
  public:
   explicit MfccDctOp(OpKernelConstruction* context) : OpKernel(context) {
-    OP_REQUIRES_OK(context, context->GetAttr("coefficient_count",
-                                             &coefficient_count_));
-    OP_REQUIRES_OK(context, context->GetAttr("cepstral_lifter",
-                                             &cepstral_lifter_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("coefficient_count", &coefficient_count_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("cepstral_lifter", &cepstral_lifter_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -55,44 +55,41 @@ class MfccDctOp : public OpKernel {
     mfcc.set_coefficient_count(coefficient_count_);
     mfcc.set_cepstral_lifter(cepstral_lifter_);
 
-    OP_REQUIRES(context, mfcc.Initialize(fbank_channels, coefficient_count_),
-                errors::InvalidArgument(
-                    "MFCC initialization failed for fbank channel ",
-                    fbank_channels, " and  coefficient count", coefficient_count_));
+    OP_REQUIRES(
+        context, mfcc.Initialize(fbank_channels, coefficient_count_),
+        errors::InvalidArgument("MFCC initialization failed for fbank channel ",
+                                fbank_channels, " and  coefficient count",
+                                coefficient_count_));
 
     Tensor* output_tensor = nullptr;
-    OP_REQUIRES_OK(context,
-                   context->allocate_output(
-                       0,
-                       TensorShape({audio_channels, fbank_samples, coefficient_count_}),
-                       &output_tensor));
+    OP_REQUIRES_OK(
+        context,
+        context->allocate_output(
+            0, TensorShape({audio_channels, fbank_samples, coefficient_count_}),
+            &output_tensor));
 
     const float* fbank_flat = fbank.flat<float>().data();
     float* output_flat = output_tensor->flat<float>().data();
 
     for (int audio_channel = 0; audio_channel < audio_channels;
          ++audio_channel) {
-      for (int fbank_sample = 0; fbank_sample < fbank_samples;
-           ++fbank_sample) {
+      for (int fbank_sample = 0; fbank_sample < fbank_samples; ++fbank_sample) {
         const float* sample_data =
-            fbank_flat +
-            (audio_channel * fbank_samples * fbank_channels) +
+            fbank_flat + (audio_channel * fbank_samples * fbank_channels) +
             (fbank_sample * fbank_channels);
         std::vector<double> mfcc_input(sample_data,
-                                        sample_data + fbank_channels);
+                                       sample_data + fbank_channels);
         std::vector<double> mfcc_output;
         mfcc.Compute(mfcc_input, &mfcc_output);
         DCHECK_EQ(coefficient_count_, mfcc_output.size());
         float* output_data =
-            output_flat +
-            (audio_channel * fbank_samples * coefficient_count_) +
+            output_flat + (audio_channel * fbank_samples * coefficient_count_) +
             (fbank_sample * coefficient_count_);
         for (int i = 0; i < coefficient_count_; ++i) {
           output_data[i] = mfcc_output[i];
         }
       }
     }
-
   }
 
  private:

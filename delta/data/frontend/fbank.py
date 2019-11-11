@@ -37,7 +37,7 @@ class Fbank(BaseFrontend):
         --frame_length				: Hop length in seconds. (float, default = 0.010)
         --snip_edges				  : If 1, the last frame (shorter than window_length) will be cutoff. If 2, 1 // 2 frame_length data will be padded to data. (int, default = 1)
         ---raw_energy				  : If 1, compute frame energy before preemphasis and windowing. If 2,  compute frame energy after preemphasis and windowing. (int, default = 1)
-        --preEph_coeff				: Coefficient for use in frame-signal preemphasis. (float, default = 0.97)
+        --preeph_coeff				: Coefficient for use in frame-signal preemphasis. (float, default = 0.97)
         --window_type				  : Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria"). (string, default = "povey")
         --remove_dc_offset		: Subtract mean from waveform on each frame (bool, default = true)
         --is_fbank					  : If true, compute power spetrum without frame energy. If false, using the frame energy instead of the square of the constant component of the signal. (bool, default = true)
@@ -57,7 +57,7 @@ class Fbank(BaseFrontend):
     sample_rate = 16000
     snip_edges = 2
     raw_energy = 1
-    preEph_coeff = 0.97
+    preeph_coeff = 0.97
     window_type = 'povey'
     remove_dc_offset = True
     is_fbank = True
@@ -73,7 +73,7 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('sample_rate', sample_rate)
     hparams.add_hparam('snip_edges', snip_edges)
     hparams.add_hparam('raw_energy', raw_energy)
-    hparams.add_hparam('preEph_coeff', preEph_coeff)
+    hparams.add_hparam('preeph_coeff', preeph_coeff)
     hparams.add_hparam('window_type', window_type)
     hparams.add_hparam('remove_dc_offset', remove_dc_offset)
     hparams.add_hparam('is_fbank', is_fbank)

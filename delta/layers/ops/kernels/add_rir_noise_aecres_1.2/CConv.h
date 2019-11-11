@@ -14,37 +14,36 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __CCONV_H_
-#define  __CCONV_H_
-#include <stdio.h>
+#ifndef __CCONV_H_
+#define __CCONV_H_
 #include <math.h>
-#include "typedefs_sh.h"
+#include <stdio.h>
 #include "BaseLib.h"
-#define RIR_LENGTH  16000
+#include "typedefs_sh.h"
+#define RIR_LENGTH 16000
 
-class CConv
-{
-    private:
-    public:
-        CConv(int normflag);
-        CConv();
-        ~CConv();
+class CConv {
+ private:
+ public:
+  CConv(int normflag);
+  CConv();
+  ~CConv();
 
-        void* apm_handle;
-        short* inputdata;
-        short* bufferdata;
-        int buffer_len;
-        int frm_len;
-        int data_len;
-        float peakthld;
-        unsigned int enableflag;
+  void* apm_handle;
+  short* inputdata;
+  short* bufferdata;
+  int buffer_len;
+  int frm_len;
+  int data_len;
+  float peakthld;
+  unsigned int enableflag;
 
-        double *H;
-        int ConvProcess(short* pOrigInputData, long lDataLength, double* ppRIR, long lRIRLength, short* pOutputData);
-        int SelectH(char* rir_list);
+  double* H;
+  int ConvProcess(short* pOrigInputData, long lDataLength, double* ppRIR,
+                  long lRIRLength, short* pOutputData);
+  int SelectH(char* rir_list);
 
-        int normflag;
+  int normflag;
 };
 
 #endif  //__CCONV_H_
-

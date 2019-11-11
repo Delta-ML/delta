@@ -63,7 +63,7 @@ def get_parser():
   parser.add_argument(
     '--raw_energy', type=int, default=1, help='Compute frame energy before preemphasis and windowing.')
   parser.add_argument(
-    '--preEph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
+    '--preeph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
   parser.add_argument(
     '--remove_dc_offset', type=bool, default=True, help=' Subtract mean from waveform on each frame.')
   parser.add_argument(
@@ -113,7 +113,7 @@ def compute_mfcc():
   config['output_type'] = args.output_type
   config['window_type'] = args.window_type
   config['snip_edges'] = args.snip_edges
-  config['preEph_coeff'] = args.preEph_coeff
+  config['preeph_coeff'] = args.preeph_coeff
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
   config['cepstral_lifter'] = args.cepstral_lifter

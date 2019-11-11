@@ -14,34 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#include "CEcho.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "CEcho.h"
 
-CEcho::CEcho(int f, float echo_snr_min, float echo_snr_max, float echo_ratio)
-{
-    ;
+CEcho::CEcho(int f, float echo_snr_min, float echo_snr_max, float echo_ratio) {
+  ;
 }
 
-CEcho::~CEcho()
-{
-    ;
-}
+CEcho::~CEcho() { ; }
 
-int CEcho::process(short* inputdata, int inputdata_length, 
-        short* outputdata, int* outputdata_size, char* filelist)
-{
-    if(inputdata == NULL || outputdata == NULL || outputdata_size == NULL)
-    {
-        return -1;
-    }
-    if(inputdata_length < 0)
-    {
-        return -2;
-    }
+int CEcho::process(short* inputdata, int inputdata_length, short* outputdata,
+                   int* outputdata_size, char* filelist) {
+  if (inputdata == NULL || outputdata == NULL || outputdata_size == NULL) {
+    return -1;
+  }
+  if (inputdata_length < 0) {
+    return -2;
+  }
 
-    return 0;
+  return 0;
 }
-        

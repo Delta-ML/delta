@@ -63,18 +63,19 @@ bool MfccDct::Initialize(int input_length, int coefficient_count) {
 
   lifter_coeffs_.resize(coefficient_count_);
   for (int j = 0; j < coefficient_count_; ++j)
-        lifter_coeffs_[j] = 1.0 + 0.5 * cepstral_lifter_ * sin(PI * j / cepstral_lifter_);
+    lifter_coeffs_[j] =
+        1.0 + 0.5 * cepstral_lifter_ * sin(PI * j / cepstral_lifter_);
 
   initialized_ = true;
   return true;
 }
 
-void MfccDct::set_coefficient_count(int coefficient_count){
-    coefficient_count_ = coefficient_count;
+void MfccDct::set_coefficient_count(int coefficient_count) {
+  coefficient_count_ = coefficient_count;
 }
 
-void MfccDct::set_cepstral_lifter(float cepstral_lifter){
-    cepstral_lifter_ = cepstral_lifter;
+void MfccDct::set_cepstral_lifter(float cepstral_lifter) {
+  cepstral_lifter_ = cepstral_lifter;
 }
 
 void MfccDct::Compute(const std::vector<double> &input,
@@ -97,8 +98,7 @@ void MfccDct::Compute(const std::vector<double> &input,
       sum += cosines_[i][j] * input[j];
     }
     res = sum;
-    if (cepstral_lifter_ != 0)
-        res *= lifter_coeffs_[i];
+    if (cepstral_lifter_ != 0) res *= lifter_coeffs_[i];
     (*output)[i] = res;
   }
 }

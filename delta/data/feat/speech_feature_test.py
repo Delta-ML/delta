@@ -16,12 +16,10 @@
 ''' speech feature entrypoint unittest'''
 import os
 from pathlib import Path
-
 import librosa
 import numpy as np
 import delta.compat as tf
 from absl import logging
-
 from delta.data.feat import speech_ops
 from delta.data.feat import speech_feature
 from delta import PACKAGE_ROOT_DIR

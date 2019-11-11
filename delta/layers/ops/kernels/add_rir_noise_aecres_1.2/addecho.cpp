@@ -14,42 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include <string.h>
-#include <stdio.h>
-#include "CEcho.h"
 #include "addecho.h"
+#include <stdio.h>
+#include <string.h>
+#include "CEcho.h"
 
-void* add_echo_init(int nFs, float echo_snr_min, float echo_snr_max, float echo_ratio)
-{
-    if(nFs != 16000 && nFs != 8000)
-    {
-        printf("SamplingRate Error!\n");
-        return NULL;
-    }
+void* add_echo_init(int nFs, float echo_snr_min, float echo_snr_max,
+                    float echo_ratio) {
+  if (nFs != 16000 && nFs != 8000) {
+    printf("SamplingRate Error!\n");
+    return NULL;
+  }
 
-    CEcho* MyEcho = new CEcho(nFs, echo_snr_min, echo_snr_max, echo_ratio);
+  CEcho* MyEcho = new CEcho(nFs, echo_snr_min, echo_snr_max, echo_ratio);
 
-    return (void*)MyEcho;
+  return (void*)MyEcho;
 }
 
-int add_echo_process(void* st, short* inputdata, int inputdata_length, 
-        short* outputdata, int* outputdata_size, char* filelist)
-{
-    CEcho* MyEcho = (CEcho*)st;
-    int ret = MyEcho->process(inputdata, inputdata_length, 
-            outputdata, outputdata_size, filelist);
-    if(ret != 0)
-    {
-        printf("Add Echo Process Error(%d).\n", ret);
-        return ret;
-    }
+int add_echo_process(void* st, short* inputdata, int inputdata_length,
+                     short* outputdata, int* outputdata_size, char* filelist) {
+  CEcho* MyEcho = (CEcho*)st;
+  int ret = MyEcho->process(inputdata, inputdata_length, outputdata,
+                            outputdata_size, filelist);
+  if (ret != 0) {
+    printf("Add Echo Process Error(%d).\n", ret);
+    return ret;
+  }
 
-    return 0;
+  return 0;
 }
 
-void add_echo_exit(void* st)
-{
-    CEcho* MyEcho = (CEcho*)st;
-    delete MyEcho;
+void add_echo_exit(void* st) {
+  CEcho* MyEcho = (CEcho*)st;
+  delete MyEcho;
 }
-

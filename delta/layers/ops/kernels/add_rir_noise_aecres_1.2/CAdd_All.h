@@ -14,23 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef  __CADD_ALL_H_
-#define  __CADD_ALL_H_
+#ifndef __CADD_ALL_H_
+#define __CADD_ALL_H_
 
-class CAdd_All
-{
-    private:
-    public:
-        CAdd_All();
-        ~CAdd_All();
+class CAdd_All {
+ private:
+ public:
+  CAdd_All();
+  ~CAdd_All();
 
-        int add_rir(void* st, short* inputdata, int inputdata_length, 
-                short* outputdata, int* outputdata_size, char* filelist);
+  int add_rir(void* st, short* inputdata, int inputdata_length,
+              short* outputdata, int* outputdata_size, char* filelist);
 
-    public:
-        void* st_rir;
-        void* st_noise;
+ public:
+  void* st_rir;
+  void* st_noise;
 };
 
 #endif  //__CADD_ALL_H_
-
