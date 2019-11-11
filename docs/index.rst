@@ -18,6 +18,8 @@ Welcome to DELTA's documentation!
    :caption: Installation
    :name: sec-install
 
+   installation/pick_installation
+   installation/install_from_source
    installation/using_docker
    installation/manual_setup
    installation/deltann_compile
@@ -31,7 +33,8 @@ Welcome to DELTA's documentation!
 
    tutorials/training/egs
    tutorials/training/speech_features
-   tutorials/training/text_class_example
+   tutorials/training/text_class_pip_example
+   tutorials/training/text_class_source_example
    tutorials/training/data/asr_example
    tutorials/training/data/emotion-speech-cls
    tutorials/training/data/kws-cls

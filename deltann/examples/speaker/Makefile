@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -15,27 +14,19 @@
 # limitations under the License.
 # ==============================================================================
 
-set -e
+CXXFLAGS := -std=c++11 -fPIC -DINFERENCE_VERSION=\"$(shell git rev-parse --short HEAD)\" -DNDEBUG -O2
 
-curdir="$(dirname "${BASH_SOURCE[0]}")"
+ABSEIL := $(ROOT_DIR)/../tools/abseil-cpp
 
-if [ -z $MAIN_ROOT ];then
-  if [ $curdir == "." ];then
-    source ../../env.sh
-  else
-    source env.sh
-  fi
-fi
+INCLUDES := -I$(ROOT_DIR) -I$(JSONCPP) -I$(ABSEIL)
 
-if [ ! -d $MAIN_ROOT/deltann/.gen ];then
-  pushd $MAIN_ROOT/deltann && ./build.sh linux x86_64 TF && popd
-fi
+TEST_SRC := test.cc
+TEST_BIN := test.bin
 
-pushd $MAIN_ROOT/tools/test && make clean && make && popd
+$(TEST_BIN): $(TEST_SRC)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(TEST_SRC) -o $(TEST_BIN) -L $(LIBDIR) -ldeltann $(LIBS)
 
-set -x
+all: $(TEST_BIN)
 
-#echo $(python -c 'import tensorflow as tf; print(tf.sysconfig.get_lib())')
-#LD_LIBRARY_PATH=$(python -c 'import tensorflow as tf; print(tf.sysconfig.get_lib())') $MAIN_ROOT/tools/test/test_main.bin
-
-LD_LIBRARY_PATH=$MAIN_ROOT/tools/tensorflow/bazel-bin/tensorflow  $MAIN_ROOT/tools/test/test_main.bin
+clean:
+	$(RM) $(TEST_BIN)

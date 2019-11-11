@@ -24,8 +24,8 @@ if [ -z ${MAIN_ROOT} ];then
   fi
 fi
 
-if [ -d ${MAIN_ROOT}/tools/kaldi ];then
-  pushd ${MAIN_ROOT}/tools/kalid/tools && git clone --depth=1 https://github.com/kaldi-asr/kaldi.git && popd
+if ! [ -d ${MAIN_ROOT}/tools/kaldi ];then
+  pushd ${MAIN_ROOT}/tools && git clone --depth=1 https://github.com/kaldi-asr/kaldi.git && popd
 fi
 
 pushd ${MAIN_ROOT}/tools/kaldi/tools
@@ -37,3 +37,4 @@ wget -T 10 -t 3 https://www.openslr.org/resources/3/sph2pipe_${SPH2PIPE_VERSION}
 tar --no-same-owner -xzf sph2pipe_v2.5.tar.gz
 cd sph2pipe_v2.5/
 gcc -o sph2pipe  *.c -lm
+popd
