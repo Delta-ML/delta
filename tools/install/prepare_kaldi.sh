@@ -34,11 +34,10 @@ if ! [ -d ${MAIN_ROOT}/tools/kaldi ];then
   pushd ${MAIN_ROOT}/tools && git clone --depth=1 https://github.com/kaldi-asr/kaldi.git && popd
 fi
 
+
 pushd ${MAIN_ROOT}/tools/kaldi/tools
 #sudo apt-get install zlib1g-dev wget subversion
-extras/check_dependencies.sh
-
-${SUDO} apt-get install zlib1g-dev wget gfortran subversion
+extras/check_dependencies.sh || ${SUDO} apt-get install zlib1g-dev wget gfortran subversion
 
 SPH2PIPE_VERSION=v2.5
 wget -T 10 -t 3 https://www.openslr.org/resources/3/sph2pipe_${SPH2PIPE_VERSION}.tar.gz || wget -T 10 https://sourceforge.net/projects/kaldi/files/sph2pipe_${SPH2PIPE_VERSION}.tar.gz || exit 1
