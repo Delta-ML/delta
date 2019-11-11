@@ -45,6 +45,25 @@ Status PitchShapeFn(InferenceContext* c) {
   return Status::OK();
 }
 
+Status AddRNAShapeFn(InferenceContext* c) {
+  ShapeHandle input_data;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float snr_max, snr_min;
+  bool if_add_aecres, if_add_noise, if_add_rir;
+  string rir_filelist, noise_filelist, aecres_filelist;
+  TF_RETURN_IF_ERROR(c->GetAttr("if_add_rir", &if_add_rir));
+  TF_RETURN_IF_ERROR(c->GetAttr("rir_filelist", &rir_filelist));
+  TF_RETURN_IF_ERROR(c->GetAttr("if_add_noise", &if_add_noise));
+  TF_RETURN_IF_ERROR(c->GetAttr("noise_filelist", &noise_filelist));
+  TF_RETURN_IF_ERROR(c->GetAttr("snr_min", &snr_min));
+  TF_RETURN_IF_ERROR(c->GetAttr("snr_max", &snr_max));
+  TF_RETURN_IF_ERROR(c->GetAttr("if_add_aecres", &if_add_aecres));
+  TF_RETURN_IF_ERROR(c->GetAttr("aecres_filelist", &aecres_filelist));
+  c->set_output(0, c->Vector(wav_len));
+  return Status::OK();
+}
+
 Status FrmPowShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
@@ -354,6 +373,26 @@ REGISTER_OP("ZCR")
     window_length: float, window length in second.
     frame_length: float, frame length in second. 
     output: float, zero cross rate features, [num_Frame].
+    )doc");
+
+REGISTER_OP("AddRirNoiseAecres")
+    .Input("input_data: float")
+    .Input("sample_rate: float")
+    .Attr("if_add_rir: bool = true")
+    .Attr("rir_filelist: string")
+    .Attr("if_add_noise: bool = true")
+    .Attr("snr_min: float = 0")
+    .Attr("snr_max: float = 30")
+    .Attr("noise_filelist: string")
+    .Attr("if_add_aecres: bool = true")
+    .Attr("aecres_filelist: string")
+    .Output("output: float")
+    .SetShapeFn(AddRNAShapeFn)
+    .Doc(R"doc(
+    Add rir_noise_aecres to audio data.
+    input_data: float, input wave, a tensor of shape [1, data_length].
+    sample_rate: float, NB 8000, WB 16000 etc.
+    output: float, output wav, a tensor of shape [1, data_length].
     )doc");
 
 REGISTER_OP("Spectrum")

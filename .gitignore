@@ -24,7 +24,7 @@ gen
 *.log
 *.raw
 *.ark
-*.scp
+#*.scp
 .gen
 *.bin
 
