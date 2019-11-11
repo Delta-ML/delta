@@ -53,6 +53,7 @@ INCLUDES := -I$(MAIN_ROOT) \
 			-I$(MAIN_ROOT)/delta/layers/ops \
 			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/deps \
 			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/include \
+			-I$(MAIN_ROOT)/delta/layers/ops/kernels \
 			-I$(MAIN_ROOT)/delta/layers/ops/kernels/add_rir_noise_aecres_1.2
 
 LDFLAGS += $(TF_LFLAGS) 
