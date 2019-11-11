@@ -50,7 +50,8 @@ class PlpTest(tf.test.TestCase):
            [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
-      # self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true)
+      # Because the povey window (&& dithering=1.0) is used instead of the hamming window in spectrum.
+      self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true, rtol=1e-02, atol=1e-02)
 
 if __name__ == '__main__':
   tf.test.main()
