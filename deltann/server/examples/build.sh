@@ -22,7 +22,7 @@ fi
 mkdir -p output/$delta_file/log
 mkdir -p output/dpl/
 
-cp -R $MAIN_ROOT/dpl/output/ output/dpl/
+cp -R ../../../dpl/output/ output/dpl/
 
 cp -R ../mock_yaml/nlp/model.yaml   output/dpl/output/model/saved_model/1/
 
