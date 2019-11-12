@@ -15,7 +15,6 @@
 # ==============================================================================
 
 import delta.compat as tf
-
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.pitch import Pitch
@@ -47,7 +46,7 @@ class FbankPitch(BaseFrontend):
     frame_length = 0.010
     snip_edges = 2
     raw_energy = 1
-    preEph_coeff = 0.97
+    preeph_coeff = 0.97
     window_type = 'povey'
     remove_dc_offset = True
     is_fbank = True
@@ -66,7 +65,7 @@ class FbankPitch(BaseFrontend):
     hparams.add_hparam('sample_rate', sample_rate)
     hparams.add_hparam('snip_edges', snip_edges)
     hparams.add_hparam('raw_energy', raw_energy)
-    hparams.add_hparam('preEph_coeff', preEph_coeff)
+    hparams.add_hparam('preeph_coeff', preeph_coeff)
     hparams.add_hparam('window_type', window_type)
     hparams.add_hparam('remove_dc_offset', remove_dc_offset)
     hparams.add_hparam('is_fbank', is_fbank)

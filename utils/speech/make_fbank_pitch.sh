@@ -25,8 +25,14 @@ lower_frequency_limit=20
 filterbank_channel_count=40
 window_length=0.025
 frame_length=0.010
-thres_autoc=0.3
 output_type=1
+snip_edges=1
+raw_energy=1
+preeph_coeff=0.97
+window_type='povey'
+remove_dc_offset=true
+is_fbank=true
+thres_autoc=0.3
 write_utt2num_frames=true
 compress=false
 compression_method=2
@@ -113,6 +119,12 @@ if [ -f ${data}/segments ]; then
             --frame_length ${frame_length} \
             --thres_autoc ${thres_autoc} \
             --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preeph_coeff ${preeph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset} \
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
@@ -138,6 +150,12 @@ else
             --frame_length ${frame_length} \
             --thres_autoc ${thres_autoc} \
             --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preeph_coeff ${preeph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset} \
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
