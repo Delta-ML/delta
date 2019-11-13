@@ -1,4 +1,3 @@
-
 # DELTA-NN compile
 
 Deltann support tensorflow， tensorflow lite，and tensorflow serving.
@@ -239,3 +238,25 @@ bazel build //tensorflow_serving/model_servers:tensorflow_model_server
 ```
 cd delta/deltann && ./build.sh linux x86_64 tfserving
 ```
+
+## Build in docker, using on bare metal
+
+When link with `libx_ops.so`, `libdeltann.so` and `libtensorflow_cc.so`, `libtensorflow_framework.so`,
+mabe has problems as below:
+
+```
+/lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `std::_V2::error_category::equivalent(std::error_code const&, int) const@GLIBCXX_3.4.21'
+./lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `std::random_device::_M_init(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@GLIBCXX_3.4.21'
+./lib/deltann/lib/deltann/libdeltann.so: undefined reference to `std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&)@GLIBCXX_3.4.21'
+./lib/deltann/lib/deltann/libdeltann.so: undefined reference to `std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_data() const@GLIBCXX_3.4.21'
+./lib/deltann/lib/deltann/libdeltann.so: undefined reference to `std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::append(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@GLIBCXX_3.4.21'
+./lib/deltann/lib/custom_ops/libx_ops.so: undefined reference to `std::out_of_range::out_of_range(char const*)@GLIBCXX_3.4.21'
+./lib/deltann/lib/custom_ops/libx_ops.so: undefined reference to `VTT for std::__cxx11::basic_ostringstream<char, std::char_traits<char>, std::allocator<char> >@GLIBCXX_3.4.21'
+...
+./lib/deltann/lib/custom_ops/libx_ops.so: undefined reference to `powf@GLIBC_2.27'
+./lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `expf@GLIBC_2.27'
+./lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `lgammaf@GLIBC_2.23'
+./lib/deltann/lib/custom_ops/libx_ops.so: undefined reference to `logf@GLIBC_2.27'
+./lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `lgamma@GLIBC_2.23'
+```
+You need copy `libstd++.so.xx` and `libc.so.xx` from docker, and link with these.

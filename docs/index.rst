@@ -22,7 +22,6 @@ Welcome to DELTA's documentation!
    installation/install_from_source
    installation/using_docker
    installation/manual_setup
-   installation/deltann_compile
    installation/install_on_macos
 
 
@@ -37,7 +36,6 @@ Welcome to DELTA's documentation!
    tutorials/training/text_class_source_example
    tutorials/training/data/asr_example
    tutorials/training/data/emotion-speech-cls
-   tutorials/training/data/kws-cls
    tutorials/deployment/dpl
    tutorials/deployment/deltann
  
@@ -47,6 +45,7 @@ Welcome to DELTA's documentation!
    :name: sec-devel
   
    development/docker
+   development/deltann_compile
    development/adding_op
    development/serving
    development/tensorrt
@@ -86,12 +85,3 @@ Welcome to DELTA's documentation!
    :name: sec-ver
 
    version
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
