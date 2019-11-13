@@ -23,3 +23,20 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
  - Easy-to-develop
    - Easily build state-of-the-art models using modularized components
    - All modules are reliable and fully-tested
+
+## References
+
+Please cite this [paper](https://arxiv.org/abs/1908.01853) when referencing DELTA.
+```bibtex
+@ARTICLE{delta,
+       author = {{Han}, Kun and {Chen}, Junwen and {Zhang}, Hui and {Xu}, Haiyang and
+         {Peng}, Yiping and {Wang}, Yun and {Ding}, Ning and {Deng}, Hui and
+         {Gao}, Yonghu and {Guo}, Tingwei and {Zhang}, Yi and {He}, Yahao and
+         {Ma}, Baochang and {Zhou}, Yulong and {Zhang}, Kangli and {Liu}, Chao and
+         {Lyu}, Ying and {Wang}, Chenxi and {Gong}, Cheng and {Wang}, Yunbo and
+         {Zou}, Wei and {Song}, Hui and {Li}, Xiangang},
+       title = "{DELTA: A DEep learning based Language Technology plAtform}",
+       journal = {arXiv e-prints},
+       year = "2019",
+       url = {https://arxiv.org/abs/1908.01853},
+}
