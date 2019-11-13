@@ -1,4 +1,7 @@
 #!/bin/bash
+
+source server-env.sh
+
 workspace=$(cd $(dirname $0) && pwd -P)
 cd $workspace
 
