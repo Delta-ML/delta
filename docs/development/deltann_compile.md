@@ -244,7 +244,7 @@ cd delta/deltann && ./build.sh linux x86_64 tfserving
 When link with `libx_ops.so`, `libdeltann.so` and `libtensorflow_cc.so`, `libtensorflow_framework.so`,
 mabe has problems as below:
 
-```
+```text
 /lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `std::_V2::error_category::equivalent(std::error_code const&, int) const@GLIBCXX_3.4.21'
 ./lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `std::random_device::_M_init(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)@GLIBCXX_3.4.21'
 ./lib/deltann/lib/deltann/libdeltann.so: undefined reference to `std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&)@GLIBCXX_3.4.21'
@@ -259,4 +259,32 @@ mabe has problems as below:
 ./lib/deltann/lib/custom_ops/libx_ops.so: undefined reference to `logf@GLIBC_2.27'
 ./lib/deltann/lib/tensorflow/libtensorflow_cc.so: undefined reference to `lgamma@GLIBC_2.23'
 ```
-You need copy `libstd++.so.xx` and `libc.so.xx` from docker, and link with these.
+You need copy below librares from docker, and link with these.
+For [glibc](https://www.gnu.org/software/libc/) library are from https://www.gnu.org/software/libc.
+
+```text
+    │   ├── glibc
+    │   │   ├── ld-2.27.so
+    │   │   ├── libc-2.27.so
+    │   │   ├── libc.a
+    │   │   ├── libc_nonshared.a
+    │   │   ├── libc.so
+    │   │   ├── libld-2.27.so
+    │   │   ├── libm-2.27.so
+    │   │   ├── libpthread-2.17.so
+    │   │   ├── libpthread-2.27.so
+    │   │   ├── libstdc++.so -> libstdc++.so.6
+    │   │   ├── libstdc++.so.6 -> libstdc++.so.6.0.24
+    │   │   └── libstdc++.so.6.0.24
+```
+
+```makefile
+DELTANN_DIR=./lib/deltann
+DELTANNINC = $(DELTANN_DIR)/include
+DELTANNLIB = -Wl,--start-group \
+             -L$(DELTANN_DIR)/lib/custom_ops -lx_ops \
+             -L$(DELTANN_DIR)/lib/deltann -ldeltann \
+             -L$(DELTANN_DIR)/lib/tensorflow -ltensorflow_cc -ltensorflow_framework \
+             -L$(DELTANN_DIR)/lib/glibc -lstdc++ -lm-2.27 -lld-2.27 -lpthread-2.27\
+             -Wl,--end-group $(DELTANN_DIR)/lib/glibc/libc_nonshared.a
+```
