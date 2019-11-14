@@ -169,7 +169,7 @@ yaml.done:
 	rm -rf yaml
 	mkdir -p yaml
 	cd yaml;git clone --depth=1 https://github.com/jbeder/yaml-cpp.git
-	cd yaml/yaml-cpp; git checkout yaml-cpp-0.6.0; export CXXFLAGS="-fPIC"; export CFLAGS="-fPIC"; cmake .; $(MAKE) prefix=.
+	cd yaml/yaml-cpp; git fetch -t; git checkout yaml-cpp-0.6.0; export CXXFLAGS="-fPIC"; export CFLAGS="-fPIC"; cmake .; $(MAKE) prefix=.
 	touch yaml.done
 
 jemalloc.done:
