@@ -263,22 +263,3 @@ def import_all_modules_for_register(config=None, only_nlp=False):
       except ImportError as error:
         errors.append((name, error))
   _handle_errors(errors)
-
-
-ALL_MODULES_V2 = [
-        ("delta.data.task", ["mnist_image_task"]),
-        ("delta.models", ["autoencoder_model"]),
-]
-
-
-def import_all_modules_for_register_v2():
-  """Import all modules for register."""
-  errors = []
-  for base_dir, modules in ALL_MODULES_V2:
-    for name in modules:
-      try:
-        full_name = base_dir + "." + name
-        importlib.import_module(full_name)
-      except ImportError as error:
-        errors.append((name, error))
-  _handle_errors(errors)

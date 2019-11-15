@@ -17,7 +17,6 @@ import json
 import numbers
 import re
 from deepdiff import DeepDiff
-from absl import logging
 
 import six
 
@@ -664,11 +663,7 @@ class HParams(object):
     suffix = 'list' if is_list else 'value'
     return '_'.join([typename, suffix])
 
-  def instantiate(self, *args, **kwargs):
-    """Instantiate self.cls object. """
+  def instantiate(self):
     assert 'cls' in self._hparam_types
     assert self.cls is not None
-    logging.info(
-        f"Instantiate [CLASS: {self.cls.__name__}] with HPARAMS:{self} ARGS:{args} KWARGS:{kwargs}"
-    )
-    return self.cls(self, *args, **kwargs)
+    return self.cls(self)
