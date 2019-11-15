@@ -10,6 +10,10 @@ apt-get update && apt-get install -y --no-install-recommends \
         tig \
         make \
         vim \
+        zlib1g-dev \
+        wget \
+        gfortran \
+        subversion \
         unzip \
         && \
     apt-get clean && \
