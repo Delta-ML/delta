@@ -10,6 +10,7 @@ before_install:
   - docker pull ${CI_IMAGE}
   - docker run -it -d --name travis_con --user root -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
   - docker exec travis_con bash -c "gcc -v && g++ -v"
+  - docker exec travis_con bash -c "python -c 'import tensorflow as tf; print(tf.__version__);'"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; touch test.done"
     #- docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"

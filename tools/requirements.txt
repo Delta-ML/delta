@@ -10,6 +10,7 @@ absl-py
 jieba
 kaldiio
 soundfile
+tqdm
 textgrid
 pyyaml
 yapf
@@ -28,5 +29,8 @@ pyAudioAnalysis
 flake8
 sentencepiece
 deepdiff
-tensorflow_addons
+tensorflow-probability
+tensorflow-io
+tensorflow-datasets
+tensorflow-addons
 tensorflow-model-optimization
