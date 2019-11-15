@@ -11,6 +11,9 @@ apt-get update && apt-get install -y --no-install-recommends \
         make \
         vim \
         unzip \
+        zlib1g-dev \
+        wget \
+        subversion \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

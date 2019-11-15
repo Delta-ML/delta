@@ -54,10 +54,7 @@ def tokenize_sentence(texts, max_seq_len, vocab_path):
 def chinese_word_cut_tf(input_str, use_file=False):
   """"""
 
-  output_str = py_x_ops.jieba_cut(
-    input_str,
-    use_file=use_file,
-    hmm=True)
+  output_str = py_x_ops.jieba_cut(input_str, use_file=use_file, hmm=True)
   return output_str
 
 

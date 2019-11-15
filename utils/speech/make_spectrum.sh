@@ -19,9 +19,16 @@
 #default params
 nj=1
 cmd=utils/run.pl
-sample_rate=16000.0
+sample_rate=16000
 window_length=0.025
 frame_length=0.010
+output_type=2
+snip_edges=1
+raw_energy=1
+preeph_coeff=0.97
+window_type='povey'
+remove_dc_offset=true
+is_fbank=false
 output_type=2
 write_utt2num_frames=true
 compress=false
@@ -100,11 +107,18 @@ if [ -f ${data}/segments ]; then
     utils/split_scp.pl ${data}/segments ${split_segments}
 
     ${cmd} JOB=1:${nj} ${logdir}/make_spectrum${name}.JOB.log \
-        python3 compute_spectrum_feats.py \
+        speech/compute_spectrum_feats.py \
             --sample_rate ${sample_rate} \
             --output_type ${output_type} \
             --window_length ${window_length} \
             --frame_length ${frame_length} \
+            --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preeph_coeff ${preeph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset} \
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
@@ -121,11 +135,18 @@ else
   utils/split_scp.pl ${scp} ${split_scps}
 
   ${cmd} JOB=1:${nj} ${logdir}/make_spectrum${name}.JOB.log \
-      python3 compute_spectrum_feats.py \
+      speech/compute_spectrum_feats.py \
             --sample_rate ${sample_rate} \
             --output_type ${output_type} \
             --window_length ${window_length} \
             --frame_length ${frame_length} \
+            --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preeph_coeff ${preeph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset} \
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \

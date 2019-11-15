@@ -25,8 +25,14 @@ lower_frequency_limit=20
 filterbank_channel_count=40
 window_length=0.025
 frame_length=0.010
-thres_autoc=0.3
 output_type=1
+snip_edges=1
+raw_energy=1
+preeph_coeff=0.97
+window_type='povey'
+remove_dc_offset=true
+is_fbank=true
+thres_autoc=0.3
 write_utt2num_frames=true
 compress=false
 compression_method=2
@@ -104,7 +110,7 @@ if [ -f ${data}/segments ]; then
     utils/split_scp.pl ${data}/segments ${split_segments}
 
     ${cmd} JOB=1:${nj} ${logdir}/make_fbank_pitch${name}.JOB.log \
-        python3 compute_fbank_pitch.py \
+        speech/compute_fbank_pitch.py \
             --sample_rate ${sample_rate} \
             --upper_frequency_limit ${upper_frequency_limit} \
             --lower_frequency_limit ${lower_frequency_limit} \
@@ -113,11 +119,17 @@ if [ -f ${data}/segments ]; then
             --frame_length ${frame_length} \
             --thres_autoc ${thres_autoc} \
             --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preeph_coeff ${preeph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset} \
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
             --segment=${logdir}/segments.JOB scp:${scp} \
-            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp
+            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp || exit 1
 
 else
   echo "$0: [info]: no segments file exists: assuming pcm.scp indexed by utterance."
@@ -129,7 +141,7 @@ else
   utils/split_scp.pl ${scp} ${split_scps}
 
   ${cmd} JOB=1:${nj} ${logdir}/make_fbank_pitch${name}.JOB.log \
-      python3 compute_fbank_pitch.py \
+      speech/compute_fbank_pitch.py \
             --sample_rate ${sample_rate} \
             --upper_frequency_limit ${upper_frequency_limit} \
             --lower_frequency_limit ${lower_frequency_limit} \
@@ -138,11 +150,17 @@ else
             --frame_length ${frame_length} \
             --thres_autoc ${thres_autoc} \
             --output_type ${output_type} \
+            --snip_edges ${snip_edges} \
+            --raw_energy ${raw_energy} \
+            --preeph_coeff ${preeph_coeff} \
+            --window_type ${window_type} \
+            --remove_dc_offset ${remove_dc_offset} \
+            --is_fbank ${is_fbank} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
             scp:${logdir}/wav.JOB.scp \
-            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp
+            ark,scp:${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.${ext},${fbank_pitch_dir}/raw_fbank_pitch${name}.JOB.scp || exit 1
 fi
 
 # concatenate the .scp files together.

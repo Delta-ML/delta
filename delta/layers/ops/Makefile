@@ -52,7 +52,10 @@ CXXFLAGS += -fPIC -shared -O2 -std=c++11 -DFEATURE_VERSION=\"$(shell git rev-par
 INCLUDES := -I$(MAIN_ROOT) \
 			-I$(MAIN_ROOT)/delta/layers/ops \
 			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/deps \
-			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/include
+			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/include \
+			-I$(MAIN_ROOT)/delta/layers/ops/kernels \
+			-I$(MAIN_ROOT)/delta/layers/ops/kernels/add_rir_noise_aecres_1.2
+
 LDFLAGS += $(TF_LFLAGS) 
 
 CORE_CC_EXCLUDE_SRCS := \
@@ -60,9 +63,10 @@ $(wildcard kernels/*test.cc) \
 $(wildcard kernels/*test_util.cc) 
 
 # src and tgts
-LIB_SRCS_ALL := $(wildcard kernels/*.cc)
+LIB_SRCS_ALL := $(wildcard kernels/*.cc) \
+                $(wildcard kernels/add_rir_noise_aecres_1.2/*.cpp)
 LIB_SRCS := $(filter-out $(CORE_CC_EXCLUDE_SRCS), $(LIB_SRCS_ALL))
-LIB_OBJS := $(addprefix $(OBJDIR), $(patsubst %.cc, %.o, $(patsubst %.c, %.o, $(LIB_SRCS))))
+LIB_OBJS := $(addprefix $(OBJDIR), $(patsubst %.cc, %.o, $(patsubst %.cpp, %.o, $(LIB_SRCS))))
 
 # lib
 SHARED_LIB := x_ops.so
@@ -75,6 +79,10 @@ TEST_BIN := $(addprefix $(BINDIR), $(patsubst %.cc, $(OBJS_DIR)%.bin, $(TEST_SRC
 all: $(SHARED_LIB) $(TEST_BIN)
 
 $(OBJDIR)%.o: %.cc
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ $(LDFLAGS)
+
+$(OBJDIR)%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ $(LDFLAGS)
 

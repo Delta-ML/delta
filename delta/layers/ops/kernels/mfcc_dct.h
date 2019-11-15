@@ -21,8 +21,12 @@ limitations under the License.
 #include <vector>
 
 #include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/platform/logging.h"
 
-namespace tensorflow {
+using namespace tensorflow;  // NOLINT
+#define PI (3.141592653589793)
+
+namespace delta {
 
 class MfccDct {
  public:
@@ -30,15 +34,19 @@ class MfccDct {
   bool Initialize(int input_length, int coefficient_count);
   void Compute(const std::vector<double>& input,
                std::vector<double>* output) const;
+  void set_coefficient_count(int coefficient_count);
+  void set_cepstral_lifter(float cepstral_lifter);
 
  private:
   bool initialized_;
   int coefficient_count_;
+  float cepstral_lifter_;
   int input_length_;
   std::vector<std::vector<double> > cosines_;
+  std::vector<double> lifter_coeffs_;
   TF_DISALLOW_COPY_AND_ASSIGN(MfccDct);
 };
 
-}  // namespace tensorflow
+}  // namespace delta
 
 #endif  // DELTA_LAYERS_OPS_KERNELS_MFCC_DCT_H_

@@ -54,8 +54,20 @@ src += [
     for one_path in os.listdir("kernels")
     if one_path.endswith(".h")
 ]
+
+src += [
+    os.path.join("kernels/add_rir_noise_aecres_1.2", one_path)
+    for one_path in os.listdir("kernels/add_rir_noise_aecres_1.2")
+    if one_path.endswith(".cpp")
+]
+
+src += [
+    os.path.join("kernels/add_rir_noise_aecres_1.2", one_path)
+    for one_path in os.listdir("kernels/add_rir_noise_aecres_1.2")
+    if one_path.endswith(".h")
+]
+
 src += cppjieba
-# print(src)
 
 first_line = 'load("//tensorflow:tensorflow.bzl",  "tf_custom_op_library")'
 second_line = 'tf_custom_op_library(name = "x_ops.so", \nsrcs = ["{}"], \ncopts = ["{}"])'.format(

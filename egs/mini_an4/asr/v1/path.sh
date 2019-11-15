@@ -7,4 +7,4 @@ export LC_ALL=C
 # https://github.com/espnet/espnet/pull/1090
 export PYTHONIOENCODING=UTF-8
 
-export PATH=$PATH:$PWD/utils/:$PWD
+export PATH=$MAIN_ROOT/utils/:$MAIN_ROOT/utils/speech:$PWD:$PWD/utils:$PATH

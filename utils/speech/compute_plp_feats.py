@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -30,7 +32,7 @@ def get_parser():
       description='Compute plp features from wav.',
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--sample_rate', type=float, default=16000, help='Sampling frequency')
+      '--sample_rate', type=int, default=16000, help='Sampling frequency')
   parser.add_argument('--plp_order', type=int, default=12, help='Order of plp')
   parser.add_argument(
       '--window_length', type=float, default=0.025, help='Length of a frame')
@@ -68,7 +70,7 @@ def compute_plp():
   args = parser.parse_args()
 
   config = {}
-  config['sample_rate'] = float(args.sample_rate)
+  config['sample_rate'] = int(args.sample_rate)
   config['plp_order'] = int(args.plp_order)
   config['window_length'] = args.window_length
   config['frame_length'] = args.frame_length
@@ -85,7 +87,7 @@ def compute_plp():
       array = array.astype(np.float32)
       audio_data = tf.constant(array, dtype=tf.float32)
       plp_test = plp(audio_data, args.sample_rate)
-      sess = tf.compat.v1.Session()
+      sess = tf.Session()
       plp_feats = plp_test.eval(session=sess)
       writer[utt_id] = plp_feats
 

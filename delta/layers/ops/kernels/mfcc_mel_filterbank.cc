@@ -86,7 +86,7 @@ bool MfccMelFilterbank::Initialize(int input_length, double input_sample_rate,
   // Always exclude DC; emulate HTK.
   const double hz_per_sbin =
       0.5 * sample_rate_ / static_cast<double>(input_length_ - 1);
-  start_index_ = static_cast<int>(1.5 + (lower_frequency_limit / hz_per_sbin));
+  start_index_ = static_cast<int>(1 + lower_frequency_limit / hz_per_sbin);
   end_index_ = static_cast<int>(upper_frequency_limit / hz_per_sbin);
 
   // Maps the input spectrum bin indices to filter bank channels/indices. For
@@ -126,6 +126,7 @@ bool MfccMelFilterbank::Initialize(int input_length, double input_sample_rate,
         weights_[i] = (center_frequencies_[0] - FreqToMel(i * hz_per_sbin)) /
                       (center_frequencies_[0] - mel_low);
       }
+      //      std::cerr<<weights_[i]<<std::endl;
     }
   }
   // Check the sum of FFT bin weights for every mel band to identify
@@ -184,7 +185,7 @@ void MfccMelFilterbank::Compute(const std::vector<double> &input,
   output->assign(num_channels_, 0.0);
 
   for (int i = start_index_; i <= end_index_; i++) {  // For each FFT bin
-    double spec_val = sqrt(input[i]);
+    double spec_val = input[i];
     double weighted = spec_val * weights_[i];
     int channel = band_mapper_[i];
     if (channel >= 0)
