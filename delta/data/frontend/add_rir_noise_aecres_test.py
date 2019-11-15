@@ -23,6 +23,7 @@ from delta.data.frontend.add_rir_noise_aecres import Add_rir_noise_aecres
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 from delta import PACKAGE_ROOT_DIR
 
+
 def change_file_path(scp_path, filetype, newfilePath):
   with open(scp_path + filetype, 'r') as f:
     s = f.readlines()
@@ -32,11 +33,12 @@ def change_file_path(scp_path, filetype, newfilePath):
       f.write(scp_path + line)
   f.close()
 
+
 class AddRirNoiseAecresTest(tf.test.TestCase):
 
   def test_add_rir_noise_aecres(self):
     wav_path = str(
-      Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     # reset path of noise && rir
     data_path = str(Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data')) + '/'
@@ -48,7 +50,12 @@ class AddRirNoiseAecresTest(tf.test.TestCase):
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
-      config = {'if_add_noise': True, 'noise_filelist': noise_file, 'if_add_rir': True, 'rir_filelist': rir_file}
+      config = {
+          'if_add_noise': True,
+          'noise_filelist': noise_file,
+          'if_add_rir': True,
+          'rir_filelist': rir_file
+      }
       add_rir_noise_aecres = Add_rir_noise_aecres.params(config).instantiate()
       add_rir_noise_aecres_test = add_rir_noise_aecres(input_data, sample_rate)
       print('Clean Data:', input_data.eval())
@@ -56,10 +63,10 @@ class AddRirNoiseAecresTest(tf.test.TestCase):
 
       new_noise_file = data_path + 'sm1_cln_noisy.wav'
       write_wav = WriteWav.params().instantiate()
-      writewav_op = write_wav(new_noise_file, add_rir_noise_aecres_test / 32768, sample_rate)
+      writewav_op = write_wav(new_noise_file, add_rir_noise_aecres_test / 32768,
+                              sample_rate)
       sess.run(writewav_op)
 
+
 if __name__ == '__main__':
-    tf.test.main()
-
-
+  tf.test.main()

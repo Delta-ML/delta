@@ -97,5 +97,6 @@ def compute_stft():
         out_feats = phase_spectrum.eval(session=sess)
       writer[utt_id] = out_feats
 
+
 if __name__ == "__main__":
   compute_stft()

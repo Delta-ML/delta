@@ -25,25 +25,29 @@ from espnet.utils.cli_readers import KaldiReader
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
+
 def get_parser():
   parser = argparse.ArgumentParser(
-    description='Compute cepstral mean and variance normalization statistics'
-                'per-utterance by default, or per-speaker if spk2utt option provided,'
-                'if wxfilename: global',
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+      description='Compute cepstral mean and variance normalization statistics'
+      'per-utterance by default, or per-speaker if spk2utt option provided,'
+      'if wxfilename: global',
+      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-    '--spk2utt', type=str, default=None,
-    help='A text file of speaker to utterance-list map. '
-         '(Don\'t give rspecifier format, such as "ark:spk2utt")')
+      '--spk2utt',
+      type=str,
+      default=None,
+      help='A text file of speaker to utterance-list map. '
+      '(Don\'t give rspecifier format, such as "ark:spk2utt")')
   parser.add_argument(
-    '--verbose', '-V', default=0, type=int, help='Verbose option')
+      '--verbose', '-V', default=0, type=int, help='Verbose option')
   parser.add_argument(
-    'rspecifier', type=str,
-    help='Read specifier id. e.g. scp:some.scp')
+      'rspecifier', type=str, help='Read specifier id. e.g. scp:some.scp')
   parser.add_argument(
-    'wspecifier_or_wxfilename', type=str,
-    help='Write specifier id. e.g. ark:some.ark')
+      'wspecifier_or_wxfilename',
+      type=str,
+      help='Write specifier id. e.g. ark:some.ark')
   return parser
+
 
 def compute_cmvn_stats():
   """
@@ -66,6 +70,7 @@ def compute_cmvn_stats():
         return utt2spk_dict[x]
     else:
       logging.info('Performing as utterance CMVN mode')
+
       def utt2spk(x):
         return x
 
@@ -94,7 +99,7 @@ def compute_cmvn_stats():
 
     counts[spk] += matrix.shape[0]
     sum_feats[spk] += matrix.sum(axis=0)
-    square_sum_feats[spk] += (matrix ** 2).sum(axis=0)
+    square_sum_feats[spk] += (matrix**2).sum(axis=0)
 
   assert idx > 0, idx
 
@@ -118,6 +123,7 @@ def compute_cmvn_stats():
   else:
     matrix = cmvn_stats[None]
     kaldiio.save_mat(args.wspecifier_or_wxfilename, matrix)
+
 
 if __name__ == "__main__":
   compute_cmvn_stats()

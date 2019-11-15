@@ -44,18 +44,12 @@ class JiebaOpsTest(tf.test.TestCase):
   def build_op_use_file(self, sentence):
     ''' build graph '''
 
-    words = py_x_ops.jieba_cut(
-        sentence,
-        use_file=True,
-        hmm=True)
+    words = py_x_ops.jieba_cut(sentence, use_file=True, hmm=True)
     return words
 
   def build_op_no_file(self, sentence):
     ''' build graph '''
-    words = py_x_ops.jieba_cut(
-        sentence,
-        use_file=False,
-        hmm=True)
+    words = py_x_ops.jieba_cut(sentence, use_file=False, hmm=True)
     return words
 
   def test_jieba_cut_op_use_file(self):

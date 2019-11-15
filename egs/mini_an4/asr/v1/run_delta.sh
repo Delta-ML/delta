@@ -45,5 +45,3 @@ if [ $stage -le 3 ] && [ $stop_stage -ge 3 ]; then
   python3 -u $MAIN_ROOT/delta/main.py --config conf/$config_file --cmd infer
   echo "Infer Done."
 fi
-
-

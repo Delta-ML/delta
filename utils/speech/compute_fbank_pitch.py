@@ -52,19 +52,40 @@ def get_parser():
   parser.add_argument(
       '--frame_length', type=float, default=0.010, help='Hop size of window')
   parser.add_argument(
-      '--output_type', type=int, default=1, help='1 for power spectrum, 2 for log-power spectrum.')
+      '--output_type',
+      type=int,
+      default=1,
+      help='1 for power spectrum, 2 for log-power spectrum.')
   parser.add_argument(
-    '--window_type', type=str, default='povey', help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
+      '--window_type',
+      type=str,
+      default='povey',
+      help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
-    '--snip_edges', type=int, default=1, help='The last frame (shorter than window_length) will not be cutoff.')
+      '--snip_edges',
+      type=int,
+      default=1,
+      help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
-    '--raw_energy', type=int, default=1, help='Compute frame energy before preemphasis and windowing.')
+      '--raw_energy',
+      type=int,
+      default=1,
+      help='Compute frame energy before preemphasis and windowing.')
   parser.add_argument(
-    '--preeph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
+      '--preeph_coeff',
+      type=float,
+      default=0.97,
+      help='Coefficient for use in frame-signal preemphasis.')
   parser.add_argument(
-    '--remove_dc_offset', type=bool, default=True, help=' Subtract mean from waveform on each frame')
+      '--remove_dc_offset',
+      type=bool,
+      default=True,
+      help=' Subtract mean from waveform on each frame')
   parser.add_argument(
-    '--is_fbank', type=bool, default=True, help='Compute power spetrum without frame energy')
+      '--is_fbank',
+      type=bool,
+      default=True,
+      help='Compute power spetrum without frame energy')
   parser.add_argument(
       '--thres_autoc', type=float, default=0.3, help='Threshold of autoc')
   parser.add_argument(

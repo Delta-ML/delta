@@ -21,17 +21,18 @@ from delta.data.frontend.add_rir_noise_aecres import Add_rir_noise_aecres
 from delta.data.frontend.write_wav import WriteWav
 from delta.data.frontend.base_frontend import BaseFrontend
 
+
 class AddNoiseEndToEnd(BaseFrontend):
 
-    def __init__(self, config: dict):
-        super().__init__(config)
-        self.add_noise = Add_rir_noise_aecres(config)
-        self.read_wav = ReadWav(config)
-        self.write_wav = WriteWav(config)
+  def __init__(self, config: dict):
+    super().__init__(config)
+    self.add_noise = Add_rir_noise_aecres(config)
+    self.read_wav = ReadWav(config)
+    self.write_wav = WriteWav(config)
 
-    @classmethod
-    def params(cls, config=None):
-        """
+  @classmethod
+  def params(cls, config=None):
+    """
         Set params.
         :param config: contains nine optional parameters:
             --sample_rate				  : Sample frequency of waveform data. (int, default = 16000)
@@ -46,45 +47,45 @@ class AddNoiseEndToEnd(BaseFrontend):
         :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
         """
 
-        sample_rate = 16000
-        if_add_rir = False
-        rir_filelist = 'rirlist.scp'
-        if_add_noise = False
-        noise_filelist = 'noiselist.scp'
-        snr_min = 0
-        snr_max = 30
-        if_add_aecres = False
-        aecres_filelist = 'aecreslist.scp'
-        audio_channels = 1
+    sample_rate = 16000
+    if_add_rir = False
+    rir_filelist = 'rirlist.scp'
+    if_add_noise = False
+    noise_filelist = 'noiselist.scp'
+    snr_min = 0
+    snr_max = 30
+    if_add_aecres = False
+    aecres_filelist = 'aecreslist.scp'
+    audio_channels = 1
 
-        hparams = HParams(cls=cls)
-        hparams.add_hparam('sample_rate', sample_rate)
-        hparams.add_hparam('if_add_rir', if_add_rir)
-        hparams.add_hparam('if_add_noise', if_add_noise)
-        hparams.add_hparam('rir_filelist', rir_filelist)
-        hparams.add_hparam('noise_filelist', noise_filelist)
-        hparams.add_hparam('snr_min', snr_min)
-        hparams.add_hparam('snr_max', snr_max)
-        hparams.add_hparam('if_add_aecres', if_add_aecres)
-        hparams.add_hparam('aecres_filelist', aecres_filelist)
-        hparams.add_hparam('audio_channels', audio_channels)
+    hparams = HParams(cls=cls)
+    hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('if_add_rir', if_add_rir)
+    hparams.add_hparam('if_add_noise', if_add_noise)
+    hparams.add_hparam('rir_filelist', rir_filelist)
+    hparams.add_hparam('noise_filelist', noise_filelist)
+    hparams.add_hparam('snr_min', snr_min)
+    hparams.add_hparam('snr_max', snr_max)
+    hparams.add_hparam('if_add_aecres', if_add_aecres)
+    hparams.add_hparam('aecres_filelist', aecres_filelist)
+    hparams.add_hparam('audio_channels', audio_channels)
 
-        if config is not None:
-            hparams.override_from_dict(config)
+    if config is not None:
+      hparams.override_from_dict(config)
 
-        return hparams
+    return hparams
 
-    def call(self, in_wavfile, out_wavfile):
-        """
+  def call(self, in_wavfile, out_wavfile):
+    """
         Read a clean wav return a noisy wav.
         :param in_wavfile: clean wavfile path.
         :param out_wavfile: noisy wavfile path.
         :return: write wav opration.
         """
 
-        with tf.name_scope('add_noise_end_to_end'):
-            input_data, sample_rate = self.read_wav(in_wavfile)
-            noisy_data = self.add_noise(input_data, sample_rate) / 32768
-            write_op = self.write_wav(out_wavfile, noisy_data, sample_rate)
+    with tf.name_scope('add_noise_end_to_end'):
+      input_data, sample_rate = self.read_wav(in_wavfile)
+      noisy_data = self.add_noise(input_data, sample_rate) / 32768
+      write_op = self.write_wav(out_wavfile, noisy_data, sample_rate)
 
-        return write_op
+    return write_op

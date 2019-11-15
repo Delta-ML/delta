@@ -22,12 +22,12 @@ from delta.data.frontend.mfcc import Mfcc
 import numpy as np
 from delta import PACKAGE_ROOT_DIR
 
+
 class MfccTest(tf.test.TestCase):
 
   def test_mfcc(self):
     wav_path = str(
-      Path(PACKAGE_ROOT_DIR).joinpath(
-        'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     with self.session():
       read_wav = ReadWav.params().instantiate()
@@ -39,13 +39,15 @@ class MfccTest(tf.test.TestCase):
       self.assertEqual(tf.rank(mfcc_test).eval(), 3)
 
       real_mfcc_feats = np.array(
-        [[-30.58736, -7.088838, -10.67966, -1.646479, -4.36086],
-         [-30.73371, -6.128432, -7.930599, 3.208357, -1.086456]])
+          [[-30.58736, -7.088838, -10.67966, -1.646479, -4.36086],
+           [-30.73371, -6.128432, -7.930599, 3.208357, -1.086456]])
 
-      self.assertAllClose(np.squeeze(mfcc_test.eval()[0, 0:2, 1:6]), real_mfcc_feats, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          np.squeeze(mfcc_test.eval()[0, 0:2, 1:6]),
+          real_mfcc_feats,
+          rtol=1e-05,
+          atol=1e-05)
+
 
 if __name__ == '__main__':
   tf.test.main()
-
-
-

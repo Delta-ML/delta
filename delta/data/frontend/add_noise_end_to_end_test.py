@@ -21,6 +21,7 @@ from delta.data.frontend.add_noise_end_to_end import AddNoiseEndToEnd
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 from delta import PACKAGE_ROOT_DIR
 
+
 def change_file_path(scp_path, filetype, newfilePath):
   with open(scp_path + filetype, 'r') as f:
     s = f.readlines()
@@ -30,12 +31,13 @@ def change_file_path(scp_path, filetype, newfilePath):
       f.write(scp_path + line)
   f.close()
 
+
 class AddNoiseEndToEndTest(tf.test.TestCase):
 
   def test_add_noise_end_to_end(self):
 
     wav_path = str(
-      Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     # reset path of noise && rir
     data_path = str(Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data')) + '/'
@@ -45,14 +47,18 @@ class AddNoiseEndToEndTest(tf.test.TestCase):
     change_file_path(data_path, 'rirlist.scp', 'rirlist_new.scp')
 
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
-      config = {'if_add_noise': True, 'noise_filelist': noise_file, 'if_add_rir': True, 'rir_filelist': rir_file}
+      config = {
+          'if_add_noise': True,
+          'noise_filelist': noise_file,
+          'if_add_rir': True,
+          'rir_filelist': rir_file
+      }
       noisy_path = wav_path[:-4] + '_noisy.wav'
       add_noise_end_to_end = AddNoiseEndToEnd.params(config).instantiate()
       writewav_op = add_noise_end_to_end(wav_path, noisy_path)
       sess.run(writewav_op)
 
+
 if __name__ == '__main__':
 
-    tf.test.main()
-
-
+  tf.test.main()

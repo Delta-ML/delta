@@ -25,53 +25,65 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from delta.data.frontend.cmvn import CMVN
 
+
 def get_parser():
   parser = argparse.ArgumentParser(
-    description='Apply mean-variance normalization to files',
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+      description='Apply mean-variance normalization to files',
+      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
   parser.add_argument(
-    '--norm_means', type=bool, default=True,
-    help='Do mean normalization or not.')
+      '--norm_means',
+      type=bool,
+      default=True,
+      help='Do mean normalization or not.')
   parser.add_argument(
-    '--norm_vars', type=bool, default=False,
-    help='Do variance normalization or not.')
+      '--norm_vars',
+      type=bool,
+      default=False,
+      help='Do variance normalization or not.')
   parser.add_argument(
-    '--reverse', type=bool, default=False,
-    help='Do reverse mode or not')
+      '--reverse', type=bool, default=False, help='Do reverse mode or not')
   parser.add_argument(
-    '--std_floor', type=float, default=1e-20,
-    help='The std floor of norm_vars')
+      '--std_floor',
+      type=float,
+      default=1e-20,
+      help='The std floor of norm_vars')
   parser.add_argument(
-    '--spk2utt', type=str,
-    help='A text file of speaker to utterance-list map. '
-    '(Don\'t give rspecifier format, such as "ark:spk2utt")')
+      '--spk2utt',
+      type=str,
+      help='A text file of speaker to utterance-list map. '
+      '(Don\'t give rspecifier format, such as "ark:spk2utt")')
   parser.add_argument(
-    '--utt2spk', type=str,
-    help='A text file of utterance to speaker map. '
-    '(Don\'t give rspecifier format, such as "ark:utt2spk")')
+      '--utt2spk',
+      type=str,
+      help='A text file of utterance to speaker map. '
+      '(Don\'t give rspecifier format, such as "ark:utt2spk")')
   parser.add_argument(
-    '--write_num_frames', type=str,
-    help='Specify wspecifer for utt2num_frames')
+      '--write_num_frames',
+      type=str,
+      help='Specify wspecifer for utt2num_frames')
   parser.add_argument(
-    '--compress', type=bool, default=False,
-    help='Save data in compressed format')
+      '--compress',
+      type=bool,
+      default=False,
+      help='Save data in compressed format')
   parser.add_argument(
-    '--compression_method', type=int, default=2,
-    help='Specify the method of compression')
+      '--compression_method',
+      type=int,
+      default=2,
+      help='Specify the method of compression')
   parser.add_argument(
-    '--verbose', '-V', default=0, type=int, help='Verbose option')
+      '--verbose', '-V', default=0, type=int, help='Verbose option')
   parser.add_argument(
-    'stats_rspecifier_or_rxfilename',
-    help='Input stats. e.g. ark:stats.ark or stats.ark')
+      'stats_rspecifier_or_rxfilename',
+      help='Input stats. e.g. ark:stats.ark or stats.ark')
   parser.add_argument(
-    'rspecifier', type=str,
-    help='Read specifier id. e.g. scp:some.scp')
+      'rspecifier', type=str, help='Read specifier id. e.g. scp:some.scp')
   parser.add_argument(
-    'wspecifier', type=str,
-    help='Write specifier id. e.g. ark:some.ark')
+      'wspecifier', type=str, help='Write specifier id. e.g. ark:some.ark')
 
   return parser
+
 
 def apply_cmvn():
   args = get_parser().parse_args()
@@ -101,9 +113,10 @@ def apply_cmvn():
   with KaldiWriter(args.wspecifier, write_num_frames=args.write_num_frames,
                 compress=args.compress, compression_method=args.compression_method) as writer, \
     kaldiio.ReadHelper(args.rspecifier) as reader:
-      for utt, mat in reader:
-        mat_new = cmvn.apply_cmvn(mat, utt)
-        writer[utt] = mat_new
+    for utt, mat in reader:
+      mat_new = cmvn.apply_cmvn(mat, utt)
+      writer[utt] = mat_new
+
 
 if __name__ == '__main__':
   apply_cmvn()

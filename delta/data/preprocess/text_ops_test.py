@@ -40,7 +40,8 @@ class TextOpsTest(tf.test.TestCase):
     super().setUp()
     package_root = Path(PACKAGE_ROOT_DIR)
     self.config_file = package_root.joinpath(
-        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml'
+    )
     self.config = utils.load_config(self.config_file)
 
     self.vocab_text = ['<unk>\t1', '</s>\t2', 'O\t3']

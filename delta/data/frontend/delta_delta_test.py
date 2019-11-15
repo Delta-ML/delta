@@ -281,8 +281,8 @@ class Delta_delta_Test(tf.test.TestCase):
       delta_delta = DeltaDelta.params().instantiate()
       delta_delta_test = delta_delta(feat, self.order, self.window)
 
-      self.assertEqual(delta_delta_test.shape,
-                       (8, 10, self.order + 1))
+      self.assertEqual(delta_delta_test.shape, (8, 10, self.order + 1))
+
 
 if __name__ == '__main__':
   tf.test.main()

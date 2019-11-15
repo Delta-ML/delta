@@ -20,6 +20,7 @@ import numpy as np
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
+
 class CMVN(BaseFrontend):
 
   def __init__(self, config: dict):

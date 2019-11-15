@@ -20,6 +20,7 @@ from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.fbank import Fbank
 
+
 class Mfcc(BaseFrontend):
 
   def __init__(self, config: dict):
@@ -107,9 +108,9 @@ class Mfcc(BaseFrontend):
 
         fbank_feats = self.fbank(audio_data, sample_rate)
         mfcc = py_x_ops.mfcc(
-              fbank_feats,
-              sample_rate,
-              cepstral_lifter=p.cepstral_lifter,
-              coefficient_count=p.coefficient_count)
+            fbank_feats,
+            sample_rate,
+            cepstral_lifter=p.cepstral_lifter,
+            coefficient_count=p.coefficient_count)
 
         return mfcc

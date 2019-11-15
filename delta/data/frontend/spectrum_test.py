@@ -22,26 +22,31 @@ from delta import PACKAGE_ROOT_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.spectrum import Spectrum
 
+
 class SpectrumTest(tf.test.TestCase):
 
   def test_spectrum(self):
     wav_path = str(
-      Path(PACKAGE_ROOT_DIR).joinpath(
-        'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
 
-      spectrum = Spectrum.params({'window_length': 0.025, 'snip_edges': 1}).instantiate()
+      spectrum = Spectrum.params({
+          'window_length': 0.025,
+          'snip_edges': 1
+      }).instantiate()
       spectrum_test = spectrum(input_data, sample_rate)
 
       output_true = np.array(
-      [[9.819611, 2.84503, 3.660894, 2.7779, 1.212233],
-       [9.328745, 2.553949, 3.276319, 3.000918, 2.499342]])
+          [[9.819611, 2.84503, 3.660894, 2.7779, 1.212233],
+           [9.328745, 2.553949, 3.276319, 3.000918, 2.499342]])
 
       self.assertEqual(tf.rank(spectrum_test).eval(), 2)
-      self.assertAllClose(spectrum_test.eval()[0:2, 0:5], output_true, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          spectrum_test.eval()[0:2, 0:5], output_true, rtol=1e-05, atol=1e-05)
+
 
 if __name__ == '__main__':
   tf.test.main()

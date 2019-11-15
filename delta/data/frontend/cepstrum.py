@@ -67,7 +67,7 @@ class Cepstrum(BaseFrontend):
 
     with tf.name_scope('cepstrum'):
 
-      if sample_rate ==  None:
+      if sample_rate == None:
         sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
       assert_op = tf.assert_equal(

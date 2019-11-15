@@ -67,7 +67,6 @@ class Synthfiltbank(BaseFrontend):
           tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 
-
         audio_data = py_x_ops.synthfiltbank(
             power_spectrum,
             phase_spectrum,

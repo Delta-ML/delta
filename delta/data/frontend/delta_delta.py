@@ -48,6 +48,6 @@ class DeltaDelta(BaseFrontend):
       delta_delta = py_x_ops.delta_delta(feat, order, window)
 
     n_frame, n_feats = feat.get_shape().as_list()
-    delta_delta = tf.reshape(delta_delta, (n_frame, n_feats, order+1))
+    delta_delta = tf.reshape(delta_delta, (n_frame, n_feats, order + 1))
 
     return delta_delta

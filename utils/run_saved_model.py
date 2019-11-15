@@ -24,6 +24,7 @@ from delta import utils
 from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
 
+
 def main(_):
   ''' main func '''
   FLAGS = app.flags.FLAGS  #pylint: disable=invalid-name
@@ -50,7 +51,8 @@ def main(_):
   # Evaluate
   evaluate_name = config['serving']['name']
   logging.info(f"evaluate: {evaluate_name}")
-  evaluate = registers.serving[evaluate_name](config, gpu_str=FLAGS.gpu, mode=mode)
+  evaluate = registers.serving[evaluate_name](
+      config, gpu_str=FLAGS.gpu, mode=mode)
 
   if FLAGS.debug:
     evaluate.debug()
@@ -62,10 +64,12 @@ def define_flags():
   # The GPU devices which are visible for current process
   flags.DEFINE_string('gpu', '', 'same to CUDA_VISIBLE_DEVICES')
   flags.DEFINE_string('config', None, help='path to yaml config file')
-  flags.DEFINE_enum('mode', 'eval',['eval', 'infer', 'eval_and_infer'], 'eval or infer')
+  flags.DEFINE_enum('mode', 'eval', ['eval', 'infer', 'eval_and_infer'],
+                    'eval or infer')
   flags.DEFINE_bool('debug', False, 'debug mode')
   # https://github.com/abseil/abseil-py/blob/master/absl/flags/_validators.py#L330
   flags.mark_flags_as_required(['config', 'mode'])
+
 
 if __name__ == '__main__':
   logging.set_verbosity(logging.INFO)

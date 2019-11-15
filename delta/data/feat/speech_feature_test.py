@@ -40,9 +40,9 @@ class SpeechFeatureTest(tf.test.TestCase):
 
     package_root = Path(PACKAGE_ROOT_DIR)
     self.wavfile = str(
-      package_root.joinpath('data/feat/python_speech_features/english.wav'))
+        package_root.joinpath('data/feat/python_speech_features/english.wav'))
     self.featfile = str(
-      package_root.joinpath('data/feat/python_speech_features/english.npy'))
+        package_root.joinpath('data/feat/python_speech_features/english.npy'))
 
   def tearDown(self):
     ''' tear down '''

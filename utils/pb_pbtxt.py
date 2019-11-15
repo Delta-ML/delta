@@ -28,7 +28,8 @@ import delta.compat as tf
 from google.protobuf import text_format
 from tensorflow.python.platform import gfile
 
-dump_dir='pbtxt/'
+dump_dir = 'pbtxt/'
+
 
 def pbtxt_to_pb(filename):
   assert filename.suffix == '.pbtxt'
@@ -64,11 +65,17 @@ def main(_):
     pbtxt_to_pb(graph_file)
   logging.info(f"dump graph to {dump_dir}")
 
+
 if __name__ == '__main__':
   # flags usage: https://abseil.io/docs/python/guides/flags
   logging.set_verbosity(logging.INFO)
-  flags.DEFINE_string('graph', default=None, help='graph.pb file name', short_name='g')
-  flags.DEFINE_bool('binary_in', default=True, help='input graph is binary or not', short_name='b')
+  flags.DEFINE_string(
+      'graph', default=None, help='graph.pb file name', short_name='g')
+  flags.DEFINE_bool(
+      'binary_in',
+      default=True,
+      help='input graph is binary or not',
+      short_name='b')
   flags.mark_flag_as_required('graph')
 
   app.run(main)

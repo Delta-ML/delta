@@ -62,7 +62,6 @@ class Fbank(BaseFrontend):
     remove_dc_offset = True
     is_fbank = True
 
-
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
     hparams.add_hparam('lower_frequency_limit', lower_frequency_limit)
@@ -99,7 +98,8 @@ class Fbank(BaseFrontend):
 
       if p.upper_frequency_limit <= 0:
         p.upper_frequency_limit = p.sample_rate / 2.0 + p.upper_frequency_limit
-      elif (p.upper_frequency_limit <= p.lower_frequency_limit) or (p.upper_frequency_limit > p.sample_rate / 2.0):
+      elif (p.upper_frequency_limit <= p.lower_frequency_limit) or (
+          p.upper_frequency_limit > p.sample_rate / 2.0):
         p.upper_frequency_limit = p.sample_rate / 2.0
 
       assert_op = tf.assert_equal(

@@ -232,7 +232,7 @@ class SpkUttPostProc(SpeakerPostProc):
 
         value = (batch['clipid'][i],)
         for key in self.outputs:
-          value += (batch[key][i],) # utt -> (clipid, skpid, embeddings, ...)
+          value += (batch[key][i],)  # utt -> (clipid, skpid, embeddings, ...)
         utt2clips[utt].append(value)
         logging.debug(f"utt2clips: {utt} {value[0]} {len(utt2clips[utt])}")
 

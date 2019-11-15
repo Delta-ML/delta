@@ -26,6 +26,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from delta.data.frontend.mfcc import Mfcc
 from espnet.utils.cli_writers import KaldiWriter
 
+
 def get_parser():
   parser = argparse.ArgumentParser(
       description='Compute MFCC features from wav.',
@@ -57,21 +58,45 @@ def get_parser():
       default=1,
       help='1 for power spectrum, 2 for log-power spectrum.')
   parser.add_argument(
-    '--window_type', type=str, default='povey', help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
+      '--window_type',
+      type=str,
+      default='povey',
+      help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
-    '--snip_edges', type=int, default=2, help='The last frame (shorter than window_length) will not be cutoff.')
+      '--snip_edges',
+      type=int,
+      default=2,
+      help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
-    '--raw_energy', type=int, default=1, help='Compute frame energy before preemphasis and windowing.')
+      '--raw_energy',
+      type=int,
+      default=1,
+      help='Compute frame energy before preemphasis and windowing.')
   parser.add_argument(
-    '--preeph_coeff', type=float, default=0.97, help='Coefficient for use in frame-signal preemphasis.')
+      '--preeph_coeff',
+      type=float,
+      default=0.97,
+      help='Coefficient for use in frame-signal preemphasis.')
   parser.add_argument(
-    '--remove_dc_offset', type=bool, default=True, help=' Subtract mean from waveform on each frame.')
+      '--remove_dc_offset',
+      type=bool,
+      default=True,
+      help=' Subtract mean from waveform on each frame.')
   parser.add_argument(
-    '--is_fbank', type=bool, default=True, help='Compute power spetrum without frame energy.')
+      '--is_fbank',
+      type=bool,
+      default=True,
+      help='Compute power spetrum without frame energy.')
   parser.add_argument(
-    '--cepstral_lifter', type=float, default=22, help='Constant that controls scaling of MFCCs.')
+      '--cepstral_lifter',
+      type=float,
+      default=22,
+      help='Constant that controls scaling of MFCCs.')
   parser.add_argument(
-    '--coefficient_count', type=int, default=13, help='Number of cepstra in MFCC computation.')
+      '--coefficient_count',
+      type=int,
+      default=13,
+      help='Number of cepstra in MFCC computation.')
   parser.add_argument(
       '--write_num_frames',
       type=str,
@@ -135,6 +160,6 @@ def compute_mfcc():
       mfcc_feats = mfcc_test.eval(session=sess)
       writer[utt_id] = mfcc_feats
 
+
 if __name__ == "__main__":
   compute_mfcc()
-

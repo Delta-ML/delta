@@ -53,9 +53,8 @@ delta_delta = gen_x_ops.delta_delta
 mfcc = gen_x_ops.mfcc_dct
 add_rir_noise_aecres = gen_x_ops.add_rir_noise_aecres
 
-def jieba_cut(input_sentence,
-              use_file=True,
-              hmm=True):
+
+def jieba_cut(input_sentence, use_file=True, hmm=True):
 
   dict_path = os.path.join(PACKAGE_ROOT_DIR,
                            "./resources/cppjieba_dict/jieba.dict.utf8")
@@ -70,14 +69,14 @@ def jieba_cut(input_sentence,
 
   if use_file:
     output_sentence = gen_x_ops.jieba_cut(
-      input_sentence,
-      use_file=use_file,
-      hmm=hmm,
-      dict_path=dict_path,
-      hmm_path=hmm_path,
-      user_dict_path=user_dict_path,
-      idf_path=idf_path,
-      stop_word_path=stop_word_path)
+        input_sentence,
+        use_file=use_file,
+        hmm=hmm,
+        dict_path=dict_path,
+        hmm_path=hmm_path,
+        user_dict_path=user_dict_path,
+        idf_path=idf_path,
+        stop_word_path=stop_word_path)
   else:
     dict_lines = read_lines_from_text_file(dict_path)
     model_lines = read_lines_from_text_file(hmm_path)
@@ -86,13 +85,13 @@ def jieba_cut(input_sentence,
     stop_word_lines = read_lines_from_text_file(stop_word_path)
 
     output_sentence = gen_x_ops.jieba_cut(
-      input_sentence,
-      use_file=use_file,
-      hmm=hmm,
-      dict_lines=dict_lines,
-      model_lines=model_lines,
-      user_dict_lines=user_dict_lines,
-      idf_lines=idf_lines,
-      stop_word_lines=stop_word_lines)
+        input_sentence,
+        use_file=use_file,
+        hmm=hmm,
+        dict_lines=dict_lines,
+        model_lines=model_lines,
+        user_dict_lines=user_dict_lines,
+        idf_lines=idf_lines,
+        stop_word_lines=stop_word_lines)
 
   return output_sentence

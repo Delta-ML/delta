@@ -23,7 +23,9 @@ from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
 from delta.serving.base_frozen_model import Evaluater
 
+
 class ClsMetric:
+
   def __init__(self):
     self.TP = 0
     self.TN = 0
@@ -59,6 +61,7 @@ class ClsMetric:
 
 class SpeechEvaluater(Evaluater):
   ''' base evaluater '''
+
   def __init__(self, config, gpu_str=None, mode=utils.INFER):
     self._config = config
     self._mode = mode
@@ -130,9 +133,11 @@ class EmoSpeechEvaluater(SpeechEvaluater):
       logging.info('precision {}'.format(precision))
       logging.info('recall {}'.format(recall))
 
+
 @registers.serving.register
 class SpkSpeechEvaluater(SpeechEvaluater):
   ''' infer from forzen model '''
+
   def __init__(self, config, gpu_str, mode):
     super().__init__(config, gpu_str, mode)
 
@@ -146,6 +151,7 @@ class SpkSpeechEvaluater(SpeechEvaluater):
 
   def run(self):
     ''' featch predictions '''
+
     def gen():
       features, y_true = self.sess.run(self.next_element)
       inputs = features["inputs"]
@@ -154,6 +160,7 @@ class SpkSpeechEvaluater(SpeechEvaluater):
       return features
 
     class Iter:
+
       def __iter__(self):
         return self
 
@@ -162,7 +169,6 @@ class SpkSpeechEvaluater(SpeechEvaluater):
 
     self.postproc(Iter())
     return None, None
-
 
   def predict(self):
     ''' extract speaker embedding '''
