@@ -26,6 +26,7 @@ import delta.compat as tf
 from delta import utils
 from delta.data.task.text_cls_task import TextClsTask
 from delta.utils.register import import_all_modules_for_register
+from delta import PACKAGE_ROOT_DIR
 
 
 class TextClsTaskTest(tf.test.TestCase):
@@ -33,10 +34,9 @@ class TextClsTaskTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     import_all_modules_for_register()
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
-    self.config_file = main_root.joinpath(
-        'egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml')
+    package_root = Path(PACKAGE_ROOT_DIR)
+    self.config_file = package_root.joinpath(
+        '../egs/mock_text_cls_data/text_cls/v1/config/han-cls.yml')
 
   def tearDown(self):
     ''' tear down '''
@@ -246,7 +246,8 @@ class TextClsTaskTest(tf.test.TestCase):
     shape_op = tf.shape(input_x)
 
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
-      res, shape_res = sess.run([input_x, shape_op], feed_dict={input_sentence: ["我很愤怒"]})
+      res, shape_res = sess.run([input_x, shape_op],
+                                feed_dict={input_sentence: ["我很愤怒"]})
       logging.debug(res[0])
       logging.debug(np.shape(res[0]))
       logging.debug(f"shape: {shape_res}")

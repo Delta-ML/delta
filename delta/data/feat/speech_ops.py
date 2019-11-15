@@ -74,13 +74,6 @@ def read_wav(wavfile, params):
       desired_channels=params.audio_desired_channels,
       desired_samples=params.audio_desired_samples,
   )
-  #waveforms = tf.contrib.ffmpeg.decode_audio(
-  #  contents,
-  #  file_format='wav',
-  #  samples_per_second = params.audio_sample_rate,
-  #  channel_count=params.audio_channels,
-  #)
-  #return waveforms[:, 0]
   return waveforms.audio, waveforms.sample_rate
 
 
@@ -304,8 +297,8 @@ def batch_extract_feature(waveforms, params):
   loop_vars = (time, waveforms, output_tas)
 
   parallel_iterations = 10
-  shape_invariants = tf.nest.map_structure(
-      lambda t: tf.TensorShape(None), loop_vars)
+  shape_invariants = tf.nest.map_structure(lambda t: tf.TensorShape(None),
+                                           loop_vars)
 
   (time, inputs, output_tas) = tf.while_loop(
       _loop_continue,
@@ -362,8 +355,8 @@ def splice(feat, left_context, right_context):
     loop_vars = (time, T, context, left_context, right_context, output_tas)
 
     parallel_iterations = 10
-    shape_invariants = tf.nest.map_structure(
-        lambda t: tf.TensorShape(None), loop_vars)
+    shape_invariants = tf.nest.map_structure(lambda t: tf.TensorShape(None),
+                                             loop_vars)
 
     (time, end_time, context, left_context, right_context,
      output_tas) = tf.while_loop(

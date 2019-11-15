@@ -75,8 +75,8 @@ ENGINE=`cat ${INPUT_YAML} | shyaml get-value model.graphs.0.engine`
 
 BAZEL_CACHE=${MAIN_ROOT}/tools/.cache/bazel
 mkdir -p $BAZEL_CACHE
-#BAZEL="bazel --output_base=${BAZEL_CACHE}"
-BAZEL=bazel
+BAZEL="bazel --output_base=${BAZEL_CACHE}"
+#BAZEL=bazel
 
 function clear_lib(){
   echo "Clear library under dpl/lib..."
@@ -178,7 +178,7 @@ function compile_deltann(){
 function compile_deltann_egs(){
   echo "Compile deltann examples..."
   pushd ${MAIN_ROOT}/deltann
-  make example || { echo "Compile deltann examples error"; exit 1; }
+  make examples || { echo "Compile deltann examples error"; exit 1; }
   popd
   echo "Compile deltann examples done."
   echo
@@ -203,10 +203,6 @@ function dpl_output(){
   mkdir -p output/include/
   cp -R   lib/ output/
 
-  pushd output/lib/custom_ops
-  mv x_ops.so libx_ops.so
-  popd
-
   cp -R  ../deltann/api/c_api.h  output/include/
   cp -R  gadapter/saved_model/ output/model/
 
@@ -218,6 +214,12 @@ function dpl_output(){
   popd
   echo "dump output done."
   echo
+}
+
+function deltann_unit_test() {
+  echo "deltann unit test ..."
+  pushd $MAIN_ROOT/tools/test && ./cpp_test.sh && popd
+  echo "deltann unit test done."
 }
 
 echo
@@ -241,24 +243,28 @@ if [ $stage -le 2 ] && [ $stop_stage -ge 2 ];then
   # compile_tflite $TARGET $ARCH
 fi
 
-# 4. compile deltann
+# 4. compile custom ops
 if [ $stage -le 3 ] && [ $stop_stage -ge 3 ];then
+  compile_custom_ops tensorflow deltann
+fi
+
+# 5. compile deltann
+if [ $stage -le 4 ] && [ $stop_stage -ge 4 ];then
   compile_deltann ${TARGET} ${ARCH} ${ENGINE}
   # compile_deltann $TARGET $ARCH tflite
 fi
 
-# 5. compile custom ops
-if [ $stage -le 4 ] && [ $stop_stage -ge 4 ];then
-  compile_custom_ops tensorflow deltann
-fi
-
-# 6. compile deltann egs
 if [ $stage -le 5 ] && [ $stop_stage -ge 5 ];then
+  deltann_unit_test
+fi
+ 
+# 6. compile deltann egs
+if [ $stage -le 6 ] && [ $stop_stage -ge 6 ];then
   compile_deltann_egs
 fi
 
 # 7. dump model and lib to `dpl/output`
-if [ $stage -le 6 ] && [ $stop_stage -ge 6 ];then
+if [ $stage -le 7 ] && [ $stop_stage -ge 7 ];then
   dpl_output
 fi
 

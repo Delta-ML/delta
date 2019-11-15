@@ -25,8 +25,8 @@ limitations under the License.
 
 #include "core/base_model.h"
 #include "core/data.h"
-#include "core/utils/logging.h"
-#include "core/utils/misc.h"
+#include "core/logging.h"
+#include "core/misc.h"
 
 #include "tensorflow/lite/experimental/c/c_api.h"
 

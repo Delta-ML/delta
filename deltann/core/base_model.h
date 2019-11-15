@@ -21,8 +21,8 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
-#include "core/data.h"
-#include "core/utils/misc.h"
+#include "core/io.h"
+#include "core/misc.h"
 
 namespace delta {
 namespace core {
@@ -44,15 +44,16 @@ struct ModelMeta {
   int version;
 
   struct {
-    std::string model_path;  // model path
     ModelType model_type;    // saved_model, pb
+    std::string model_path;  // model path
   } local;
 
   struct {
+    // serving  model tag
+    string model_name;
     // serving config
     string hostname;
     unsigned short port;
-    string model_name;  // serving id
   } remote;
 };
 

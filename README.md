@@ -49,12 +49,52 @@ It helps you to train, develop, and deploy NLP and/or speech models, featuring:
 
 ## Installation
 
-### Quick Installation
+We provide several approach to install DELTA:
 
-We use [conda](https://conda.io/) to install required packages. Please [install conda](https://conda.io/en/latest/miniconda.html) if you do not have it in your system. 
+- If you are only interested in NLP tasks, you can [use `pip` to install](#install-from-pip
+) DELTA.
 
-We provide two options to install DELTA, `nlp` version or `full` version. 
-`nlp` version needs minimal requirements and only installs NLP related packages: 
+- If you are interested in both NLP and speech tasks, you can install DELTA [from the source code](#install-from-source-code).
+
+- If you are interested in model deployment, you may install DELTA [from the source code](#install-from-source-code) or [from `docker`](#install-from-docker).
+
+### Install from pip
+
+We provide the pip install support for `nlp` version of DELTA.
+
+**Note**: Users can still install DELTA from the source for both `nlp` and `speech` tasks.
+
+We recommend to create [conda](https://conda.io/) or
+[virtualenv](https://virtualenv.pypa.io/en/latest/) and install DELTA
+from pip in the virtual environment. For example
+```bash
+conda create -n delta-pip-py3.6 python=3.6
+conda activate delta-pip-py3.6
+```
+
+Please install TensorFlow 2.x if you have not installed it in your system.
+```bash
+pip install tensorflow
+```
+
+Then, simply install DELTA use the following command:
+```bash
+pip install delta-nlp
+```
+
+After install DELTA, you can follow this example to train NLP models or develop new models.
+[A Text Classification Usage Example for pip users](docs/tutorials/training/text_class_pip_example.md)
+
+### Install from Source Code
+
+To install from the source code, we use [conda](https://conda.io/) to
+install required packages. Please
+[install conda](https://conda.io/en/latest/miniconda.html) if you do not
+have it in your system.
+
+Also, we provide two options to install DELTA, `nlp` version or `full`
+version. `nlp` version needs minimal requirements and only installs NLP
+related packages:
 
 ```shell
 # Run the installation script for NLP version, with CPU or GPU.
@@ -82,7 +122,7 @@ conda activate delta-py3.6-tf2.0.0
 # Or use the following command if your conda version is < 4.6
 # source activate delta-py3.6-tf2.0.0
 
-# Add DELTA enviornment
+# Add DELTA environment
 source env.sh
 
 # Generate mock data for text classification.
@@ -98,7 +138,7 @@ python3 delta/main.py --cmd train_and_eval --config egs/mock_text_cls_data/text_
 
 For advanced installation, full version users, or more details, please refer to [manual installation](docs/installation/manual_setup.md).
 
-### Docker install
+### Install from Docker
 
 For Docker users, we provide images with DELTA installed. Please refer to [docker installation](docs/installation/using_docker.md).
 
@@ -168,7 +208,10 @@ We organize the model deployment scripts under `./dpl` directory.
 * Put `SavedModel` and configure `model.yaml` into `dpl/model`.
 * Use scripts under `dpl/run.sh` to convert model to other deployment model, and compile libraries.
 * All compiled `tensorflow` libs and `delta-nn` libs are in `dpl/lib`.
+* All things need for deployment are under `dpl/output` dir.
 * Test, benchmark or serve under docker.
+
+For more information, please see [dpl/README.md](dpl/README.md).
 
 ## Benchmarks
 

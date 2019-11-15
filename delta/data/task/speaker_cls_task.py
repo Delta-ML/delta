@@ -583,6 +583,7 @@ class SpeakerClsTask(SpeechTask):
                 batch(batch_size, drop_remainder=False).\
                 prefetch(tf.data.experimental.AUTOTUNE)
 
+
 class KaldiDir:
 
   def __init__(self, kaldi_dir):

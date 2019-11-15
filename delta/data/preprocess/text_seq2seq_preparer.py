@@ -65,7 +65,8 @@ class TextS2SPreparer(TextPreparer):
         self.prepare_one_raw_data((one_path_text, one_path_target),
                                   (one_path_text_after, one_path_target_after),
                                   mode, infer_without_label,
-                                  pre_process_pipeline, all_texts, all_labels,data_size)
+                                  pre_process_pipeline, all_texts, all_labels,
+                                  data_size)
     return all_texts, all_labels
 
   def load_a_raw_file(self, one_path, infer_without_label):
@@ -79,10 +80,10 @@ class TextS2SPreparer(TextPreparer):
     column_num = 1
     text_path, target_path = one_path
     texts = load_textline_dataset([text_path], column_num)
-   # texts = data_utils.load_seq2seq_raw_data([text_path])
+    # texts = data_utils.load_seq2seq_raw_data([text_path])
     if not infer_without_label:
-      target = load_textline_dataset([target_path],column_num)
-      return texts+target, target
+      target = load_textline_dataset([target_path], column_num)
+      return texts + target, target
     return texts, []
 
   def save_a_raw_file(self, label, text_after, one_path_after,

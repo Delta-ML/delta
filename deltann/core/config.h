@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_CONFIG_H_
-#define DELTANN_UTILS_CONFIG_H_
+#ifndef DELTANN_CORE_CONFIG_H_
+#define DELTANN_CORE_CONFIG_H_
 
 #include <iostream>
 #include <string>
@@ -89,4 +89,4 @@ class RuntimeConfig : public Config {
 
 }  // namespace delta
 
-#endif  // DELTANN_UTILS_CONFIG_H_
+#endif  // DELTANN_CORE_CONFIG_H_

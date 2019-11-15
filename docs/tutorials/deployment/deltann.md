@@ -1,4 +1,4 @@
-# DELTA-NN
+# DELTA-NN architecture 
 
 1. features
 1. compile

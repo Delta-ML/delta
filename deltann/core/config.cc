@@ -19,12 +19,12 @@ limitations under the License.
 #include <unordered_map>
 #include <utility>
 
+#include "core/config.h"
 #include "core/io.h"
-#include "core/utils/config.h"
 
 #include "yaml-cpp/yaml.h"
 
-using namespace ::delta::core;
+// using namespace ::delta::core;
 
 namespace delta {
 
@@ -44,8 +44,8 @@ BaseConfig::BaseConfig(std::string path) : _file_path(path) {
       _global_config[path] = YAML::LoadFile(_file_path);
       LOG_INFO << "load config success";
     } catch (const YAML::Exception& e) {
-      LOG_FATAL << "Failed read yaml config file " << _file_path << ", "
-                << e.what();
+      LOG_FATAL << "Error(" << e.what() << "): read [ " << _file_path
+                << " ] yaml config file failed.";
     }
   }
 

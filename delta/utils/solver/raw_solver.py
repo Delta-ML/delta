@@ -358,17 +358,16 @@ class RawSolver(Solver):
     mode = utils.TRAIN
     train_model = self.build(mode)
 
-    multitask = self.config['solver']['optimizer']['multitask']
-
     # Supervisor
     with tf.name_scope("train"):
       global_step = tf.train.get_or_create_global_step()
-      train_op = self.get_train_op(train_model.loss_op, multitask, global_step)
+      train_op = self.get_train_op(train_model.loss_op, global_step)
 
       checkpoint_dir = get_checkpoint_dir(self.config)
 
       # scaffold
-      scaffold = self.get_scaffold(mode, global_step, train_model.iterator.initializer)
+      scaffold = self.get_scaffold(mode, global_step,
+                                   train_model.iterator.initializer)
 
     with tf.train.MonitoredTrainingSession(
         checkpoint_dir=checkpoint_dir,
@@ -407,19 +406,18 @@ class RawSolver(Solver):
 
     # start train
     with g_train.as_default():
-      multitask = self.config['solver']['optimizer']['multitask']
-
       # Supervisor
       with tf.name_scope("train"):
         global_step = tf.train.get_or_create_global_step()
 
-        train_op = self.get_train_op(train_model.loss_op, multitask,
+        train_op = self.get_train_op(train_model.loss_op,
                                      global_step)
 
         checkpoint_dir = get_checkpoint_dir(self.config)
 
         # scaffold
-        scaffold = self.get_scaffold(utils.TRAIN, global_step, train_model.iterator.initializer)
+        scaffold = self.get_scaffold(utils.TRAIN, global_step,
+                                     train_model.iterator.initializer)
 
         with tf.train.MonitoredTrainingSession(
             checkpoint_dir=checkpoint_dir,

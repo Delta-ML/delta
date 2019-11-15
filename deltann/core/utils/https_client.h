@@ -19,8 +19,10 @@ limitations under the License.
 #define DELTANN_CORE_UTILS_HTTPS_CLIENT_H_
 #ifdef USE_TF_SERVING
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "core/data.h"
 #include "core/shape.h"
