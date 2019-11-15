@@ -95,8 +95,8 @@ kaldi.done:
 else
 kaldi.done:
 	test -d kaldi || git clone --depth=1 https://github.com/kaldi-asr/kaldi.git
-	cd kaldi/tools; $(MAKE) all
-	cd kaldi/src; ./configure --shared --use-cuda=no; $(MAKE) depend; $(MAKE) all
+	cd kaldi/tools; $(MAKE) all -j
+	cd kaldi/src; ./configure --use-cuda=no; $(MAKE) depend -j; $(MAKE) all -j
 	touch kaldi.done
 endif
 
