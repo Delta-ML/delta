@@ -43,54 +43,19 @@ class JiebaOpsTest(tf.test.TestCase):
   #pylint: disable=no-self-use
   def build_op_use_file(self, sentence):
     ''' build graph '''
-    main_root = os.environ["MAIN_ROOT"]
-
-    dict_path = os.path.join(main_root, "tools/cppjieba/dict/jieba.dict.utf8")
-    hmm_path = os.path.join(main_root, "tools/cppjieba/dict/hmm_model.utf8")
-    user_dict_path = os.path.join(main_root,
-                                  "tools/cppjieba/dict/user.dict.utf8")
-    idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
-    stop_word_path = os.path.join(main_root,
-                                  "tools/cppjieba/dict/stop_words.utf8")
 
     words = py_x_ops.jieba_cut(
         sentence,
         use_file=True,
-        hmm=True,
-        dict_path=dict_path,
-        hmm_path=hmm_path,
-        user_dict_path=user_dict_path,
-        idf_path=idf_path,
-        stop_word_path=stop_word_path)
+        hmm=True)
     return words
 
   def build_op_no_file(self, sentence):
     ''' build graph '''
-    main_root = os.environ["MAIN_ROOT"]
-
-    dict_path = os.path.join(main_root, "tools/cppjieba/dict/jieba.dict.utf8")
-    hmm_path = os.path.join(main_root, "tools/cppjieba/dict/hmm_model.utf8")
-    user_dict_path = os.path.join(main_root,
-                                  "tools/cppjieba/dict/user.dict.utf8")
-    idf_path = os.path.join(main_root, "tools/cppjieba/dict/idf.utf8")
-    stop_word_path = os.path.join(main_root,
-                                  "tools/cppjieba/dict/stop_words.utf8")
-
-    dict_lines = read_lines_from_text_file(dict_path)
-    model_lines = read_lines_from_text_file(hmm_path)
-    user_dict_lines = read_lines_from_text_file(user_dict_path)
-    idf_lines = read_lines_from_text_file(idf_path)
-    stop_word_lines = read_lines_from_text_file(stop_word_path)
-
     words = py_x_ops.jieba_cut(
         sentence,
         use_file=False,
-        hmm=True,
-        dict_lines=dict_lines,
-        model_lines=model_lines,
-        user_dict_lines=user_dict_lines,
-        idf_lines=idf_lines,
-        stop_word_lines=stop_word_lines)
+        hmm=True)
     return words
 
   def test_jieba_cut_op_use_file(self):
@@ -135,8 +100,9 @@ class JiebaOpsTest(tf.test.TestCase):
         sentence_out_res = test_one(sess, sentence_out,
                                     {sentence_in: ["吉林省长春药店"]})
         self.assertEqual("吉林省 长春 药店", sentence_out_res[0].decode("utf-8"))
-        sentence_out_res, shape_res = test_one(sess, [sentence_out, shape_op],
-                                    {sentence_in: ["吉林省长春药店", "南京市长江大桥"]})
+        sentence_out_res, shape_res = test_one(
+            sess, [sentence_out, shape_op],
+            {sentence_in: ["吉林省长春药店", "南京市长江大桥"]})
         self.assertEqual(
             "吉林省 长春 药店\n南京市 长江大桥",
             "\n".join([one_sen.decode("utf-8") for one_sen in sentence_out_res

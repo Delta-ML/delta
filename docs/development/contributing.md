@@ -35,9 +35,9 @@ Before commit golang code, plase using `go fmt` and `go vec` to format and lint 
 
 ## Logging guideline
 
-For `python` using [abseil-py](https://github.com/abseil/abseil-py). 
+For `python` using [abseil-py](https://github.com/abseil/abseil-py), [more info](https://abseil.io/docs/python/).
 
-For C++ using [abseil-cpp](https://github.com/abseil/abseil-cpp).
+For C++ using [abseil-cpp](https://github.com/abseil/abseil-cpp), [more info](https://abseil.io/docs/cpp/).
 
 For Golang using [glog](https://github.com/golang/glog).
 

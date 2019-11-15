@@ -17,17 +17,18 @@
 import delta.compat as tf
 import os
 from pathlib import Path
+import numpy as np
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.plp import Plp
-import numpy as np
+from delta import PACKAGE_ROOT_DIR
 
 
 class PlpTest(tf.test.TestCase):
 
   def test_plp(self):
     wav_path = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
@@ -48,7 +49,8 @@ class PlpTest(tf.test.TestCase):
            [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
-      self.assertAllClose(plp_test.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          plp_test.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

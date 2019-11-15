@@ -61,8 +61,7 @@ def compute_mel_filterbank_features(waveforms,
                                     frame_step=10,
                                     fft_length=None,
                                     window_fn=functools.partial(
-                                        tf.signal.hann_window,
-                                        periodic=True),
+                                        tf.signal.hann_window, periodic=True),
                                     lower_edge_hertz=80.0,
                                     upper_edge_hertz=7600.0,
                                     num_mel_bins=80,
@@ -130,11 +129,9 @@ def compute_mel_filterbank_features(waveforms,
   # Warp the linear-scale, magnitude spectrograms into the mel-scale.
   num_spectrogram_bins = magnitude_spectrograms.shape[-1].value
   linear_to_mel_weight_matrix = (
-      tf.signal.linear_to_mel_weight_matrix(num_mel_bins,
-                                                    num_spectrogram_bins,
-                                                    sample_rate,
-                                                    lower_edge_hertz,
-                                                    upper_edge_hertz))
+      tf.signal.linear_to_mel_weight_matrix(num_mel_bins, num_spectrogram_bins,
+                                            sample_rate, lower_edge_hertz,
+                                            upper_edge_hertz))
   mel_spectrograms = tf.tensordot(magnitude_spectrograms,
                                   linear_to_mel_weight_matrix, 1)
   # Note: Shape inference for tensordot does not currently handle this case.
@@ -158,13 +155,6 @@ def read_wav(wavfile, params):
       desired_channels=params.audio_channels,
       #desired_samples=params.audio_sample_rate,
   )
-  #waveforms = tf.contrib.ffmpeg.decode_audio(
-  #  contents,
-  #  file_format='wav',
-  #  samples_per_second = params.audio_sample_rate,
-  #  channel_count=params.audio_channels,
-  #)
-  #return waveforms[:, 0]
   return tf.squeeze(waveforms.audio, axis=-1)
 
 

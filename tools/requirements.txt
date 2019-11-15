@@ -33,3 +33,4 @@ tensorflow-probability
 tensorflow-io
 tensorflow-datasets
 tensorflow-addons
+tensorflow-model-optimization

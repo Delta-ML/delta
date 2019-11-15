@@ -1,4 +1,4 @@
-# dpl
+# Deployment scripts - dpl
 The `dpl` directory is for orginating model `config`, `convert`, `testing`, `benchmarking` and `serving`.
 
 ## Inputs & Outputs

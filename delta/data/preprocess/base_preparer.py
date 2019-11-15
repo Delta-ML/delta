@@ -138,7 +138,7 @@ class TextPreparer(Preparer):
       text_after = [one_line.decode("utf-8") for one_line in text_after_arr]
       all_texts += text_after
       one_text_after = text_after
-    self.config['data']['{}_data_size'.format(mode)] = len(one_text_after[0])
+
     one_label_after = []
     if not infer_without_label:
       if self.multi_output:
@@ -161,7 +161,6 @@ class TextPreparer(Preparer):
         ]
         all_labels += one_label_after
 
-    logging.debug(f"one_text_after: {len(one_text_after)}")
     self.save_a_raw_file(one_label_after, one_text_after, one_path_after,
                          infer_without_label)
 

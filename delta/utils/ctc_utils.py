@@ -18,6 +18,7 @@
 
 import delta.compat as tf
 
+
 def transform_preprocess(labels=None, blank_index=None, num_class=None):
   ''' Ensure that the value of blank_index is in a reasonable range,
       and transform the DenseTensor labels to a SparseTensor '''

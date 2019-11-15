@@ -1,6 +1,10 @@
 # A Text Classification Usage Example
 
-In this tutorial, we demonstrate a text classification task with an open source dataset: `yahoo answer`.
+## Intro
+
+In this tutorial, we demonstrate a text classification task with an
+open source dataset: `yahoo answer` for users with installation from
+source code..
 
 A complete process contains following steps:
 

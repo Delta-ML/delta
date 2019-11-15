@@ -5,19 +5,22 @@
 - [RESTful API](#restful-api)
 - [Model status API](#model-status-api)
 - [Predict API](#predict-api)
+- [Request format](#Request-format)
 - [Demo code](#demo-code)
 
 ## Quick start
 
-After delta/dpl/run.sh is successfully executed, run the following command again.
+After `delta/dpl/run.sh` is successfully executed, run the following command again.
 
-```sh
+```shell
 $ cd example
-$ source server-env.sh
 $ ./build.sh
+```
+
+```shell
 $ cd output/delta-service
-$ ./run.sh
-$ cat nohup.out
+$ ./run.sh start &
+$ cat log/delta-service.INFO
 ...
 I0927 07:26:37.897093    1057 delta_serving.go:76] delta serving DeltaPredictHandler path /v1/models/saved_model/versions/1:predict
 I0927 07:26:37.897394    1057 delta_serving.go:77] delta serving DeltaModelHandler  path /v1/models/saved_model/versions/1
@@ -59,6 +62,17 @@ POST http://host:port/v1/models/${MODEL_NAME}
 ```sh
 POST http://host:port/v1/models/${MODEL_NAME}[/versions/${MODEL_VERSION}]:predict
 ``` 
+ 
+ #### Request format
+ 
+The request body for predict API must be JSON object formatted as follows:
+
+```javascript
+{
+  "inputs": <value>
+}
+```
+
  
  ### Demo code
   ```sh   

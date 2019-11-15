@@ -18,6 +18,7 @@
 import abc
 import math
 import delta.compat as tf
+import tensorflow_addons as tfa
 from absl import logging
 
 from delta import utils
@@ -206,7 +207,7 @@ class Solver(ABCSolver):
     return lr
 
   #pylint: disable=arguments-differ
-  def get_optimizer(self, multitask):
+  def get_optimizer(self):
     """Get the optimizer."""
     optconf = self.config['solver']['optimizer']
     method = optconf['name']
@@ -224,23 +225,20 @@ class Solver(ABCSolver):
     elif method == 'gradientdecent':
       opt = tf.train.GradientDescentOptimizer(learning_rate)
     elif method == 'lazyadam':
-      opt = tf.contrib.opt.LazyAdamOptimizer(learning_rate)
+      opt = tfa.optimizers.LazyAdam(learning_rate)
     elif method == 'weightedadam':
       weight_decay = self.config['solver']['optimizer']['weight_decay']
-      opt = tf.contrib.opt.AdamWOptimizer(
+      opt = tfa.optimizers.AdamW(
           weight_decay=weight_decay, learning_rate=learning_rate)
     elif method == 'yellowfin':
       opt = optimizer.YFOptimizer(learning_rate)
     else:
       raise ValueError("Not support optimizer: {}".format(method))
 
-    if multitask:
-      opt = tf.contrib.opt.MultitaskOptimizerWrapper(opt)
-      logging.info("Using multi-task optimizer")
     return opt
 
   #pylint: disable=no-self-use
-  def clip_gradients(self, grads_and_vars, clip_ratio, multitask=False):
+  def clip_gradients(self, grads_and_vars, clip_ratio):
     """Clip the gradients."""
     is_zip_obj = False
     if isinstance(grads_and_vars, zip):
@@ -250,10 +248,7 @@ class Solver(ABCSolver):
     with tf.variable_scope('grad'):
       for grad, var in grads_and_vars:
         if grad is not None:
-          if tf.executing_eagerly():
-            tf.contrib.summary.histogram(var.name[:-2], grad)
-          else:
-            tf.summary.histogram(var.name[:-2], grad)
+          tf.summary.histogram(var.name[:-2], grad)
         else:
           logging.debug('%s gradient is None' % (var.name))
 
@@ -264,30 +259,22 @@ class Solver(ABCSolver):
         grads_and_vars = zip(grads, variables)
       return grads_and_vars
 
-    if multitask:
-      grad_and_var_clipped, global_norm = tf.contrib.opt.clip_gradients_by_global_norm(
-          grads_and_vars, clip_ratio)
-    else:
-      gradients, variables = zip(*grads_and_vars)
-      clipped, global_norm = tf.clip_by_global_norm(gradients, clip_ratio)
-      grad_and_var_clipped = zip(clipped, variables)
+    gradients, variables = zip(*grads_and_vars)
+    clipped, global_norm = tf.clip_by_global_norm(gradients, clip_ratio)
+    grad_and_var_clipped = zip(clipped, variables)
 
-    if tf.executing_eagerly():
-      tf.contrib.summary.scalar('gradient/global_norm', global_norm)
-    else:
-      tf.summary.scalar('gradient/global_norm', global_norm)
-
+    tf.summary.scalar('gradient/global_norm', global_norm)
     return grad_and_var_clipped
 
-  def get_apply_gradients_op(self, loss, multitask, global_step=None):
+  def get_apply_gradients_op(self, loss, global_step=None):
     """Get Apply gradients operator."""
-    opt = self.get_optimizer(multitask)
+    opt = self.get_optimizer()
     grads_and_vars = opt.compute_gradients(loss)
 
     # clip gradient
     optconf = self.config['solver']['optimizer']
     global_norm = optconf['clip_global_norm']
-    grads_and_vars = self.clip_gradients(grads_and_vars, global_norm, multitask)
+    grads_and_vars = self.clip_gradients(grads_and_vars, global_norm)
 
     apply_gradient_op = opt.apply_gradients(
         grads_and_vars,
@@ -325,17 +312,9 @@ class Solver(ABCSolver):
       tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, apply_op)
       utils.log_vars('Avg Trainable Vars', tf.trainable_variables())
 
-  def get_train_op(self, loss, multitask, global_step=None):
+  def get_train_op(self, loss, global_step=None):
     """Get the training operator."""
-    # quantize training
-    quantconf = self.config['solver']['quantization']
-    quantization = quantconf['enable']
-    if quantization:
-      quant_delay = quantconf['quant_delay']
-      logging.info('Quantization training with {} delay'.format(quant_delay))
-      tf.contrib.quantize.create_training_graph(quant_delay=quant_delay)
-
-    apply_gradient_op = self.get_apply_gradients_op(loss, multitask,
+    apply_gradient_op = self.get_apply_gradients_op(loss,
                                                     global_step)
 
     # model average

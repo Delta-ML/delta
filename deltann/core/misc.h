@@ -14,13 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_MISC_H_
-#define DELTANN_UTILS_MISC_H_
+#ifndef DELTANN_CORE_MISC_H_
+#define DELTANN_CORE_MISC_H_
 
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "core/logging.h"
 
 namespace delta {
 
@@ -46,18 +48,6 @@ enum class EngineType {
   DELTA_EIGINE_SERVING,
 };
 
-#define DELTA_CHECK(x) \
-  if (!(x)) LOG_FATAL << "Check failed: " #x << ' '
-
-#define DELTA_CHECK_LT(x, y) DELTA_CHECK((x) < (y))
-#define DELTA_CHECK_GT(x, y) DELTA_CHECK((x) > (y))
-#define DELTA_CHECK_LE(x, y) DELTA_CHECK((x) <= (y))
-#define DELTA_CHECK_GE(x, y) DELTA_CHECK((x) >= (y))
-#define DELTA_CHECK_EQ(x, y) DELTA_CHECK((x) == (y))
-#define DELTA_CHECK_NE(x, y) DELTA_CHECK((x) != (y))
-
-#define DELTA_ASSERT_OK(status) DELTA_CHECK_EQ(status, DeltaStatus::STATUS_OK)
-
 /* The following code is from:
  * https://github.com/dmlc/dmlc-core/blob/master/include/dmlc/base.h
  */
@@ -71,31 +61,11 @@ enum class EngineType {
 #endif
 #endif
 
-/*!
- * \brief Disable copy constructor and assignment operator.
- *
- * If C++11 is supported, both copy and move constructors and
- * assignment operators are deleted explicitly. Otherwise, they are
- * only declared but not implemented. Place this macro in private
- * section if C++11 is not available.
- */
-#ifndef DISALLOW_COPY_AND_ASSIGN
-#if DELTA_USE_CXX11
-#define DISALLOW_COPY_AND_ASSIGN(T) \
-  T(T const&) = delete;             \
-  T(T&&) = delete;                  \
-  T& operator=(T const&) = delete;  \
-  T& operator=(T&&) = delete
-#else
-#define DISALLOW_COPY_AND_ASSIGN(T) \
-  T(T const&);                      \
-  T& operator=(T const&)
-#endif
-#endif
+std::size_t delta_dtype_size(DataType type);
 
-std::size_t delta_sizeof(DataType type);
+DataType delta_str_dtype(const std::string& type);
 
-DataType delta_type_switch(const std::string& type);
+std::string delta_dtype_str(DataType type);
 
 extern std::unordered_map<std::string, EngineType> _global_engines;
 
@@ -118,4 +88,4 @@ std::ostream& operator<<(std::ostream& out, const std::vector<T>& v) {
 }
 
 }  // namespace delta
-#endif  // DELTANN_UTILS_MISC_H_
+#endif  // DELTANN_CORE_MISC_H_

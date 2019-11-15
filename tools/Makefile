@@ -36,9 +36,11 @@ all: delta deltann
 # delta
 delta: basic speech check_install
 
-basic: linux.done python.done espnet.done nlp_zh compile_ops.done
+basic: linux.done python.done tensorflow.done espnet.done nlp_zh compile_ops.done
 
 speech: kaldi.done
+
+nlp: python_nlp.done nlp_zh compile_ops.done
 
 nlp_zh: cppjieba.done
 
@@ -60,7 +62,6 @@ protoc:
 
 # only for test cpp
 test.deps:
-#	test -d tensorflow || git clone --depth=1 --branch=master https://github.com/tensorflow/tensorflow.git
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
 	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git 
 
@@ -72,6 +73,10 @@ python.done:
 	$(PIP_INSTALL) --user -r requirements.txt
 	if [ -f /etc/lsb-release ]; then $(SUDO) $(APT_INSTALL) libsndfile1; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install libsndfile; else $(SUDO) yum install -y libsndfile-devel; fi;
 	touch python.done
+
+python_nlp.done:
+	$(PIP_INSTALL) --user -r requirements.txt
+	touch python_nlp.done
 
 linux.done:
 	if [ -f /etc/lsb-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) bc sox; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install bc sox; else $(SUDO) yum install -y bc sox; fi;
@@ -95,10 +100,13 @@ kaldi.done:
 	touch kaldi.done
 endif
 
+tensorflow.done:
+	test -d tensorflow || git clone --depth=1 --branch=master https://github.com/tensorflow/tensorflow.git
+
 # deps on the package, for kaldi input pipeline and kaldi io utils
 espnet.done:
 	test -d espnet || git clone --depth=1 https://github.com/espnet/espnet.git
-	cd espnet && git fetch -t && git checkout v.0.5.0
+	cd espnet && git fetch -t && git checkout v.0.5.3
 	if [ -f kaldi.done ] && [ -s kaldi ]; then ln -s `readlink -f kaldi` espnet/tools/kaldi; elif [ -f kaldi.done ] && [ ! -s kaldi ]; then ln -s kaldi espnet/tools/kaldi; fi
 	touch espnet.done
 
@@ -154,7 +162,7 @@ abseil.done:
 
 tensorflow-src.done:
 	# copy tensorflow src from docker
-	if ! [ -d tensorflow ]; then $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
+	if ! [ -d tensorflow ]; then rm -rf tensorflow && $(SUDO) cp -r /tensorflow_src tensorflow && $(SUDO) chown $(shell id -u):$(shell id -g) tensorflow; fi
 	touch tensorflow-src.done
 
 yaml.done:

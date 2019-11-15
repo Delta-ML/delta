@@ -21,8 +21,6 @@ import delta.compat as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
 from tensorflow.python.estimator.canned import metric_keys
 # See: tensorboard/tensorboard/plugins/pr_curve/README.md
-# Note: tf.contrib.metrics.streaming_curve_points will only produce a series of points
-#  which won't be displayed by Tensorboard.
 from tensorboard.plugins.pr_curve import summary as pr_summary
 
 from delta import utils
@@ -107,7 +105,7 @@ class EstimatorSolver(ABCEstimatorSolver):
             predictions=predictions,
             scaffold=self.get_scaffold(mode),
             export_outputs={
-                'predictions': tf.estimator.export.PredictOutput(softmax) #pylint: disable=no-member
+                'predictions': tf.estimator.export.PredictOutput(predictions) #pylint: disable=no-member
             })
 
       if 'soft_labels' in features.keys():
@@ -123,7 +121,6 @@ class EstimatorSolver(ABCEstimatorSolver):
       )
 
       if mode == utils.TRAIN:  #pylint: disable=no-else-return
-        multitask = self.config['solver']['optimizer']['multitask']
         if self.config['solver']['adversarial']['enable']:
           x = features['inputs']  #pylint: disable=invalid-name
           grad, = tf.gradients(loss, x)
@@ -141,14 +138,13 @@ class EstimatorSolver(ABCEstimatorSolver):
           )
           adv_alpha = self.config['solver']['adversarial']['adv_alpha']
           loss_all = (1 - adv_alpha) * loss + adv_alpha * loss_adv
-          multitask = True
         else:
           loss_all = loss
 
         # L2 loss
         loss_all += self.l2_loss()
 
-        train_op = self.get_train_op(loss_all, multitask=multitask)
+        train_op = self.get_train_op(loss_all)
         train_hooks = self.get_train_hooks(labels, logits, alpha=alignment)
 
         utils.log_vars('Global Vars', tf.global_variables())
@@ -479,13 +475,12 @@ class EstimatorSolver(ABCEstimatorSolver):
   def export_model(self):
     saver_conf = self.config['solver']['saver']
     nn = self.create_estimator()  #pylint: disable=invalid-name
-    nn.export_savedmodel(
+    nn.export_saved_model(
         export_dir_base=os.path.join(saver_conf['model_path'], 'export'),
         serving_input_receiver_fn=self.create_serving_input_receiver_fn(),
         assets_extra=None,
         as_text=False,
         checkpoint_path=None,
-        strip_default_attrs=False,
     )
 
   def postproc_fn(self):

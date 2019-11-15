@@ -22,6 +22,7 @@ from delta.data.feat import speech_ops
 
 #pylint: disable=invalid-name
 
+
 def splice_layer(x, name, context):
   '''
   Splice a tensor along the last dimension with context.

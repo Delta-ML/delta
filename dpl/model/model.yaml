@@ -22,7 +22,7 @@ model:
     -
       # meta data
       id: 0
-      name: "default" # model name
+      name: "spk-resnet" # model name
 
       # deltann type
       server_type: "local" # local, remote
@@ -37,13 +37,13 @@ model:
       inputs:
         -
           id: 0
-          name: "input_sentence"
-          shape: [1]
-          dtype: "char"
+          name: "inputs:0"
+          shape: [-1, 260, 40, 1]
+          dtype: "float"
       outputs:
         -
           id: 0
-          name: "score"
+          name: "speaker_res_net_raw_model_1/model/output_layer/dense-bn/batchnorm/add_1:0"
           dtype: "float"
 
 runtime:

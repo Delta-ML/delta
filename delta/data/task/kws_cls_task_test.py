@@ -31,8 +31,7 @@ class KwsClsTaskTest(tf.test.TestCase):
     super().setUp()
     import_all_modules_for_register()
     '''
-    main_root = os.environ['MAIN_ROOT']
-    main_root = Path(main_root)
+    package_root = Path(PACKAGE_ROOT_DIR)
     config_file = main_root.joinpath('delta/config/kws-cls/kws_speech_cls.yml')
     config = utils.load_config(config_file)
 

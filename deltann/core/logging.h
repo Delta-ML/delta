@@ -14,15 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef DELTANN_UTILS_LOGGING_H_
-#define DELTANN_UTILS_LOGGING_H_
+#ifndef DELTANN_CORE_LOGGING_H_
+#define DELTANN_CORE_LOGGING_H_
 
 #include <cstring>
 #include <ctime>
 #include <sstream>
 #include <string>
 
-#include "core/utils/misc.h"
+#define DISALLOW_COPY_AND_ASSIGN(type) \
+  type(const type&);                   \
+  void operator=(const type&)
 
 namespace delta {
 namespace logging {
@@ -56,13 +58,11 @@ class LogMessage {
     _log_stream << "[" << _pretty_date.human_date() << "] " << base_file << ":"
                 << line << ": " << _type.c_str() << " ";
   }
-
   ~LogMessage() {
     fprintf(stdout, "DELTA: %s \n", _log_stream.str().c_str());
     fflush(stdout);
   }
-
-  std::ostringstream& stream() { return _log_stream; }
+  virtual std::ostringstream& stream() { return _log_stream; }
 
  protected:
   std::ostringstream _log_stream;
@@ -70,7 +70,6 @@ class LogMessage {
  private:
   DateLogger _pretty_date;
   std::string _type;
-
   DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
@@ -80,10 +79,11 @@ class LogMessageFatal : public LogMessage {
       : LogMessage(file, line, type) {}
 
   ~LogMessageFatal() {
-    fprintf(stdout, "DELTA: %s\n", _log_stream.str().c_str());
+    fprintf(stdout, "DELTA: %s\n", stream().str().c_str());
     abort();
   }
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(LogMessageFatal);
 };
 
@@ -100,4 +100,16 @@ class LogMessageFatal : public LogMessage {
 
 }  // namespace delta
 
-#endif  // DELTANN_UTILS_LOGGING_H_
+#define DELTA_CHECK(x) \
+  if (!(x)) LOG_FATAL << "Check failed: " #x << ' '
+
+#define DELTA_CHECK_LT(x, y) DELTA_CHECK((x) < (y))
+#define DELTA_CHECK_GT(x, y) DELTA_CHECK((x) > (y))
+#define DELTA_CHECK_LE(x, y) DELTA_CHECK((x) <= (y))
+#define DELTA_CHECK_GE(x, y) DELTA_CHECK((x) >= (y))
+#define DELTA_CHECK_EQ(x, y) DELTA_CHECK((x) == (y))
+#define DELTA_CHECK_NE(x, y) DELTA_CHECK((x) != (y))
+
+#define DELTA_ASSERT_OK(status) DELTA_CHECK_EQ(status, DeltaStatus::STATUS_OK)
+
+#endif  // DELTANN_CORE_LOGGING_H_

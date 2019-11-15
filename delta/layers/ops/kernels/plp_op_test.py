@@ -23,6 +23,7 @@ from absl import logging
 
 from delta.data import feat as feat_lib
 from delta.layers.ops import py_x_ops
+from delta import PACKAGE_ROOT_DIR
 
 
 class PLPOpTest(tf.test.TestCase):
@@ -31,8 +32,8 @@ class PLPOpTest(tf.test.TestCase):
   def setUp(self):
     super().setUp()
     self.wavpath = str(
-        Path(os.environ['MAIN_ROOT']).joinpath(
-            'delta/layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath(
+            'layers/ops/data/sm1_cln.wav'))
 
   def tearDown(self):
     '''tear down'''
@@ -55,7 +56,8 @@ class PLPOpTest(tf.test.TestCase):
 
       self.assertEqual(tf.rank(output).eval(), 2)
       logging.info('Shape of PLP: {}'.format(output.shape))
-      self.assertAllClose(output.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          output.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

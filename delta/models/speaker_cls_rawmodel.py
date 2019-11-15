@@ -147,18 +147,18 @@ class SpeakerBaseRawModel(RawModel):
     ''' LSTM layers. '''
     if self.netconf['use_lstm_layer']:
       with tf.variable_scope('lstm'):
-        cell_fw = tf.contrib.rnn.BasicLSTMCell(
+        cell_fw = tf.nn.rnn_cell.BasicLSTMCell(
             self.netconf['cell_num'], forget_bias=1.0)
         if self.netconf['use_dropout']:
-          cell_fw = tf.contrib.rnn.DropoutWrapper(
+          cell_fw = tf.nn.RNNCellDropoutWrapper(
               cell=cell_fw,
               output_keep_prob=1 -
               self.netconf['dropout_rate'] if self.train else 1.0)
 
-        cell_bw = tf.contrib.rnn.BasicLSTMCell(
+        cell_bw = tf.nn.rnn_cell.BasicLSTMCell(
             self.netconf['cell_num'], forget_bias=1.0)
         if self.netconf['use_dropout']:
-          cell_bw = tf.contrib.rnn.DropoutWrapper(
+          cell_bw = tf.nn.RNNCellDropoutWrapper(
               cell=cell_bw,
               output_keep_prob=1 -
               self.netconf['dropout_rate'] if self.train else 1.0)
@@ -269,9 +269,9 @@ class SpeakerBaseRawModel(RawModel):
         stddev = self.netconf['logits_weight_init']['stddev']
         init = tf.truncated_normal_initializer(stddev=stddev)
       elif init_type == 'xavier_uniform':
-        init = tf.contrib.layers.xavier_initializer(uniform=True)
+        init = tf.initializers.glorot_uniform()
       elif init_type == 'xavier_norm':
-        init = tf.contrib.layers.xavier_initializer(uniform=False)
+        init = tf.initializers.glorot_normal()
       else:
         raise ValueError('Unsupported weight init type: %s' % (init_type))
 
@@ -500,7 +500,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
         padding='valid',
         data_format='channels_last',
         activation=None,
-        kernel_initializer=tf.contrib.layers.xavier_initializer(),
+        kernel_initializer=tf.initializers.glorot_uniform(),
         bias_initializer=tf.zeros_initializer())
     x = tf.nn.relu(x, name=name + '_1x1_down_relu')
 
@@ -513,7 +513,7 @@ class SpeakerResNetRawModel(SpeakerBaseRawModel):
         padding='valid',
         data_format='channels_last',
         activation=None,
-        kernel_initializer=tf.contrib.layers.xavier_initializer(),
+        kernel_initializer=tf.initializers.glorot_uniform(),
         bias_initializer=tf.zeros_initializer())
     x = tf.nn.sigmoid(x, name=name + '_1x1_up_sigmoid')
     return tf.multiply(input_t, x, name=name + '_mul')

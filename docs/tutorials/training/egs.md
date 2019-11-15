@@ -1,4 +1,4 @@
-# Egs
+# Reproduce experiments - egs 
 
 The `egs` director is data-oriented for `data prepration` and model `training`, `evaluation` and `infering`.
 
