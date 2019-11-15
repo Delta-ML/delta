@@ -11,10 +11,9 @@ before_install:
   - docker run -it -d --name travis_con --user root -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
   - docker exec travis_con bash -c "gcc -v && g++ -v"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
-  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; touch test.done"
     #- docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install"
-  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; git clone --depth=1 https://github.com/kaldi-asr/kaldi.git"
+  - docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools/install; bash prepare_kaldi.sh"
 
 jobs:
   include:

@@ -125,9 +125,9 @@ class FrozenModel(ABCFrozenModel):
   def sess(self):
     return self._sess
 
+
 class Evaluater(FrozenModel):
 
   @abc.abstractmethod
   def predict(self):
     raise NotImplementedError()
-

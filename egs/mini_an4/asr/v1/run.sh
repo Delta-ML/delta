@@ -95,7 +95,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     fbankdir=fbank
     # Generate the fbank features; by default 80-dimensional fbanks with pitch on each frame
     for x in test train; do
-        steps/make_fbank_pitch.sh --cmd "$train_cmd" --nj 2 --write_utt2num_frames true \
+        speech/make_fbank.sh --cmd "$train_cmd" --nj 2 --write_utt2num_frames true \
             data/${x} exp/make_fbank/${x} ${fbankdir}
         utils/fix_data_dir.sh data/${x}
     done
@@ -106,16 +106,16 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     utils/subset_data_dir.sh --last data/train ${n} data/${train_set}
 
     # compute global CMVN
-    compute-cmvn-stats scp:data/${train_set}/feats.scp data/${train_set}/cmvn.ark
+    speech/compute_cmvn_stats.py scp:data/${train_set}/feats.scp data/${train_set}/cmvn.ark
 
     # dump features
-    dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \
+    dutils/dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \
         data/${train_set}/feats.scp data/${train_set}/cmvn.ark exp/dump_feats/train ${feat_tr_dir}
-    dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \
+    dutils/dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \
         data/${train_dev}/feats.scp data/${train_set}/cmvn.ark exp/dump_feats/dev ${feat_dt_dir}
     for rtask in ${recog_set}; do
         feat_recog_dir=${dumpdir}/${rtask}/delta${do_delta}; mkdir -p ${feat_recog_dir}
-        dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \
+        dutils/dump.sh --cmd "$train_cmd" --nj 2 --do_delta ${do_delta} \
             data/${rtask}/feats.scp data/${train_set}/cmvn.ark exp/dump_feats/recog/${rtask} \
             ${feat_recog_dir}
     done

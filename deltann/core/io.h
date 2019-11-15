@@ -17,9 +17,9 @@ limitations under the License.
 #ifndef DELTANN_CORE_IO_H_
 #define DELTANN_CORE_IO_H_
 
+#include <memory>
 #include <string>
 #include <utility>
-#include <memory>
 
 #include "core/buffer.h"
 #include "core/misc.h"

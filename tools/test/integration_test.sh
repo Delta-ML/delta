@@ -30,11 +30,15 @@ set -e
 set -u
 set -o pipefail
 
+#prepare kaldi
+if [ ! -d ${MAIN_ROOT}/tools/kaldi/tools/sph2pipe_v2.5 ]; then
+  bash ${MAIN_ROOT}/tools/install/prepare_kaldi.sh
+fi
+
 echo "Integration Testing..."
 
-#TODO(https://github.com/didi/delta/issues/61)
-#pushd ${MAIN_ROOT}/egs/mini_an4/asr/v1
-#bash run_delta.sh || echo "mini an4 error" && exit 1
-#popd
+pushd ${MAIN_ROOT}/egs/mini_an4/asr/v1
+bash run_delta.sh || { echo "mini an4 error"; exit 1; }
+popd
 
 echo "Integration Testing Done."

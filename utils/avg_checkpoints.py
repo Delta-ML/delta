@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Script to average values of variables in a list of checkpoint files."""
 import os
 import numpy as np
@@ -24,9 +23,9 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string("checkpoints", "",
                     "Comma-separated list of checkpoints to average.")
-flags.DEFINE_integer("num_last_checkpoints", 0,
-                     "Averages the last N saved checkpoints."
-                     " If the checkpoints flag is set, this is ignored.")
+flags.DEFINE_integer(
+    "num_last_checkpoints", 0, "Averages the last N saved checkpoints."
+    " If the checkpoints flag is set, this is ignored.")
 flags.DEFINE_string("prefix", "",
                     "Prefix (e.g., directory) to append to each checkpoint.")
 flags.DEFINE_string("output_path", "/tmp/averaged.ckpt",
@@ -60,8 +59,8 @@ def main(_):
   checkpoints = [c for c in checkpoints if checkpoint_exists(c)]
   if not checkpoints:
     if FLAGS.checkpoints:
-      raise ValueError(
-          "None of the provided checkpoints exist. %s" % FLAGS.checkpoints)
+      raise ValueError("None of the provided checkpoints exist. %s" %
+                       FLAGS.checkpoints)
     else:
       raise ValueError("Could not find checkpoints at %s" %
                        os.path.dirname(FLAGS.prefix))

@@ -46,7 +46,7 @@ class TokenErrMetricCallBack(Callback):
   def on_epoch_end(self, epoch, logs={}):
     '''computing token error'''
 
-    cur_session = K.get_session()
+    cur_session = tf.keras.backend.get_session()
     target_seq_list, predict_seq_list = [], []
 
     is_py_sequence = True

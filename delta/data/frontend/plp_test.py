@@ -27,12 +27,12 @@ class PlpTest(tf.test.TestCase):
 
   def test_plp(self):
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath(
-            'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
+      input_data = input_data / 32768
 
       plp = Plp.params({
           'window_length': 0.025,
@@ -49,8 +49,9 @@ class PlpTest(tf.test.TestCase):
            [0.052763, -0.271487, 0.011329, 0.025320, 0.012851]])
 
       self.assertEqual(tf.rank(plp_test).eval(), 2)
+      # Because the povey window is used instead of the hamming window in spectrum.
       self.assertAllClose(
-          plp_test.eval()[50:55, 5:10], output_true, rtol=1e-05, atol=1e-05)
+          plp_test.eval()[50:55, 5:10], output_true, rtol=1e-02, atol=1e-02)
 
 
 if __name__ == '__main__':

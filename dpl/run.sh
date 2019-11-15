@@ -205,10 +205,6 @@ function dpl_output(){
   mkdir -p output/include/
   cp -R   lib/ output/
 
-  pushd output/lib/custom_ops
-  mv x_ops.so libx_ops.so
-  popd
-
   cp -R  ../deltann/api/c_api.h  output/include/
   cp -R  gadapter/saved_model/ output/model/
 

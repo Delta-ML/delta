@@ -21,7 +21,7 @@ from delta import utils
 from delta.utils import metrics as metrics_lib
 from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
-from delta.serving.base_frozen_model import Evaluater 
+from delta.serving.base_frozen_model import Evaluater
 
 
 @registers.serving.register

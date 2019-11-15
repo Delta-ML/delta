@@ -31,7 +31,7 @@ class Cepstrum(BaseFrontend):
     """
     Set params.
     :param config: contains five optional parameters:window_length(float, default=0.025),
-          frame_length(float, default=0.010), sample_rate(float, default=16000.0),
+          frame_length(float, default=0.010), sample_rate(int, default=16000),
           ceps_subband_num(int, default=13), tag_ceps_mean_norm(bool, default=True).
     :return:An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
@@ -40,7 +40,7 @@ class Cepstrum(BaseFrontend):
     frame_length = 0.010
     ceps_subband_num = 13
     tag_ceps_mean_norm = True
-    sample_rate = 16000.0
+    sample_rate = 16000
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
@@ -68,12 +68,13 @@ class Cepstrum(BaseFrontend):
     with tf.name_scope('cepstrum'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=float)
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
       assert_op = tf.assert_equal(
-          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 
+        sample_rate = tf.cast(sample_rate, dtype=float)
         cepstrum = py_x_ops.cepstrum(
             audio_data,
             sample_rate,

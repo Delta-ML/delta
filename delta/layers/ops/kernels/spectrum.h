@@ -17,6 +17,7 @@ limitations under the License.
 #ifndef DELTA_LAYERS_OPS_KERNELS_SPECTRUM_H_
 #define DELTA_LAYERS_OPS_KERNELS_SPECTRUM_H_
 
+#include <string.h>
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/platform/logging.h"
 
@@ -39,6 +40,10 @@ class Spectrum {
   float f_PreEph;
   char s_WinTyp[40];
   int i_OutTyp;  // 1: PSD, 2:log(PSD)
+  int i_snip_edges;
+  int i_raw_energy;
+  bool i_remove_dc_offset;
+  bool i_is_fbank;
 
   float* pf_WINDOW;
   float* pf_SPC;
@@ -53,6 +58,18 @@ class Spectrum {
   void set_frame_length_sec(float frame_length_sec);
 
   void set_output_type(int output_type);
+
+  void set_snip_edges(int snip_edges);
+
+  void set_raw_energy(int raw_energy);
+
+  void set_preEph(float preEph);
+
+  void set_window_type(char* window_type);
+
+  void set_is_fbank(bool is_fbank);
+
+  void set_remove_dc_offset(bool remove_dc_offset);
 
   int init_spc(int input_size, float sample_rate);
 

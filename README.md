@@ -56,7 +56,7 @@ We provide several approach to install DELTA:
 
 - If you are interested in both NLP and speech tasks, you can install DELTA [from the source code](#install-from-source-code).
 
-- If you are intersted in model deployment, you may install DELTA [from the source code](#install-from-source-code) or [from `docker`](#install-from-docker).
+- If you are interested in model deployment, you may install DELTA [from the source code](#install-from-source-code) or [from `docker`](#install-from-docker).
 
 ### Install from pip
 
@@ -122,7 +122,7 @@ conda activate delta-py3.6-tf2.0.0
 # Or use the following command if your conda version is < 4.6
 # source activate delta-py3.6-tf2.0.0
 
-# Add DELTA enviornment
+# Add DELTA environment
 source env.sh
 
 # Generate mock data for text classification.

@@ -109,6 +109,10 @@ int gen_window(float* w, int L, char* typ) {
     for (n = 0; n < L; n++) {
       w[n] = 0.54 - 0.46 * cos(pn[n]);
     }
+  } else if (strcmp(typ, "povey") == 0) {
+    for (n = 0; n < L; n++) {
+      w[n] = pow(0.5 - 0.5 * cos(pn[n]), 0.85);
+    }
   } else if (strcmp(typ, "blac") == 0) {
     for (n = 0; n < L; n++) {
       w[n] = 0.42 - 0.5 * cos(pn[n]) + 0.08 * cos(2 * pn[n]);
@@ -591,4 +595,26 @@ int dit_r2_fft(xcomplex* input, xcomplex* output, int N, int isign) {
   free(in_buf);
   return 0;
 }
+
+/* compute energy of frame */
+float compute_energy(const float* input, int L) {
+  float energy = 0;
+  for (int i = 0; i < L; i++) {
+    energy += input[i] * input[i];
+  }
+  return energy;
+}
+
+/* do pre_emphasis on frame */
+int do_frame_preemphasis(float* input, float* output, int i_size, float coef) {
+  if (coef == 0.0) {
+    memcpy(output, input, sizeof(float) * i_size);
+    return 0;
+  }
+  memcpy(output, input, sizeof(float) * i_size);
+  for (int i = i_size - 1; i > 0; i--) output[i] -= coef * output[i - 1];
+  output[0] -= coef * output[0];
+  return 0;
+}
+
 }  // namespace delta

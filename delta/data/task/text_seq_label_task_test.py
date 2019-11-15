@@ -34,7 +34,8 @@ class TextSeqLabelTaskTest(tf.test.TestCase):
     import_all_modules_for_register()
     package_root = Path(PACKAGE_ROOT_DIR)
     self.config_file = package_root.joinpath(
-        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml')
+        '../egs/mock_text_seq_label_data/seq-label/v1/config/seq-label-mock.yml'
+    )
 
   def tearDown(self):
     ''' tear down '''

@@ -17,7 +17,6 @@
 import delta.compat as tf
 from pathlib import Path
 import librosa
-
 from delta.data.frontend.read_wav import ReadWav
 from delta import PACKAGE_ROOT_DIR
 
@@ -26,14 +25,13 @@ class ReadWavTest(tf.test.TestCase):
 
   def test_read_wav(self):
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath(
-            'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
-      read_wav = ReadWav.params({'sample_rate': 16000.0}).instantiate()
+      read_wav = ReadWav.params({'sample_rate': 16000}).instantiate()
       audio_data, sample_rate = read_wav(wav_path)
       audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
-      self.assertAllClose(audio_data.eval(), audio_data_true)
+      self.assertAllClose(audio_data.eval() / 32768, audio_data_true)
       self.assertAllClose(sample_rate.eval(), sample_rate_true)
 
 

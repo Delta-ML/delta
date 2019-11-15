@@ -89,5 +89,11 @@ int compute_lpc(int ncep, int nfrm, int pord, float* x, float* y);
 /* radix-2 DIT FFT */
 int dit_r2_fft(xcomplex* input, xcomplex* output, int N, int isign);
 
+/* compute energy of frame */
+float compute_energy(const float* input, int L);
+
+/* do frame_pre_emphasis */
+int do_frame_preemphasis(float* input, float* output, int i_size, float coef);
+
 }  // namespace delta
 #endif  // DELTA_LAYERS_OPS_KERNELS_SUPPORT_FUNCTIONS_H_
