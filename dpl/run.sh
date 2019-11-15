@@ -35,7 +35,7 @@ stage=-1
 stop_stage=100
 
 TARGET=linux
-ARCH=x86_64
+ARCH=x86_64 # or cuda
 
 # input and output model dir
 INPUT_MODEL="${MAIN_ROOT}/dpl/model"
@@ -103,7 +103,7 @@ function compile_tensorflow(){
     echo "Compile tensorflow cpu successfully."
   elif [ ${target} == 'linux' ] && [ ${arch} == 'gpu' ];then
     pushd ${MAIN_ROOT}/tools/tensorflow
-    ${BAZEL} build ${OPTIONS} --config=cuda -k //tensorflow:libtensorflow_cc.so || exit 1
+    ${BAZEL} build ${OPTIONS} --config=cuda //tensorflow:libtensorflow_cc.so || exit 1
     echo "Compile tensorflow gpu successfully."
   else
     echo "Not support: $target $arch"
@@ -243,15 +243,15 @@ if [ $stage -le 1 ] && [ $stop_stage -ge 1 ];then
   clear_lib
 fi
 
-# 3. compile tensorflow
+# 3. compile custom ops
 if [ $stage -le 2 ] && [ $stop_stage -ge 2 ];then
-  compile_tensorflow ${TARGET}  ${ARCH}
-  # compile_tflite $TARGET $ARCH
+  compile_custom_ops tensorflow deltann
 fi
 
-# 4. compile custom ops
+# 4. compile tensorflow
 if [ $stage -le 3 ] && [ $stop_stage -ge 3 ];then
-  compile_custom_ops tensorflow deltann
+  compile_tensorflow ${TARGET}  ${ARCH}
+  # compile_tflite $TARGET $ARCH
 fi
 
 # 5. compile deltann
