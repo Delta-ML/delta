@@ -38,7 +38,7 @@ fi
 echo "Integration Testing..."
 
 pushd ${MAIN_ROOT}/egs/mini_an4/asr/v1
-bash run_delta.sh || echo "mini an4 error" && exit 1
+bash run_delta.sh || { echo "mini an4 error"; exit 1; }
 popd
 
 echo "Integration Testing Done."
