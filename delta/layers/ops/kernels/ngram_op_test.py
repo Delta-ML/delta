@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' ngram op unittest'''
-import tensorflow as tf
+import delta.compat as tf
 from absl import logging
 
 from delta.layers.ops import py_x_ops
@@ -24,7 +24,7 @@ class NGramOpsTest(tf.test.TestCase):
   ''' ngram op test'''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
     self.testcase = [[0, 0, 0, 0], [223, 0, 0, 0], [0, 8, 0, 0], [4, 8, 0, 0],
                      [0, 0, 10, 0], [2, 5, 3, 0], [7, 2, 1, 24]]
 

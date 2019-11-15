@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 """Tests for simple_vocab."""
-import tensorflow as tf
+import delta.compat as tf
 from delta.layers.ops import py_x_ops
 
 
@@ -22,14 +22,14 @@ class VocabOpsTest(tf.test.TestCase):
   ''' vocab op test '''
 
   def setUp(self):
-    ''' set up '''
+    super().setUp()
 
   def tearDown(self):
     ''' tear down '''
 
   def test_vocab_token_to_id(self):
     ''' tset vocab token to id'''
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       vocab = [
           '<s>',
           '</s>',
@@ -54,7 +54,7 @@ class VocabOpsTest(tf.test.TestCase):
 
   def test_vocab_token_to_load_id(self):
     ''' test vocab token to id which is loaded from vocab file'''
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       vocab = [
           '<s>	3',
           '</s>	5',
@@ -88,7 +88,7 @@ class VocabOpsTest(tf.test.TestCase):
 
   def test_vocab_id_to_token(self):
     ''' test vocab id to token '''
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       vocab = [
           '<s>',
           '</s>',
@@ -124,7 +124,7 @@ class VocabOpsTest(tf.test.TestCase):
 
   def test_vocab_id_to_token_load_id(self):
     ''' test vocab id to token which is loaded from vocabfile'''
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       vocab = [
           '<s>	3',
           '</s>	5',
@@ -167,7 +167,7 @@ class VocabOpsTest(tf.test.TestCase):
 
   def test_token_in_vocab(self):
     '''test token whether in vocab '''
-    with self.session(use_gpu=False):
+    with self.cached_session(use_gpu=False, force_gpu=False):
       vocab = [
           '<s>',
           '</s>',
