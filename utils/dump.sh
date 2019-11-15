@@ -65,10 +65,11 @@ if ${do_delta}; then
         || exit 1
 else
     ${cmd} JOB=1:${nj} ${logdir}/dump_feature.JOB.log \
-       speech/apply_cmvn.py --norm_vars True ${cvmnark} scp:${logdir}/feats.JOB.scp ark:${dumpdir}/feats_tmp.JOB.ark \| \
+        speech/apply_cmvn.py --norm_vars True ${cvmnark} scp:${logdir}/feats.JOB.scp ark:${dumpdir}/feat_tmp.JOB.ark
+    ${cmd} JOB=1:${nj} ${logdir}/dump_feature.JOB.log \
 	speech/copy_feats.py --verbose ${verbose} \
             --compress=${compress} --compression_method=2 ${write_num_frames_opt} \
-            ark:${dumpdir}/feats_tmp.JOB.ark ark,scp:${dumpdir}/feats.JOB.ark,${dumpdir}/feats.JOB.scp \
+            ${dumpdir}/feat_tmp.JOB.ark ark,scp:${dumpdir}/feats.JOB.ark,${dumpdir}/feats.JOB.scp \
         || exit 1
 fi
 
@@ -88,8 +89,8 @@ fi
 echo ${filetype} > ${dumpdir}/filetype
 
 
-# remove temp scps
-rm ${dumpdir}/feats_tmp.* 2>/dev/null
+# remove temp scps 
+rm ${dumpdir}/feat_tmp.*.ark 2>/dev/null
 rm ${logdir}/feats.*.scp 2>/dev/null
 if [ ${verbose} -eq 1 ]; then
     echo "Succeeded dumping features for training"

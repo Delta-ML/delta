@@ -20,7 +20,7 @@ import argparse
 import kaldiio
 import numpy as np
 from espnet.utils.cli_writers import KaldiWriter
-from espnet.utils.cli_readers import file_reader_helper
+from espnet.utils.cli_readers import KaldiReader
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from delta.data.frontend.cmvn import CMVN
@@ -79,7 +79,7 @@ def apply_cmvn():
   if ':' in args.stats_rspecifier_or_rxfilename:
     is_rspcifier = True
     stats_filetype = 'ark'
-    stats_dict = dict(file_reader_helper(args.stats_rspecifier_or_rxfilename, 'mat'))
+    stats_dict = dict(KaldiReader(args.stats_rspecifier_or_rxfilename))
   else:
     is_rspcifier = False
     stats_filetype = 'mat'
@@ -99,8 +99,9 @@ def apply_cmvn():
   cmvn.call(stats_dict)
 
   with KaldiWriter(args.wspecifier, write_num_frames=args.write_num_frames,
-                compress=args.compress, compression_method=args.compression_method) as writer:
-      for utt, mat in file_reader_helper(args.rspecifier, 'mat'):
+                compress=args.compress, compression_method=args.compression_method) as writer, \
+    kaldiio.ReadHelper(args.rspecifier) as reader:
+      for utt, mat in reader:
         mat_new = cmvn.apply_cmvn(mat, utt)
         writer[utt] = mat_new
 

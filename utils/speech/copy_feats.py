@@ -19,7 +19,8 @@
 import argparse
 from distutils.util import strtobool
 from espnet.utils.cli_writers import file_writer_helper
-from espnet.utils.cli_readers import file_reader_helper
+from espnet.utils.cli_readers import KaldiReader
+import kaldiio
 
 def get_parser():
   parser = argparse.ArgumentParser(
@@ -44,12 +45,11 @@ def main():
   parser = get_parser()
   args = parser.parse_args()
 
-  with file_writer_helper(args.wspecifier,
-                          filetype='mat',
-                          write_num_frames=args.write_num_frames,
-                          compress=args.compress,
-                          compression_method=args.compression_method) as writer:
-    for utt, mat in file_reader_helper(args.rspecifier, 'mat'):
+  d = kaldiio.load_ark(args.rspecifier)
+
+  with file_writer_helper(args.wspecifier, filetype='mat', write_num_frames=args.write_num_frames,
+                          compress=args.compress, compression_method=args.compression_method) as writer :
+    for utt, mat in d:
       writer[utt] = mat
 
 if __name__ == "__main__":
