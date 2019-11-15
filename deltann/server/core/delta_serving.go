@@ -17,7 +17,7 @@ package core
 
 import (
 	"delta/deltann/server/core/conf"
-	"delta/deltann/server/core/handel"
+	"delta/deltann/server/core/handler"
 	. "delta/deltann/server/core/model"
 	. "delta/deltann/server/core/pool"
 	"fmt"
@@ -69,8 +69,8 @@ func DeltaListen(opts DeltaOptions) (*gin.Engine, error) {
 	relativePathFull := relativePathRoot + "/versions/"
 	relativePathFull = relativePathFull + conf.DeltaConf.Model.Graph[0].Version + ":" + opts.ServerType
 
-	router.POST(relativePathFull, handel.DeltaPredictHandler)
-	router.POST(relativePathRoot, handel.DeltaModelHandler)
+	router.POST(relativePathFull, handler.DeltaPredictHandler)
+	router.POST(relativePathRoot, handler.DeltaModelHandler)
 
 	defaultPort = opts.ServerPort
 
