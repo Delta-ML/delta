@@ -17,7 +17,7 @@
 # template model.yaml
 
 model:
-  custom_ops_path: "../dpl/output/lib/custom_ops/libx_ops.so" 
+  custom_ops_path: "../dpl/output/lib/custom_ops/x_ops.so"
   graphs:
     -
       # meta data
