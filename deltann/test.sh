@@ -1,5 +1,6 @@
 #!/bin/bash
-if [ $# < 1 ];then
+
+if [ $# -lt 1 ];then
   echo "usage: $0 [speaker|text_cls|dir_name_under_examples] [memcheck]"
   exit 1
 fi

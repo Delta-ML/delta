@@ -35,7 +35,7 @@ stage=-1
 stop_stage=100
 
 TARGET=linux
-ARCH=x86_64
+ARCH=x86_64 # or cuda
 
 # input and output model dir
 INPUT_MODEL="${MAIN_ROOT}/dpl/model"
@@ -95,28 +95,30 @@ function compile_tensorflow(){
   local arch=$2 #x86_64
   echo "Start compile tensorflow: $target $arch"
 
+  OPTIONS="--verbose_failures -s -c opt --copt=-mavx --copt=-mfpmath=both --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2"
+  pushd ${MAIN_ROOT}/tools/tensorflow
+
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
+    ${BAZEL} build ${OPTIONS} //tensorflow:libtensorflow_cc.so || exit 1
+    echo "Compile tensorflow cpu successfully."
+  elif [ ${target} == 'linux' ] && [ ${arch} == 'gpu' ];then
     pushd ${MAIN_ROOT}/tools/tensorflow
-    ${BAZEL} build -c opt --verbose_failures //tensorflow:libtensorflow_cc.so || exit 1
-	
-    pushd bazel-bin/tensorflow
-    #if [ -L libtensorflow_cc.so.1 ]; then
-    #    unlink libtensorflow_cc.so.1
-    #fi
-    #ln -s libtensorflow_cc.so.1 libtensorflow_cc.so
-    if [ ! -L libtensorflow_framework.so ];then
-      ln -s libtensorflow_framework.so.2 libtensorflow_framework.so
-    fi
-    cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
-    popd
-    popd
-
-    echo "Compile tensorflow successfully."
-
+    ${BAZEL} build ${OPTIONS} --config=cuda //tensorflow:libtensorflow_cc.so || exit 1
+    echo "Compile tensorflow gpu successfully."
   else
     echo "Not support: $target $arch"
     exit 1
   fi
+
+  pushd bazel-bin/tensorflow
+  if [ ! -L libtensorflow_framework.so ];then
+    ln -s libtensorflow_framework.so.2 libtensorflow_framework.so
+  fi
+  cp *.so* ${MAIN_ROOT}/dpl/lib/tensorflow/
+  popd
+
+
+  popd
   echo
 }
 
@@ -237,15 +239,15 @@ if [ $stage -le 1 ] && [ $stop_stage -ge 1 ];then
   clear_lib
 fi
 
-# 3. compile tensorflow
+# 3. compile custom ops
 if [ $stage -le 2 ] && [ $stop_stage -ge 2 ];then
-  compile_tensorflow ${TARGET}  ${ARCH}
-  # compile_tflite $TARGET $ARCH
+  compile_custom_ops tensorflow deltann
 fi
 
-# 4. compile custom ops
+# 4. compile tensorflow
 if [ $stage -le 3 ] && [ $stop_stage -ge 3 ];then
-  compile_custom_ops tensorflow deltann
+  compile_tensorflow ${TARGET}  ${ARCH}
+  # compile_tflite $TARGET $ARCH
 fi
 
 # 5. compile deltann
