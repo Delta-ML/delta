@@ -74,10 +74,10 @@ solver:
     teacher_model: null # fronzen_graph.pb
   optimizer:
     name: adam
-    epochs: 5 # maximum epochs
+    epochs: 3 # maximum epochs
     loss: CTCLoss
     label_smoothing: 0.0 # label smoothing rate
-    batch_size: 8 # number of elements in a training batch
+    batch_size: 4 # number of elements in a training batch
     learning_rate:
       rate: 0.0001 # learning rate of Adam optimizer
       type:  exp_decay # learning rate type

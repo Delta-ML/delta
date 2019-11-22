@@ -16,6 +16,16 @@ set -e
 set -u
 set -o pipefail
 
+# check tf compiler version
+local_ver=`gcc --version | grep ^gcc | sed 's/^.* //g'`
+tf_ver=`python -c "import tensorflow as tf; print(tf.version.COMPILER_VERSION.split()[0]);"`
+
+if [  ${local_ver:0:1} -ne ${tf_ver:0:1} ];then
+  echo "gcc version($local_ver) not compatiable with tf compile version($tf_ver)"
+  exit -1
+fi
+
+
 # prepare dependency
 echo "build ops: prepare dependency"
 
