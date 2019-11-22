@@ -68,7 +68,7 @@ void Spectrum::set_remove_dc_offset(bool remove_dc_offset) {
 void Spectrum::set_preEph(float preEph) { f_PreEph = preEph; }
 
 void Spectrum::set_window_type(char* window_type) {
-  snprintf(s_WinTyp, sizeof(s_WinTyp), window_type);
+  snprintf(s_WinTyp, sizeof(s_WinTyp), "%s", window_type);
 }
 
 int Spectrum::init_spc(int input_size, float sample_rate) {
