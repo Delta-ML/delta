@@ -17,7 +17,7 @@
 
 from pathlib import Path
 from absl import logging
-import tensorflow as tf
+import delta.compat as tf
 
 #pylint: disable=import-error
 from tensorflow.keras.utils import multi_gpu_model
@@ -34,8 +34,7 @@ from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 from delta.utils.register import registers
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
-@registers.solver.register
-class AsrBaseSolver(Solver):
+class KerasBaseSolver(Solver):
   ''' asr keras base solver'''
 
   def __init__(self, config):
@@ -56,9 +55,10 @@ class AsrBaseSolver(Solver):
     self._clipnorm = self._solver['optimizer']['clip_global_norm']
     self._early_stopping = self._solver['optimizer']['early_stopping']['enable']
 
-    self._monitor_used = self._solver['metrics']['monitor_used']
+    self._monitor_used = self._solver['metrics']['monitor_used'] or 'val_loss'
     self._metrics_used = [] if self._solver['metrics'][
         'metrics_used'] is None else self._solver['metrics']['metrics_used']
+
     self._model_path = self._solver['saver']['model_path']
     self._model_load_type = self._solver['loader']['model_load_type']
     self._init_epoch = self._solver['loader']['init_epoch']
@@ -144,8 +144,7 @@ class AsrBaseSolver(Solver):
     assert self.model
 
     loss = self.get_loss()
-    multitask = self.config['solver']['optimizer']['multitask']
-    optimizer = self.get_optimizer(multitask)
+    optimizer = self.get_optimizer()
 
     run_opts, run_metas = self.get_run_opts_metas()
 
@@ -259,7 +258,7 @@ class AsrBaseSolver(Solver):
     #In furture work, the metric callbacks will also been return
     return self.get_misc_callbacks(monitor_used)
 
-  def get_optimizer(self, multitask):
+  def get_optimizer(self):
     ''' keras optimizer '''
     optconf = self.config['solver']['optimizer']
     method = optconf['name']

@@ -30,14 +30,14 @@ from tensorflow.keras.experimental import export_saved_model
 from delta import utils
 from delta.utils.decode import py_ctc
 from delta.utils import metrics as metrics_lib
-from delta.utils.solver.asr_base_solver import AsrBaseSolver
+from delta.utils.solver.keras_base_solver import KerasBaseSolver
 from delta.utils.register import registers
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.decode.tf_ctc import ctc_greedy_decode
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
 @registers.solver.register
-class AsrSolver(AsrBaseSolver):
+class AsrSolver(KerasBaseSolver):
   ''' asr keras solver'''
 
   def __init__(self, config):
@@ -85,15 +85,10 @@ class AsrSolver(AsrBaseSolver):
                     eval_task,
                     monitor_used='val_acc',
                     decoder_type='argmax'):
-    ''' callbacks for traning'''
-
-    callbacks = super().get_callbacks(monitor_used)
-
-    #metric callbacks
-    metric_callbacks = self.get_metric_callbacks(eval_ds, eval_task, monitor_used,
-                                                 decoder_type)
-    callbacks.extend(metric_callbacks)
-
+    ''' callbacks for traning, metrics callbacks must be first, then misc callbacks'''
+    callbacks = self.get_metric_callbacks(eval_ds, eval_task, monitor_used, decoder_type)
+    misc_cbs = super().get_callbacks(monitor_used)
+    callbacks.extend(misc_cbs)
     return callbacks
 
   def save_model(self):
