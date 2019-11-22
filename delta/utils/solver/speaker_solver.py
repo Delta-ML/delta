@@ -34,7 +34,8 @@ class SpeakerSolver(EstimatorSolver):
     if not feature_shape:
       # add feature shape, withoud batch_size
       if data_conf['task']['suffix'] == '.npy':
-        input_channels = 3 if data_conf['task']['audio']['add_delta_deltas'] else 1
+        input_channels = 3 if data_conf['task']['audio'][
+            'add_delta_deltas'] else 1
         nframe = librosa.time_to_frames(
             data_conf['task']['audio']['clip_size'],
             sr=data_conf['task']['audio']['sr'],

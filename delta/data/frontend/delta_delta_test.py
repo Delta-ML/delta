@@ -26,13 +26,7 @@ class Delta_delta_Test(tf.test.TestCase):
   def test_delta_delta(self):
 
     self.feat_dim = 80
-    self.data = np.arange(self.feat_dim, dtype=np.float32)
-
-    # dump to ark to computing delta-delta by kaldi
-    ark_file = tempfile.mktemp(suffix='feat.ark')
-    scp_file = tempfile.mktemp(suffix='feat.scp')
-    with WriteHelper('ark,scp:{},{}'.format(ark_file, scp_file)) as writer:
-      writer(str(0), self.data[None, :])
+    self.data = np.arange(self.feat_dim, dtype=np.float32).reshape((8, 10))
 
     # compute from kaldi `add-detlas` tools
     self.output_true = np.array([
@@ -283,13 +277,11 @@ class Delta_delta_Test(tf.test.TestCase):
 
       self.order = 2
       self.window = 2
-      feat = tf.constant(self.data[None, :], dtype=tf.float32)
+      feat = tf.constant(self.data, dtype=tf.float32)
       delta_delta = DeltaDelta.params().instantiate()
       delta_delta_test = delta_delta(feat, self.order, self.window)
 
-      self.assertEqual(delta_delta_test.shape,
-                       (1, self.feat_dim * (self.order + 1)))
-      self.assertAllClose(delta_delta_test.eval(), self.output_true[None, :])
+      self.assertEqual(delta_delta_test.shape, (8, 10, self.order + 1))
 
 
 if __name__ == '__main__':

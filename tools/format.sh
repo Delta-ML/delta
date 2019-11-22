@@ -1,15 +1,30 @@
 #!/bin/bash
 
+if [[ "$BASH_SOURCE" == "/"* ]]
+then
+    source ../env.sh
+else
+    source env.sh
+fi
+
+set -e
+
 PYTEMPFILE=`mktemp`
 trap 'unlink $PYTEMPFILE' EXIT INT QUIT ABRT
 
+if [ `id -u` == 0 ];then
+  SUDO=
+else
+  SUDO=sudo
+fi
+
 # yapf
-yapf -version &> /dev/null || sudo pip install yapf 
+yapf -version &> /dev/null || ${SUDO} pip install yapf
 
 # yapf
 for dir in delta deltann dpl docker utils;
 do
-  find $dir -name *.py >> $PYTEMPFILE
+  find $dir -name '*.py' >> $PYTEMPFILE
 done
 #find tools \( -path tools/tensorflow \
 #    -o -path tools/abseil-cpp \
@@ -33,7 +48,7 @@ done < $PYTEMPFILE
 
 
 #clang-format
-clang-format -version &> /dev/null || sudo apt-get install clang-format
+clang-format -version &> /dev/null || ${SUDO} apt-get install clang-format
 
 CPPTEMPFILE=`mktemp`
 trap 'unlink $CPPTEMPFILE' EXIT INT QUIT ABRT
@@ -62,5 +77,5 @@ find tools/test \
 while read file;
 do
   echo "clang-format: $file"
-  clang-format -i $file 
+  clang-format -i $file
 done < $CPPTEMPFILE

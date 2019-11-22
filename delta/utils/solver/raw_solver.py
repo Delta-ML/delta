@@ -410,8 +410,7 @@ class RawSolver(Solver):
       with tf.name_scope("train"):
         global_step = tf.train.get_or_create_global_step()
 
-        train_op = self.get_train_op(train_model.loss_op,
-                                     global_step)
+        train_op = self.get_train_op(train_model.loss_op, global_step)
 
         checkpoint_dir = get_checkpoint_dir(self.config)
 

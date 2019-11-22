@@ -45,6 +45,25 @@ Status PitchShapeFn(InferenceContext* c) {
   return Status::OK();
 }
 
+Status AddRNAShapeFn(InferenceContext* c) {
+  ShapeHandle input_data;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
+  int wav_len = c->Value(c->Dim(input_data, 0));
+  float snr_max, snr_min;
+  bool if_add_aecres, if_add_noise, if_add_rir;
+  string rir_filelist, noise_filelist, aecres_filelist;
+  TF_RETURN_IF_ERROR(c->GetAttr("if_add_rir", &if_add_rir));
+  TF_RETURN_IF_ERROR(c->GetAttr("rir_filelist", &rir_filelist));
+  TF_RETURN_IF_ERROR(c->GetAttr("if_add_noise", &if_add_noise));
+  TF_RETURN_IF_ERROR(c->GetAttr("noise_filelist", &noise_filelist));
+  TF_RETURN_IF_ERROR(c->GetAttr("snr_min", &snr_min));
+  TF_RETURN_IF_ERROR(c->GetAttr("snr_max", &snr_max));
+  TF_RETURN_IF_ERROR(c->GetAttr("if_add_aecres", &if_add_aecres));
+  TF_RETURN_IF_ERROR(c->GetAttr("aecres_filelist", &aecres_filelist));
+  c->set_output(0, c->Vector(wav_len));
+  return Status::OK();
+}
+
 Status FrmPowShapeFn(InferenceContext* c) {
   ShapeHandle input_data;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 1, &input_data));
@@ -194,6 +213,25 @@ Status FbankShapeFn(InferenceContext* c) {
   return Status::OK();
 }
 
+Status MfccShapeFn(InferenceContext* c) {
+  ShapeHandle fbank;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 3, &fbank));
+  ShapeHandle unused;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 0, &unused));
+
+  int32 coefficient_count;
+  TF_RETURN_IF_ERROR(c->GetAttr("coefficient_count", &coefficient_count));
+
+  DimensionHandle audio_channels = c->Dim(fbank, 0);
+  DimensionHandle fbank_length = c->Dim(fbank, 1);
+
+  DimensionHandle output_channels = c->MakeDim(coefficient_count);
+
+  c->set_output(0,
+                c->MakeShape({audio_channels, fbank_length, output_channels}));
+  return Status::OK();
+}
+
 Status NgramShapeFn(InferenceContext* c) {
   int word_ngrams = 2;
   TF_RETURN_IF_ERROR(c->GetAttr("word_ngrams", &word_ngrams));
@@ -336,12 +374,38 @@ REGISTER_OP("ZCR")
     output: float, zero cross rate features, [num_Frame].
     )doc");
 
+REGISTER_OP("AddRirNoiseAecres")
+    .Input("input_data: float")
+    .Input("sample_rate: float")
+    .Attr("if_add_rir: bool = true")
+    .Attr("rir_filelist: string")
+    .Attr("if_add_noise: bool = true")
+    .Attr("snr_min: float = 0")
+    .Attr("snr_max: float = 30")
+    .Attr("noise_filelist: string")
+    .Attr("if_add_aecres: bool = true")
+    .Attr("aecres_filelist: string")
+    .Output("output: float")
+    .SetShapeFn(AddRNAShapeFn)
+    .Doc(R"doc(
+    Add rir_noise_aecres to audio data.
+    input_data: float, input wave, a tensor of shape [1, data_length].
+    sample_rate: float, NB 8000, WB 16000 etc.
+    output: float, output wav, a tensor of shape [1, data_length].
+    )doc");
+
 REGISTER_OP("Spectrum")
     .Input("input_data: float")
     .Input("sample_rate: float")
     .Attr("window_length: float = 0.025")
     .Attr("frame_length: float = 0.010")
+    .Attr("window_type: string")
     .Attr("output_type: int = 2")
+    .Attr("snip_edges: int = 2")
+    .Attr("raw_energy: int = 1")
+    .Attr("preEph_coeff: float = 0.97")
+    .Attr("remove_dc_offset: bool = true")
+    .Attr("is_fbank: bool = true")
     .Output("output: float")
     .SetShapeFn(SpectrumShapeFn)
     .Doc(R"doc(
@@ -350,7 +414,8 @@ REGISTER_OP("Spectrum")
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
     frame_length: float, frame length in second.
-    output_type: int, 1: PSD, 2: log(PSD) 
+    output_type: int, 1: PSD, 2: log(PSD).
+    raw_energy: int, 1: raw energy, 2: wined_energy.
     output: float, PSD/logPSD features, [num_Frame, num_Subband].
     )doc");
 
@@ -444,6 +509,22 @@ filterbank_channel_count: int, resolution of the Mel bank used internally.
 output: float, fbank features, a tensor of shape [audio_channels, spectrogram_length, bank_feat_dim].
 )doc");
 
+REGISTER_OP("MfccDct")
+    .Input("fbank: float")
+    .Input("sample_rate: int32")
+    .Attr("coefficient_count: int = 13")
+    .Attr("cepstral_lifter: float = 22")
+    .Output("output: float")
+    .SetShapeFn(MfccShapeFn)
+    .Doc(R"doc(
+Create MFCC feature files.
+fbank: float, A tensor of shape  a tensor of shape [audio_channels, fbank_length, fbank_feat_dim].
+sample_rate: int32, how many samples per second the source audio used. e.g. 16000, 8000.
+coefficient_count: int, Number of cepstra in MFCC computation.
+cepstral_lifter: float, Constant that controls scaling of MFCCs.
+output: float, mfcc features, a tensor of shape [audio_channels, fbank_length, mfcc_feat_dim].
+)doc");
+
 // ref: https//github.com/kaldi-asr/kaldi/src/featbin/add-deltas.cc
 REGISTER_OP("DeltaDelta")
     .Input("features: float")
@@ -472,7 +553,7 @@ REGISTER_OP("DeltaDelta")
     .Doc(R"doc(
 Add deltas (typically to raw mfcc or plp features).
 features: A matrix of shape [nframe, feat_dim].
-features_with_delta_delta: A matrix of shape [nframe, feat_dim * (order + 1)].
+features_with_delta_delta: A matrix of shape [nframe, (order + 1) * feat_dim].
 order: int, order fo delta computation.
 window: a int, parameter controlling window for delta computation(actual window
     size for each delta order is 1 + 2*window).

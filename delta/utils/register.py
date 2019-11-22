@@ -83,41 +83,27 @@ class registers():  # pylint: disable=invalid-name, too-few-public-methods
 
 
 NLP_TASK_MODULES = [
-  "text_cls_task", "text_seq_label_task", "text_match_task",
-  "text_nlu_joint_task", "speaker_cls_task", "text_seq2seq_task"
+    "text_cls_task", "text_seq_label_task", "text_match_task",
+    "text_nlu_joint_task", "speaker_cls_task", "text_seq2seq_task"
 ]
 
 TASK_MODULES = [
-  "text_cls_task", "text_seq_label_task", "text_match_task",
-  "text_nlu_joint_task", "speaker_cls_task", "text_seq2seq_task",
-  "asr_seq_task", "kws_cls_task",
-  "speech_cls_task", "speech_cls_task"
+    "text_cls_task", "text_seq_label_task", "text_match_task",
+    "text_nlu_joint_task", "speaker_cls_task", "text_seq2seq_task",
+    "asr_seq_task", "kws_cls_task", "speech_cls_task", "speech_cls_task"
 ]
 
 NLP_MODEL_MODULES = [
-  "text_seq_model",
-  "text_hierarchical_model",
-  "text_seq_label_model",
-  "text_nlu_joint_model",
-  "text_match_model",
-  "text_seq_label_model",
-  "text_seq2seq_model"
+    "text_seq_model", "text_hierarchical_model", "text_seq_label_model",
+    "text_nlu_joint_model", "text_match_model", "text_seq_label_model",
+    "text_seq2seq_model"
 ]
 
 MODEL_MODULES = [
-  "speech_cls_rawmodel",
-  "speaker_cls_rawmodel",
-  "speech_cls_model",
-  "kws_model",
-  "asr_model",
-  "resnet_model",
-  "text_seq_model",
-  "text_hierarchical_model",
-  "text_seq_label_model",
-  "text_nlu_joint_model",
-  "text_match_model",
-  "text_seq_label_model",
-  "text_seq2seq_model"
+    "speech_cls_rawmodel", "speaker_cls_rawmodel", "speech_cls_model",
+    "kws_model", "asr_model", "resnet_model", "text_seq_model",
+    "text_hierarchical_model", "text_seq_label_model", "text_nlu_joint_model",
+    "text_match_model", "text_seq_label_model", "text_seq2seq_model"
 ]
 
 NLP_LOSS_MODULES = ["loss_impl"]
@@ -129,69 +115,42 @@ NLP_METRICS_MODULES = ["py_metrics"]
 METRICS_MODULES = ["py_metrics"]
 
 NLP_SOLVER_MODULES = [
-  "raw_cls_solver",
-  "raw_match_solver",
-  "keras_solver",
-  "raw_seq_label_solver",
-  "raw_nlu_joint_solver",
-  "raw_seq2seq_solver",
-  "raw_pretrain_cls_solver",
-  "raw_pretrain_seq_label_solver"
+    "raw_cls_solver", "raw_match_solver", "keras_solver",
+    "raw_seq_label_solver", "raw_nlu_joint_solver", "raw_seq2seq_solver",
+    "raw_pretrain_cls_solver", "raw_pretrain_seq_label_solver"
 ]
 
 SOLVER_MODULES = [
-  "raw_cls_solver",
-  "raw_match_solver",
-  "keras_solver",
-  "emotion_solver",
-  "kws_solver",
-  "asr_solver",
-  "speaker_solver",
-  "raw_seq_label_solver",
-  "raw_nlu_joint_solver",
-  "raw_seq2seq_solver",
-  "raw_pretrain_cls_solver",
-  "raw_pretrain_seq_label_solver"
+    "raw_cls_solver", "raw_match_solver", "keras_solver", "emotion_solver",
+    "kws_solver", "asr_solver", "speaker_solver", "raw_seq_label_solver",
+    "raw_nlu_joint_solver", "raw_seq2seq_solver", "raw_pretrain_cls_solver",
+    "raw_pretrain_seq_label_solver"
 ]
 
 NLP_POSTPROCESS_MODULES = [
-  "text_cls_proc",
-  "text_seq_label_proc",
-  "text_seq2seq_proc"]
+    "text_cls_proc", "text_seq_label_proc", "text_seq2seq_proc"
+]
 
 POSTPROCESS_MODULES = [
-  "speech_cls_proc",
-  "speaker_cls_proc",
-  "text_cls_proc",
-  "text_seq_label_proc",
-  "text_seq2seq_proc"
+    "speech_cls_proc", "speaker_cls_proc", "text_cls_proc",
+    "text_seq_label_proc", "text_seq2seq_proc"
 ]
 
-NLP_SERVING_MODULES = [
-  "eval_text_cls_pb"
-]
+NLP_SERVING_MODULES = ["eval_text_cls_pb"]
 
 SERVING_MODULES = [
-  "knowledge_distilling",
-  "eval_asr_pb",
-  "eval_speech_cls_pb",
-  "eval_text_cls_pb"
+    "knowledge_distilling", "eval_asr_pb", "eval_speech_cls_pb",
+    "eval_text_cls_pb"
 ]
 
 NLP_PREPROCESS_MODULES = [
-  "text_cls_preparer",
-  "text_match_preparer",
-  "text_seq_label_preparer",
-  "text_nlu_joint_preparer",
-  "text_seq2seq_preparer"
+    "text_cls_preparer", "text_match_preparer", "text_seq_label_preparer",
+    "text_nlu_joint_preparer", "text_seq2seq_preparer"
 ]
 
 PREPROCESS_MODULES = [
-  "text_cls_preparer",
-  "text_match_preparer",
-  "text_seq_label_preparer",
-  "text_nlu_joint_preparer",
-  "text_seq2seq_preparer"
+    "text_cls_preparer", "text_match_preparer", "text_seq_label_preparer",
+    "text_nlu_joint_preparer", "text_seq2seq_preparer"
 ]
 
 ALL_NLP_MODULES = [("delta.data.task", NLP_TASK_MODULES),
@@ -236,8 +195,9 @@ def add_custom_modules(all_modules, config=None):
     custom_modules = config["custom_modules"]
     if not isinstance(custom_modules, list):
       custom_modules = [custom_modules]
-    all_modules += [("", [path_to_module_format(module)])
-                    for module in custom_modules]
+    all_modules += [
+        ("", [path_to_module_format(module)]) for module in custom_modules
+    ]
 
 
 def import_all_modules_for_register(config=None, only_nlp=False):

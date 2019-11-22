@@ -14,26 +14,26 @@
 # limitations under the License.
 # ==============================================================================
 
-import delta.compat as tf
-import os
 from pathlib import Path
 import numpy as np
+
+import delta.compat as tf
+from delta import PACKAGE_ROOT_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.analyfiltbank import Analyfiltbank
-from delta import PACKAGE_ROOT_DIR
 
 
 class Test(tf.test.TestCase):
 
   def test_analyfiltbank(self):
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath(
-            'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
 
       read_wav = ReadWav.params().instantiate()
       audio_data, sample_rate = read_wav(wav_path)
+      audio_data = audio_data / 32768
 
       analyfiltbank = Analyfiltbank.params().instantiate()
       power_spc, phase_spc = analyfiltbank(audio_data.eval(),

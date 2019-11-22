@@ -95,8 +95,8 @@ kaldi.done:
 else
 kaldi.done:
 	test -d kaldi || git clone --depth=1 https://github.com/kaldi-asr/kaldi.git
-	cd kaldi/tools; $(MAKE) all
-	cd kaldi/src; ./configure --shared --use-cuda=no; $(MAKE) depend; $(MAKE) all
+	cd kaldi/tools; ./extras/install_mkl.sh; $(MAKE) -j $(nproc)
+	cd kaldi/src; ./configure --use-cuda=no; $(MAKE) depend -j $(nproc); $(MAKE) -j $(nproc)
 	touch kaldi.done
 endif
 
@@ -169,7 +169,7 @@ yaml.done:
 	rm -rf yaml
 	mkdir -p yaml
 	cd yaml;git clone --depth=1 https://github.com/jbeder/yaml-cpp.git
-	cd yaml/yaml-cpp; git checkout yaml-cpp-0.6.0; export CXXFLAGS="-fPIC"; export CFLAGS="-fPIC"; cmake .; $(MAKE) prefix=.
+	cd yaml/yaml-cpp; git fetch -t; git checkout yaml-cpp-0.6.0; export CXXFLAGS="-fPIC"; export CFLAGS="-fPIC"; cmake .; $(MAKE) prefix=.
 	touch yaml.done
 
 jemalloc.done:

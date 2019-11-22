@@ -148,7 +148,7 @@ class AsrSolver(AsrBaseSolver):
 
     target_seq_list, predict_seq_list = [], []
     for _ in range(len(eval_task)):
-      batch_data = K.get_session().run(eval_gen.get_next()[0])
+      batch_data = tf.keras.backend.get_session().run(eval_gen.get_next()[0])
 
       batch_input = batch_data['inputs']
       batch_target = batch_data['targets'].tolist()
@@ -231,7 +231,7 @@ class AsrSolver(AsrBaseSolver):
     infer_func = self.get_metric_func()
 
     for _ in range(len(infer_task)):
-      batch_data = K.get_session().run(infer_gen.get_next()[0])
+      batch_data = tf.keras.backend.get_session().run(infer_gen.get_next()[0])
       batch_input = batch_data['inputs']
       batch_uttid = batch_data['uttids'].tolist()
       batch_predict = infer_func(batch_input)[0]

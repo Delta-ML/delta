@@ -104,7 +104,7 @@ void DeltaDelta::Compute(const Tensor& input_feats, int frame,
       double scale = scales[j + max_offset];
       if (scale != 0.0) {
         for (int k = 0; k < feat_dim; k++) {
-          (*output)[i * feat_dim + k] += input(offset_frame, k) * scale;
+          (*output)[i + k * (order_ + 1)] += input(offset_frame, k) * scale;
         }
       }
     }

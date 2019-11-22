@@ -314,8 +314,7 @@ class Solver(ABCSolver):
 
   def get_train_op(self, loss, global_step=None):
     """Get the training operator."""
-    apply_gradient_op = self.get_apply_gradients_op(loss,
-                                                    global_step)
+    apply_gradient_op = self.get_apply_gradients_op(loss, global_step)
 
     # model average
     self.var_avg(global_step)

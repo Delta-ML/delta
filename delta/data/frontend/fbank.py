@@ -15,7 +15,6 @@
 # ==============================================================================
 
 import delta.compat as tf
-
 from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
@@ -32,20 +31,36 @@ class Fbank(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains seven optional parameters:upper_frequency_limit(float, default=4000.0),
-    lower_frequency_limit(float, default=20.0), filterbank_channel_count(float, default=40.0),
-    window_length(float, default=0.025), frame_length(float, default=0.010),
-    output_type(int, default=2), sample_rate(float, default=16000).
+    :param config: contains thirteen optional parameters.
+        --sample_rate				  : Sample frequency of waveform data. (int, default = 16000)
+        --window_length				: Window length in seconds. (float, default = 0.025)
+        --frame_length				: Hop length in seconds. (float, default = 0.010)
+        --snip_edges				  : If 1, the last frame (shorter than window_length) will be cutoff. If 2, 1 // 2 frame_length data will be padded to data. (int, default = 1)
+        ---raw_energy				  : If 1, compute frame energy before preemphasis and windowing. If 2,  compute frame energy after preemphasis and windowing. (int, default = 1)
+        --preeph_coeff				: Coefficient for use in frame-signal preemphasis. (float, default = 0.97)
+        --window_type				  : Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria"). (string, default = "povey")
+        --remove_dc_offset		: Subtract mean from waveform on each frame (bool, default = true)
+        --is_fbank					  : If true, compute power spetrum without frame energy. If false, using the frame energy instead of the square of the constant component of the signal. (bool, default = true)
+        --output_type				  : If 1, return power spectrum. If 2, return log-power spectrum. (int, default = 1)
+        --upper_frequency_limit		        : High cutoff frequency for mel bins (if < 0, offset from Nyquist) (float, default = 0)
+        --lower_frequency_limit		        : Low cutoff frequency for mel bins (float, default = 20)
+        --filterbank_channel_count	      : Number of triangular mel-frequency bins (float, default = 23)
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
-    upper_frequency_limit = 4000.0
+    upper_frequency_limit = 0.0
     lower_frequency_limit = 20.0
-    filterbank_channel_count = 40.0
+    filterbank_channel_count = 23.0
     window_length = 0.025
     frame_length = 0.010
-    output_type = 2
-    sample_rate = 16000.0
+    output_type = 1
+    sample_rate = 16000
+    snip_edges = 2
+    raw_energy = 1
+    preeph_coeff = 0.97
+    window_type = 'povey'
+    remove_dc_offset = True
+    is_fbank = True
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -55,6 +70,12 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('frame_length', frame_length)
     hparams.add_hparam('output_type', output_type)
     hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('snip_edges', snip_edges)
+    hparams.add_hparam('raw_energy', raw_energy)
+    hparams.add_hparam('preeph_coeff', preeph_coeff)
+    hparams.add_hparam('window_type', window_type)
+    hparams.add_hparam('remove_dc_offset', remove_dc_offset)
+    hparams.add_hparam('is_fbank', is_fbank)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -73,15 +94,20 @@ class Fbank(BaseFrontend):
     with tf.name_scope('fbank'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=float)
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
+
+      if p.upper_frequency_limit <= 0:
+        p.upper_frequency_limit = p.sample_rate / 2.0 + p.upper_frequency_limit
+      elif (p.upper_frequency_limit <= p.lower_frequency_limit) or (
+          p.upper_frequency_limit > p.sample_rate / 2.0):
+        p.upper_frequency_limit = p.sample_rate / 2.0
 
       assert_op = tf.assert_equal(
-          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 
         spectrum = self.spect(audio_data, sample_rate)
         spectrum = tf.expand_dims(spectrum, 0)
-        sample_rate = tf.cast(sample_rate, dtype=tf.int32)
 
         fbank = py_x_ops.fbank(
             spectrum,

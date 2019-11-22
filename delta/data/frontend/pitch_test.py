@@ -14,14 +14,14 @@
 # limitations under the License.
 # ==============================================================================
 
-import delta.compat as tf
 import os
 from pathlib import Path
 import numpy as np
 
+import delta.compat as tf
+from delta import PACKAGE_ROOT_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.pitch import Pitch
-from delta import PACKAGE_ROOT_DIR
 
 
 class PitchTest(tf.test.TestCase):
@@ -29,11 +29,11 @@ class PitchTest(tf.test.TestCase):
   def test_pitch(self):
 
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath(
-            'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav.call(wav_path)
+      input_data = input_data / 32768
       pitch = Pitch.params({
           'window_length': 0.025,
           'frame_length': 0.010,

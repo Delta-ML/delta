@@ -39,12 +39,15 @@ class DeltaDelta(BaseFrontend):
     :param feat: a float tensor of size (num_frames, dim_feat).
     :param order: an int.
     :param window: an int.
-    :return: A tensor with shape (num_frames, (dim_feat * (order + 1))),
+    :return: A tensor with shape (num_frames, dim_feats, order + 1),
         containing delta of features of every frame in speech.
     """
 
     p = self.config
     with tf.name_scope('delta_delta'):
       delta_delta = py_x_ops.delta_delta(feat, order, window)
+
+    n_frame, n_feats = feat.get_shape().as_list()
+    delta_delta = tf.reshape(delta_delta, (n_frame, n_feats, order + 1))
 
     return delta_delta

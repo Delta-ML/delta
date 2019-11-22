@@ -30,15 +30,15 @@ class Pitch(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: config: contains four optional parameters:window_length(float, default=0.025),
-          frame_length(float, default=0.010), thres_autoc(float, default=0.3), sample_rate(float, default=16000.0).
+    :param config: config: contains four optional parameters:window_length(int, default=0.025),
+          frame_length(float, default=0.010), thres_autoc(float, default=0.3), sample_rate(int, default=16000).
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
     window_length = 0.025
     frame_length = 0.010
     thres_autoc = 0.3
-    sample_rate = 16000.0
+    sample_rate = 16000
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('window_length', window_length)
@@ -63,12 +63,13 @@ class Pitch(BaseFrontend):
     with tf.name_scope('pitch'):
 
       if sample_rate == None:
-        sample_rate = tf.constant(p.sample_rate, dtype=float)
+        sample_rate = tf.constant(p.sample_rate, dtype=tf.int32)
 
       assert_op = tf.assert_equal(
-          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=float))
+          tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 
+        sample_rate = tf.cast(sample_rate, dtype=float)
         pitch = py_x_ops.pitch(
             audio_data,
             sample_rate,

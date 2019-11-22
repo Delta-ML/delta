@@ -14,38 +14,38 @@
 # limitations under the License.
 # ==============================================================================
 
-import delta.compat as tf
 import os
 import numpy as np
 from pathlib import Path
+import delta.compat as tf
+from delta import PACKAGE_ROOT_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.spectrum import Spectrum
-from delta import PACKAGE_ROOT_DIR
 
 
 class SpectrumTest(tf.test.TestCase):
 
   def test_spectrum(self):
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath(
-            'layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
 
-      spectrum = Spectrum.params({'window_length': 0.025}).instantiate()
+      spectrum = Spectrum.params({
+          'window_length': 0.025,
+          'snip_edges': 1
+      }).instantiate()
       spectrum_test = spectrum(input_data, sample_rate)
 
       output_true = np.array(
-          [[-16.863441, -16.910473, -17.077059, -16.371634, -16.845686],
-           [-17.922068, -20.396345, -19.396944, -17.331493, -16.118851],
-           [-17.017776, -17.551350, -20.332376, -17.403994, -16.617926],
-           [-19.873854, -17.644503, -20.679525, -17.093716, -16.535091],
-           [-17.074402, -17.295971, -16.896650, -15.995432, -16.560730]])
+          [[9.819611, 2.84503, 3.660894, 2.7779, 1.212233],
+           [9.328745, 2.553949, 3.276319, 3.000918, 2.499342]])
 
       self.assertEqual(tf.rank(spectrum_test).eval(), 2)
-      self.assertAllClose(spectrum_test.eval()[4:9, 4:9], output_true)
+      self.assertAllClose(
+          spectrum_test.eval()[0:2, 0:5], output_true, rtol=1e-05, atol=1e-05)
 
 
 if __name__ == '__main__':

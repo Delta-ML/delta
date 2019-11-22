@@ -15,11 +15,9 @@
 # ==============================================================================
 ''' speech feat entrypoint unittest'''
 import os
-
 import numpy as np
 import delta.compat as tf
 from absl import logging
-
 from delta.data.feat import speech_ops
 from delta.layers.ops import py_x_ops
 from delta.data.feat import python_speech_features as psf
@@ -86,7 +84,15 @@ def _freq_feat_graph(feat_name, **kwargs):
         spec = py_x_ops.spectrum(
             waveforms[:, 0],
             tf.cast(sample_rate, tf.dtypes.float32),
-            output_type=1)  #output_type: 1, power spec; 2 log power spec
+            window_length=0.025,
+            frame_length=0.010,
+            output_type=1,
+            snip_edges=1,
+            raw_energy=1,
+            preEph_coeff=0.97,
+            window_type='povey',
+            remove_dc_offset=True,
+            is_fbank=False)  #output_type: 1, power spec; 2 log power spec
         spec = tf.sqrt(spec)
         # shape must be [T, D, C]
         spec = tf.expand_dims(spec, -1)

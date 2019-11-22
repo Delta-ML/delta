@@ -82,6 +82,8 @@ int PLP::init_plp(int input_size, float sample_rate) {
   pclass_spc = NULL;
   pclass_spc = new Spectrum();
   pclass_spc->init_spc(input_size, sample_rate);
+  pclass_spc->set_is_fbank(true);
+  pclass_spc->set_output_type(1);
 
   return 1;
 }

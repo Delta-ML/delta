@@ -33,8 +33,7 @@ class SpeechFeatTest(tf.test.TestCase):
     package_root = Path(PACKAGE_ROOT_DIR)
     self.params = tffeat.speech_params(sr=8000, bins=40, cmvn=False)
     self.wavpath = str(
-        package_root.joinpath(
-            'data/feat/python_speech_features/english.wav'))
+        package_root.joinpath('data/feat/python_speech_features/english.wav'))
     self.sr_true, self.audio_true = load_wav(str(self.wavpath), sr=8000)
 
   def test_extract_feature(self):

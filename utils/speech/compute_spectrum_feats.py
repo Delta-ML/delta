@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (C) 2017 Beijing Didi Infinity Technology and Development Co.,Ltd.
 # All rights reserved.
 #
@@ -30,12 +32,46 @@ def get_parser():
       description='Compute spectrum features from wav.',
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
-      '--sample_rate', type=float, default=16000, help='Sampling frequency')
+      '--sample_rate', type=int, default=16000, help='Sampling frequency')
   parser.add_argument(
       '--window_length', type=float, default=0.025, help='Length of a frame')
   parser.add_argument(
       '--frame_length', type=float, default=0.010, help='Hop size of window')
-  parser.add_argument('--output_type', type=int, default=2, help='Output type')
+  parser.add_argument(
+      '--output_type',
+      type=int,
+      default=2,
+      help='1 for power spectrum, 2 for log-power spectrum.')
+  parser.add_argument(
+      '--window_type',
+      type=str,
+      default='povey',
+      help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
+  parser.add_argument(
+      '--snip_edges',
+      type=int,
+      default=1,
+      help='The last frame (shorter than window_length) will not be cutoff.')
+  parser.add_argument(
+      '--raw_energy',
+      type=int,
+      default=1,
+      help='Compute frame energy before preemphasis and windowing.')
+  parser.add_argument(
+      '--preeph_coeff',
+      type=float,
+      default=0.97,
+      help='Coefficient for use in frame-signal preemphasis.')
+  parser.add_argument(
+      '--remove_dc_offset',
+      type=bool,
+      default=True,
+      help=' Subtract mean from waveform on each frame')
+  parser.add_argument(
+      '--is_fbank',
+      type=bool,
+      default=False,
+      help='Compute power spetrum without frame energy')
   parser.add_argument(
       '--write_num_frames',
       type=str,
@@ -68,10 +104,16 @@ def compute_spectrum():
   args = parser.parse_args()
 
   config = {}
-  config['sample_rate'] = float(args.sample_rate)
+  config['sample_rate'] = int(args.sample_rate)
   config['output_type'] = int(args.output_type)
   config['window_length'] = args.window_length
   config['frame_length'] = args.frame_length
+  config['output_type'] = args.output_type
+  config['window_type'] = args.window_type
+  config['snip_edges'] = args.snip_edges
+  config['preeph_coeff'] = args.preeph_coeff
+  config['remove_dc_offset'] = args.remove_dc_offset
+  config['is_fbank'] = args.is_fbank
 
   spectrum = Spectrum.params(config).instantiate()
 
@@ -85,7 +127,7 @@ def compute_spectrum():
       array = array.astype(np.float32)
       audio_data = tf.constant(array, dtype=tf.float32)
       spectrum_test = spectrum(audio_data, args.sample_rate)
-      sess = tf.compat.v1.Session()
+      sess = tf.Session()
       spectrum_feats = spectrum_test.eval(session=sess)
       writer[utt_id] = spectrum_feats
 
