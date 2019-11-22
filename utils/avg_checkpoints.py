@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright 2019 The Tensor2Tensor Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +14,14 @@
 # limitations under the License.
 """Script to average values of variables in a list of checkpoint files."""
 import os
-import numpy as np
 import six
+from absl import app
+from absl import flags
+from absl import logging
 from six.moves import zip  # pylint: disable=redefined-builtin
-import tensorflow as tf
+import numpy as np
+import delta.compat as tf
 
-flags = tf.flags
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("checkpoints", "",
@@ -31,11 +34,9 @@ flags.DEFINE_string("prefix", "",
 flags.DEFINE_string("output_path", "/tmp/averaged.ckpt",
                     "Path to output the averaged checkpoint to.")
 
-
 def checkpoint_exists(path):
-  return (tf.gfile.Exists(path) or tf.gfile.Exists(path + ".meta") or
-          tf.gfile.Exists(path + ".index"))
-
+  return (tf.io.gfile.exists(path) or tf.io.gfile.exists(path + ".meta") or
+          tf.io.gfile.exists(path + ".index"))
 
 def main(_):
   if FLAGS.checkpoints:
@@ -66,9 +67,9 @@ def main(_):
                        os.path.dirname(FLAGS.prefix))
 
   # Read variables from all checkpoints and average them.
-  tf.logging.info("Reading variables and averaging checkpoints:")
+  logging.info("Reading variables and averaging checkpoints:")
   for c in checkpoints:
-    tf.logging.info("%s ", c)
+    logging.info("%s ", c)
   var_list = tf.train.list_variables(checkpoints[0])
   var_values, var_dtypes = {}, {}
   for (name, shape) in var_list:
@@ -80,7 +81,7 @@ def main(_):
       tensor = reader.get_tensor(name)
       var_dtypes[name] = tensor.dtype
       var_values[name] += tensor
-    tf.logging.info("Read from checkpoint %s", checkpoint)
+    logging.info("Read from checkpoint %s", checkpoint)
   for name in var_values:  # Average.
     var_values[name] /= len(checkpoints)
 
@@ -104,8 +105,8 @@ def main(_):
     # Use the built saver to save the averaged checkpoint.
     saver.save(sess, FLAGS.output_path, global_step=global_step)
 
-  tf.logging.info("Averaged checkpoints saved in %s", FLAGS.output_path)
+  logging.info("Averaged checkpoints saved in %s", FLAGS.output_path)
 
 
 if __name__ == "__main__":
-  tf.compat.v1.app.run()
+  app.run(main)
