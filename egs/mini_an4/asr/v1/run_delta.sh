@@ -13,6 +13,8 @@ set -e
 set -u
 set -o pipefail
 
+export CUDA_VISIBLE_DEVICES=''
+
 echo "Running from stage $stage ..."
 
 if [ $stage -le -1 ] && [ $stop_stage -ge -1 ]; then

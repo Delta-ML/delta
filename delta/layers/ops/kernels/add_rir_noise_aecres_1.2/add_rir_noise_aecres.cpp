@@ -105,7 +105,7 @@ int add_rir_noise_aecres_process(void* st, short* inputdata,
     loc_idx = rand() % loc_max;
     short* pnoise = new short[inputdata_length];
     fseek(fp, loc_idx * 2, SEEK_SET);
-    fread(pnoise, sizeof(short), inputdata_length, fp);
+    short tmp = fread(pnoise, sizeof(short), inputdata_length, fp);
     fclose(fp);
 
     float SNR = snr_min;

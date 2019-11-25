@@ -100,7 +100,7 @@ int CConv::SelectH(char *rir_list) {
   }
   for (int kk = 0; kk < RIR_LENGTH; kk++) {
     double dtmp;
-    fread(&dtmp, sizeof(double), 1, fprir);
+    double res = fread(&dtmp, sizeof(double), 1, fprir);
     H[kk] = dtmp;
   }
 
