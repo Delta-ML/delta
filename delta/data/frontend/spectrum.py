@@ -47,7 +47,7 @@ class Spectrum(BaseFrontend):
     frame_length = 0.010
     output_type = 2
     sample_rate = 16000
-    snip_edges = 2
+    snip_edges = 1
     raw_energy = 1
     preeph_coeff = 0.97
     window_type = 'povey'

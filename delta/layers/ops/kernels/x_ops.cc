@@ -216,8 +216,10 @@ Status FbankShapeFn(InferenceContext* c) {
 Status MfccShapeFn(InferenceContext* c) {
   ShapeHandle fbank;
   TF_RETURN_IF_ERROR(c->WithRank(c->input(0), 3, &fbank));
+  ShapeHandle spectrum;
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 3, &spectrum));
   ShapeHandle unused;
-  TF_RETURN_IF_ERROR(c->WithRank(c->input(1), 0, &unused));
+  TF_RETURN_IF_ERROR(c->WithRank(c->input(2), 0, &unused));
 
   int32 coefficient_count;
   TF_RETURN_IF_ERROR(c->GetAttr("coefficient_count", &coefficient_count));
@@ -511,9 +513,11 @@ output: float, fbank features, a tensor of shape [audio_channels, spectrogram_le
 
 REGISTER_OP("MfccDct")
     .Input("fbank: float")
+    .Input("spectrum: float")
     .Input("sample_rate: int32")
     .Attr("coefficient_count: int = 13")
     .Attr("cepstral_lifter: float = 22")
+    .Attr("use_energy: bool = true")
     .Output("output: float")
     .SetShapeFn(MfccShapeFn)
     .Doc(R"doc(

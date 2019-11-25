@@ -39,7 +39,7 @@ class FbankPitch(BaseFrontend):
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
-    upper_frequency_limit = 8000.0
+    upper_frequency_limit = 0
     lower_frequency_limit = 20.0
     filterbank_channel_count = 23.0
     window_length = 0.025

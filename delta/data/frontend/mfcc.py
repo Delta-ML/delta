@@ -19,12 +19,17 @@ from delta.layers.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.fbank import Fbank
-
+from delta.data.frontend.spectrum import Spectrum
+import copy
 
 class Mfcc(BaseFrontend):
 
   def __init__(self, config: dict):
     super().__init__(config)
+    config1 = copy.deepcopy(config)
+    config1['is_fbank'] = False
+    config1['output_type'] = 2
+    self.spect = Spectrum(config1)
     self.fbank = Fbank(config)
 
   @classmethod
@@ -57,7 +62,7 @@ class Mfcc(BaseFrontend):
     frame_length = 0.010
     output_type = 1
     sample_rate = 16000
-    snip_edges = 2
+    snip_edges = 1
     raw_energy = 1
     preeph_coeff = 0.97
     window_type = 'povey'
@@ -65,6 +70,7 @@ class Mfcc(BaseFrontend):
     is_fbank = True
     cepstral_lifter = 22.0
     coefficient_count = 13
+    use_energy = True
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -82,6 +88,7 @@ class Mfcc(BaseFrontend):
     hparams.add_hparam('is_fbank', is_fbank)
     hparams.add_hparam('cepstral_lifter', cepstral_lifter)
     hparams.add_hparam('coefficient_count', coefficient_count)
+    hparams.add_hparam('use_energy', use_energy)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -106,11 +113,14 @@ class Mfcc(BaseFrontend):
           tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
       with tf.control_dependencies([assert_op]):
 
+        spectrum_feats = self.spect(audio_data, sample_rate)
+        spectrum_feats = tf.expand_dims(spectrum_feats, 0)
         fbank_feats = self.fbank(audio_data, sample_rate)
         mfcc = py_x_ops.mfcc(
             fbank_feats,
+            spectrum_feats,
             sample_rate,
+            use_energy=p.use_energy,
             cepstral_lifter=p.cepstral_lifter,
             coefficient_count=p.coefficient_count)
-
         return mfcc

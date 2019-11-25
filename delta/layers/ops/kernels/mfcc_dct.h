@@ -22,6 +22,7 @@ limitations under the License.
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/platform/logging.h"
+#include "kernels/support_functions.h"
 
 using namespace tensorflow;  // NOLINT
 #define PI (3.141592653589793)

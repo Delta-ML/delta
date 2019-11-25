@@ -19,7 +19,10 @@ limitations under the License.
 
 #include <math.h>
 #include <stdio.h>
+#include <vector>
 #include <stdlib.h>
+
+using namespace std;
 
 #include "kernels/complex_defines.h"
 
