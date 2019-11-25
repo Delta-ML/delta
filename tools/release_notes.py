@@ -124,11 +124,13 @@ if __name__ == '__main__':
 
   final_data = []
   labels = []
+  thanks_to = []
   for issue in issues:
 
     for label in issue['labels']:
       labels.append(label['name'])
 
+    thanks_to.append('@%s' % (issue['user']['login']))
     final_data.append(' * **[%s]** - %s #%d by **@%s**\n' % (
       label['name'],
       issue['title'],
@@ -140,8 +142,10 @@ if __name__ == '__main__':
   for l_release in list(set(labels)):
 
     for f_data in final_data:
-      if l_release in f_data:
+      if '[%s]' % l_release in f_data:
         dic[l_release].add(f_data)
 
   for key, value in dic.items():
     print('# %s\n%s' % (key, ''.join(value)))
+
+  print('# %s\n%s' % ('Acknowledgements', 'Special thanks to %s ' % ('  '.join(list(set(thanks_to))))))
