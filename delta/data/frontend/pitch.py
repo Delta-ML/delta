@@ -29,7 +29,7 @@ class Pitch(BaseFrontend):
     """
     Set params.
     :param config: contains twenty optional parameters:
-          --delta-pitch               : Smallest relative change in pitch that our algorithm measures (float, default = 0.005)
+      --delta-pitch               : Smallest relative change in pitch that our algorithm measures (float, default = 0.005)
 		  --frame-length              : Frame length in milliseconds (float, default = 25)
 		  --frame-shift               : Frame shift in milliseconds (float, default = 10)
 		  --frames-per-chunk          : Only relevant for offline pitch extraction (e.g. compute-kaldi-pitch-feats), you can set it to a small nonzero value, such as 10, for better feature compatibility with online decoding (affects energy normalization in the algorithm) (int, default = 0)
