@@ -62,7 +62,7 @@ class Mfcc(BaseFrontend):
     frame_length = 0.010
     output_type = 1
     sample_rate = 16000
-    snip_edges = 1
+    snip_edges = True
     raw_energy = 1
     preeph_coeff = 0.97
     window_type = 'povey'

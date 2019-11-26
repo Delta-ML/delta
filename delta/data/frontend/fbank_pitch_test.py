@@ -34,14 +34,12 @@ class FbankPitchTest(tf.test.TestCase):
       config = {
           'window_length': 0.025,
           'output_type': 1,
-          'frame_length': 0.010,
-          'thres_autoc': 0.4
-      }
+          'frame_length': 0.010}
       fbank_pitch = FbankPitch.params(config).instantiate()
       fbank_pitch_test = fbank_pitch(input_data)
 
       self.assertEqual(tf.rank(fbank_pitch_test).eval(), 2)
-
+      print(fbank_pitch_test.eval()[0:2])
 
 if __name__ == '__main__':
   tf.test.main()

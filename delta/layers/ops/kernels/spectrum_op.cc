@@ -74,8 +74,8 @@ class SpecOp : public OpKernel {
     int i_WinLen = static_cast<int>(window_length_ * sample_rate);
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
-    int i_snip_edges = snip_edges_;
-    if (i_snip_edges == 2) i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
+    bool i_snip_edges = snip_edges_;
+    if (i_snip_edges == false) i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
     if (i_NumFrm < 1) i_NumFrm = 1;
     int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
     OP_REQUIRES_OK(
@@ -94,7 +94,7 @@ class SpecOp : public OpKernel {
   float window_length_;
   float frame_length_;
   int output_type_;
-  int snip_edges_;
+  bool snip_edges_;
   int raw_energy_;
   float preEph_coeff_;
   string window_type_;

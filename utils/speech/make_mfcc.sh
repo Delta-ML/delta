@@ -26,7 +26,7 @@ filterbank_channel_count=23
 window_length=0.025
 frame_length=0.010
 output_type=1
-snip_edges=1
+snip_edges=true
 raw_energy=1
 preeph_coeff=0.97
 window_type='povey'
@@ -37,6 +37,7 @@ coefficient_count=13
 write_utt2num_frames=true
 compress=false
 compression_method=2
+use_energy=true
 
 if [ -f path.sh ]; then . ./path.sh; fi
  . parse_options.sh || exit 1;
@@ -127,6 +128,7 @@ if [ -f ${data}/segments ]; then
             --is_fbank ${is_fbank} \
             --cepstral_lifter ${cepstral_lifter} \
             --coefficient_count ${coefficient_count} \
+            --use_energy ${use_energy} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
@@ -159,6 +161,7 @@ else
             --is_fbank ${is_fbank} \
             --cepstral_lifter ${cepstral_lifter} \
             --coefficient_count ${coefficient_count} \
+            --use_energy ${use_energy} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
