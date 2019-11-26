@@ -13,42 +13,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-''' base interface of Frontend '''
-
+''' Task abstract class for data process'''
 import abc
-import delta.compat as tf
-
-from delta.utils.hparam import HParams
 
 
-class ABCFrontend(metaclass=abc.ABCMeta):
-  ''' abstract of Frontend '''
+class Task(metaclass=abc.ABCMeta):
+  ''' abstract class'''
 
   def __init__(self, config):
-    raise NotImplementedError()
-
-  @abc.abstractmethod
-  def call(self, *args, **kwargs):
-    ''' implementation func '''
-    raise NotImplementedError()
-
-
-class BaseFrontend(ABCFrontend):
-  ''' wrapper of abstrcat Frontend'''
-
-  def __init__(self, config: dict):
     self._config = config
 
   @property
   def config(self):
-    ''' config property '''
+    ''' config property'''
     return self._config
 
-  @classmethod
-  def params(cls, config=None):
-    ''' set params '''
+  @abc.abstractmethod
+  def generate_data(self):
+    ''' generate one example'''
     raise NotImplementedError()
 
-  def __call__(self, *args, **kwargs):
-    ''' call '''
-    return self.call(*args, **kwargs)
+  @abc.abstractmethod
+  def feature_spec(self):
+    ''' dataset meta data'''
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def preprocess_batch(self, batch):
+    ''' pre-proecss of data'''
+    raise NotImplementedError()
+
+  @abc.abstractmethod
+  def dataset(self):
+    ''' generate batch examples with epoch
+    return tf.data.Dataset
+    '''
+    return NotImplementedError()
+
+  @abc.abstractmethod
+  def input_fn(self):
+    ''' return `def _input_fn()` function'''
+    return NotImplementedError()
