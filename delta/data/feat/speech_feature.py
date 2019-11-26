@@ -87,7 +87,7 @@ def _freq_feat_graph(feat_name, **kwargs):
             window_length=0.025,
             frame_length=0.010,
             output_type=1,
-            snip_edges=1,
+            snip_edges=True,
             raw_energy=1,
             preEph_coeff=0.97,
             window_type='povey',
