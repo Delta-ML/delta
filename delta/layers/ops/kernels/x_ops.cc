@@ -329,19 +329,37 @@ Status SentenceToIdsShapeFn(InferenceContext* c) {
 
 REGISTER_OP("Pitch")
     .Input("input_data: float")
-    .Input("sample_rate: float")
+    .Input("sample_rate: int32")
     .Attr("window_length: float = 0.025")
     .Attr("frame_length: float = 0.010")
-    .Attr("thres_autoc: float = 0.3")
+    .Attr("snip_edges: bool = true")
+    .Attr("preemph_coeff: float = 0.0")
+    .Attr("min_f0: float = 50")
+    .Attr("max_f0: float = 400")
+    .Attr("soft_min_f0: float = 10.0")
+    .Attr("penalty_factor: float = 0.1")
+    .Attr("lowpass_cutoff: float = 1000")
+    .Attr("resample_freq: float = 4000")
+    .Attr("delta_pitch: float = 0.005")
+    .Attr("nccf_ballast: float = 7000")
+    .Attr("lowpass_filter_width: int = 1")
+    .Attr("upsample_filter_width: int = 5")
+    .Attr("max_frames_latency: int = 0")
+    .Attr("frames_per_chunk: int = 0")
+    .Attr("simulate_first_pass_online: bool = false")
+    .Attr("recompute_frame: int = 500")
+    .Attr("nccf_ballast_online: bool = false")
     .Output("output: float")
-    .SetShapeFn(PitchShapeFn)
+    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c){
+        return Status::OK();
+    })
     .Doc(R"doc(
     Create pitch feature files.
     input_data: float, input wave, a tensor of shape [1, data_length].
     sample_rate: float, NB 8000, WB 16000 etc.
     window_length: float, window length in second.
-    frame_length: float, frame length in second. 
-    output: float, pitch features, [num_Frame].
+    frame_length: float, frame length in second.
+    output: float, pitch features, [num_Frame, 2].
     )doc");
 
 REGISTER_OP("FramePow")

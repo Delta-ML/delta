@@ -17,16 +17,31 @@ limitations under the License.
 #ifndef DELTA_LAYERS_OPS_KERNELS_SUPPORT_FUNCTIONS_H_
 #define DELTA_LAYERS_OPS_KERNELS_SUPPORT_FUNCTIONS_H_
 
-#include <math.h>
 #include <stdio.h>
-#include <vector>
 #include <stdlib.h>
+#include <assert.h>
+#include <limits>
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <memory>
+#include <chrono>
 
 using namespace std;
 
 #include "kernels/complex_defines.h"
 
+#ifndef M_PI
+#define M_PI 3.1415926535897932384626433832795
+#endif
+
+#ifndef M_2PI
+#define M_2PI 6.283185307179586476925286766559005
+#endif
+
 namespace delta {
+typedef float  BaseFloat;
+
 /* compute mean */
 float compute_mean(float* input, int i_size);
 
@@ -97,6 +112,56 @@ float compute_energy(const float* input, int L);
 
 /* do frame_pre_emphasis */
 int do_frame_preemphasis(float* input, float* output, int i_size, float coef);
+
+/* add dither */
+void do_dither(float* input, int i_size, float dither_value);
+
+/* return subvector */
+std::vector<BaseFloat> sub_vector(const std::vector<BaseFloat> &input, int begin, int length);
+
+std::vector<std::vector<BaseFloat>> sub_matrix(const std::vector<std::vector<BaseFloat>> &input,
+                int row_begin, int n_rows, int col_begin, int n_cols);
+
+std::vector<BaseFloat> add_mat_vec(BaseFloat alpha, const std::vector<std::vector<BaseFloat>> &M,
+                              const std::vector<BaseFloat> &v, BaseFloat beta);
+/* return gcd */
+int Gcd(int m, int n);
+
+/*return lcm */
+int Lcm(int m, int n);
+
+BaseFloat VecVec(const vector<BaseFloat> &a, const vector<BaseFloat> &b);
+
+static inline bool ApproxEqual(BaseFloat a, BaseFloat b,
+                               BaseFloat relative_tolerance = 0.001) {
+  // a==b handles infinities.
+  if (a == b) return true;
+  BaseFloat diff = std::fabs(a-b);
+  if (diff == std::numeric_limits<BaseFloat>::infinity()
+      || diff != diff) return false;  // diff is +inf or nan.
+  return (diff <= (relative_tolerance * (std::fabs(a)+std::fabs(b))));
+}
+
+// Returns a random integer between 0 and RAND_MAX, inclusive
+int Rand(struct RandomState* state = NULL);
+
+// State for thread-safe random number generator
+struct RandomState {
+  RandomState();
+  unsigned seed;
+};
+
+inline double Log(double x) { return log(x); }
+
+/// Returns a random number strictly between 0 and 1.
+inline float RandUniform(struct RandomState* state = NULL) {
+  return static_cast<float>((Rand(state) + 1.0) / (RAND_MAX+2.0));
+}
+
+inline float RandGauss(struct RandomState* state = NULL) {
+  return static_cast<float>(sqrtf (-2 * Log(RandUniform(state)))
+                            * cosf(2*M_PI*RandUniform(state)));
+}
 
 }  // namespace delta
 #endif  // DELTA_LAYERS_OPS_KERNELS_SUPPORT_FUNCTIONS_H_

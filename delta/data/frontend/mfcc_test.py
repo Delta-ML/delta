@@ -29,7 +29,7 @@ class MfccTest(tf.test.TestCase):
     wav_path = str(
         Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
       config = {'use_energy': True}
@@ -47,7 +47,6 @@ class MfccTest(tf.test.TestCase):
           real_mfcc_feats,
           rtol=1e-05,
           atol=1e-05)
-
 
 if __name__ == '__main__':
   tf.test.main()
