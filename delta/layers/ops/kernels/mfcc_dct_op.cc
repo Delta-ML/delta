@@ -32,6 +32,8 @@ class MfccDctOp : public OpKernel {
                    context->GetAttr("coefficient_count", &coefficient_count_));
     OP_REQUIRES_OK(context,
                    context->GetAttr("cepstral_lifter", &cepstral_lifter_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("use_energy", &use_energy_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -39,7 +41,11 @@ class MfccDctOp : public OpKernel {
     OP_REQUIRES(context, fbank.dims() == 3,
                 errors::InvalidArgument("Fbank must be 3-dimensional",
                                         fbank.shape().DebugString()));
-    const Tensor& sample_rate_tensor = context->input(1);
+    const Tensor& spectrum = context->input(1);
+    OP_REQUIRES(context, spectrum.dims() == 3,
+                errors::InvalidArgument("Spectrum must be 3-dimensional",
+                                        spectrum.shape().DebugString()));
+    const Tensor& sample_rate_tensor = context->input(2);
     OP_REQUIRES(context, TensorShapeUtils::IsScalar(sample_rate_tensor.shape()),
                 errors::InvalidArgument(
                     "Input sample_rate should be a scalar tensor, got ",
@@ -50,6 +56,8 @@ class MfccDctOp : public OpKernel {
     const int fbank_channels = fbank.dim_size(2);
     const int fbank_samples = fbank.dim_size(1);
     const int audio_channels = fbank.dim_size(0);
+    const int spectrum_samples = spectrum.dim_size(1);
+    const int spectrum_channels = spectrum.dim_size(2);
 
     MfccDct mfcc;
     mfcc.set_coefficient_count(coefficient_count_);
@@ -69,6 +77,7 @@ class MfccDctOp : public OpKernel {
             &output_tensor));
 
     const float* fbank_flat = fbank.flat<float>().data();
+    const float* spectrum_flat = spectrum.flat<float>().data();
     float* output_flat = output_tensor->flat<float>().data();
 
     for (int audio_channel = 0; audio_channel < audio_channels;
@@ -77,8 +86,13 @@ class MfccDctOp : public OpKernel {
         const float* sample_data =
             fbank_flat + (audio_channel * fbank_samples * fbank_channels) +
             (fbank_sample * fbank_channels);
+        const float* spectrum_data =
+            spectrum_flat + (audio_channel * fbank_samples * spectrum_channels) +
+            (fbank_sample * spectrum_channels);
         std::vector<double> mfcc_input(sample_data,
                                        sample_data + fbank_channels);
+        std::vector<double> spectrum_input(spectrum_data,
+                                           spectrum_data + spectrum_channels);
         std::vector<double> mfcc_output;
         mfcc.Compute(mfcc_input, &mfcc_output);
         DCHECK_EQ(coefficient_count_, mfcc_output.size());
@@ -88,13 +102,21 @@ class MfccDctOp : public OpKernel {
         for (int i = 0; i < coefficient_count_; ++i) {
           output_data[i] = mfcc_output[i];
         }
+        if (use_energy_)
+            output_data[0] = spectrum_input[0];
+
+        std::vector<double>().swap(mfcc_input);
+        std::vector<double>().swap(spectrum_input);
+        std::vector<double>().swap(mfcc_output);
       }
     }
+
   }
 
  private:
   float cepstral_lifter_;
   int coefficient_count_;
+  bool use_energy_;
 };
 
 REGISTER_KERNEL_BUILDER(Name("MfccDct").Device(DEVICE_CPU), MfccDctOp);

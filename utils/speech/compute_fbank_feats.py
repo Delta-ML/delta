@@ -64,8 +64,8 @@ def get_parser():
       help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
       '--snip_edges',
-      type=int,
-      default=2,
+      type=bool,
+      default=True,
       help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
       '--raw_energy',

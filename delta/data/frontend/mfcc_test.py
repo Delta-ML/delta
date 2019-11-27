@@ -29,25 +29,24 @@ class MfccTest(tf.test.TestCase):
     wav_path = str(
         Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
 
-    with self.session():
+    with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
-      # config = {}
-      mfcc = Mfcc.params().instantiate()
+      config = {'use_energy': True}
+      mfcc = Mfcc.params(config).instantiate()
       mfcc_test = mfcc(input_data, sample_rate)
 
       self.assertEqual(tf.rank(mfcc_test).eval(), 3)
 
       real_mfcc_feats = np.array(
-          [[-30.58736, -7.088838, -10.67966, -1.646479, -4.36086],
-           [-30.73371, -6.128432, -7.930599, 3.208357, -1.086456]])
+          [[9.819611, -30.58736, -7.088838, -10.67966, -1.646479, -4.36086],
+           [9.328745, -30.73371, -6.128432, -7.930599, 3.208357, -1.086456]])
 
       self.assertAllClose(
-          np.squeeze(mfcc_test.eval()[0, 0:2, 1:6]),
+          np.squeeze(mfcc_test.eval()[0, 0:2, 0:6]),
           real_mfcc_feats,
           rtol=1e-05,
           atol=1e-05)
-
 
 if __name__ == '__main__':
   tf.test.main()

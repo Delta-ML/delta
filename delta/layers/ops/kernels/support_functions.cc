@@ -617,4 +617,101 @@ int do_frame_preemphasis(float* input, float* output, int i_size, float coef) {
   return 0;
 }
 
+/* return subvector */
+std::vector<BaseFloat> sub_vector(const std::vector<BaseFloat> &input, int begin, int length){
+  std::vector<BaseFloat> res(length);
+  for (int i = 0; i < length; i++){
+    res[i] = input[i + begin];
+  }
+  return res;
+}
+
+std::vector<std::vector<BaseFloat>> sub_matrix(const std::vector<std::vector<BaseFloat>> &input,
+                int row_begin, int n_rows, int col_begin, int n_cols){
+    std::vector<std::vector<BaseFloat>> res;
+    res.resize(n_rows);
+    for (int i = 0; i < n_rows; i++){
+      res[i].resize(n_cols);
+      for (int j = 0; j < n_cols; j++)
+        res[i][j] = input[row_begin + i][col_begin + j];
+    }
+    return res;
+}
+
+std::vector<BaseFloat> add_mat_vec(BaseFloat alpha, const std::vector<std::vector<BaseFloat>> &M,
+                              const std::vector<BaseFloat> &v, BaseFloat beta){
+    int row, col, length;
+    row = M.size();
+    col = M[0].size();
+    length = v.size();
+    std::vector<BaseFloat> res(row, 0);
+    for (int i = 0; i < row; i++)
+    {
+      float tmp = 0.0;
+      for (int j = 0; j < col; j++){
+        tmp += M[i][j] * v[j];
+      }
+      res[i] = alpha * tmp + beta * res[i];
+    }
+    return res;
+}
+
+/*return gcd */
+int  Gcd(int m, int n) {
+  if (m == 0 || n == 0) {
+    if (m == 0 && n == 0) {  // gcd not defined, as all integers are divisors.
+      std::cerr << "Undefined GCD since m = 0, n = 0.";
+    }
+    return (m == 0 ? (n > 0 ? n : -n) : ( m > 0 ? m : -m));
+    // return absolute value of whichever is nonzero
+  }
+  while (1) {
+    m %= n;
+    if (m == 0) return (n > 0 ? n : -n);
+    n %= m;
+    if (n == 0) return (m > 0 ? m : -m);
+  }
+}
+
+int Lcm(int m, int n) {
+  assert(m > 0 && n > 0);
+  int gcd = Gcd(m, n);
+  return gcd * (m/gcd) * (n/gcd);
+}
+
+BaseFloat VecVec(const vector<BaseFloat> &a, const vector<BaseFloat> &b){
+  assert(a.size() == b.size());
+  BaseFloat res = 0;
+  for (int i = 0; i < a.size(); ++i)
+    res += a[i] * b[i];
+  return res;
+}
+
+/* do dither */
+void do_dither(float* input, int i_size, float dither_value){
+    if (dither_value == 0.0)
+        return;
+    RandomState rstate;
+    for (int i = 0; i < i_size; i++)
+        input[i] += RandGauss(&rstate) * dither_value;
+}
+
+int Rand(struct RandomState* state) {
+#if !defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+  // On Windows and Cygwin, just call Rand()
+  return rand();
+#else
+  if (state) {
+    return rand_r(&(state->seed));
+  } else {
+    std::lock_guard<std::mutex> lock(_RandMutex);
+    return rand();
+  }
+#endif
+}
+
+RandomState::RandomState() {
+  seed = Rand() + 27437;
+}
+
 }  // namespace delta

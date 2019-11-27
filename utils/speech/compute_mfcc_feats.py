@@ -64,8 +64,8 @@ def get_parser():
       help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
       '--snip_edges',
-      type=int,
-      default=2,
+      type=bool,
+      default=True,
       help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
       '--raw_energy',
@@ -97,6 +97,11 @@ def get_parser():
       type=int,
       default=13,
       help='Number of cepstra in MFCC computation.')
+  parser.add_argument(
+    '--use_energy',
+    type=bool,
+    default=True,
+    help='Use energy (not C0) in MFCC computation.')
   parser.add_argument(
       '--write_num_frames',
       type=str,
@@ -143,6 +148,7 @@ def compute_mfcc():
   config['is_fbank'] = args.is_fbank
   config['cepstral_lifter'] = args.cepstral_lifter
   config['coefficient_count'] = args.coefficient_count
+  config['use_energy'] = args.use_energy
 
   mfcc = Mfcc.params(config).instantiate()
 
