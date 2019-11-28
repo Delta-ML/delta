@@ -29,15 +29,15 @@ fi
 # prepare dependency
 echo "build ops: prepare dependency"
 
-if [ -L $MAIN_ROOT/delta/layers/ops/cppjieba ]; then
-    unlink $MAIN_ROOT/delta/layers/ops/cppjieba
+if [ -L $MAIN_ROOT/ops/cppjieba ]; then
+    unlink $MAIN_ROOT/ops/cppjieba
 fi
 
 if ! [ -f $MAIN_ROOT/tools/cppjieba.done ]; then
   pushd $MAIN_ROOT/tools && make cppjieba.done && popd
 fi
 
-ln -s $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/delta/layers/ops/cppjieba || { echo "build ops: link jieba error" ; exit 1; }
+ln -s $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/ops/cppjieba || { echo "build ops: link jieba error" ; exit 1; }
 
 # clean 
 
@@ -65,7 +65,7 @@ elif [ $target == 'deltann' ]; then
     bazel build --verbose_failures -c opt //tensorflow/core/user_ops/ops:x_ops.so || { echo "compile custom ops error"; exit 1; }
     
     cp bazel-bin/tensorflow/core/user_ops/ops/*.so $MAIN_ROOT/dpl/lib/custom_ops
-    cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/delta/layers/ops/ 
+    cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/ops/ 
 
     popd
 fi

@@ -84,7 +84,7 @@ linux.done:
 
 # compile custom ops on your environment
 compile_ops.done:
-	/bin/bash -c 'pushd ../delta/layers/ops; bash build.sh delta'
+	/bin/bash -c 'pushd ../ops; bash build.sh delta'
 	touch compile_ops.done
 
 # only for speech

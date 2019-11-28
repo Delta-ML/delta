@@ -19,14 +19,14 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank_pitch import FbankPitch
-from delta import PACKAGE_ROOT_DIR
+from ops import PACKAGE_ROOT_DIR
 
 
 class FbankPitchTest(tf.test.TestCase):
 
   def test_FbankPitch(self):
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
+        Path(PACKAGE_ROOT_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()

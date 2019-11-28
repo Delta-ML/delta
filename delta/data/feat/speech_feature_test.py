@@ -22,7 +22,7 @@ import delta.compat as tf
 from absl import logging
 from delta.data.feat import speech_ops
 from delta.data.feat import speech_feature
-from delta import PACKAGE_ROOT_DIR
+from delta import PACKAGE_ROOT_DIR1
 
 
 #pylint: disable=too-many-instance-attributes
@@ -38,7 +38,7 @@ class SpeechFeatureTest(tf.test.TestCase):
     self.nfft = 512
     self.feat_type = 'logfbank'
 
-    package_root = Path(PACKAGE_ROOT_DIR)
+    package_root = Path(PACKAGE_ROOT_DIR1)
     self.wavfile = str(
         package_root.joinpath('data/feat/python_speech_features/english.wav'))
     self.featfile = str(

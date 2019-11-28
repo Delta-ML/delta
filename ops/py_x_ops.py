@@ -19,7 +19,7 @@ import os
 import delta.compat as tf
 from absl import logging
 
-from delta import PACKAGE_ROOT_DIR
+from ops import PACKAGE_ROOT_DIR
 from delta.data.utils import read_lines_from_text_file
 
 #pylint: disable=invalid-name
