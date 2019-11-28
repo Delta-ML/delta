@@ -8,7 +8,7 @@ fi
 target=$1
 
 if [ -z $MAIN_ROOT ];then
-    pushd ../../../ && source env.sh && popd
+    pushd ../ && source env.sh && popd
     echo "source env.sh"
 fi
 
