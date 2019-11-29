@@ -19,14 +19,14 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.write_wav import WriteWav
-from ops import PACKAGE_ROOT_DIR
+from ops import PACKAGE_OPS_DIR
 
 
 class WriteWavTest(tf.test.TestCase):
 
   def test_write_wav(self):
     wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath('data/sm1_cln.wav'))
+        Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       read_wav = ReadWav.params().instantiate()
@@ -34,7 +34,7 @@ class WriteWavTest(tf.test.TestCase):
       input_data = input_data / 32768
       write_wav = WriteWav.params().instantiate()
       new_path = str(
-          Path(PACKAGE_ROOT_DIR).joinpath('data/sm1_cln_new.wav'))
+          Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln_new.wav'))
       writewav_op = write_wav(new_path, input_data, sample_rate)
       sess.run(writewav_op)
       test_data, test_sample_rate = read_wav(new_path)

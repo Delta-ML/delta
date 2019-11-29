@@ -15,4 +15,4 @@
 # ==============================================================================
 import os
 
-PACKAGE_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+PACKAGE_OPS_DIR = os.path.dirname(os.path.abspath(__file__))

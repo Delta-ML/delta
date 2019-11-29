@@ -19,7 +19,7 @@ import os
 import delta.compat as tf
 from absl import logging
 
-from ops import PACKAGE_ROOT_DIR
+from ops import PACKAGE_OPS_DIR
 from delta.data.utils import read_lines_from_text_file
 
 #pylint: disable=invalid-name
@@ -56,15 +56,15 @@ add_rir_noise_aecres = gen_x_ops.add_rir_noise_aecres
 
 def jieba_cut(input_sentence, use_file=True, hmm=True):
 
-  dict_path = os.path.join(PACKAGE_ROOT_DIR,
+  dict_path = os.path.join(PACKAGE_OPS_DIR,
                            "./resources/cppjieba_dict/jieba.dict.utf8")
-  hmm_path = os.path.join(PACKAGE_ROOT_DIR,
+  hmm_path = os.path.join(PACKAGE_OPS_DIR,
                           "./resources/cppjieba_dict/hmm_model.utf8")
-  user_dict_path = os.path.join(PACKAGE_ROOT_DIR,
+  user_dict_path = os.path.join(PACKAGE_OPS_DIR,
                                 "./resources/cppjieba_dict/user.dict.utf8")
-  idf_path = os.path.join(PACKAGE_ROOT_DIR,
+  idf_path = os.path.join(PACKAGE_OPS_DIR,
                           "./resources/cppjieba_dict/idf.utf8")
-  stop_word_path = os.path.join(PACKAGE_ROOT_DIR,
+  stop_word_path = os.path.join(PACKAGE_OPS_DIR,
                                 "./resources/cppjieba_dict/stop_words.utf8")
 
   if use_file:

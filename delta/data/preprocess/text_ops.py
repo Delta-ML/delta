@@ -19,7 +19,7 @@ import delta.compat as tf
 from absl import logging
 
 from delta import utils
-from delta.layers.ops import py_x_ops
+from ops import py_x_ops
 from delta.data.utils import read_lines_from_text_file
 
 
