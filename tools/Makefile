@@ -98,7 +98,7 @@ kaldi.done:
 	#cd kaldi/tools; ./extras/install_mkl.sh; $(MAKE) -j $(nproc)
 	#cd kaldi/src; ./configure --use-cuda=no; $(MAKE) depend -j $(nproc); $(MAKE) -j $(nproc)
 	cd kaldi/tools; ./extras/install_openblas.sh; $(MAKE) -j $(nproc)
-	cd kaldi/src; ./configure --mathlib=OPENBLAS --use-cuda=no; $(MAKE) depend -j $(nproc); $(MAKE) -j $(nproc)
+	cd kaldi/src; ./configure --static --mathlib=OPENBLAS --use-cuda=no; $(MAKE) depend -j $(nproc); $(MAKE) -j $(nproc)
 	touch kaldi.done
 endif
 
