@@ -101,7 +101,7 @@ class CTCAsrModel(RawModel):
     output_dim = dim * channels
     x = tf.keras.layers.Reshape((-1, output_dim))(x)
 
-    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2))(x)
     x = tf.keras.layers.Bidirectional(
         tf.keras.layers.LSTM(
             units=512,
@@ -111,7 +111,7 @@ class CTCAsrModel(RawModel):
             name='lstm'))(
                 x)
 
-    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2))(x)
     x = tf.keras.layers.Bidirectional(
         tf.keras.layers.LSTM(
             512,
@@ -121,7 +121,7 @@ class CTCAsrModel(RawModel):
             name='lstm1'))(
                 x)
 
-    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2))(x)
     x = tf.keras.layers.Bidirectional(
         tf.keras.layers.LSTM(
             512,
@@ -131,7 +131,7 @@ class CTCAsrModel(RawModel):
             name='lstm2'))(
                 x)
 
-    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.2))(x)
     x = tf.keras.layers.Bidirectional(
         tf.keras.layers.LSTM(
             512,
@@ -142,14 +142,14 @@ class CTCAsrModel(RawModel):
                 x)
 
     x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(1024, activation='relu'))(x)
-    x = tf.keras.layers.TimeDistributed(Dropout(0.5))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dropout(0.5))(x)
 
     # Output layer with softmax
     x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(self._vocab_size), name="outputs")(x)
 
-    input_length = Input(name='input_length', shape=[], dtype='int64')
-    labels = Input(name='targets', shape=[None], dtype='int32')
-    label_length = Input(name='target_length', shape=[], dtype='int64')
+    input_length = tf.keras.layers.Input(name='input_length', shape=[], dtype='int64')
+    labels = tf.keras.layers.Input(name='targets', shape=[None], dtype='int32')
+    label_length = tf.keras.layers.Input(name='target_length', shape=[], dtype='int64')
     loss_out = tf.keras.layers.Lambda(
         self.ctc_lambda_func, output_shape=(),
         name='ctc')([x, input_length, labels, label_length])
