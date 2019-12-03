@@ -2,7 +2,7 @@
 
 ifeq ($(origin MAKEFILE_DIR), undefined) 
 MAKEFILE_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-MAIN_ROOT := $(realpath $(MAKEFILE_DIR)/../../../)
+MAIN_ROOT := $(realpath $(MAKEFILE_DIR)/../)
 endif 
 
 #$(info $(MAKEFILE_DIR))
@@ -50,11 +50,11 @@ TF_LFLAGS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(" ".j
 TF_LIBS := $(shell $(PYTHON_BIN_PATH) -c 'import tensorflow as tf; print(tf.sysconfig.get_lib())')
 CXXFLAGS += -fPIC -shared -O2 -std=c++11 -DFEATURE_VERSION=\"$(shell git rev-parse --short HEAD)\" $(TF_CFLAGS)
 INCLUDES := -I$(MAIN_ROOT) \
-			-I$(MAIN_ROOT)/delta/layers/ops \
-			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/deps \
-			-I$(MAIN_ROOT)/delta/layers/ops/cppjieba/include \
-			-I$(MAIN_ROOT)/delta/layers/ops/kernels \
-			-I$(MAIN_ROOT)/delta/layers/ops/kernels/add_rir_noise_aecres_1.2
+			-I$(MAIN_ROOT)/ops \
+			-I$(MAIN_ROOT)/ops/cppjieba/deps \
+			-I$(MAIN_ROOT)/ops/cppjieba/include \
+			-I$(MAIN_ROOT)/ops/kernels \
+			-I$(MAIN_ROOT)/ops/kernels/add_rir_noise_aecres
 
 LDFLAGS += $(TF_LFLAGS) 
 
@@ -64,7 +64,7 @@ $(wildcard kernels/*test_util.cc)
 
 # src and tgts
 LIB_SRCS_ALL := $(wildcard kernels/*.cc) \
-                $(wildcard kernels/add_rir_noise_aecres_1.2/*.cpp)
+                $(wildcard kernels/add_rir_noise_aecres/*.cpp)
 LIB_SRCS := $(filter-out $(CORE_CC_EXCLUDE_SRCS), $(LIB_SRCS_ALL))
 LIB_OBJS := $(addprefix $(OBJDIR), $(patsubst %.cc, %.o, $(patsubst %.cpp, %.o, $(LIB_SRCS))))
 

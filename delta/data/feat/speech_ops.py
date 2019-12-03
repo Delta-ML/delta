@@ -23,7 +23,7 @@ from tensorflow.python.ops import gen_audio_ops as audio_ops
 
 from delta import utils
 from delta.utils.hparam import HParams
-from delta.layers.ops import py_x_ops
+from core.ops import py_x_ops
 
 
 #pylint: disable=invalid-name,too-many-arguments

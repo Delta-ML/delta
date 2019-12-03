@@ -15,9 +15,10 @@
 # ==============================================================================
 
 import delta.compat as tf
-from delta.layers.ops import py_x_ops
+from core.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
+
 
 class Pitch(BaseFrontend):
 
@@ -93,7 +94,7 @@ class Pitch(BaseFrontend):
     hparams.add_hparam('frames_per_chunk', frames_per_chunk)
     hparams.add_hparam('simulate_first_pass_online', simulate_first_pass_online)
     hparams.add_hparam('recompute_frame', recompute_frame)
-    hparams.add_hparam('nccf_ballast_online',nccf_ballast_online)
+    hparams.add_hparam('nccf_ballast_online', nccf_ballast_online)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -118,26 +119,27 @@ class Pitch(BaseFrontend):
         if not tf.is_tensor(sample_rate):
           sample_rate = tf.convert_to_tensor(sample_rate)
 
-      pitch = py_x_ops.pitch(audio_data,
-                             sample_rate,
-                             window_length=p.window_length,
-                             frame_length=p.frame_length,
-                             snip_edges=p.snip_edges,
-                             preemph_coeff=p.preemph_coeff,
-                             min_f0=p.min_f0,
-                             max_f0=p.max_f0,
-                             soft_min_f0=p.soft_min_f0,
-                             penalty_factor=p.penalty_factor,
-                             lowpass_cutoff=p.lowpass_cutoff,
-                             resample_freq=p.resample_freq,
-                             delta_pitch=p.delta_pitch,
-                             nccf_ballast=p.nccf_ballast,
-                             lowpass_filter_width=p.lowpass_filter_width,
-                             upsample_filter_width=p.upsample_filter_width,
-                             max_frames_latency=p.max_frames_latency,
-                             frames_per_chunk=p.frames_per_chunk,
-                             simulate_first_pass_online=p.simulate_first_pass_online,
-                             recompute_frame=p.recompute_frame,
-                             nccf_ballast_online=p.nccf_ballast_online)
+      pitch = py_x_ops.pitch(
+          audio_data,
+          sample_rate,
+          window_length=p.window_length,
+          frame_length=p.frame_length,
+          snip_edges=p.snip_edges,
+          preemph_coeff=p.preemph_coeff,
+          min_f0=p.min_f0,
+          max_f0=p.max_f0,
+          soft_min_f0=p.soft_min_f0,
+          penalty_factor=p.penalty_factor,
+          lowpass_cutoff=p.lowpass_cutoff,
+          resample_freq=p.resample_freq,
+          delta_pitch=p.delta_pitch,
+          nccf_ballast=p.nccf_ballast,
+          lowpass_filter_width=p.lowpass_filter_width,
+          upsample_filter_width=p.upsample_filter_width,
+          max_frames_latency=p.max_frames_latency,
+          frames_per_chunk=p.frames_per_chunk,
+          simulate_first_pass_online=p.simulate_first_pass_online,
+          recompute_frame=p.recompute_frame,
+          nccf_ballast_online=p.nccf_ballast_online)
 
       return pitch

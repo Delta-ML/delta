@@ -26,12 +26,12 @@ from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.callbacks import CSVLogger
 from tensorflow.keras.callbacks import ReduceLROnPlateau
 
-
 from delta import utils
 from delta.utils.solver.utils import solver_utils
 from delta.utils.solver.base_solver import Solver
 from delta.utils.solver.utils.callbacks import ParallelModelCheckpoint
 from delta.utils.register import registers
+
 
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
 class KerasBaseSolver(Solver):

@@ -19,7 +19,7 @@ import numpy as np
 import delta.compat as tf
 from absl import logging
 from delta.data.feat import speech_ops
-from delta.layers.ops import py_x_ops
+from core.ops import py_x_ops
 from delta.data.feat import python_speech_features as psf
 
 _global_sess = {}

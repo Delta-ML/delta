@@ -21,7 +21,7 @@ from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.write_wav import WriteWav
 from delta.data.frontend.add_rir_noise_aecres import Add_rir_noise_aecres
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-from delta import PACKAGE_ROOT_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 def change_file_path(scp_path, filetype, newfilePath):
@@ -37,11 +37,10 @@ def change_file_path(scp_path, filetype, newfilePath):
 class AddRirNoiseAecresTest(tf.test.TestCase):
 
   def test_add_rir_noise_aecres(self):
-    wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     # reset path of noise && rir
-    data_path = str(Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data')) + '/'
+    data_path = str(Path(PACKAGE_OPS_DIR).joinpath('data')) + '/'
     noise_file = data_path + 'noiselist_new.scp'
     change_file_path(data_path, 'noiselist.scp', 'noiselist_new.scp')
     rir_file = data_path + 'rirlist_new.scp'

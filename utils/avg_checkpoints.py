@@ -34,9 +34,11 @@ flags.DEFINE_string("prefix", "",
 flags.DEFINE_string("output_path", "/tmp/averaged.ckpt",
                     "Path to output the averaged checkpoint to.")
 
+
 def checkpoint_exists(path):
   return (tf.io.gfile.exists(path) or tf.io.gfile.exists(path + ".meta") or
           tf.io.gfile.exists(path + ".index"))
+
 
 def main(_):
   if FLAGS.checkpoints:

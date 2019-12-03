@@ -13,26 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import os
 
-import delta.compat as tf
-from pathlib import Path
-import librosa
-from delta.data.frontend.read_wav import ReadWav
-from core.ops import PACKAGE_OPS_DIR
-
-
-class ReadWavTest(tf.test.TestCase):
-
-  def test_read_wav(self):
-    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
-
-    with self.cached_session(use_gpu=False, force_gpu=False):
-      read_wav = ReadWav.params({'sample_rate': 16000}).instantiate()
-      audio_data, sample_rate = read_wav(wav_path)
-      audio_data_true, sample_rate_true = librosa.load(wav_path, sr=16000)
-      self.assertAllClose(audio_data.eval() / 32768, audio_data_true)
-      self.assertAllClose(sample_rate.eval(), sample_rate_true)
-
-
-if __name__ == '__main__':
-  tf.test.main()
+PACKAGE_OPS_DIR = os.path.dirname(os.path.abspath(__file__))

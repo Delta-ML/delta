@@ -15,12 +15,13 @@
 # ==============================================================================
 
 import delta.compat as tf
-from delta.layers.ops import py_x_ops
+from core.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 from delta.data.frontend.fbank import Fbank
 from delta.data.frontend.spectrum import Spectrum
 import copy
+
 
 class Mfcc(BaseFrontend):
 

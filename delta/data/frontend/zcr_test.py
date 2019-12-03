@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import delta.compat as tf
 
-from delta import PACKAGE_ROOT_DIR
+from core.ops import PACKAGE_OPS_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.zcr import Zcr
 
@@ -28,8 +28,7 @@ class ZcrTest(tf.test.TestCase):
 
   def test_zcr(self):
 
-    wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()

@@ -18,7 +18,7 @@ import os
 import numpy as np
 from pathlib import Path
 import delta.compat as tf
-from delta import PACKAGE_ROOT_DIR
+from core.ops import PACKAGE_OPS_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.spectrum import Spectrum
 
@@ -26,8 +26,7 @@ from delta.data.frontend.spectrum import Spectrum
 class SpectrumTest(tf.test.TestCase):
 
   def test_spectrum(self):
-    wav_path = str(
-        Path(PACKAGE_ROOT_DIR).joinpath('layers/ops/data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()

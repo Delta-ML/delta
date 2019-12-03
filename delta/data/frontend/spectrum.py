@@ -14,8 +14,8 @@
 # limitations under the License.
 # ==============================================================================
 
-import delta.compat as tf
-from delta.layers.ops import py_x_ops
+import tensorflow as tf
+from core.ops import py_x_ops
 from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 
