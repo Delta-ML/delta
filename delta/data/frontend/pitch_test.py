@@ -22,28 +22,31 @@ from delta.data.frontend.pitch import Pitch
 import numpy as np
 from core.ops import PACKAGE_OPS_DIR
 
+
 class SpectrumTest(tf.test.TestCase):
 
   def test_spectrum(self):
-    wav_path = str(
-      Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
 
-      pitch = Pitch.params({'window_length': 0.025, 'soft_min_f0' : 10.0}).instantiate()
+      pitch = Pitch.params({
+          'window_length': 0.025,
+          'soft_min_f0': 10.0
+      }).instantiate()
       pitch_test = pitch(input_data, sample_rate)
 
       self.assertEqual(tf.rank(pitch_test).eval(), 2)
 
-      output_true = [[-0.1366025, 143.8855],
-                     [-0.0226383, 143.8855],
-                     [-0.08464742, 143.8855],
-                     [-0.08458386, 143.8855],
+      output_true = [[-0.1366025, 143.8855], [-0.0226383, 143.8855],
+                     [-0.08464742, 143.8855], [-0.08458386, 143.8855],
                      [-0.1208689, 143.8855]]
 
-      self.assertAllClose(pitch_test.eval()[0:5, :], output_true, rtol=1e-05, atol=1e-05)
+      self.assertAllClose(
+          pitch_test.eval()[0:5, :], output_true, rtol=1e-05, atol=1e-05)
+
 
 if __name__ == '__main__':
   tf.test.main()

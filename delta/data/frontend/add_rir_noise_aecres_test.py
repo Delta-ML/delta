@@ -37,8 +37,7 @@ def change_file_path(scp_path, filetype, newfilePath):
 class AddRirNoiseAecresTest(tf.test.TestCase):
 
   def test_add_rir_noise_aecres(self):
-    wav_path = str(
-        Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     # reset path of noise && rir
     data_path = str(Path(PACKAGE_OPS_DIR).joinpath('data')) + '/'

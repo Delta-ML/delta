@@ -26,8 +26,7 @@ from core.ops import PACKAGE_OPS_DIR
 class MfccTest(tf.test.TestCase):
 
   def test_mfcc(self):
-    wav_path = str(
-        Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
@@ -47,6 +46,7 @@ class MfccTest(tf.test.TestCase):
           real_mfcc_feats,
           rtol=1e-05,
           atol=1e-05)
+
 
 if __name__ == '__main__':
   tf.test.main()

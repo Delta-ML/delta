@@ -48,81 +48,80 @@ def get_parser():
       default=0.0,
       help='Coefficient for use in frame-signal preemphasis.')
   parser.add_argument(
-    '--min_f0',
-    type=float,
-    default=50,
-    help='F0 to search for (Hz).')
+      '--min_f0', type=float, default=50, help='F0 to search for (Hz).')
   parser.add_argument(
-    '--max_f0',
-    type=float,
-    default=400,
-    help='F0 to search for (Hz).')
+      '--max_f0', type=float, default=400, help='F0 to search for (Hz).')
   parser.add_argument(
-    '--soft_min_f0',
-    type=float,
-    default=10.0,
-    help='Minimum f0, applied in soft way, must not exceed min-f0.')
+      '--soft_min_f0',
+      type=float,
+      default=10.0,
+      help='Minimum f0, applied in soft way, must not exceed min-f0.')
   parser.add_argument(
-    '--penalty_factor',
-    type=float,
-    default=0.1,
-    help='cost factor for FO change.')
+      '--penalty_factor',
+      type=float,
+      default=0.1,
+      help='cost factor for FO change.')
   parser.add_argument(
-    '--lowpass_cutoff',
-    type=float,
-    default=1000,
-    help='cutoff frequency for LowPass filter (Hz).')
+      '--lowpass_cutoff',
+      type=float,
+      default=1000,
+      help='cutoff frequency for LowPass filter (Hz).')
   parser.add_argument(
-    '--resample_freq',
-    type=float,
-    default=4000.0,
-    help='Frequency that we down-sample the signal to.  Must be more than twice lowpass-cutoff.')
+      '--resample_freq',
+      type=float,
+      default=4000.0,
+      help='Frequency that we down-sample the signal to.  Must be more than twice lowpass-cutoff.'
+  )
   parser.add_argument(
-    '--delta_pitch',
-    type=float,
-    default=0.005,
-    help='Smallest relative change in pitch that our algorithm measures.')
+      '--delta_pitch',
+      type=float,
+      default=0.005,
+      help='Smallest relative change in pitch that our algorithm measures.')
   parser.add_argument(
-    '--nccf_ballast',
-    type=float,
-    default=7000.0,
-    help='Increasing this factor reduces NCCF for quiet frames.')
+      '--nccf_ballast',
+      type=float,
+      default=7000.0,
+      help='Increasing this factor reduces NCCF for quiet frames.')
   parser.add_argument(
-    '--lowpass_filter_width',
-    type=int,
-    default=1,
-    help='Integer that determines filter width of lowpass filter, more gives sharper filter.')
+      '--lowpass_filter_width',
+      type=int,
+      default=1,
+      help='Integer that determines filter width of lowpass filter, more gives sharper filter.'
+  )
   parser.add_argument(
-    '--upsample_filter_width',
-    type=int,
-    default=5,
-    help='Integer that determines filter width when upsampling NCCF.')
+      '--upsample_filter_width',
+      type=int,
+      default=5,
+      help='Integer that determines filter width when upsampling NCCF.')
   parser.add_argument(
-    '--max_frames_latency',
-    type=int,
-    default=0,
-    help='Maximum number of frames of latency that we allow pitch tracking to introduce into the feature processing.')
+      '--max_frames_latency',
+      type=int,
+      default=0,
+      help='Maximum number of frames of latency that we allow pitch tracking to introduce into the feature processing.'
+  )
   parser.add_argument(
-    '--frames_per_chunk',
-    type=int,
-    default=0,
-    help='Only relevant for offline pitch extraction.')
+      '--frames_per_chunk',
+      type=int,
+      default=0,
+      help='Only relevant for offline pitch extraction.')
   parser.add_argument(
-    '--recompute_frame',
-    type=int,
-    default=500,
-    help='Only relevant for online pitch extraction, or for compatibility with online pitch extraction.')
+      '--recompute_frame',
+      type=int,
+      default=500,
+      help='Only relevant for online pitch extraction, or for compatibility with online pitch extraction.'
+  )
   parser.add_argument(
-    '--simulate_first_pass_online',
-    type=bool,
-    default=False,
-    help='If true, compute-kaldi-pitch-feats will output features that correspond to what an '
-         'online decoder would see in the first pass of decoding.')
+      '--simulate_first_pass_online',
+      type=bool,
+      default=False,
+      help='If true, compute-kaldi-pitch-feats will output features that correspond to what an '
+      'online decoder would see in the first pass of decoding.')
   parser.add_argument(
-    '--nccf_ballast_online',
-    type=bool,
-    default=False,
-    help='This is useful mainly for debug; it affects how the NCCF ballast is computed.')
+      '--nccf_ballast_online',
+      type=bool,
+      default=False,
+      help='This is useful mainly for debug; it affects how the NCCF ballast is computed.'
+  )
   parser.add_argument(
       '--write_num_frames',
       type=str,
@@ -191,6 +190,7 @@ def compute_pitch():
       sess = tf.Session()
       pitch_feats = pitch_test.eval(session=sess)
       writer[utt_id] = pitch_feats
+
 
 if __name__ == "__main__":
   compute_pitch()

@@ -98,10 +98,10 @@ def get_parser():
       default=13,
       help='Number of cepstra in MFCC computation.')
   parser.add_argument(
-    '--use_energy',
-    type=bool,
-    default=True,
-    help='Use energy (not C0) in MFCC computation.')
+      '--use_energy',
+      type=bool,
+      default=True,
+      help='Use energy (not C0) in MFCC computation.')
   parser.add_argument(
       '--write_num_frames',
       type=str,

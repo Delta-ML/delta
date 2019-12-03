@@ -22,6 +22,7 @@ from delta.data.frontend.fbank import Fbank
 from delta.data.frontend.spectrum import Spectrum
 import copy
 
+
 class Mfcc(BaseFrontend):
 
   def __init__(self, config: dict):

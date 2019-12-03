@@ -35,6 +35,7 @@ from delta.utils.register import registers
 from delta.utils.solver.utils.callbacks import TokenErrMetricCallBack
 from delta.utils.decode.tf_ctc import ctc_greedy_decode
 
+
 #pylint: disable=too-many-instance-attributes,too-many-public-methods
 @registers.solver.register
 class AsrSolver(KerasBaseSolver):
@@ -86,7 +87,8 @@ class AsrSolver(KerasBaseSolver):
                     monitor_used='val_acc',
                     decoder_type='argmax'):
     ''' callbacks for traning, metrics callbacks must be first, then misc callbacks'''
-    callbacks = self.get_metric_callbacks(eval_ds, eval_task, monitor_used, decoder_type)
+    callbacks = self.get_metric_callbacks(eval_ds, eval_task, monitor_used,
+                                          decoder_type)
     misc_cbs = super().get_callbacks(monitor_used)
     callbacks.extend(misc_cbs)
     return callbacks

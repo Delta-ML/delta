@@ -27,8 +27,7 @@ from delta.data.frontend.framepow import Framepow
 class FramepowTest(tf.test.TestCase):
 
   def test_framepow(self):
-    wav_path = str(
-        Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()

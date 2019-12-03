@@ -36,8 +36,7 @@ class AddNoiseEndToEndTest(tf.test.TestCase):
 
   def test_add_noise_end_to_end(self):
 
-    wav_path = str(
-        Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     # reset path of noise && rir
     data_path = str(Path(PACKAGE_OPS_DIR).joinpath('data')) + '/'

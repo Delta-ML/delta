@@ -26,8 +26,7 @@ from delta.data.frontend.analyfiltbank import Analyfiltbank
 class Test(tf.test.TestCase):
 
   def test_analyfiltbank(self):
-    wav_path = str(
-        Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
+    wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False):
 
