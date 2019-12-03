@@ -17,8 +17,6 @@
 
 import re
 import delta.compat as tf
-from tensorflow.python.keras import backend as K  # pylint: disable=no-name-in-module
-
 
 class Model(tf.keras.Model):
   """Base class for model."""
@@ -44,7 +42,7 @@ class RawModel:
     name = kwargs.get('name')
     if not name:
       prefix = self.__class__.__name__
-      name = self._to_snake_case(prefix) + '_' + str(K.get_uid(prefix))
+      name = self._to_snake_case(prefix) + '_' + str(tf.keras.backend.get_uid(prefix))
     self.name = name
 
   @staticmethod

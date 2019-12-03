@@ -16,7 +16,6 @@
 ''' resnet layers'''
 #pylint: disable=no-name-in-module
 import delta.compat as tf
-from tensorflow.python.keras import backend as K
 
 from delta.layers.base_layer import Layer
 
@@ -45,7 +44,7 @@ class IdentityBlock(Layer):
     """
     super().__init__(name='identity' + str(stage) + block)
     filters1, filters2, filters3 = filters
-    if K.image_data_format() == 'channels_last':
+    if tf.keras.backend.image_data_format() == 'channels_last':
       bn_axis = 3
     else:
       bn_axis = 1
@@ -116,7 +115,7 @@ class ConvBlock(Layer):
     """
     super().__init__(name='conv_block' + str(stage) + block)
     filters1, filters2, filters3 = filters
-    if K.image_data_format() == 'channels_last':
+    if tf.keras.backend.image_data_format() == 'channels_last':
       bn_axis = 3
     else:
       bn_axis = 1

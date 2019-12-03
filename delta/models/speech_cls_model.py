@@ -19,7 +19,6 @@ from absl import logging
 
 #pylint: disable=no-name-in-module
 import delta.compat as tf
-from tensorflow.python.keras import backend as K
 
 from delta.models.base_model import Model
 from delta.layers.base_layer import Layer

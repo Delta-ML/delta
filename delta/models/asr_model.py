@@ -15,21 +15,6 @@
 # ==============================================================================
 ''' asr ctc model '''
 import delta.compat as tf
-#pylint: disable=import-error,unused-import
-from tensorflow.keras import backend as K
-from tensorflow.keras.models import Model
-
-from tensorflow.keras.layers import Bidirectional
-from tensorflow.keras.layers import Activation
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import TimeDistributed
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Reshape
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Lambda
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Input
-
 from absl import logging
 
 #delta
@@ -84,15 +69,15 @@ class CTCAsrModel(RawModel):
         labels=labels,
         label_length=label_length,
         name='ctc_loss')
-    #return K.ctc_batch_cost(labels, y_pred, input_length, label_length)
+    #return tf.keras.backend.ctc_batch_cost(labels, y_pred, input_length, label_length)
 
   def build(self):
-    input_tensor = Input(
+    input_tensor = tf.keras.layers.Input(
         name='inputs', shape=(None, *self._feat_shape, 1), dtype=tf.float32)
 
     x = input_tensor
 
-    x = Conv2D(
+    x = tf.keras.layers.Conv2D(
         filters=32,
         kernel_size=(11, 5),
         use_bias=True,
@@ -102,7 +87,7 @@ class CTCAsrModel(RawModel):
         name="conv1")(
             x)
 
-    x = Conv2D(
+    x = tf.keras.layers.Conv2D(
         filters=32,
         kernel_size=(11, 5),
         use_bias=True,
@@ -114,11 +99,11 @@ class CTCAsrModel(RawModel):
 
     _, _, dim, channels = x.get_shape().as_list()
     output_dim = dim * channels
-    x = Reshape((-1, output_dim))(x)
+    x = tf.keras.layers.Reshape((-1, output_dim))(x)
 
-    x = TimeDistributed(Dropout(0.2))(x)
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             units=512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -126,9 +111,9 @@ class CTCAsrModel(RawModel):
             name='lstm'))(
                 x)
 
-    x = TimeDistributed(Dropout(0.2))(x)
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -136,9 +121,9 @@ class CTCAsrModel(RawModel):
             name='lstm1'))(
                 x)
 
-    x = TimeDistributed(Dropout(0.2))(x)
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -146,9 +131,9 @@ class CTCAsrModel(RawModel):
             name='lstm2'))(
                 x)
 
-    x = TimeDistributed(Dropout(0.2))(x)
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.TimeDistributed(Dropout(0.2))(x)
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             512,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -156,16 +141,16 @@ class CTCAsrModel(RawModel):
             name='lstm3'))(
                 x)
 
-    x = TimeDistributed(Dense(1024, activation='relu'))(x)
-    x = TimeDistributed(Dropout(0.5))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(1024, activation='relu'))(x)
+    x = tf.keras.layers.TimeDistributed(Dropout(0.5))(x)
 
     # Output layer with softmax
-    x = TimeDistributed(Dense(self._vocab_size), name="outputs")(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(self._vocab_size), name="outputs")(x)
 
     input_length = Input(name='input_length', shape=[], dtype='int64')
     labels = Input(name='targets', shape=[None], dtype='int32')
     label_length = Input(name='target_length', shape=[], dtype='int64')
-    loss_out = Lambda(
+    loss_out = tf.keras.layers.Lambda(
         self.ctc_lambda_func, output_shape=(),
         name='ctc')([x, input_length, labels, label_length])
 
@@ -190,16 +175,16 @@ class CTC5BlstmAsrModel(CTCAsrModel):
   '''
 
   def build(self):
-    input_tensor = Input(
+    input_tensor = tf.keras.layers.Input(
         name='inputs', shape=(None, *self._feat_shape, 1), dtype=tf.float32)
 
     x = input_tensor
     _, _, dim, channels = x.get_shape().as_list()
     output_dim = dim * channels
-    x = Reshape((-1, output_dim))(x)
+    x = tf.keras.layers.Reshape((-1, output_dim))(x)
 
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -207,8 +192,8 @@ class CTC5BlstmAsrModel(CTCAsrModel):
             name='lstm'))(
                 x)
 
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -216,8 +201,8 @@ class CTC5BlstmAsrModel(CTCAsrModel):
             name='lstm1'))(
                 x)
 
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -225,8 +210,8 @@ class CTC5BlstmAsrModel(CTCAsrModel):
             name='lstm2'))(
                 x)
 
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -234,8 +219,8 @@ class CTC5BlstmAsrModel(CTCAsrModel):
             name='lstm3'))(
                 x)
 
-    x = Bidirectional(
-        LSTM(
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(
             units=320,
             kernel_initializer='glorot_uniform',
             bias_initializer='random_normal',
@@ -244,12 +229,12 @@ class CTC5BlstmAsrModel(CTCAsrModel):
                 x)
 
     # Output layer with softmax
-    x = TimeDistributed(Dense(self._vocab_size))(x)
+    x = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(self._vocab_size), name="outputs")(x)
 
-    input_length = Input(name='input_length', shape=[], dtype='int64')
-    labels = Input(name='targets', shape=[None], dtype='int32')
-    label_length = Input(name='target_length', shape=[], dtype='int64')
-    loss_out = Lambda(
+    input_length = tf.keras.layers.Input(name='input_length', shape=[], dtype='int64')
+    labels = tf.keras.layers.Input(name='targets', shape=[None], dtype='int32')
+    label_length = tf.keras.layers.Input(name='target_length', shape=[], dtype='int64')
+    loss_out = tf.keras.layers.Lambda(
         self.ctc_lambda_func, output_shape=(),
         name='ctc')([x, input_length, labels, label_length])
 

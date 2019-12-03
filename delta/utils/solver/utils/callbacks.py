@@ -18,10 +18,6 @@
 from absl import logging
 
 import delta.compat as tf
-#pylint: disable=import-error
-from tensorflow.keras.callbacks import Callback
-from tensorflow.keras.callbacks import ModelCheckpoint
-from tensorflow.keras import backend as K
 #pylint: disable=no-name-in-module
 from tensorflow.python.data.ops import iterator_ops
 from tensorflow.python.data.ops import dataset_ops
@@ -32,7 +28,7 @@ from delta.utils import metrics as metrics_lib
 
 
 #pylint: disable=too-few-public-methods
-class TokenErrMetricCallBack(Callback):
+class TokenErrMetricCallBack(tf.keras.callbacks.Callback):
   '''Callback to compute specific metric and logs during train and eval'''
 
   def __init__(self, func, eval_ds, eval_task, decoder_type):
@@ -97,7 +93,7 @@ class TokenErrMetricCallBack(Callback):
                                                         logs['loss']))
 
 
-class ParallelModelCheckpoint(ModelCheckpoint):
+class ParallelModelCheckpoint(tf.keras.callbacks.ModelCheckpoint):
   '''Callback to save multi_gpu_model'''
 
   #pylint: disable=too-many-arguments

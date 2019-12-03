@@ -18,9 +18,9 @@
 import math
 import delta.compat as tf
 # pylint: disable=no-name-in-module
-from tensorflow.python.keras import backend as K
-
 import delta.utils as utils
+
+K = tf.keras.backend
 
 
 # pylint: disable=invalid-name

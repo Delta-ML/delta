@@ -35,8 +35,8 @@ data:
       batch_frames_inout: 0 # maximum number of input+output frames in a training batch
       batch_strategy: auto # strategy to count maximum size of batch(support 4 values: "auto", "seq", "frame", "bin")
     batch_mode: true # ture, user control batch; false, `generate` will yeild one example
-    num_parallel_calls: 10
-    num_prefetch_batch: 2
+    num_parallel_calls: 100
+    num_prefetch_batch: 50
     shuffle_buffer_size: 2000
     need_shuffle: true
     sortagrad: true
@@ -58,10 +58,6 @@ model:
 
 solver:
   name: AsrSolver
-  adversarial:
-    enable: false # whether to using adversiral training
-    adv_alpha: 0.5 # adviseral alpha of loss
-    adv_epslion: 0.1 # adviseral example epslion
   model_average:
     enable: false # use average model
     var_avg_decay: 0.99 # the decay rate of varaibles
@@ -76,7 +72,7 @@ solver:
     name: adam
     epochs: 20 # maximum epochs
     loss: CTCLoss
-    batch_size: 64  # number of elements in a training batch
+    batch_size: 128  # number of elements in a training batch
     label_smoothing: 0.0 # label smoothing rate
     learning_rate:
       rate: 0.0001 # learning rate of Adam optimizer
@@ -96,17 +92,6 @@ solver:
     cals:
     - name: AccuracyCal
       arguments: null
-    - name: ConfusionMatrixCal
-      arguments: null
-    - name: PrecisionCal
-      arguments:
-        average: 'binary'
-    - name: RecallCal
-      arguments:
-        average: 'binary'
-    - name: F1ScoreCal
-      arguments:
-        average: 'binary'
   postproc:
       enbale: false
       name: EmoPostProc
@@ -114,11 +99,6 @@ solver:
       eval: true # compute metrics
       infer: true  # get predict results
       pred_path: null # None for `model_path`/infer, dumps infer output to this dir
-      thresholds:
-          - 0.5
-      smoothing:
-          enable: true
-          count: 2
   saver:
     model_path: "exp/asr-ctc/ckpt"
     max_to_keep: 10
