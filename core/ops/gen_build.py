@@ -56,14 +56,14 @@ src += [
 ]
 
 src += [
-    os.path.join("kernels/add_rir_noise_aecres_1.2", one_path)
-    for one_path in os.listdir("kernels/add_rir_noise_aecres_1.2")
+    os.path.join("kernels/add_rir_noise_aecres", one_path)
+    for one_path in os.listdir("kernels/add_rir_noise_aecres")
     if one_path.endswith(".cpp")
 ]
 
 src += [
-    os.path.join("kernels/add_rir_noise_aecres_1.2", one_path)
-    for one_path in os.listdir("kernels/add_rir_noise_aecres_1.2")
+    os.path.join("kernels/add_rir_noise_aecres", one_path)
+    for one_path in os.listdir("kernels/add_rir_noise_aecres")
     if one_path.endswith(".h")
 ]
 

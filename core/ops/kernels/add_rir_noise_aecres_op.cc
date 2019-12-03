@@ -15,7 +15,7 @@ limitations under the License.
 ==============================================================================*/
 
 #include <string.h>
-#include "add_rir_noise_aecres_1.2/audio.h"
+#include "add_rir_noise_aecres/audio.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/tensor.h"

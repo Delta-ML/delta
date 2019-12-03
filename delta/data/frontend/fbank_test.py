@@ -19,7 +19,7 @@ import numpy as np
 from pathlib import Path
 
 import delta.compat as tf
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank import Fbank
 

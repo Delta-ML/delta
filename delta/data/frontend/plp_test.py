@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.plp import Plp
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 class PlpTest(tf.test.TestCase):

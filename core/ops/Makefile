@@ -54,7 +54,7 @@ INCLUDES := -I$(MAIN_ROOT) \
 			-I$(MAIN_ROOT)/ops/cppjieba/deps \
 			-I$(MAIN_ROOT)/ops/cppjieba/include \
 			-I$(MAIN_ROOT)/ops/kernels \
-			-I$(MAIN_ROOT)/ops/kernels/add_rir_noise_aecres_1.2
+			-I$(MAIN_ROOT)/ops/kernels/add_rir_noise_aecres
 
 LDFLAGS += $(TF_LFLAGS) 
 
@@ -64,7 +64,7 @@ $(wildcard kernels/*test_util.cc)
 
 # src and tgts
 LIB_SRCS_ALL := $(wildcard kernels/*.cc) \
-                $(wildcard kernels/add_rir_noise_aecres_1.2/*.cpp)
+                $(wildcard kernels/add_rir_noise_aecres/*.cpp)
 LIB_SRCS := $(filter-out $(CORE_CC_EXCLUDE_SRCS), $(LIB_SRCS_ALL))
 LIB_OBJS := $(addprefix $(OBJDIR), $(patsubst %.cc, %.o, $(patsubst %.cpp, %.o, $(LIB_SRCS))))
 

@@ -19,7 +19,7 @@ import os
 from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.fbank_pitch import FbankPitch
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 class FbankPitchTest(tf.test.TestCase):

@@ -19,7 +19,7 @@ from pathlib import Path
 import delta.compat as tf
 from delta.data.frontend.add_noise_end_to_end import AddNoiseEndToEnd
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 def change_file_path(scp_path, filetype, newfilePath):

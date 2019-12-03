@@ -20,7 +20,7 @@ from pathlib import Path
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.mfcc import Mfcc
 import numpy as np
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 class MfccTest(tf.test.TestCase):

@@ -21,7 +21,7 @@ from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.write_wav import WriteWav
 from delta.data.frontend.add_rir_noise_aecres import Add_rir_noise_aecres
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 def change_file_path(scp_path, filetype, newfilePath):

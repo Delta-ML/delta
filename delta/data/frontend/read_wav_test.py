@@ -18,7 +18,7 @@ import delta.compat as tf
 from pathlib import Path
 import librosa
 from delta.data.frontend.read_wav import ReadWav
-from ops import PACKAGE_OPS_DIR
+from core.ops import PACKAGE_OPS_DIR
 
 
 class ReadWavTest(tf.test.TestCase):
