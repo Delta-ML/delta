@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model extracts power-spectrum && phase-spectrum features per frame."""
 
 import delta.compat as tf
 from core.ops import py_x_ops
@@ -21,7 +22,10 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class Analyfiltbank(BaseFrontend):
-
+  """
+  Compute power-spectrum && phase-spectrum features of every frame in speech,
+  return two float tensors with size (num_frames, num_frequencies).
+  """
   def __init__(self, config: dict):
     super().__init__(config)
 
@@ -29,9 +33,13 @@ class Analyfiltbank(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains three optional parameters:window_length(float, default=0.030),
-          frame_length(float, default=0.010), sample_rate(int, default=16000).
-    :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
+    :param config: contains three optional parameters:
+        --sample_rate       : Waveform data sample frequency (must match the waveform
+                             file, if specified there). (float, default = 16000)
+        --window_length		 : Window length in seconds. (float, default = 0.030)
+        --frame_length		 : Hop length in seconds. (float, default = 0.010)
+    :return: An object of class HParams, which is a set of hyperparameters as
+             name-value pairs.
     """
 
     window_length = 0.030
@@ -51,13 +59,15 @@ class Analyfiltbank(BaseFrontend):
   def call(self, audio_data, sample_rate=None):
     """
     Caculate power spectrum and phase spectrum of audio data.
-    :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
-    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
+    :param audio_data: the audio signal from which to compute spectrum.
+                      Should be an (1, N) tensor.
+    :param sample_rate: [option]the samplerate of the signal we working with,
+                        default is 16kHz.
     :return: Two returns:
-        power spectrum —— A float tensor of size (num_frames, num_frequencies) containing
-            power spectrum and of every frame in speech.
-        phase spectrum —— A float tensor of size (num_frames, num_frequencies) containing
-            phase spectrum and of every frame in speech.
+        power spectrum —— A float tensor of size (num_frames, num_frequencies)
+                          containing power spectrum and of every frame in speech.
+        phase spectrum —— A float tensor of size (num_frames, num_frequencies)
+                          containing phase spectrum and of every frame in speech.
     """
 
     p = self.config

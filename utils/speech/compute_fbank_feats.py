@@ -64,9 +64,14 @@ def get_parser():
       help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
       '--snip_edges',
-      type=bool,
-      default=True,
+      type=int,
+      default=1,
       help='The last frame (shorter than window_length) will not be cutoff.')
+  parser.add_argument(
+    '--dither',
+    type=float,
+    default=0.0,
+    help='Dithering constant (0.0 means no dither).')
   parser.add_argument(
       '--raw_energy',
       type=int,
@@ -131,6 +136,7 @@ def compute_fbank():
   config['preeph_coeff'] = args.preeph_coeff
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
+  config['dither'] = args.dither
 
   fbank = Fbank.params(config).instantiate()
 

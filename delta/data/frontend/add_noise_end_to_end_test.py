@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests OP of Add_noise_rir_end_to_end """
 
 import os
 from pathlib import Path
@@ -33,7 +34,9 @@ def change_file_path(scp_path, filetype, newfilePath):
 
 
 class AddNoiseEndToEndTest(tf.test.TestCase):
-
+  """
+  AddNoiseEndToEnd OP test.
+  """
   def test_add_noise_end_to_end(self):
 
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))

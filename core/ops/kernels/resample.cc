@@ -35,7 +35,6 @@ LinearResample::LinearResample(int samp_rate_in_hz,
   assert(samp_rate_in_hz > 0.0 &&
                samp_rate_out_hz > 0.0 &&
                filter_cutoff_hz > 0.0 &&
-               filter_cutoff_hz*2 <= samp_rate_in_hz &&
                filter_cutoff_hz*2 <= samp_rate_out_hz &&
                num_zeros > 0);
 
@@ -56,7 +55,7 @@ int LinearResample::GetNumOutputSamples(int input_num_samp,
 
   // work out the number of ticks in the time interval
   // [ 0, input_num_samp/samp_rate_in_ ).
-  int interval_length_in_ticks = input_num_samp * ticks_per_input_period;
+  long long interval_length_in_ticks = (long long)input_num_samp * (long long)ticks_per_input_period;
   if (!flush) {
     BaseFloat window_width = num_zeros_ / (2.0 * filter_cutoff_);
     int window_width_ticks = floor(window_width * tick_freq);

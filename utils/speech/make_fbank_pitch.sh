@@ -32,6 +32,7 @@ preeph_coeff=0.97
 window_type='povey'
 remove_dc_offset=true
 is_fbank=true
+dither=0.0
 thres_autoc=0.3
 write_utt2num_frames=true
 compress=false
@@ -125,6 +126,7 @@ if [ -f ${data}/segments ]; then
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
+            --dither ${dither} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
@@ -156,6 +158,7 @@ else
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
+            --dither ${dither} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \

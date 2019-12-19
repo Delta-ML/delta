@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model adds noise/rir to signal and writes it to file."""
 
 import delta.compat as tf
 from delta.utils.hparam import HParams
@@ -23,7 +24,10 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class AddNoiseEndToEnd(BaseFrontend):
-
+  """
+  Add a random signal-to-noise ratio noise or impulse response to clean speech, and
+  write it to wavfile.
+  """
   def __init__(self, config: dict):
     super().__init__(config)
     self.add_noise = Add_rir_noise_aecres(config)

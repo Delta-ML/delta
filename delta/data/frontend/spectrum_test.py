@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests spectrum FE."""
 
 import os
 import numpy as np
@@ -24,7 +25,9 @@ from delta.data.frontend.spectrum import Spectrum
 
 
 class SpectrumTest(tf.test.TestCase):
-
+  '''
+  Spectum extraction test.
+  '''
   def test_spectrum(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
@@ -34,7 +37,8 @@ class SpectrumTest(tf.test.TestCase):
 
       spectrum = Spectrum.params({
           'window_length': 0.025,
-          'snip_edges': True
+          'snip_edges': 1,
+          'dither':0.0
       }).instantiate()
       spectrum_test = spectrum(input_data, sample_rate)
 

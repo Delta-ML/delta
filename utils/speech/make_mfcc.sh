@@ -38,6 +38,7 @@ write_utt2num_frames=true
 compress=false
 compression_method=2
 use_energy=true
+dither=0.0
 
 if [ -f path.sh ]; then . ./path.sh; fi
  . parse_options.sh || exit 1;
@@ -126,6 +127,7 @@ if [ -f ${data}/segments ]; then
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
+            --dither ${dither} \
             --cepstral_lifter ${cepstral_lifter} \
             --coefficient_count ${coefficient_count} \
             --use_energy ${use_energy} \
@@ -159,6 +161,7 @@ else
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
+            --dither ${dither} \
             --cepstral_lifter ${cepstral_lifter} \
             --coefficient_count ${coefficient_count} \
             --use_energy ${use_energy} \

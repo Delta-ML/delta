@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests Cepstrum FE."""
 
 import numpy as np
 from pathlib import Path
@@ -24,7 +25,9 @@ from delta.data.frontend.cepstrum import Cepstrum
 
 
 class CepstrumTest(tf.test.TestCase):
-
+  """
+  Cepstrum extraction test.
+  """
   def test_cepstrum(self):
 
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))

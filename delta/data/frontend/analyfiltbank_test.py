@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests Analyfiltbank FE."""
 
 from pathlib import Path
 import numpy as np
@@ -24,7 +25,9 @@ from delta.data.frontend.analyfiltbank import Analyfiltbank
 
 
 class Test(tf.test.TestCase):
-
+  """
+  Analyfiltbank extraction test.
+  """
   def test_analyfiltbank(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

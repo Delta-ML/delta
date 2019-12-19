@@ -48,6 +48,11 @@ def get_parser():
       default=40,
       help='Order of fbank')
   parser.add_argument(
+    '--dither',
+    type=float,
+    default=0.0,
+    help='Dithering constant (0.0 means no dither).')
+  parser.add_argument(
       '--window_length', type=float, default=0.025, help='Length of a frame')
   parser.add_argument(
       '--frame_length', type=float, default=0.010, help='Hop size of window')
@@ -133,6 +138,7 @@ def compute_fbank_pitch():
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
   config['thres_autoc'] = args.thres_autoc
+  config['dither'] = args.dither
 
   fbank_pitch = FbankPitch.params(config).instantiate()
 

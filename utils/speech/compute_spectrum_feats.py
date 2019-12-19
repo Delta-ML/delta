@@ -73,6 +73,11 @@ def get_parser():
       default=False,
       help='Compute power spetrum without frame energy')
   parser.add_argument(
+    '--dither',
+    type=float,
+    default=0.0,
+    help='Dithering constant (0.0 means no dither).')
+  parser.add_argument(
       '--write_num_frames',
       type=str,
       help='Specify wspecifer for utt2num_frames')
@@ -114,6 +119,7 @@ def compute_spectrum():
   config['preeph_coeff'] = args.preeph_coeff
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
+  config['dither'] = args.dither
 
   spectrum = Spectrum.params(config).instantiate()
 

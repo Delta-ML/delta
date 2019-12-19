@@ -51,6 +51,7 @@ sentence_to_ids = gen_x_ops.sentence_to_ids
 delta_delta = gen_x_ops.delta_delta
 mfcc = gen_x_ops.mfcc_dct
 add_rir_noise_aecres = gen_x_ops.add_rir_noise_aecres
+speed = gen_x_ops.speed
 
 
 def jieba_cut(input_sentence, use_file=True, hmm=True):

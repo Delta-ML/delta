@@ -33,6 +33,8 @@ Fbank::Fbank()
       upper_frequency_limit_(kDefaultUpperFrequencyLimit),
       filterbank_channel_count_(kDefaultFilterbankChannelCount) {}
 
+Fbank::~Fbank() {}
+
 bool Fbank::Initialize(int input_length, double input_sample_rate) {
   if (input_length < 1) {
     LOG(ERROR) << "Input length must be positive.";

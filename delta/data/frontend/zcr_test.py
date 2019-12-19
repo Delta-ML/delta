@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests ZCR FE."""
 
 import os
 from pathlib import Path
@@ -25,7 +26,9 @@ from delta.data.frontend.zcr import Zcr
 
 
 class ZcrTest(tf.test.TestCase):
-
+  """
+  Test Fbank FE using 8k/16k wav files.
+  """
   def test_zcr(self):
 
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))

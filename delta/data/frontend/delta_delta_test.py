@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests Delta_delta FE."""
 
 import delta.compat as tf
 from delta.data.frontend.delta_delta import DeltaDelta
@@ -22,7 +23,9 @@ from kaldiio import WriteHelper
 
 
 class Delta_delta_Test(tf.test.TestCase):
-
+  """
+  Delta_delta extraction test.
+  """
   def test_delta_delta(self):
 
     self.feat_dim = 80

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests OP of Add_noise_rir """
 
 import os
 from pathlib import Path
@@ -35,7 +36,9 @@ def change_file_path(scp_path, filetype, newfilePath):
 
 
 class AddRirNoiseAecresTest(tf.test.TestCase):
-
+  """
+  AddNoiseRIR OP test.
+  """
   def test_add_rir_noise_aecres(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

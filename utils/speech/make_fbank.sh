@@ -26,8 +26,9 @@ filterbank_channel_count=23
 window_length=0.025
 frame_length=0.010
 output_type=1
-snip_edges=true
+snip_edges=1
 raw_energy=1
+dither=0.0
 preeph_coeff=0.97
 window_type='povey'
 remove_dc_offset=true
@@ -123,6 +124,7 @@ if [ -f ${data}/segments ]; then
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
+            --dither ${dither} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \
@@ -153,6 +155,7 @@ else
             --window_type ${window_type} \
             --remove_dc_offset ${remove_dc_offset} \
             --is_fbank ${is_fbank} \
+            --dither ${dither} \
             ${write_num_frames_opt} \
             --compress ${compress} \
             --compression_method ${compression_method} \

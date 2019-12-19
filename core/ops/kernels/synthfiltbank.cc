@@ -68,7 +68,7 @@ int Synthfiltbank::proc_sfb(const float* powspc, const float* phaspc) {
   xcomplex* win = static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));
   xcomplex* fftwin =
       static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));
-
+  float* fft_buf = static_cast<float*>(malloc(sizeof(float) * 2 * i_FFTSiz));
   /* generate window */
   gen_window(pf_WINDOW, i_WinLen, s_WinTyp);
 
@@ -84,7 +84,7 @@ int Synthfiltbank::proc_sfb(const float* powspc, const float* phaspc) {
       fftwin[k].i = -1.0f * fftwin[i_FFTSiz - k].i;
     }
     /* ifft */
-    dit_r2_fft(fftwin, win, i_FFTSiz, 1);
+    dit_r2_fft(fftwin, win, fft_buf, i_FFTSiz, 1);
 
     for (k = 0; k < i_WinLen; k++) {
       pf_wav[n * i_FrmLen + k] +=
@@ -94,7 +94,7 @@ int Synthfiltbank::proc_sfb(const float* powspc, const float* phaspc) {
 
   free(win);
   free(fftwin);
-
+  free(fft_buf);
   return 1;
 }
 

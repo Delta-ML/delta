@@ -110,7 +110,7 @@ int gen_window(float* w, int L, char* typ) {
       w[n] = 0.54 - 0.46 * cos(pn[n]);
     }
   } else if (strcmp(typ, "povey") == 0) {
-    for (n = 0; n < L; n++) {
+    for (n = 0; n < L; n++){
       w[n] = pow(0.5 - 0.5 * cos(pn[n]), 0.85);
     }
   } else if (strcmp(typ, "blac") == 0) {
@@ -121,6 +121,7 @@ int gen_window(float* w, int L, char* typ) {
     printf("Window type not support!\n");
     return -1;
   }
+  free(pn);
   return 0;
 }
 
@@ -525,12 +526,10 @@ int compute_lpc(int ncep, int nfrm, int pord, float* x, float* y) {
 
 /* Radix-2 DIT FFT */
 /* isign=-1 ==> FFT, isign=1 ==> IFFT */
-int dit_r2_fft(xcomplex* input, xcomplex* output, int N, int isign) {
+int dit_r2_fft(xcomplex* input, xcomplex* output, float* in_buf, int N, int isign) {
   float wtemp, wr, wpr, wpi, wi, theta;
   float tempr, tempi;
   int i = 0, j = 0, n = 0, k = 0, m = 0, istep, mmax;
-  float* in_buf =
-      static_cast<float*>(malloc(sizeof(float) * 2 * N));  // c.r&c.i
   float* out_buf;
   float den;
   if (isign == -1)
@@ -592,29 +591,29 @@ int dit_r2_fft(xcomplex* input, xcomplex* output, int N, int isign) {
     output[i].r = out_buf[i * 2 + 1] / den;
     output[i].i = out_buf[i * 2 + 2] / den;
   }
-  free(in_buf);
   return 0;
 }
 
 /* compute energy of frame */
-float compute_energy(const float* input, int L) {
-  float energy = 0;
-  for (int i = 0; i < L; i++) {
-    energy += input[i] * input[i];
-  }
-  return energy;
+float compute_energy(const float* input, int L){
+    float energy = 0;
+    for (int i = 0; i < L; i++){
+        energy += input[i] * input[i];
+    }
+    return energy;
 }
 
 /* do pre_emphasis on frame */
-int do_frame_preemphasis(float* input, float* output, int i_size, float coef) {
-  if (coef == 0.0) {
+int do_frame_preemphasis(float* input, float* output, int i_size, float coef){
+    if (coef == 0.0){
+        memcpy(output, input, sizeof(float) * i_size);
+        return 0;
+    }
     memcpy(output, input, sizeof(float) * i_size);
+    for (int i = i_size - 1; i > 0; i--)
+        output[i] -= coef * output[i-1];
+    output[0] -= coef * output[0];
     return 0;
-  }
-  memcpy(output, input, sizeof(float) * i_size);
-  for (int i = i_size - 1; i > 0; i--) output[i] -= coef * output[i - 1];
-  output[0] -= coef * output[0];
-  return 0;
 }
 
 /* return subvector */

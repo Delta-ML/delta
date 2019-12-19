@@ -28,15 +28,14 @@ class WriteWavTest(tf.test.TestCase):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
-      read_wav = ReadWav.params().instantiate()
+      read_wav = ReadWav.params({'speed': 1.1}).instantiate()
       input_data, sample_rate = read_wav(wav_path)
       input_data = input_data / 32768
       write_wav = WriteWav.params().instantiate()
-      new_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln_new.wav'))
+      new_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln_speed.wav'))
       writewav_op = write_wav(new_path, input_data, sample_rate)
       sess.run(writewav_op)
       test_data, test_sample_rate = read_wav(new_path)
-      test_data = test_data / 32768
       self.assertAllEqual(input_data.eval(), test_data.eval())
       self.assertAllEqual(sample_rate.eval(), test_sample_rate.eval())
 

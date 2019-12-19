@@ -27,6 +27,8 @@ const float frame_length_sec = 0.010;
 FramePow::FramePow() {
   window_length_sec_ = window_length_sec;
   frame_length_sec_ = frame_length_sec;
+  i_snip_edges = 1;
+  i_remove_dc_offset = true;
   pf_FrmEng = NULL;
 }
 
@@ -40,27 +42,54 @@ void FramePow::set_frame_length_sec(float frame_length_sec) {
   frame_length_sec_ = frame_length_sec;
 }
 
+void FramePow::set_snip_edges(int snip_edges) { i_snip_edges = snip_edges; }
+
+void FramePow::set_remove_dc_offset(bool remove_dc_offset) {
+  i_remove_dc_offset = remove_dc_offset;
+ }
+
 int FramePow::init_eng(int input_size, float sample_rate) {
   f_SamRat = sample_rate;
   i_WinLen = static_cast<int>(window_length_sec_ * f_SamRat);
   i_FrmLen = static_cast<int>(frame_length_sec_ * f_SamRat);
-  i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
+  if (i_snip_edges == 1)
+    i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
+  else
+    i_NumFrm = (input_size + i_FrmLen / 2) / i_FrmLen;
 
   pf_FrmEng = static_cast<float*>(malloc(sizeof(float) * i_NumFrm));
 
   return 1;
 }
 
-int FramePow::proc_eng(const float* mic_buf) {
-  int n, k;
+int FramePow::proc_eng(const float* mic_buf, int input_size) {
+  int i, n, k;
   float* win = static_cast<float*>(malloc(sizeof(float) * i_WinLen));
 
   for (n = 0; n < i_NumFrm; n++) {
     pf_FrmEng[n] = 0.0;
+    float sum = 0.0;
+    float energy = 0.0;
     for (k = 0; k < i_WinLen; k++) {
-      win[k] = mic_buf[n * i_FrmLen + k];
-      pf_FrmEng[n] = pf_FrmEng[n] + win[k] * win[k];
+      int index = n * i_FrmLen + k;
+      if (index < input_size)
+        win[k] = mic_buf[index];
+      else
+        win[k] = 0.0f;
+      sum += win[k];
     }
+
+    if (i_remove_dc_offset == true) {
+      float mean = sum / i_WinLen;
+      for (int l = 0; l < i_WinLen; l++) win[l] -= mean;
+    }
+
+    for (i = 0; i < i_WinLen; i++) {
+        energy += win[i] * win[i];
+    }
+
+    pf_FrmEng[n] = log(energy);
+
   }
 
   free(win);

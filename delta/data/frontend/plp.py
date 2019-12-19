@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model extracts PLP features per frame."""
 
 import delta.compat as tf
 
@@ -22,7 +23,10 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class Plp(BaseFrontend):
-
+  """
+  Compute PLP features of every frame in speech, return a float tensor
+  with size (num_frames, plp_order + 1).
+  """
   def __init__(self, config: dict):
     super().__init__(config)
 
@@ -30,9 +34,12 @@ class Plp(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains four optional parameters:window_length(float, default=0.025),
-          frame_length(float, default=0.010), sample_rate(float, default=16000),
-          plp_order(int, default=12).
+    :param config: contains four optional parameters:
+        --sample_rate       : Waveform data sample frequency (must match the waveform
+                             file, if specified there). (float, default = 16000)
+        --window_length		 : Window length in seconds. (float, default = 0.025)
+        --frame_length		 : Hop length in seconds. (float, default = 0.010)
+        --plp_order        : Plp order. (int, default=12).
     :return:An object of class HParams, which is a set of hyperparameters as name-value pairs.
     """
 
@@ -55,9 +62,12 @@ class Plp(BaseFrontend):
   def call(self, audio_data, sample_rate=None):
     """
     Caculate plp features of audio data.
-    :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
-    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
-    :return:A float tensor of size (num_frames, (plp_order + 1)) containing plp features of every frame in speech.
+    :param audio_data: the audio signal from which to compute spectrum.
+                       Should be an (1, N) tensor.
+    :param sample_rate: [option]the samplerate of the signal we working
+                        with, default is 16kHz.
+    :return:A float tensor of size (num_frames, (plp_order + 1)) containing plp
+            features of every frame in speech.
     """
 
     p = self.config
