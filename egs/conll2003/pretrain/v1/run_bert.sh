@@ -19,6 +19,11 @@ if [ ${start_stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     wget -P $data https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip || exit 1
     unzip -d $data/ $data/cased_L-24_H-1024_A-16.zip || exit 1
     git clone https://github.com/google-research/bert.git $local/bert || exit 1
+    # overwrite files for tensorflow 2.0 compatibility
+    cp $local/bert/modeling.py $local/bert/modeling.py.bak || exit 1
+    cp $local/bert/tokenization.py $local/bert/tokenization.py.bak || exit 1
+    cp $local/modeling.py $local/bert/ || exit 1
+    cp $local/tokenization.py $local/bert/ || exit 1
 fi
 
 if [ ${start_stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then

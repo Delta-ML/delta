@@ -19,6 +19,7 @@ from bert import modeling
 import tensorflow as tf
 from absl import logging
 
+import delta.compat as tf
 
 def transfer_bert_model(bert_model_dir, output_bert_model):
   graph = tf.Graph()
