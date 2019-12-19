@@ -16,7 +16,6 @@
 import os
 import sys
 from bert import modeling
-import tensorflow as tf
 from absl import logging
 
 import delta.compat as tf
