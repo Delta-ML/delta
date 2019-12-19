@@ -19,7 +19,7 @@ from bert import modeling
 import tensorflow as tf
 from absl import logging
 
-tf.compat.v1.disable_v2_behavior()
+import delta.compat as tf
 
 def transfer_bert_model(bert_model_dir, output_bert_model):
   graph = tf.Graph()
@@ -27,10 +27,10 @@ def transfer_bert_model(bert_model_dir, output_bert_model):
   num_labels = 2
   use_one_hot_embeddings = False
   with graph.as_default():
-    with tf.compat.v1.Session() as sess:
-      input_ids = tf.compat.v1.placeholder(tf.int32, (None, None), 'input_ids')
-      input_mask = tf.compat.v1.placeholder(tf.int32, (None, None), 'input_mask')
-      segment_ids = tf.compat.v1.placeholder(tf.int32, (None, None), 'segment_ids')
+    with tf.Session() as sess:
+      input_ids = tf.placeholder(tf.int32, (None, None), 'input_ids')
+      input_mask = tf.placeholder(tf.int32, (None, None), 'input_mask')
+      segment_ids = tf.placeholder(tf.int32, (None, None), 'segment_ids')
 
       bert_config = modeling.BertConfig.from_json_file(os.path.join(bert_model_dir, 'bert_config.json'))
       model = modeling.BertModel(
@@ -47,10 +47,10 @@ def transfer_bert_model(bert_model_dir, output_bert_model):
         print("layer:", layer)
       input_x_bert_cls = tf.identity(input_x_bert_cls, "input_x_bert_cls")
       print("input_x_bert_cls", input_x_bert_cls)
-      saver = tf.compat.v1.train.Saver()
+      saver = tf.train.Saver()
 
-    with tf.compat.v1.Session() as sess:
-      sess.run(tf.compat.v1.global_variables_initializer())
+    with tf.Session() as sess:
+      sess.run(tf.global_variables_initializer())
       saver.restore(sess, bert_model_dir + "/bert_model.ckpt")
       saver.save(sess, output_bert_model)
 
