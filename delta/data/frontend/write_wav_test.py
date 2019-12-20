@@ -30,7 +30,7 @@ class WriteWavTest(tf.test.TestCase):
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
       read_wav = ReadWav.params({'speed': 1.0}).instantiate()
       input_data, sample_rate = read_wav(wav_path)
-      input_data = input_data / 32768
+      input_data = input_data
       write_wav = WriteWav.params().instantiate()
       new_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln_speed.wav'))
       writewav_op = write_wav(new_path, input_data, sample_rate)
