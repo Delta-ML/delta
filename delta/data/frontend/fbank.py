@@ -39,9 +39,9 @@ class Fbank(BaseFrontend):
     :param config: contains thirteen optional parameters:
            --window_length				: Window length in seconds. (float, default = 0.025)
            --frame_length				: Hop length in seconds. (float, default = 0.010)
-           --snip_edges				: If 1, the last frame (shorter than window_length) will be
-                                         cutoff. If 2, 1 // 2 frame_length data will be padded
-                                         to data. (int, default = 1)
+           --snip_edges				: If true, the last frame (shorter than window_length) will be
+                                         cutoff. If ,false 1 // 2 frame_length data will be padded
+                                         to data. (bool, default = true)
            ---raw_energy				: If 1, compute frame energy before preemphasis and
                                          windowing. If 2,  compute frame energy after
                                          preemphasis and windowing. (int, default = 1)
@@ -74,7 +74,7 @@ class Fbank(BaseFrontend):
     frame_length = 0.010
     output_type = 1
     sample_rate = 16000
-    snip_edges = 1
+    snip_edges = True
     raw_energy = 1
     preeph_coeff = 0.97
     window_type = 'povey'

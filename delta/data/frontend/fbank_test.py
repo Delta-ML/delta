@@ -39,7 +39,7 @@ class FbankTest(tf.test.TestCase):
           'window_length': 0.025,
           'output_type': 1,
           'frame_length': 0.010,
-          'snip_edges': 1
+          'snip_edges': True
       }
       fbank = Fbank.params(config).instantiate()
       fbank_test = fbank(input_data, sample_rate)

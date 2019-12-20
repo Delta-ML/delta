@@ -27,7 +27,7 @@ const float frame_length_sec = 0.010;
 FramePow::FramePow() {
   window_length_sec_ = window_length_sec;
   frame_length_sec_ = frame_length_sec;
-  i_snip_edges = 1;
+  i_snip_edges = true;
   i_remove_dc_offset = true;
   pf_FrmEng = NULL;
 }
@@ -42,7 +42,7 @@ void FramePow::set_frame_length_sec(float frame_length_sec) {
   frame_length_sec_ = frame_length_sec;
 }
 
-void FramePow::set_snip_edges(int snip_edges) { i_snip_edges = snip_edges; }
+void FramePow::set_snip_edges(bool snip_edges) { i_snip_edges = snip_edges; }
 
 void FramePow::set_remove_dc_offset(bool remove_dc_offset) {
   i_remove_dc_offset = remove_dc_offset;
@@ -52,7 +52,7 @@ int FramePow::init_eng(int input_size, float sample_rate) {
   f_SamRat = sample_rate;
   i_WinLen = static_cast<int>(window_length_sec_ * f_SamRat);
   i_FrmLen = static_cast<int>(frame_length_sec_ * f_SamRat);
-  if (i_snip_edges == 1)
+  if (i_snip_edges == true)
     i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
   else
     i_NumFrm = (input_size + i_FrmLen / 2) / i_FrmLen;

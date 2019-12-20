@@ -35,7 +35,7 @@ class FbankPitchTest(tf.test.TestCase):
       input_data, sample_rate = read_wav(wav_path)
       config = {'window_length': 0.025, 'output_type': 1, 'frame_length': 0.010}
       fbank_pitch = FbankPitch.params(config).instantiate()
-      fbank_pitch_test = fbank_pitch(input_data)
+      fbank_pitch_test = fbank_pitch(input_data, sample_rate)
 
       self.assertEqual(tf.rank(fbank_pitch_test).eval(), 2)
       print(fbank_pitch_test.eval()[0:2])

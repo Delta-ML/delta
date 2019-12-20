@@ -41,9 +41,9 @@ class FbankPitch(BaseFrontend):
                                   (int, default = 16000)
           --window_length		    : Window length in seconds. (float, default = 0.025)
           --frame_length			  : Hop length in seconds. (float, default = 0.010)
-          --snip_edges				  : If 1, the last frame (shorter than window_length) will
-                                        be cutoff. If 2, 1 // 2 frame_length data will be padded
-                                         to data. (int, default = 1)
+          --snip_edges				  : If true, the last frame (shorter than window_length) will
+                                        be cutoff. If false, 1 // 2 frame_length data will be padded
+                                         to data. (bool, default = true)
           ---raw_energy				  : If 1, compute frame energy before preemphasis and
                                         windowing. If 2,  compute frame energy after preemphasis
                                          and windowing. (int, default = 1)
@@ -126,7 +126,7 @@ class FbankPitch(BaseFrontend):
     output_type = 1
     dither = 0.0
     sample_rate = 16000
-    snip_edges = 1
+    snip_edges = True
     preemph_coeff = 0.0
     min_f0 = 50.0
     max_f0 = 400.0

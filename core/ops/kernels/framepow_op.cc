@@ -63,7 +63,7 @@ class FramePowOp : public OpKernel {
     int i_WinLen = static_cast<int>(window_length_ * sample_rate);
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
-    if (snip_edges_ == 2) i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
+    if (snip_edges_ == false) i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
     if (i_NumFrm < 1) i_NumFrm = 1;
     OP_REQUIRES_OK(context, context->allocate_output(
                                 0, TensorShape({1, i_NumFrm}), &output_tensor));
@@ -79,7 +79,7 @@ class FramePowOp : public OpKernel {
  private:
   float window_length_;
   float frame_length_;
-  int snip_edges_;
+  bool snip_edges_;
   bool remove_dc_offset_;
 };
 

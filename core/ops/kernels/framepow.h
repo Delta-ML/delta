@@ -27,7 +27,7 @@ class FramePow {
  private:
   float window_length_sec_;
   float frame_length_sec_;
-  int i_snip_edges;
+  bool i_snip_edges;
   bool i_remove_dc_offset;
 
   float f_SamRat;
@@ -46,7 +46,7 @@ class FramePow {
 
   void set_frame_length_sec(float frame_length_sec);
 
-  void set_snip_edges(int snip_edges);
+  void set_snip_edges(bool snip_edges);
 
   void set_remove_dc_offset(bool remove_dc_offset);
 

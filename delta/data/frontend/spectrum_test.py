@@ -37,7 +37,7 @@ class SpectrumTest(tf.test.TestCase):
 
       spectrum = Spectrum.params({
           'window_length': 0.025,
-          'snip_edges': 1,
+          'snip_edges': True,
           'dither':0.0
       }).instantiate()
       spectrum_test = spectrum(input_data, sample_rate)

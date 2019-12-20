@@ -41,7 +41,7 @@ class Spectrum {
   float f_PreEph;
   char s_WinTyp[40];
   int i_OutTyp;  // 1: PSD, 2:log(PSD)
-  int i_snip_edges;
+  bool i_snip_edges;
   int i_raw_energy;
   bool i_remove_dc_offset;
   bool i_is_fbank;
@@ -66,7 +66,7 @@ class Spectrum {
 
   void set_output_type(int output_type);
 
-  void set_snip_edges(int snip_edges);
+  void set_snip_edges(bool snip_edges);
 
   void set_raw_energy(int raw_energy);
 

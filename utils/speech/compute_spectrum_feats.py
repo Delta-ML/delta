@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+""""Create spectrogram feature files."""
 
 import delta.compat as tf
 import argparse
@@ -49,8 +50,8 @@ def get_parser():
       help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
       '--snip_edges',
-      type=int,
-      default=1,
+      type=bool,
+      default=True,
       help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
       '--raw_energy',

@@ -30,7 +30,7 @@ Spectrum::Spectrum() {
   window_length_sec_ = window_length_sec;
   frame_length_sec_ = frame_length_sec;
   i_OutTyp = 1;
-  i_snip_edges = 1;
+  i_snip_edges = true;
   i_raw_energy = 1;
   f_PreEph = 0.97;
   i_is_fbank = true;
@@ -57,7 +57,7 @@ void Spectrum::set_frame_length_sec(float frame_length_sec) {
 
 void Spectrum::set_output_type(int output_type) { i_OutTyp = output_type; }
 
-void Spectrum::set_snip_edges(int snip_edges) { i_snip_edges = snip_edges; }
+void Spectrum::set_snip_edges(bool snip_edges) { i_snip_edges = snip_edges; }
 
 void Spectrum::set_raw_energy(int raw_energy) {i_raw_energy = raw_energy;}
 
@@ -77,7 +77,7 @@ int Spectrum::init_spc(int input_size, float sample_rate) {
   f_SamRat = sample_rate;
   i_WinLen = static_cast<int>(window_length_sec_ * f_SamRat);
   i_FrmLen = static_cast<int>(frame_length_sec_ * f_SamRat);
-  if (i_snip_edges == 1)
+  if (i_snip_edges == true)
     i_NumFrm = (input_size - i_WinLen) / i_FrmLen + 1;
   else
     i_NumFrm = (input_size + i_FrmLen / 2) / i_FrmLen;
