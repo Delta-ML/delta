@@ -38,7 +38,7 @@ class AddNoiseEndToEnd(BaseFrontend):
   def params(cls, config=None):
     """
         Set params.
-        :param config: contains nine optional parameters:
+        :param config: contains ten optional parameters:
             --sample_rate				  : Sample frequency of waveform data. (int, default = 16000)
             --if_add_rir          : If true, add rir to audio data. (bool, default = False)
             --rir_filelist        : FileList path of rir.(string, default = 'rirlist.scp')
@@ -48,6 +48,7 @@ class AddNoiseEndToEnd(BaseFrontend):
             --noise_filelist      : FileList path of noise.(string, default = 'noiselist.scp')
             --if_add_aecres       : If true, add aecres to audio data. (bool, default = False)
             --aecres_filelist     : FileList path of aecres.(string, default = 'aecreslist.scp')
+            --speed               : Speed of sample channels wanted. (float, default=1.0)
         :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
         """
 
@@ -61,9 +62,11 @@ class AddNoiseEndToEnd(BaseFrontend):
     if_add_aecres = False
     aecres_filelist = 'aecreslist.scp'
     audio_channels = 1
+    speed = 1.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('speed', speed)
     hparams.add_hparam('if_add_rir', if_add_rir)
     hparams.add_hparam('if_add_noise', if_add_noise)
     hparams.add_hparam('rir_filelist', rir_filelist)
