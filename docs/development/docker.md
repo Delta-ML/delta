@@ -30,7 +30,7 @@ We recommend using a power machine to develop DELTANN, since it needs to compile
 `Tensorflow` which is time-consuming.
 
 ### Tags
-Please go to [this](https://hub.docker.com/r/zh794390558/delta) to see the valid docker images tags.
+Please go to [this](https://hub.docker.com/r/zh794390558/delta/tags) to see the valid docker images tags.
 
 ## Build Images
 
