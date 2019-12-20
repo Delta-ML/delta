@@ -27,6 +27,7 @@ class Framepow(BaseFrontend):
   Compute power of every frame in speech. Return a float tensor with
   shape (1 * num_frames).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 
@@ -86,11 +87,12 @@ class Framepow(BaseFrontend):
       with tf.control_dependencies([assert_op]):
 
         sample_rate = tf.cast(sample_rate, dtype=float)
-        framepow = py_x_ops.frame_pow(audio_data,
-                                      sample_rate,
-                                      snip_edges=p.snip_edges,
-                                      remove_dc_offset=p.remove_dc_offset,
-                                      window_length=p.window_length,
-                                      frame_length=p.frame_length)
+        framepow = py_x_ops.frame_pow(
+            audio_data,
+            sample_rate,
+            snip_edges=p.snip_edges,
+            remove_dc_offset=p.remove_dc_offset,
+            window_length=p.window_length,
+            frame_length=p.frame_length)
 
         return tf.squeeze(framepow)

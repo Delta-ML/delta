@@ -27,6 +27,7 @@ class FbankPitch(BaseFrontend):
   Compute Fbank && Pitch features respectively，and concate them. Return
   a tensor with shape (num_frames, dim_features).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
     self.fbank = Fbank(config)

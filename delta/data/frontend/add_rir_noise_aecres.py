@@ -25,6 +25,7 @@ class Add_rir_noise_aecres(BaseFrontend):
   """
   Add a random signal-to-noise ratio noise or impulse response to clean speech.
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

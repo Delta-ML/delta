@@ -28,6 +28,7 @@ class CepstrumTest(tf.test.TestCase):
   """
   Cepstrum extraction test.
   """
+
   def test_cepstrum(self):
 
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))

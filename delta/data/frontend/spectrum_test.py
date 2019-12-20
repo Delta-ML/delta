@@ -28,6 +28,7 @@ class SpectrumTest(tf.test.TestCase):
   '''
   Spectum extraction test.
   '''
+
   def test_spectrum(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
@@ -38,7 +39,7 @@ class SpectrumTest(tf.test.TestCase):
       spectrum = Spectrum.params({
           'window_length': 0.025,
           'snip_edges': True,
-          'dither':0.0
+          'dither': 0.0
       }).instantiate()
       spectrum_test = spectrum(input_data, sample_rate)
 

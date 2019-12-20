@@ -29,6 +29,7 @@ class Mfcc(BaseFrontend):
   Compute mfcc features of every frame in speech, return a float tensor
   with size (num_channels, num_frames, num_frequencies).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
     self.framepow = Framepow(config)
@@ -140,10 +141,11 @@ class Mfcc(BaseFrontend):
         nfbank = shape[1]
         fbank_feats = tf.reshape(fbank_feats, (1, nframe, nfbank))
         framepow_feats = self.framepow(audio_data, sample_rate)
-        mfcc = py_x_ops.mfcc(fbank_feats,
-                             framepow_feats,
-                             sample_rate,
-                             use_energy=p.use_energy,
-                             cepstral_lifter=p.cepstral_lifter,
-                             coefficient_count=p.coefficient_count)
+        mfcc = py_x_ops.mfcc(
+            fbank_feats,
+            framepow_feats,
+            sample_rate,
+            use_energy=p.use_energy,
+            cepstral_lifter=p.cepstral_lifter,
+            coefficient_count=p.coefficient_count)
         return mfcc

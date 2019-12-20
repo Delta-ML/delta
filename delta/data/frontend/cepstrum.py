@@ -27,6 +27,7 @@ class Cepstrum(BaseFrontend):
   Compute Cepstrum features of every frame in speech, return a float tensor
   with size (num_frames, ceps_subband_num).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

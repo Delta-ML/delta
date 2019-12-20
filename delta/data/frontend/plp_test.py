@@ -28,6 +28,7 @@ class PlpTest(tf.test.TestCase):
   """
   Plp extraction test.
   """
+
   def test_plp(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

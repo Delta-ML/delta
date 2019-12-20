@@ -69,10 +69,10 @@ def get_parser():
       default=True,
       help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
-    '--dither',
-    type=float,
-    default=0.0,
-    help='Dithering constant (0.0 means no dither).')
+      '--dither',
+      type=float,
+      default=0.0,
+      help='Dithering constant (0.0 means no dither).')
   parser.add_argument(
       '--raw_energy',
       type=int,

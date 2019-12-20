@@ -89,10 +89,10 @@ def get_parser():
       default=True,
       help='Compute power spetrum without frame energy.')
   parser.add_argument(
-    '--dither',
-    type=float,
-    default=0.0,
-    help='Dithering constant (0.0 means no dither).')
+      '--dither',
+      type=float,
+      default=0.0,
+      help='Dithering constant (0.0 means no dither).')
   parser.add_argument(
       '--cepstral_lifter',
       type=float,

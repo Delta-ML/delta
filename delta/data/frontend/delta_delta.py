@@ -26,6 +26,7 @@ class DeltaDelta(BaseFrontend):
   """
   Do Delta_delta to features.
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

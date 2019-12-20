@@ -26,6 +26,7 @@ class ReadWavTest(tf.test.TestCase):
   """
   ReadWav OP test.
   """
+
   def test_read_wav(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
@@ -37,6 +38,7 @@ class ReadWavTest(tf.test.TestCase):
       if (config['speed'] == 1.0):
         self.assertAllClose(audio_data.eval() / 32768, audio_data_true)
         self.assertAllClose(sample_rate.eval(), sample_rate_true)
+
 
 if __name__ == '__main__':
   tf.test.main()

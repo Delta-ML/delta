@@ -29,6 +29,7 @@ class Test(tf.test.TestCase):
   """
   Synthfiltbank extraction test.
   """
+
   def test_synthfiltbank(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

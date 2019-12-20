@@ -28,6 +28,7 @@ class MfccTest(tf.test.TestCase):
   """
   MFCC extraction test.
   """
+
   def test_mfcc(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

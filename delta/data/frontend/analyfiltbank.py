@@ -26,6 +26,7 @@ class Analyfiltbank(BaseFrontend):
   Compute power-spectrum && phase-spectrum features of every frame in speech,
   return two float tensors with size (num_frames, num_frequencies).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

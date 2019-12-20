@@ -20,10 +20,12 @@ from delta.utils.hparam import HParams
 from delta.data.frontend.base_frontend import BaseFrontend
 from core.ops import py_x_ops
 
+
 class ReadWav(BaseFrontend):
   """
       Read audio sample from wav file, return sample data and sample rate.
       """
+
   def __init__(self, config: dict):
     super().__init__(config)
 
@@ -71,12 +73,16 @@ class ReadWav(BaseFrontend):
     with tf.control_dependencies([assert_op]):
 
       if p.speed == 1.0:
-        return tf.squeeze(audio_data * 32768, axis=-1), tf.cast(sample_rate, dtype=tf.int32)
+        return tf.squeeze(
+            audio_data * 32768, axis=-1), tf.cast(
+                sample_rate, dtype=tf.int32)
       else:
-        resample_rate = tf.cast(sample_rate, dtype=tf.float32) * tf.cast(
-          1.0 / p.speed, dtype=tf.float32)
-        speed_data = py_x_ops.speed(tf.squeeze(audio_data * 32768, axis=-1),
-                                    tf.cast(sample_rate, dtype=tf.int32),
-                                    tf.cast(resample_rate, dtype=tf.int32),
-                                    lowpass_filter_width=5)
+        resample_rate = tf.cast(
+            sample_rate, dtype=tf.float32) * tf.cast(
+                1.0 / p.speed, dtype=tf.float32)
+        speed_data = py_x_ops.speed(
+            tf.squeeze(audio_data * 32768, axis=-1),
+            tf.cast(sample_rate, dtype=tf.int32),
+            tf.cast(resample_rate, dtype=tf.int32),
+            lowpass_filter_width=5)
         return tf.squeeze(speed_data), tf.cast(sample_rate, dtype=tf.int32)

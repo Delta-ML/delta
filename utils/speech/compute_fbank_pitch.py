@@ -49,10 +49,10 @@ def get_parser():
       default=40,
       help='Order of fbank')
   parser.add_argument(
-    '--dither',
-    type=float,
-    default=0.0,
-    help='Dithering constant (0.0 means no dither).')
+      '--dither',
+      type=float,
+      default=0.0,
+      help='Dithering constant (0.0 means no dither).')
   parser.add_argument(
       '--window_length', type=float, default=0.025, help='Length of a frame')
   parser.add_argument(

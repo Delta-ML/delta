@@ -29,6 +29,7 @@ class FramepowTest(tf.test.TestCase):
   """
   Framepow extraction test.
   """
+
   def test_framepow(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
@@ -43,10 +44,10 @@ class FramepowTest(tf.test.TestCase):
       framepow_test = framepow(input_data, sample_rate)
 
       real_framepow_feats = np.array(
-        [9.819611, 9.328745, 9.247337, 9.26451, 9.266059])
+          [9.819611, 9.328745, 9.247337, 9.26451, 9.266059])
 
       self.assertEqual(tf.rank(framepow_test).eval(), 1)
-      self.assertAllClose(framepow_test.eval()[0 : 5], real_framepow_feats)
+      self.assertAllClose(framepow_test.eval()[0:5], real_framepow_feats)
 
 
 if __name__ == '__main__':

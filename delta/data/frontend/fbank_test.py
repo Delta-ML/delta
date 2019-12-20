@@ -29,6 +29,7 @@ class FbankTest(tf.test.TestCase):
   """
   Test Fbank FE using 8k/16k wav files.
   """
+
   def test_fbank(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

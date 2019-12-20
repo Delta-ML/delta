@@ -28,6 +28,7 @@ class Fbank(BaseFrontend):
    spectrum to extract frequency bands. Return a float tensor with shape
    (num_channels, num_frames, num_frequencies).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
     self.spect = Spectrum(config)

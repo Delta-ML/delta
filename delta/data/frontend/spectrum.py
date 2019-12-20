@@ -26,6 +26,7 @@ class Spectrum(BaseFrontend):
   Compute spectrum features of every frame in speech, return a float tensor
   with size (num_frames, num_frequencies).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

@@ -28,6 +28,7 @@ class AddNoiseEndToEnd(BaseFrontend):
   Add a random signal-to-noise ratio noise or impulse response to clean speech, and
   write it to wavfile.
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
     self.add_noise = Add_rir_noise_aecres(config)

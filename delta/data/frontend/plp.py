@@ -27,6 +27,7 @@ class Plp(BaseFrontend):
   Compute PLP features of every frame in speech, return a float tensor
   with size (num_frames, plp_order + 1).
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

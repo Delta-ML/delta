@@ -26,6 +26,7 @@ class CMVN(BaseFrontend):
   """
   Compute and apply CMVN to features.
   """
+
   def __init__(self, config: dict):
     super().__init__(config)
 

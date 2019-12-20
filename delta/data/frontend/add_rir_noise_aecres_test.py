@@ -39,6 +39,7 @@ class AddRirNoiseAecresTest(tf.test.TestCase):
   """
   AddNoiseRIR OP test.
   """
+
   def test_add_rir_noise_aecres(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

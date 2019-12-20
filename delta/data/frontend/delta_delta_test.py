@@ -26,6 +26,7 @@ class Delta_delta_Test(tf.test.TestCase):
   """
   Delta_delta extraction test.
   """
+
   def test_delta_delta(self):
 
     self.feat_dim = 80

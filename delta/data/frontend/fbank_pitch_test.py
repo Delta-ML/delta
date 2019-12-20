@@ -27,6 +27,7 @@ class FbankPitchTest(tf.test.TestCase):
   """
   Compare Fbank&&Pitch FE with kaldi.
   """
+
   def test_FbankPitch(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 

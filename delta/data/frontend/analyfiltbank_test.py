@@ -28,6 +28,7 @@ class Test(tf.test.TestCase):
   """
   Analyfiltbank extraction test.
   """
+
   def test_analyfiltbank(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
 
