@@ -32,6 +32,7 @@ namespace delta {
 class Fbank {
  public:
   Fbank();
+  ~Fbank();
   bool Initialize(int input_length, double input_sample_rate);
   // Input is a single squared-magnitude spectrogram frame. The input spectrum
   // is converted to linear magnitude and weighted into bands using a

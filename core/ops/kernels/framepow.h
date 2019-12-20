@@ -27,6 +27,8 @@ class FramePow {
  private:
   float window_length_sec_;
   float frame_length_sec_;
+  bool i_snip_edges;
+  bool i_remove_dc_offset;
 
   float f_SamRat;
   int i_WinLen;
@@ -44,9 +46,13 @@ class FramePow {
 
   void set_frame_length_sec(float frame_length_sec);
 
+  void set_snip_edges(bool snip_edges);
+
+  void set_remove_dc_offset(bool remove_dc_offset);
+
   int init_eng(int input_size, float sample_rate);
 
-  int proc_eng(const float* mic_buf);
+  int proc_eng(const float* mic_buf, int input_size);
 
   int get_eng(float* output);
 

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model adds noise/rir to signal and writes it to file."""
 
 import delta.compat as tf
 from delta.utils.hparam import HParams
@@ -23,6 +24,10 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class AddNoiseEndToEnd(BaseFrontend):
+  """
+  Add a random signal-to-noise ratio noise or impulse response to clean speech, and
+  write it to wavfile.
+  """
 
   def __init__(self, config: dict):
     super().__init__(config)
@@ -34,7 +39,7 @@ class AddNoiseEndToEnd(BaseFrontend):
   def params(cls, config=None):
     """
         Set params.
-        :param config: contains nine optional parameters:
+        :param config: contains ten optional parameters:
             --sample_rate				  : Sample frequency of waveform data. (int, default = 16000)
             --if_add_rir          : If true, add rir to audio data. (bool, default = False)
             --rir_filelist        : FileList path of rir.(string, default = 'rirlist.scp')
@@ -44,6 +49,7 @@ class AddNoiseEndToEnd(BaseFrontend):
             --noise_filelist      : FileList path of noise.(string, default = 'noiselist.scp')
             --if_add_aecres       : If true, add aecres to audio data. (bool, default = False)
             --aecres_filelist     : FileList path of aecres.(string, default = 'aecreslist.scp')
+            --speed               : Speed of sample channels wanted. (float, default=1.0)
         :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.
         """
 
@@ -57,9 +63,11 @@ class AddNoiseEndToEnd(BaseFrontend):
     if_add_aecres = False
     aecres_filelist = 'aecreslist.scp'
     audio_channels = 1
+    speed = 1.0
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('sample_rate', sample_rate)
+    hparams.add_hparam('speed', speed)
     hparams.add_hparam('if_add_rir', if_add_rir)
     hparams.add_hparam('if_add_noise', if_add_noise)
     hparams.add_hparam('rir_filelist', rir_filelist)

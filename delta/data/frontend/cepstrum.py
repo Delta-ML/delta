@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model extracts Cepstrum features per frame."""
 
 import delta.compat as tf
 
@@ -22,6 +23,10 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class Cepstrum(BaseFrontend):
+  """
+  Compute Cepstrum features of every frame in speech, return a float tensor
+  with size (num_frames, ceps_subband_num).
+  """
 
   def __init__(self, config: dict):
     super().__init__(config)
@@ -30,10 +35,15 @@ class Cepstrum(BaseFrontend):
   def params(cls, config=None):
     """
     Set params.
-    :param config: contains five optional parameters:window_length(float, default=0.025),
-          frame_length(float, default=0.010), sample_rate(int, default=16000),
-          ceps_subband_num(int, default=13), tag_ceps_mean_norm(bool, default=True).
-    :return:An object of class HParams, which is a set of hyperparameters as name-value pairs.
+    :param config: contains five optional parameters:
+        --sample_rate       : Waveform data sample frequency (must match the waveform
+                            file, if specified there). (float, default = 16000)
+        --window_length		 : Window length in seconds. (float, default = 0.025)
+        --frame_length		 : Hop length in seconds. (float, default = 0.010)
+        --ceps_subband_num : Number of Ceps_subband. (int, default=13).
+        --tag_ceps_mean_norm : Flag of tag_ceps_mean_norm. (bool, default=True).
+    :return:An object of class HParams, which is a set of hyperparameters as
+            name-value pairs.
     """
 
     window_length = 0.025
@@ -57,10 +67,13 @@ class Cepstrum(BaseFrontend):
   def call(self, audio_data, sample_rate=None):
     """
     Caculate cepstrum of audio data.
-    :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
-    :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
-    :return:A float tensor of size (num_frames, ceps_subband_num) containing normalized cepstrum
-          (tag_ceps_mean_norm = True) or cepstrum (tag_ceps_mean_norm = False) of every frame in speech.
+    :param audio_data: the audio signal from which to compute spectrum.
+                        Should be an (1, N) tensor.
+    :param sample_rate: [option]the samplerate of the signal we working with,
+                        default is 16kHz.
+    :return:A float tensor of size (num_frames, ceps_subband_num) containing
+            normalized cepstrum (tag_ceps_mean_norm = True) or cepstrum
+            (tag_ceps_mean_norm = False) of every frame in speech.
     """
 
     p = self.config

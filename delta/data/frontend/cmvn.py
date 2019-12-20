@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model computes CMVN of features."""
 
 import io
 import kaldiio
@@ -22,13 +23,28 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class CMVN(BaseFrontend):
+  """
+  Compute and apply CMVN to features.
+  """
 
   def __init__(self, config: dict):
     super().__init__(config)
 
   @classmethod
   def params(cls, config=None):
-
+    """
+    Set params.
+    :param config: contains seven optional parameters:
+            --norm_means   : Flag of norm_means. (bool, default=True)
+            --norm_vars    : Flag of norm_vars. (bool, default=False)
+            --utt2spk      : Use for speaker CMVN. (string, default=None)
+            --spk2utt      : Rspecifier for speaker to utterance-list map.
+                            (string, default=None)
+            --reverse      : Flag of reverse. (bool, default=False)
+            --std_floor    : Floor to std. (float, default=1.0e-20)
+            --filetype     : Type of input file. (string, default='mat')
+    :return:
+    """
     norm_means = True
     norm_vars = False
     utt2spk = None
@@ -52,7 +68,11 @@ class CMVN(BaseFrontend):
     return hparams
 
   def call(self, stats):
-
+    """
+    Do CMVN.
+    :param stats: Statistics of features.
+    :return: Mean and std of features.
+    """
     p = self.config
 
     if isinstance(stats, dict):

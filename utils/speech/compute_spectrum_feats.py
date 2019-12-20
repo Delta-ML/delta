@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+""""Create spectrogram feature files."""
 
 import delta.compat as tf
 import argparse
@@ -49,8 +50,8 @@ def get_parser():
       help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
       '--snip_edges',
-      type=int,
-      default=1,
+      type=bool,
+      default=True,
       help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
       '--raw_energy',
@@ -72,6 +73,11 @@ def get_parser():
       type=bool,
       default=False,
       help='Compute power spetrum without frame energy')
+  parser.add_argument(
+      '--dither',
+      type=float,
+      default=0.0,
+      help='Dithering constant (0.0 means no dither).')
   parser.add_argument(
       '--write_num_frames',
       type=str,
@@ -114,6 +120,7 @@ def compute_spectrum():
   config['preeph_coeff'] = args.preeph_coeff
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
+  config['dither'] = args.dither
 
   spectrum = Spectrum.params(config).instantiate()
 

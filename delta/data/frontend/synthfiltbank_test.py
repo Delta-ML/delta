@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests Synthfiltbank FE."""
 
 import os
 from pathlib import Path
@@ -25,6 +26,9 @@ from delta.data.frontend.synthfiltbank import Synthfiltbank
 
 
 class Test(tf.test.TestCase):
+  """
+  Synthfiltbank extraction test.
+  """
 
   def test_synthfiltbank(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))

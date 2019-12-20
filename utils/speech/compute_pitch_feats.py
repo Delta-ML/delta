@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""Create Pitch feature files."""
 
 import delta.compat as tf
 import argparse

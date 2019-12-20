@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model adds noise/rir to signal."""
 
 import delta.compat as tf
 from delta.utils.hparam import HParams
@@ -21,6 +22,9 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class Add_rir_noise_aecres(BaseFrontend):
+  """
+  Add a random signal-to-noise ratio noise or impulse response to clean speech.
+  """
 
   def __init__(self, config: dict):
     super().__init__(config)
@@ -71,8 +75,10 @@ class Add_rir_noise_aecres(BaseFrontend):
   def call(self, audio_data, sample_rate=None):
     """
         Caculate power spectrum or log power spectrum of audio data.
-        :param audio_data: the audio signal from which to compute spectrum. Should be an (1, N) tensor.
-        :param sample_rate: [option]the samplerate of the signal we working with, default is 16kHz.
+        :param audio_data: the audio signal from which to compute spectrum.
+                          Should be an (1, N) tensor.
+        :param sample_rate: [option]the samplerate of the signal we working with,
+                           default is 16kHz.
         :return: A float tensor of size N containing add-noise audio.
         """
 

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests framepow FE."""
 
 import os
 import numpy as np
@@ -25,6 +26,9 @@ from delta.data.frontend.framepow import Framepow
 
 
 class FramepowTest(tf.test.TestCase):
+  """
+  Framepow extraction test.
+  """
 
   def test_framepow(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
@@ -32,7 +36,6 @@ class FramepowTest(tf.test.TestCase):
     with self.cached_session(use_gpu=False, force_gpu=False):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path)
-      input_data = input_data / 32768
 
       framepow = Framepow.params({
           'window_length': 0.025,
@@ -40,19 +43,11 @@ class FramepowTest(tf.test.TestCase):
       }).instantiate()
       framepow_test = framepow(input_data, sample_rate)
 
-      output_true = np.array([
-          0.000018, 0.000011, 0.000010, 0.000010, 0.000010, 0.000010, 0.000008,
-          0.000009, 0.000009, 0.000009, 0.000009, 0.000011, 0.090164, 0.133028,
-          0.156547, 0.053551, 0.056670, 0.097706, 0.405659, 2.119505, 4.296845,
-          6.139090, 6.623638, 6.136467, 7.595072, 7.904415, 7.655983, 6.771016,
-          5.706427, 4.220942, 3.259599, 2.218259, 1.911394, 2.234246, 3.056905,
-          2.534153, 0.464354, 0.013493, 0.021231, 0.148362, 0.364829, 0.627266,
-          0.494912, 0.366029, 0.315408, 0.312441, 0.323796, 0.267505, 0.152856,
-          0.045305
-      ])
+      real_framepow_feats = np.array(
+          [9.819611, 9.328745, 9.247337, 9.26451, 9.266059])
 
       self.assertEqual(tf.rank(framepow_test).eval(), 1)
-      self.assertAllClose(framepow_test.eval().flatten()[:50], output_true)
+      self.assertAllClose(framepow_test.eval()[0:5], real_framepow_feats)
 
 
 if __name__ == '__main__':

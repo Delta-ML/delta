@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""Create fbank_picth feature files."""
 
 import delta.compat as tf
 import argparse
@@ -48,6 +49,11 @@ def get_parser():
       default=40,
       help='Order of fbank')
   parser.add_argument(
+      '--dither',
+      type=float,
+      default=0.0,
+      help='Dithering constant (0.0 means no dither).')
+  parser.add_argument(
       '--window_length', type=float, default=0.025, help='Length of a frame')
   parser.add_argument(
       '--frame_length', type=float, default=0.010, help='Hop size of window')
@@ -63,8 +69,8 @@ def get_parser():
       help='Type of window ("hamm"|"hann"|"povey"|"rect"|"blac"|"tria").')
   parser.add_argument(
       '--snip_edges',
-      type=int,
-      default=1,
+      type=bool,
+      default=True,
       help='The last frame (shorter than window_length) will not be cutoff.')
   parser.add_argument(
       '--raw_energy',
@@ -133,6 +139,7 @@ def compute_fbank_pitch():
   config['remove_dc_offset'] = args.remove_dc_offset
   config['is_fbank'] = args.is_fbank
   config['thres_autoc'] = args.thres_autoc
+  config['dither'] = args.dither
 
   fbank_pitch = FbankPitch.params(config).instantiate()
 

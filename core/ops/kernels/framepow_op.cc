@@ -29,6 +29,9 @@ class FramePowOp : public OpKernel {
   explicit FramePowOp(OpKernelConstruction* context) : OpKernel(context) {
     OP_REQUIRES_OK(context, context->GetAttr("window_length", &window_length_));
     OP_REQUIRES_OK(context, context->GetAttr("frame_length", &frame_length_));
+    OP_REQUIRES_OK(context, context->GetAttr("snip_edges", &snip_edges_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("remove_dc_offset", &remove_dc_offset_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -49,6 +52,8 @@ class FramePowOp : public OpKernel {
     FramePow cls_eng;
     cls_eng.set_window_length_sec(window_length_);
     cls_eng.set_frame_length_sec(frame_length_);
+    cls_eng.set_snip_edges(snip_edges_);
+    cls_eng.set_remove_dc_offset(remove_dc_offset_);
     OP_REQUIRES(context, cls_eng.init_eng(L, sample_rate),
                 errors::InvalidArgument(
                     "framepow_class initialization failed for length ", L,
@@ -58,6 +63,8 @@ class FramePowOp : public OpKernel {
     int i_WinLen = static_cast<int>(window_length_ * sample_rate);
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
+    if (snip_edges_ == false) i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
+    if (i_NumFrm < 1) i_NumFrm = 1;
     OP_REQUIRES_OK(context, context->allocate_output(
                                 0, TensorShape({1, i_NumFrm}), &output_tensor));
 
@@ -65,13 +72,15 @@ class FramePowOp : public OpKernel {
     float* output_flat = output_tensor->flat<float>().data();
 
     int ret;
-    ret = cls_eng.proc_eng(input_flat);
+    ret = cls_eng.proc_eng(input_flat, L);
     ret = cls_eng.get_eng(output_flat);
   }
 
  private:
   float window_length_;
   float frame_length_;
+  bool snip_edges_;
+  bool remove_dc_offset_;
 };
 
 REGISTER_KERNEL_BUILDER(Name("FramePow").Device(DEVICE_CPU), FramePowOp);

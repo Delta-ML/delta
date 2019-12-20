@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include <string.h>
 #include "kernels/spectrum.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
@@ -22,8 +21,10 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor_shape.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/status.h"
+#include <string.h>
 
 namespace delta {
+
 class SpecOp : public OpKernel {
  public:
   explicit SpecOp(OpKernelConstruction* context) : OpKernel(context) {
@@ -34,9 +35,9 @@ class SpecOp : public OpKernel {
     OP_REQUIRES_OK(context, context->GetAttr("raw_energy", &raw_energy_));
     OP_REQUIRES_OK(context, context->GetAttr("preEph_coeff", &preEph_coeff_));
     OP_REQUIRES_OK(context, context->GetAttr("window_type", &window_type_));
-    OP_REQUIRES_OK(context,
-                   context->GetAttr("remove_dc_offset", &remove_dc_offset_));
+    OP_REQUIRES_OK(context, context->GetAttr("remove_dc_offset", &remove_dc_offset_));
     OP_REQUIRES_OK(context, context->GetAttr("is_fbank", &is_fbank_));
+    OP_REQUIRES_OK(context, context->GetAttr("dither", &dither_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -52,10 +53,8 @@ class SpecOp : public OpKernel {
                     sample_rate_tensor.shape().DebugString(), " instead."));
     const float sample_rate = sample_rate_tensor.scalar<float>()();
 
-    // shape
-    const int L = input_tensor.dim_size(0);
-    char* window_type = const_cast<char*>(window_type_.c_str());
     Spectrum cls_spc;
+    char* window_type = const_cast<char *>(window_type_.c_str());
     cls_spc.set_window_length_sec(window_length_);
     cls_spc.set_frame_length_sec(frame_length_);
     cls_spc.set_output_type(output_type_);
@@ -65,6 +64,10 @@ class SpecOp : public OpKernel {
     cls_spc.set_window_type(window_type);
     cls_spc.set_remove_dc_offset(remove_dc_offset_);
     cls_spc.set_is_fbank(is_fbank_);
+    cls_spc.set_dither(dither_);
+
+    // shape
+    const int L = input_tensor.dim_size(0);
     OP_REQUIRES(context, cls_spc.init_spc(L, sample_rate),
                 errors::InvalidArgument(
                     "spectrum_class initialization failed for length ", L,
@@ -75,8 +78,10 @@ class SpecOp : public OpKernel {
     int i_FrmLen = static_cast<int>(frame_length_ * sample_rate);
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
     bool i_snip_edges = snip_edges_;
-    if (i_snip_edges == false) i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
-    if (i_NumFrm < 1) i_NumFrm = 1;
+    if (i_snip_edges == false)
+        i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
+    if (i_NumFrm < 1)
+        i_NumFrm = 1;
     int i_FrqNum = static_cast<int>(pow(2.0f, ceil(log2(i_WinLen))) / 2 + 1);
     OP_REQUIRES_OK(
         context, context->allocate_output(0, TensorShape({i_NumFrm, i_FrqNum}),
@@ -100,6 +105,7 @@ class SpecOp : public OpKernel {
   string window_type_;
   bool remove_dc_offset_;
   bool is_fbank_;
+  float dither_;
 };
 
 REGISTER_KERNEL_BUILDER(Name("Spectrum").Device(DEVICE_CPU), SpecOp);

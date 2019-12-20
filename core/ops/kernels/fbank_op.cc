@@ -49,6 +49,11 @@ class FbankOp : public OpKernel {
                     sample_rate_tensor.shape().DebugString(), " instead."));
     const int32 sample_rate = sample_rate_tensor.scalar<int32>()();
 
+    if (upper_frequency_limit_ <= 0)
+        upper_frequency_limit_ = sample_rate / 2.0 + upper_frequency_limit_;
+    else if (upper_frequency_limit_ > sample_rate / 2.0 || upper_frequency_limit_ <= lower_frequency_limit_)
+        upper_frequency_limit_ = sample_rate / 2.0;
+
     // shape [channels, time, bins]
     const int spectrogram_channels = spectrogram.dim_size(2);
     const int spectrogram_samples = spectrogram.dim_size(1);
@@ -94,6 +99,8 @@ class FbankOp : public OpKernel {
         for (int i = 0; i < filterbank_channel_count_; ++i) {
           output_data[i] = fbank_output[i];
         }
+        std::vector<double>().swap(fbank_input);
+        std::vector<double>().swap(fbank_output);
       }
     }
   }

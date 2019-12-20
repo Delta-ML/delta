@@ -27,8 +27,6 @@ limitations under the License.
 #include <memory>
 #include <chrono>
 
-using namespace std;
-
 #include "kernels/complex_defines.h"
 
 #ifndef M_PI
@@ -39,9 +37,10 @@ using namespace std;
 #define M_2PI 6.283185307179586476925286766559005
 #endif
 
+using namespace std;
+
 namespace delta {
 typedef float  BaseFloat;
-
 /* compute mean */
 float compute_mean(float* input, int i_size);
 
@@ -105,7 +104,7 @@ int do_levinson(int pord, float* r, float* a);
 int compute_lpc(int ncep, int nfrm, int pord, float* x, float* y);
 
 /* radix-2 DIT FFT */
-int dit_r2_fft(xcomplex* input, xcomplex* output, int N, int isign);
+int dit_r2_fft(xcomplex* input, xcomplex* output, float* in_buf, int N, int isign);
 
 /* compute energy of frame */
 float compute_energy(const float* input, int L);

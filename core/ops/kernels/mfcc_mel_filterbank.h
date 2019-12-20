@@ -27,6 +27,7 @@ namespace tensorflow {
 class MfccMelFilterbank {
  public:
   MfccMelFilterbank();
+  ~MfccMelFilterbank();
   bool Initialize(int input_length,  // Number of unique FFT bins fftsize/2+1.
                   double input_sample_rate, int output_channel_count,
                   double lower_frequency_limit, double upper_frequency_limit);

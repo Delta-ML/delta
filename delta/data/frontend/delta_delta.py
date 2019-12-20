@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""This model does delta_delta to features."""
 
 import delta.compat as tf
 
@@ -22,6 +23,9 @@ from delta.data.frontend.base_frontend import BaseFrontend
 
 
 class DeltaDelta(BaseFrontend):
+  """
+  Do Delta_delta to features.
+  """
 
   def __init__(self, config: dict):
     super().__init__(config)

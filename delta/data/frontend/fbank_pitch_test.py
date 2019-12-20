@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests Fbank&&Pitch FE."""
 
 import delta.compat as tf
 import os
@@ -23,6 +24,9 @@ from core.ops import PACKAGE_OPS_DIR
 
 
 class FbankPitchTest(tf.test.TestCase):
+  """
+  Compare Fbank&&Pitch FE with kaldi.
+  """
 
   def test_FbankPitch(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
@@ -32,7 +36,7 @@ class FbankPitchTest(tf.test.TestCase):
       input_data, sample_rate = read_wav(wav_path)
       config = {'window_length': 0.025, 'output_type': 1, 'frame_length': 0.010}
       fbank_pitch = FbankPitch.params(config).instantiate()
-      fbank_pitch_test = fbank_pitch(input_data)
+      fbank_pitch_test = fbank_pitch(input_data, sample_rate)
 
       self.assertEqual(tf.rank(fbank_pitch_test).eval(), 2)
       print(fbank_pitch_test.eval()[0:2])

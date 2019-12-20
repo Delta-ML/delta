@@ -22,6 +22,7 @@ limitations under the License.
 #include "tensorflow/core/platform/logging.h"
 
 #include "kernels/complex_defines.h"
+#include "kernels/support_functions.h"
 
 using namespace tensorflow;  // NOLINT
 
@@ -44,14 +45,20 @@ class Spectrum {
   int i_raw_energy;
   bool i_remove_dc_offset;
   bool i_is_fbank;
+  float i_dither;
 
   float* pf_WINDOW;
   float* pf_SPC;
 
+  xcomplex* win;
+  float* win_buf;
+  float* eph_buf;
+  float* win_temp;
+  xcomplex* fftwin;
+  float* fft_buf;
+
  public:
   Spectrum();
-
-  ~Spectrum();
 
   void set_window_length_sec(float window_length_sec);
 
@@ -70,6 +77,8 @@ class Spectrum {
   void set_is_fbank(bool is_fbank);
 
   void set_remove_dc_offset(bool remove_dc_offset);
+
+  void set_dither(float dither);
 
   int init_spc(int input_size, float sample_rate);
 

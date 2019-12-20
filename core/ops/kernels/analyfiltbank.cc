@@ -79,6 +79,7 @@ int Analyfiltbank::proc_afb(const float* mic_buf) {
   xcomplex* win = static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));
   xcomplex* fftwin =
       static_cast<xcomplex*>(malloc(sizeof(xcomplex) * i_FFTSiz));
+  float* fft_buf = static_cast<float*>(malloc(sizeof(float) * 2 * i_FFTSiz));
 
   /* generate window */
   gen_window(pf_WINDOW, i_WinLen, s_WinTyp);
@@ -96,7 +97,7 @@ int Analyfiltbank::proc_afb(const float* mic_buf) {
     }
 
     /* fft */
-    dit_r2_fft(win, fftwin, i_FFTSiz, -1);
+    dit_r2_fft(win, fftwin, fft_buf, i_FFTSiz, -1);
 
     for (k = 0; k < i_NumFrq; k++) {
       pf_PowSpc[n * i_NumFrq + k] = complex_abs2(fftwin[k]);
@@ -106,6 +107,7 @@ int Analyfiltbank::proc_afb(const float* mic_buf) {
 
   free(win);
   free(fftwin);
+  free(fft_buf);
 
   return 1;
 }

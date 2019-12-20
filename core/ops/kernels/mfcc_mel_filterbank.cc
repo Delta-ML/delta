@@ -38,6 +38,12 @@ namespace tensorflow {
 
 MfccMelFilterbank::MfccMelFilterbank() : initialized_(false) {}
 
+MfccMelFilterbank::~MfccMelFilterbank() {
+    std::vector<double>().swap(center_frequencies_);
+    std::vector<double>().swap(weights_);
+    std::vector<int>().swap(band_mapper_);
+}
+
 bool MfccMelFilterbank::Initialize(int input_length, double input_sample_rate,
                                    int output_channel_count,
                                    double lower_frequency_limit,

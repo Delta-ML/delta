@@ -60,7 +60,7 @@ class WriteWav(BaseFrontend):
     assert_op = tf.assert_equal(
         tf.constant(p.sample_rate), tf.cast(sample_rate, dtype=tf.int32))
     with tf.control_dependencies([assert_op]):
-      audio_data = tf.cast(audio_data, dtype=tf.float32)
+      audio_data = tf.cast(audio_data / 32768, dtype=tf.float32)
       contents = tf.audio.encode_wav(
           tf.expand_dims(audio_data, 1), tf.cast(sample_rate, dtype=tf.int32))
       w = tf.io.write_file(filename, contents)

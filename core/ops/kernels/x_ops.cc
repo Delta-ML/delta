@@ -365,6 +365,8 @@ REGISTER_OP("Pitch")
 REGISTER_OP("FramePow")
     .Input("input_data: float")
     .Input("sample_rate: float")
+    .Attr("snip_edges: bool = true")
+    .Attr("remove_dc_offset: bool = true")
     .Attr("window_length: float = 0.025")
     .Attr("frame_length: float = 0.010")
     .Output("output: float")
@@ -426,6 +428,7 @@ REGISTER_OP("Spectrum")
     .Attr("preEph_coeff: float = 0.97")
     .Attr("remove_dc_offset: bool = true")
     .Attr("is_fbank: bool = true")
+    .Attr("dither: float = 0.0")
     .Output("output: float")
     .SetShapeFn(SpectrumShapeFn)
     .Doc(R"doc(
@@ -529,9 +532,24 @@ filterbank_channel_count: int, resolution of the Mel bank used internally.
 output: float, fbank features, a tensor of shape [audio_channels, spectrogram_length, bank_feat_dim].
 )doc");
 
+REGISTER_OP("Speed")
+    .Input("input_data: float")
+    .Input("sample_rate: int32")
+    .Input("resample_freq: int32")
+    .Attr("lowpass_filter_width: int = 1")
+    .Output("output: float")
+    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c){
+        return Status::OK();
+    })
+    .Doc(R"doc(
+    Create pitch feature files.
+    input_data: float, input wave, a tensor of shape [1, data_length].
+    sample_rate: float, NB 8000, WB 16000 etc.
+    )doc");
+
 REGISTER_OP("MfccDct")
     .Input("fbank: float")
-    .Input("spectrum: float")
+    .Input("framepow: float")
     .Input("sample_rate: int32")
     .Attr("coefficient_count: int = 13")
     .Attr("cepstral_lifter: float = 22")

@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""The model tests Fbank FE."""
 
 import os
 import numpy as np
@@ -25,6 +26,9 @@ from delta.data.frontend.fbank import Fbank
 
 
 class FbankTest(tf.test.TestCase):
+  """
+  Test Fbank FE using 8k/16k wav files.
+  """
 
   def test_fbank(self):
     wav_path = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
@@ -48,7 +52,7 @@ class FbankTest(tf.test.TestCase):
            [3.803553, 5.450971, 6.547878, 5.796172, 6.397846, 7.242926]])
 
       self.assertAllClose(
-          np.squeeze(fbank_test.eval()[0, 0:2, 0:6]),
+          np.squeeze(fbank_test.eval()[0:2, 0:6, 0]),
           real_fank_feats,
           rtol=1e-05,
           atol=1e-05)

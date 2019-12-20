@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""Create MFCC feature files."""
 
 import delta.compat as tf
 import argparse
@@ -88,6 +89,11 @@ def get_parser():
       default=True,
       help='Compute power spetrum without frame energy.')
   parser.add_argument(
+      '--dither',
+      type=float,
+      default=0.0,
+      help='Dithering constant (0.0 means no dither).')
+  parser.add_argument(
       '--cepstral_lifter',
       type=float,
       default=22,
@@ -149,6 +155,7 @@ def compute_mfcc():
   config['cepstral_lifter'] = args.cepstral_lifter
   config['coefficient_count'] = args.coefficient_count
   config['use_energy'] = args.use_energy
+  config['dither'] = args.dither
 
   mfcc = Mfcc.params(config).instantiate()
 
