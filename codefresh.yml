@@ -1,0 +1,25 @@
+version: '1.0'
+steps:
+  MyAppDockerImage:
+    title: Building Docker Image
+    type: build
+    image_name: my-own-app
+    retry:
+      maxAttempts: 2
+  MyUnitTests:
+    title: Running Unit tests
+    image: ${{MyAppDockerImage}}
+    commands:
+    - ./my_unit_tests.sh
+    retry:
+      maxAttempts: 3
+      delay: 5
+  PushingToRegistry:
+    type: push
+    title: Pushing To Registry
+    candidate: ${{MyAppDockerImage}}
+    tag: '${{CF_BRANCH}}'
+    retry:
+      maxAttempts: 3
+      delay: 3
+      exponentialFactor: 2
