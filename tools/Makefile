@@ -70,7 +70,7 @@ test: test.deps #protoc
 
 # install python packages
 python.done:
-	$(PIP_INSTALL) --user -r requirements.txt
+	$(PIP_INSTALL) --no-cache-dir --user -r requirements.txt
 	if [ -f /etc/lsb-release ]; then $(SUDO) $(APT_INSTALL) libsndfile1; elif [[ "$$OSTYPE" == "darwin"* ]]; then brew install libsndfile; else $(SUDO) yum install -y libsndfile-devel; fi;
 	touch python.done
 
