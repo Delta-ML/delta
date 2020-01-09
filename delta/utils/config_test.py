@@ -74,9 +74,11 @@ class ConfigTest(tf.test.TestCase):
     ''' load config unittest '''
     conf = utils.load_config(self.conf_file)
     self.assertDictEqual(conf, self.conf_true)
-    config_file = os.path.join(PACKAGE_ROOT_DIR, "configs/atis_nlu_joint_lstm_crf.yml")
-    conf = utils.load_config(config_file)
-    logging.info(conf)
+    config_dir = os.path.join(PACKAGE_ROOT_DIR, "configs/")
+    for config_file in os.listdir(config_dir):
+      config_file = os.path.join(config_dir, config_file)
+      conf = utils.load_config(config_file)
+      logging.info(conf)
 
   def test_save_config(self):
     ''' save config unittest '''
