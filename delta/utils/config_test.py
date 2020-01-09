@@ -17,9 +17,11 @@
 import tempfile
 
 from absl import logging
+import os
 import delta.compat as tf
 
 from delta import utils
+from delta import PACKAGE_ROOT_DIR
 
 
 class ConfigTest(tf.test.TestCase):
@@ -72,6 +74,9 @@ class ConfigTest(tf.test.TestCase):
     ''' load config unittest '''
     conf = utils.load_config(self.conf_file)
     self.assertDictEqual(conf, self.conf_true)
+    config_file = os.path.join(PACKAGE_ROOT_DIR, "configs/atis_nlu_joint_lstm_crf.yml")
+    conf = utils.load_config(config_file)
+    logging.info(conf)
 
   def test_save_config(self):
     ''' save config unittest '''

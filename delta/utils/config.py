@@ -14,6 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' configration utils'''
+from typing import List, Union
 import os
 import json
 import time
@@ -24,12 +25,48 @@ from absl import logging
 
 
 def valid_config(config):
-  ''' validation config '''
+  ''' validation config'''
   del config
   return True
 
 
-def load_config(config_path):
+def config_join_project_path(project_dir: str, config: dict,
+                             key_path: List[Union[str, list]]):
+  """join project dir on a path"""
+  d = config
+  for k in key_path[:-1]:
+    d = d[k]
+  if isinstance(d[key_path[-1]], list):
+    d[key_path[-1]] = [os.path.join(project_dir, p) for p in d[key_path[-1]]]
+  else:
+    d[key_path[-1]] = os.path.join(project_dir, d[key_path[-1]])
+
+
+def config_join_project_dir(config):
+  """operations after the config been loaded."""
+  if 'data' not in config or "project_dir" not in config['data']:
+    return
+  project_dir = config['data']["project_dir"]
+  file_key_paths = [['data', 'train', 'paths'],
+                    ['data', 'eval', 'paths'],
+                    ['data', 'infer', 'paths'],
+                    ['data', 'task', 'preparer', 'done_sign'],
+                    ['data', 'task', 'text_vocab'],
+                    ['data', 'task', 'label_vocab'],
+                    ['solver', 'service', 'model_path'],
+                    ['solver', 'saver', 'model_path']]
+  for i, metric in enumerate(config['solver']['metrics']):
+    for j, cal in enumerate(metric['cals']):
+      if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
+        file_key_paths.append(['solver', 'metrics', i, 'cals', j, 'arguments', 'label_vocab_path'])
+  for i,postproc in enumerate(config['solver']['postproc']):
+    file_key_paths.append(['solver', 'postproc', i, 'res_file'])
+  if project_dir != "":
+    for file_key_path in file_key_paths:
+      config_join_project_path(project_dir, config, file_key_path)
+
+
+def load_config(config_path, join_project_dir=False):
   ''' load config from file '''
   if isinstance(config_path, Path):
     config_path = str(config_path)
@@ -40,7 +77,9 @@ def load_config(config_path):
     elif config_path.endswith('json'):
       config = json.load(f)
   # check config
-  valid_config(config)
+  # valid_config(config)
+  if join_project_dir:
+    config_join_project_dir(config)
   return config
 
 
