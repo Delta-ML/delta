@@ -20,8 +20,10 @@ from absl import logging
 import shutil
 import traceback
 from delta.data.datasets.base_dataset import BaseDataSet
+from delta.utils.register import registers
 
 
+@registers.dataset
 class ATIS2(BaseDataSet):
 
   def __init__(self, project_dir):

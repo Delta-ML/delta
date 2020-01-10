@@ -26,6 +26,7 @@ from absl import logging
 from delta import utils
 from delta.utils.register import registers
 from delta.utils.register import import_all_modules_for_register
+from delta.data.datasets.build import build_dataset
 
 
 def define_flags():
@@ -33,10 +34,12 @@ def define_flags():
   flags.DEFINE_string('config', '', 'config path')
   flags.DEFINE_string(
       'cmd', '',
-      'train, eval, infer, train_and_eval, export_model, gen_feat, gen_cmvn')
+      'train, eval, infer, train_and_eval, export_model, gen_feat, gen_cmvn, build')
   flags.DEFINE_bool('test', 'False', 'run all unit test')
   flags.DEFINE_bool('dry_run', 'False', 'dry run, to no save file')
   flags.DEFINE_bool('log_debug', 'False', 'logging debug switch')
+  flags.DEFINE_string('name', '', 'Data set name')
+  flags.DEFINE_string('dir', '', 'Data set directory')
 
 
 FLAGS = flags.FLAGS
@@ -55,54 +58,60 @@ def main(argv):
     main function
   """
   # pylint: disable=unused-argument
-  # load config
-  config = utils.load_config(FLAGS.config)
-  utils.set_logging(FLAGS.log_debug, config)
 
-  utils.copy_config(FLAGS.config, config)
-  set_seed(config)
+  if FLAGS.config != '':
+    config = utils.load_config(FLAGS.config)
+    utils.set_logging(FLAGS.log_debug, config)
+
+    utils.copy_config(FLAGS.config, config)
+    set_seed(config)
+  else:
+    config = None
 
   logging.info("Loading all modules ...")
   import_all_modules_for_register(config, only_nlp=FLAGS.only_nlp)
 
-  solver_name = config['solver']['name']
-  solver = registers.solver[solver_name](config)
-
-  # config after process
-  config = solver.config
-
-  task_name = config['data']['task']['name']
-  task_class = registers.task[task_name]
-
   logging.info("CMD: {}".format(FLAGS.cmd))
-  if FLAGS.cmd == 'train':
-    solver.train()
-  elif FLAGS.cmd == 'train_and_eval':
-    solver.train_and_eval()
-  elif FLAGS.cmd == 'eval':
-    solver.eval()
-  elif FLAGS.cmd == 'infer':
-    solver.infer(yield_single_examples=False)
-  elif FLAGS.cmd == 'export_model':
-    solver.export_model()
-  elif FLAGS.cmd == 'gen_feat':
-    assert config['data']['task'][
-        'suffix'] == '.npy', 'wav does not need to extractor feature'
-    paths = []
-    for mode in [utils.TRAIN, utils.EVAL, utils.INFER]:
-      paths += config['data'][mode]['paths']
-    task = task_class(config, utils.INFER)
-    task.generate_feat(paths, dry_run=FLAGS.dry_run)
-  elif FLAGS.cmd == 'gen_cmvn':
-    logging.info(
-        '''using infer pipeline to compute cmvn of train_paths, and stride must be 1'''
-    )
-    paths = config['data'][utils.TRAIN]['paths']
-    segments = config['data'][utils.TRAIN]['segments']
-    config['data'][utils.INFER]['paths'] = paths
-    config['data'][utils.INFER]['segments'] = segments
-    task = task_class(config, utils.INFER)
-    task.generate_cmvn(dry_run=FLAGS.dry_run)
+  if FLAGS.cmd == 'train' or FLAGS.cmd == 'train_and_eval' or \
+    FLAGS.cmd == 'eval' or FLAGS.cmd == 'infer' or \
+    FLAGS.cmd == 'export_model' or FLAGS.cmd == 'gen_feat' or \
+    FLAGS.cmd == 'gen_cmvn':
+    solver_name = config['solver']['name']
+    solver = registers.solver[solver_name](config)
+    # config after process
+    config = solver.config
+    task_name = config['data']['task']['name']
+    task_class = registers.task[task_name]
+    if FLAGS.cmd == 'train':
+      solver.train()
+    elif FLAGS.cmd == 'train_and_eval':
+      solver.train_and_eval()
+    elif FLAGS.cmd == 'eval':
+      solver.eval()
+    elif FLAGS.cmd == 'infer':
+      solver.infer(yield_single_examples=False)
+    elif FLAGS.cmd == 'export_model':
+      solver.export_model()
+    elif FLAGS.cmd == 'gen_feat':
+      assert config['data']['task'][
+          'suffix'] == '.npy', 'wav does not need to extractor feature'
+      paths = []
+      for mode in [utils.TRAIN, utils.EVAL, utils.INFER]:
+        paths += config['data'][mode]['paths']
+      task = task_class(config, utils.INFER)
+      task.generate_feat(paths, dry_run=FLAGS.dry_run)
+    elif FLAGS.cmd == 'gen_cmvn':
+      logging.info(
+          '''using infer pipeline to compute cmvn of train_paths, and stride must be 1'''
+      )
+      paths = config['data'][utils.TRAIN]['paths']
+      segments = config['data'][utils.TRAIN]['segments']
+      config['data'][utils.INFER]['paths'] = paths
+      config['data'][utils.INFER]['segments'] = segments
+      task = task_class(config, utils.INFER)
+      task.generate_cmvn(dry_run=FLAGS.dry_run)
+  elif FLAGS.cmd == 'build':
+    build_dataset(FLAGS.name, FLAGS.dir)
   else:
     raise ValueError("Not support command: {}.".format(FLAGS.cmd))
 

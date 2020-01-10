@@ -47,8 +47,10 @@ import traceback
 from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import summary_joint_nlu_data
+from delta.utils.register import registers
 
 
+@registers.dataset
 class ATIS(BaseDataSet):
 
   def __init__(self, project_dir):
