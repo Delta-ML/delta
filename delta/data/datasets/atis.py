@@ -43,6 +43,7 @@ This pilot marks the first full-scale attempt to collect such a corpus and provi
 
 import wget
 import os
+import traceback
 from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import summary_joint_nlu_data
@@ -50,23 +51,33 @@ from delta.data.datasets.utils import summary_joint_nlu_data
 
 class ATIS(BaseDataSet):
 
-  def __init__(self, directory):
-    super().__init__(directory)
+  def __init__(self, project_dir):
+    super().__init__(project_dir)
     self.train_file = "train.txt"
     self.test_file = "test.txt"
     self.data_files = [self.train_file, self.test_file]
     self.config_files = ['atis_nlu_joint_lstm_crf.yml']
     self.download_files = ["atis.train.pkl", "atis.test.pkl"]
 
-  def download(self):
-    logging.info("start downloading ...")
+  def download(self) -> bool:
     train_url = "https://github.com/howl-anderson/ATIS_dataset/raw/master/data/raw_data/ms-cntk-atis/atis.train.pkl"
     test_url = "https://github.com/howl-anderson/ATIS_dataset/raw/master/data/raw_data/ms-cntk-atis/atis.test.pkl"
-    wget.download(train_url, self.data_dir)
-    wget.download(test_url, self.data_dir)
+    try:
+      wget.download(train_url, self.download_dir)
+      wget.download(test_url, self.download_dir)
+    except Exception as e:
+      logging.warning(repr(e))
+      return False
+    return True
 
-  def after_download(self):
-    summary_joint_nlu_data(os.path.join(self.data_dir, "atis.train.pkl"),
-                           os.path.join(self.data_dir, self.train_file))
-    summary_joint_nlu_data(os.path.join(self.data_dir, "atis.test.pkl"),
-                           os.path.join(self.data_dir, self.test_file))
+  def after_download(self) -> bool:
+    try:
+      summary_joint_nlu_data(os.path.join(self.download_dir, "atis.train.pkl"),
+                             os.path.join(self.data_dir, self.train_file))
+      summary_joint_nlu_data(os.path.join(self.download_dir, "atis.test.pkl"),
+                             os.path.join(self.data_dir, self.test_file))
+    except Exception as e:
+
+      logging.warning(traceback.format_exc())
+      return False
+    return True
