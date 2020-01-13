@@ -164,7 +164,7 @@ ALL_NLP_MODULES = [("delta.data.task", NLP_TASK_MODULES),
                    ("delta.utils.postprocess", NLP_POSTPROCESS_MODULES),
                    ("delta.serving", NLP_SERVING_MODULES),
                    ("delta.data.preprocess", NLP_PREPROCESS_MODULES),
-                   ('delta.datasets', NLP_DATA_SETS)]
+                   ('delta.data.datasets', NLP_DATA_SETS)]
 
 ALL_MODULES = [("delta.data.task", TASK_MODULES),
                ("delta.models", MODEL_MODULES),

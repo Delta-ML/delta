@@ -40,8 +40,6 @@ def define_flags():
   flags.DEFINE_bool('log_debug', 'False', 'logging debug switch')
   flags.DEFINE_string('name', '', 'Data set name')
   flags.DEFINE_string('dir', '', 'Data set directory')
-
-
 FLAGS = flags.FLAGS
 
 

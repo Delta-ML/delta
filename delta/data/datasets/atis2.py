@@ -23,7 +23,7 @@ from delta.data.datasets.base_dataset import BaseDataSet
 from delta.utils.register import registers
 
 
-@registers.dataset
+@registers.dataset.register('atis2')
 class ATIS2(BaseDataSet):
 
   def __init__(self, project_dir):

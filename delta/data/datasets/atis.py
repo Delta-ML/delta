@@ -50,7 +50,7 @@ from delta.data.datasets.utils import summary_joint_nlu_data
 from delta.utils.register import registers
 
 
-@registers.dataset
+@registers.dataset.register('atis')
 class ATIS(BaseDataSet):
 
   def __init__(self, project_dir):
