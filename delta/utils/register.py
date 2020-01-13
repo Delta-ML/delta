@@ -80,6 +80,7 @@ class registers():  # pylint: disable=invalid-name, too-few-public-methods
   preprocessor = Register('preprocessor')
   postprocess = Register('postprocess')
   serving = Register('serving')
+  dataset = Register('dataset')
 
 
 NLP_TASK_MODULES = [
@@ -153,6 +154,8 @@ PREPROCESS_MODULES = [
     "text_nlu_joint_preparer", "text_seq2seq_preparer"
 ]
 
+NLP_DATA_SETS = ['atis', 'atis2']
+
 ALL_NLP_MODULES = [("delta.data.task", NLP_TASK_MODULES),
                    ("delta.models", NLP_MODEL_MODULES),
                    ("delta.utils.loss", NLP_LOSS_MODULES),
@@ -160,7 +163,8 @@ ALL_NLP_MODULES = [("delta.data.task", NLP_TASK_MODULES),
                    ("delta.utils.solver", NLP_SOLVER_MODULES),
                    ("delta.utils.postprocess", NLP_POSTPROCESS_MODULES),
                    ("delta.serving", NLP_SERVING_MODULES),
-                   ("delta.data.preprocess", NLP_PREPROCESS_MODULES)]
+                   ("delta.data.preprocess", NLP_PREPROCESS_MODULES),
+                   ('delta.data.datasets', NLP_DATA_SETS)]
 
 ALL_MODULES = [("delta.data.task", TASK_MODULES),
                ("delta.models", MODEL_MODULES),
