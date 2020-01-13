@@ -8,6 +8,7 @@ pandas
 librosa
 absl-py
 jieba
+wget
 kaldiio
 soundfile
 textgrid
