@@ -16,8 +16,8 @@
 
 import sys
 from absl import logging
-from delta.data.utils.test_utils import mock_a_text_file
-from delta.data.utils.test_utils import save_a_vocab_file
+from delta.data.datasets.utils import mock_a_text_file
+from delta.data.datasets.utils import save_a_vocab_file
 
 # samples with label
 samples = ["O O O O\ti feel good .",
