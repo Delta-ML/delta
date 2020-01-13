@@ -17,15 +17,15 @@
 from absl import logging
 
 import delta.compat as tf
-from delta.data.datasets.atis import ATIS
+from delta.data.datasets.mock_text_seq_label_data import MOCK_TEXT_SEQ_LABEL_DATA
 
 
-class ATISTest(tf.test.TestCase):
+class MOCK_SEQ_LABEL_Test(tf.test.TestCase):
 
   def test_build(self):
-    atis = ATIS('atis')
-    atis.build()
-    self.assertTrue(atis.is_ready())
+    mock_text_seq_label_data = MOCK_TEXT_SEQ_LABEL_DATA('mock_seq_label')
+    mock_text_seq_label_data.build()
+    self.assertTrue(mock_text_seq_label_data.is_ready())
 
 
 if __name__ == '__main__':

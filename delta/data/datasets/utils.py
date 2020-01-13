@@ -14,8 +14,11 @@
 # limitations under the License.
 # ==============================================================================
 from absl import logging
+import os
 import pickle
-
+import numpy as np
+from pathlib import Path
+import tempfile
 from sklearn.model_selection import train_test_split
 
 
@@ -79,3 +82,79 @@ def summary_joint_nlu_data(fname, output_file_path):
       out_file.write(i2in[intent[i][0]] + "\t")
       out_file.write(' '.join(map(i2s.get, slots[i])) + "\t")
       out_file.write(' '.join(map(i2t.get, query[i])) + "\n")
+
+
+def random_upsampling(data, sample_num):
+  """Up sample"""
+  np.random.seed(2019)
+  new_indices = np.random.permutation(range(sample_num))
+  original_size = len(data)
+  new_data = [data[i % original_size] for i in new_indices]
+  return new_data
+
+
+def mock_a_text_file(sample_lines, line_num, file_name):
+  """Generate a mock text file for test."""
+  with open(file_name, "w", encoding="utf-8") as f:
+    lines = random_upsampling(sample_lines, line_num)
+    for line in lines:
+      f.write(line + "\n")
+
+
+def generate_vocab_file():
+  """Generate Vocab file for test. no usage now """
+  tmpdir = Path(tempfile.mkdtemp())
+  vocab_file = str(tmpdir.joinpath('vocab.txt'))
+  dummy_vocabs = ["</s>", "<unk>", "你好", "北京"]
+  save_a_vocab_file(vocab_file, dummy_vocabs)
+  return vocab_file
+
+
+def save_a_vocab_file(vocab_file, vocab_list):
+  """Save a Vocab file for test."""
+  with open(vocab_file, "w", encoding='utf-8') as out_f:
+    for vocab in vocab_list:
+      out_f.write(vocab)
+      out_f.write('\n')
+  return vocab_file
+
+
+def split_file(ori_file):
+  src_file = ori_file + '.src'
+  tgt_file = ori_file + '.tgt'
+  with open(ori_file, 'r', encoding='utf8') as f:
+    lines = f.readlines()
+  src, tgt = zip(*[sent.split('\t') for sent in lines])
+  with open(src_file, 'w', encoding='utf8') as f:
+    for src_sent in src:
+      f.write(src_sent+'\n')
+  with open(tgt_file, 'w', encoding='utf8') as f:
+    for tgt_sent in tgt:
+      f.write(tgt_sent)
+  os.remove(ori_file)
+
+
+def mock_data(samples, train_file, dev_file, test_file,
+              text_vocab_file=None, text_vocab_list=None, label_vocab_file=None, label_vocab_list=None):
+  logging.info("Generate mock data: {}".format(train_file))
+  mock_a_text_file(samples, 300, train_file)
+  logging.info("Generate mock data: {}".format(dev_file))
+  mock_a_text_file(samples, 100, dev_file)
+  logging.info("Generate mock data: {}".format(test_file))
+  mock_a_text_file(samples, 100, test_file)
+
+  if text_vocab_file and text_vocab_list:
+    logging.info("Generate text vocab file: {}".format(text_vocab_file))
+    save_a_vocab_file(text_vocab_file, text_vocab_list)
+  if label_vocab_file and label_vocab_file:
+    logging.info("Generate label vocab file: {}".format(label_vocab_file))
+    save_a_vocab_file(label_vocab_file, label_vocab_list)
+
+  # for seq2seq
+  if not text_vocab_file and not text_vocab_list and not label_vocab_file and not label_vocab_list:
+    logging.info("Generate mock data: {} and split to src and tgt.".format(train_file))
+    split_file(train_file)
+    logging.info("Generate mock data: {} and split to src and tgt.".format(dev_file))
+    split_file(dev_file)
+    logging.info("Generate mock data: {} and split to src and tgt.".format(test_file))
+    split_file(test_file)
