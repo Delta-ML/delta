@@ -27,7 +27,7 @@ from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
 
 
-class MOCK_TEXT_SEQ_LABEL_DATA(BaseDataSet):
+class MockTextSeqLabelData(BaseDataSet):
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -35,7 +35,7 @@ class MOCK_TEXT_SEQ_LABEL_DATA(BaseDataSet):
     self.dev_file = "dev.txt"
     self.test_file = "test.txt"
     self.data_files = [self.train_file, self.dev_file, self.test_file]
-    self.config_files = ['seq-label-mock.yml']
+    self.config_files = ['seq_label_mock.yml']
     self.download_files = []
     self.text_vocab = "text_vocab.txt"
     self.label_vocab = "label_vocab.txt"

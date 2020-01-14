@@ -75,6 +75,41 @@ def generate_json_data(config, mode, nexamples):
   return desire_xs, desire_ilens, desire_ys, desire_olens
 
 
+def generate_vocab_file():
+  """Generate Vocab file for test."""
+  tmpdir = Path(tempfile.mkdtemp())
+  vocab_file = str(tmpdir.joinpath('vocab.txt'))
+  dummy_vocabs = ["</s>", "<unk>", "你好", "北京"]
+  save_a_vocab_file(vocab_file, dummy_vocabs)
+  return vocab_file
+
+
+def save_a_vocab_file(vocab_file, vocab_list):
+  """Save a Vocab file for test."""
+  with open(vocab_file, "w", encoding='utf-8') as out_f:
+    for vocab in vocab_list:
+      out_f.write(vocab)
+      out_f.write('\n')
+  return vocab_file
+
+
+def random_upsampling(data, sample_num):
+  """Up sample"""
+  np.random.seed(2019)
+  new_indices = np.random.permutation(range(sample_num))
+  original_size = len(data)
+  new_data = [data[i % original_size] for i in new_indices]
+  return new_data
+
+
+def mock_a_text_file(sample_lines, line_num, file_name):
+  """Generate a mock text file for test."""
+  with open(file_name, "w", encoding="utf-8") as f:
+    lines = random_upsampling(sample_lines, line_num)
+    for line in lines:
+      f.write(line + "\n")
+
+
 def mock_a_npy_file(data, npy_name):
   """Generate a mock npy file for test."""
   data_arr = np.array(data)
