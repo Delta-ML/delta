@@ -25,8 +25,10 @@ import os
 import traceback
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
+from delta.utils.register import registers
 
 
+@registers.dataset.register('mock_text_seq_label_data')
 class MockTextSeqLabelData(BaseDataSet):
 
   def __init__(self, project_dir):

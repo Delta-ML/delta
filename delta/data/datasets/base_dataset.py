@@ -53,7 +53,7 @@ class BaseDataSet:
     for config_file in self.config_files:
       full_config_file = os.path.join(self.origin_config_dir, config_file)
       new_config_file = os.path.join(self.config_dir, config_file)
-      config = load_config(full_config_file, join_project_dir=False)
+      config = load_config(full_config_file)
       config['data']['project_dir'] = self.project_dir
       logging.info(f"Save config from {full_config_file} to {new_config_file}")
       save_config(config, new_config_file)

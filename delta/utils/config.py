@@ -44,7 +44,8 @@ def config_join_project_path(project_dir: str, config: dict,
 
 def config_join_project_dir(config):
   """operations after the config been loaded."""
-  if 'data' not in config or "project_dir" not in config['data']:
+  if 'data' not in config or "project_dir" not in config['data'] or \
+    config['data']["project_dir"] == '':
     return
   project_dir = config['data']["project_dir"]
   file_key_paths = [['data', 'train', 'paths'],
@@ -66,7 +67,7 @@ def config_join_project_dir(config):
       config_join_project_path(project_dir, config, file_key_path)
 
 
-def load_config(config_path, join_project_dir=False):
+def load_config(config_path):
   ''' load config from file '''
   if isinstance(config_path, Path):
     config_path = str(config_path)
@@ -78,8 +79,7 @@ def load_config(config_path, join_project_dir=False):
       config = json.load(f)
   # check config
   # valid_config(config)
-  if join_project_dir:
-    config_join_project_dir(config)
+  config_join_project_dir(config)
   return config
 
 
