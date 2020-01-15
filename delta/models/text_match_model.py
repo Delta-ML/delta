@@ -20,6 +20,7 @@ from absl import logging
 import delta.compat as tf
 from delta.models.base_model import Model
 from delta.utils.register import registers
+from delta.layers import MatchLayer
 
 
 # pylint: disable=too-few-public-methods, abstract-method,too-many-ancestors
@@ -114,3 +115,103 @@ class MatchRnnTextClassModel(MatchRnn):
     scores = self.final_dense(out)
 
     return scores
+
+
+# pylint: disable=too-many-instance-attributes,too-many-ancestors
+@registers.model.register
+class MatchPyramidTextClassModel(MatchRnn):
+  """Match texts model with Match Pyramid."""
+
+  def __init__(self, config, **kwargs):
+    super().__init__(config, **kwargs)
+    logging.info("Initialize MatchPyramidTextClassModel ...")
+
+    self.vocab_size = config['data']['vocab_size']
+    self.num_classes = config['data']['task']['classes']['num_classes']
+
+    model_config = config['model']['net']['structure']
+    self.dropout_rate = model_config['dropout_rate']
+    self.embedding_size = model_config['embedding_size']
+    self.emb_trainable = model_config['emb_trainable']
+    self.lstm_num_units = model_config['lstm_num_units']
+    self.fc_num_units = model_config['fc_num_units']
+    self.l2_reg_lambda = model_config['l2_reg_lambda']
+
+    # Number of convolution blocks
+    self.num_blocks = model_config['num_blocks']
+    # The kernel count of the 2D convolution
+    self.kernel_count = model_config['kernel_count']
+    # The kernel size of the 2D convolution of each block
+    self.kernel_size = model_config['kernel_size']
+    # The max-pooling size of each block
+    self.dpool_size = model_config['dpool_size']
+    # The padding mode in the convolution layer
+    self.padding = model_config['padding']
+    # The activation function
+    self.activation = model_confg['activation']
+
+    self.embed = tf.keras.layers.Embedding(
+        self.vocab_size,
+        self.embedding_size,
+        trainable=self.emb_trainable,
+        name='embdding',
+        embeddings_initializer=self.embed_initializer)
+
+    self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
+
+    # TODO
+    self.matching_layer = MatchingLayer(matching_type='dot')
+
+    self.conv = tf.keras.layers.Conv2D(
+            kernel_count,
+            kernel_size,
+            padding=padding,
+            activation=activation)
+
+    self.dpool = DynamicPoolingLayer(*self.dpool_size)
+
+    self.flatten = tf.keras.layers.Flatten()
+    
+    self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
+    self.outlayer = tf.keras.layers.Dense(self.fc_num_units, activation='tanh')
+    self.tasktype = config['data']['task']['type']
+    #if self.tasktype == "Classification":
+    self.final_dense = tf.keras.layers.Dense(
+        self.num_classes,
+        activation=tf.keras.activations.linear,
+        name="final_dense")
+
+    logging.info("Initialize MatchPyramidTextClassModel done.")
+
+  def call(self, inputs, training=None, mask=None):  # pylint: disable=too-many-locals
+
+    input_left = inputs["input_x_left"]
+    input_right = inputs["input_x_right"]
+
+    embedding = self.embed
+    embed_left = embedding(input_left)
+    embed_right = embedding(input_right)
+
+    embed_cross = self.matching_layer([embed_left, embed_right])
+    for i in range(self.num_blocks):
+        embed_cross = self.conv(
+                embed_cross,
+                self.kernel_count,
+                self.kernel_size,
+                self.padding,
+                self.activation)
+    embed_pool = self.dpool(
+            [embed_cross, tf.keras.layers.Input(
+                name='dpool_index',
+                shape=[self.embed_left['input_shapes'][0][0], 
+                       self.embed_left['input_shapes'][0][1],2],
+                dtype='int32')])
+
+    embed_flat = self.flatten(embed_pool)
+
+    dropout = self.dropout(embed_flat)
+    out = self.outlayer(dropout)
+    scores = self.final_dense(out)
+    return scores
+
+
