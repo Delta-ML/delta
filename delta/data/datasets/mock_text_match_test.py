@@ -17,16 +17,16 @@
 from absl import logging
 
 import delta.compat as tf
-from delta.data.datasets.mock_text_seq_label_data import MockTextSeqLabelData
+from delta.data.datasets.mock_text_match_data import MockTextMatchData
 
 
 
-class MockTextSeqLabelDataTest(tf.test.TestCase):
+class MockTextMatchDataTest(tf.test.TestCase):
 
   def test_build(self):
-    mock_text_seq_label_data = MockTextSeqLabelData('mock_seq_label_data')
-    mock_text_seq_label_data.build()
-    self.assertTrue(mock_text_seq_label_data.is_ready())
+    mock_text_match_data = MockTextMatchData('mock_match_data')
+    mock_text_match_data.build()
+    self.assertTrue(mock_text_match_data.is_ready())
 
 
 if __name__ == '__main__':
