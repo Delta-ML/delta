@@ -1,6 +1,6 @@
 ---
 data:
-  project_dir: "egs/mock_text_cls_data/text_cls/v1"
+  project_dir: ""
   train:
     paths:
       - "data/train.split_by_line_mark.txt"

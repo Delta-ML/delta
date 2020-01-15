@@ -17,15 +17,15 @@
 from absl import logging
 
 import delta.compat as tf
-from delta.data.datasets.conll_2003 import Conll2003
+from delta.data.datasets.yahoo_answer import YahooAnswer
 
 
 class YahooAnswerTest(tf.test.TestCase):
 
   def test_build(self):
-    conll_2003 = Conll2003('conll_2003')
-    conll_2003.build()
-    self.assertTrue(conll_2003.is_ready())
+    yahoo_answer = YahooAnswer('yahoo_answer')
+    yahoo_answer.build()
+    self.assertTrue(yahoo_answer.is_ready())
 
 
 if __name__ == '__main__':

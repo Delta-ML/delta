@@ -1,6 +1,6 @@
 ---
 data:
-  project_dir: "egs/mock_text_match_data/text_match/v1"
+  project_dir: ""
   train:
     paths:
       - "data/train.txt"

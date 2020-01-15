@@ -1,5 +1,6 @@
 ---
 data:
+  project_dir: ""
   train:
     paths:
       - "data/train.txt.bert.new"

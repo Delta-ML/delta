@@ -44,8 +44,7 @@ def config_join_project_path(project_dir: str, config: dict,
 
 def config_join_project_dir(config):
   """operations after the config been loaded."""
-  if 'data' not in config or "project_dir" not in config['data'] or \
-    config['data']["project_dir"] == '':
+  if 'data' not in config or "project_dir" not in config['data']:
     return
   project_dir = config['data']["project_dir"]
   file_key_paths = [['data', 'train', 'paths'],
@@ -56,10 +55,17 @@ def config_join_project_dir(config):
                     ['data', 'task', 'label_vocab'],
                     ['solver', 'service', 'model_path'],
                     ['solver', 'saver', 'model_path']]
-  for i, metric in enumerate(config['solver']['metrics']):
+
+  if isinstance(config['solver']['metrics'], dict):
+    metric = config['solver']['metrics']
     for j, cal in enumerate(metric['cals']):
       if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
-        file_key_paths.append(['solver', 'metrics', i, 'cals', j, 'arguments', 'label_vocab_path'])
+        file_key_paths.append(['solver', 'metrics', 'cals', j, 'arguments', 'label_vocab_path'])
+  else:
+    for i, metric in enumerate(config['solver']['metrics']):
+      for j, cal in enumerate(metric['cals']):
+        if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
+          file_key_paths.append(['solver', 'metrics', i, 'cals', j, 'arguments', 'label_vocab_path'])
   for i,postproc in enumerate(config['solver']['postproc']):
     file_key_paths.append(['solver', 'postproc', i, 'res_file'])
   if project_dir != "":

@@ -77,6 +77,7 @@ class ConfigTest(tf.test.TestCase):
     config_dir = os.path.join(PACKAGE_ROOT_DIR, "configs/")
     for config_file in os.listdir(config_dir):
       config_file = os.path.join(config_dir, config_file)
+      logging.info(f"Loading conf {config_file}")
       conf = utils.load_config(config_file)
       logging.info(conf)
 

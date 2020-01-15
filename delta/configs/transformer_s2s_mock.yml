@@ -1,6 +1,6 @@
 ---
 data:
-  project_dir: "egs/mock_text_seq2seq_data/seq2seq/v1"
+  project_dir: ""
   train:
     paths:
       source:

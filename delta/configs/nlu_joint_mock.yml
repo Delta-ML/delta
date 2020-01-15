@@ -1,6 +1,6 @@
 ---
 data:
-  project_dir: "egs/mock_text_nlu_joint_data/nlu-joint/v1"
+  project_dir: ""
   train:
     paths:
       - "data/train.txt"
