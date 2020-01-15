@@ -1,0 +1,120 @@
+---
+data:
+  project_dir: ""
+  train:
+    paths:
+      source:
+        - "data/train.cnndm.src"
+      target:
+        - "data/train.cnndm.tgt"
+  eval:
+    paths:
+      source:
+        - "data/val.cnndm.src"
+      target:
+        - "data/val.cnndm.tgt"
+  infer:
+    paths:
+      source:
+        - "data/test.cnndm.src"
+      target:
+        - "data/test.cnndm.tgt"
+    infer_no_label: false
+  task:
+    name: TextS2STask
+    preparer:
+      enable: true
+      name: TextS2SPreparer
+      done_sign: "exp/prepare.done"
+      reuse: true
+    language: english
+    split_by_space: true
+    vocab_min_frequency: 50
+    text_vocab: "exp/text_vocab.txt"
+    label_vocab: "exp/label_vocab.txt"
+    max_enc_len: 400
+    max_dec_len: 100
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    use_label_vocab: false
+    shuffle_buffer_size: 287227
+    need_shuffle: true
+    batch_size: 16
+    epochs: 15
+
+model:
+  name: RnnSeq2SeqModel
+  type: keras
+  use_pre_train_emb: false
+  pre_train_emb_path: ""
+  embedding_path: ""
+  net:
+    structure:
+      embedding_size: 200
+      emb_trainable: true
+      cell_type: cudnngru
+      decode_cell_type: gru
+      cell_dim: 100
+      num_layers: 4
+      max_enc_len: 400
+      max_dec_len: 100
+      dropout_rate: 0.0
+      l2_reg_lambda: 0
+      hidden_dim: 256
+      share_embedding: True
+      beam_size: 4
+      length_penalty: 8.0
+      max_dec_step: 100
+      swap_memory:  False
+      time_major:  False
+      attn_Type: bahdanau
+      initial_decode_state: True
+
+solver:
+  name: RawS2SSolver
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: adam
+    loss: CrossEntropyLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.001 # learning rate of Adam optimizer
+      type:  const # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    clip_global_norm: 3.0 # clip global norm
+    batch_size: 16
+    epochs: 30
+  metrics:
+    pos_label: 1
+    res_file: "res/infer_res.txt"
+    target_file:
+      - "data/test.cnndm.tgt"
+    text_vocab: "exp/text_vocab.txt"
+    cals:
+      - name: RougeCal
+        arguments: Null
+  postproc:
+    name: SavePredSeqPostProc
+    res_file: "res/infer_res.txt"
+  saver:
+    model_path: "exp/lstm-sum/ckpt"
+    max_to_keep: 30
+    save_checkpoint_steps: 1000
+    print_every: 10
+  service:
+    model_path: "exp/lstm-sum/service"
+    model_version: "1"
+  run_config:
+    tf_random_seed: null
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true
