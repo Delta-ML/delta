@@ -31,33 +31,48 @@ def valid_config(config):
 
 
 def config_join_project_path(project_dir: str, config: dict,
-                             key_path: List[Union[str, list]]):
+                             key_path: List[Union[str, int]]):
   """join project dir on a path"""
   d = config
-  for k in key_path[:-1]:
-    d = d[k]
-  if isinstance(d[key_path[-1]], list):
-    d[key_path[-1]] = [os.path.join(project_dir, p) for p in d[key_path[-1]]]
+  try:
+    for k in key_path[:-1]:
+      d = d[k]
+    original_path = d[key_path[-1]]
+  except KeyError as e:
+    logging.warning(f"key_path: {key_path} not found!")
+    raise KeyError(repr(e))
+  if isinstance(original_path, list):
+    d[key_path[-1]] = [os.path.join(project_dir, p) for p in original_path]
+  elif isinstance(original_path, str):
+    d[key_path[-1]] = os.path.join(project_dir, original_path)
   else:
-    d[key_path[-1]] = os.path.join(project_dir, d[key_path[-1]])
-
+    logging.warning(f"key_path: {key_path} error.")
+    raise TypeError("path is not str or list!")
 
 def config_join_project_dir(config):
   """operations after the config been loaded."""
   if 'data' not in config or "project_dir" not in config['data']:
     return
   project_dir = config['data']["project_dir"]
-  file_key_paths = [['data', 'train', 'paths'],
-                    ['data', 'eval', 'paths'],
-                    ['data', 'infer', 'paths'],
-                    ['data', 'task', 'preparer', 'done_sign'],
+  file_key_paths = [['data', 'task', 'preparer', 'done_sign'],
                     ['data', 'task', 'text_vocab'],
                     ['data', 'task', 'label_vocab'],
                     ['solver', 'service', 'model_path'],
                     ['solver', 'saver', 'model_path']]
 
+  for data_type in ['train', 'eval', 'infer']:
+    if isinstance(config['data'][data_type]['paths'], dict):
+      for k in config['data'][data_type]['paths']:
+        file_key_paths.append(['data', data_type, 'paths', k])
+    else:
+      file_key_paths.append(['data', data_type, 'paths'])
+
   if isinstance(config['solver']['metrics'], dict):
     metric = config['solver']['metrics']
+    if "target_file" in metric:
+      file_key_paths.append(['solver', 'metrics', 'target_file'])
+    if "text_vocab" in metric:
+      file_key_paths.append(['solver', 'metrics', 'text_vocab'])
     for j, cal in enumerate(metric['cals']):
       if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
         file_key_paths.append(['solver', 'metrics', 'cals', j, 'arguments', 'label_vocab_path'])
@@ -66,11 +81,15 @@ def config_join_project_dir(config):
       for j, cal in enumerate(metric['cals']):
         if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
           file_key_paths.append(['solver', 'metrics', i, 'cals', j, 'arguments', 'label_vocab_path'])
-  for i,postproc in enumerate(config['solver']['postproc']):
-    file_key_paths.append(['solver', 'postproc', i, 'res_file'])
-  if project_dir != "":
-    for file_key_path in file_key_paths:
-      config_join_project_path(project_dir, config, file_key_path)
+
+  if isinstance(config['solver']['postproc'], list):
+    for i,postproc in enumerate(config['solver']['postproc']):
+      file_key_paths.append(['solver', 'postproc', i, 'res_file'])
+  else:
+    file_key_paths.append(['solver', 'postproc', 'res_file'])
+
+  for file_key_path in file_key_paths:
+    config_join_project_path(project_dir, config, file_key_path)
 
 
 def load_config(config_path):
