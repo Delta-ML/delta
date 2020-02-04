@@ -16,7 +16,7 @@
 """An implementation of Matching Layer."""
 import typing
 
-import tensorflow as tf
+import delta.compat as tf
 from keras.engine import Layer
 
 
