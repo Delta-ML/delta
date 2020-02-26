@@ -194,12 +194,7 @@ class MatchPyramidTextClassModel(MatchRnn):
 
     embed_cross = self.matching_layer([embed_left, embed_right])
     for i in range(self.num_blocks):
-      embed_cross = self.conv(
-        embed_cross,
-        self.kernel_count,
-        self.kernel_size,
-        self.padding,
-        self.activation)
+      embed_cross = self.conv(embed_cross)
     embed_pool = self.dpool(
       [embed_cross, tf.keras.layers.Input(
         name='dpool_index',
