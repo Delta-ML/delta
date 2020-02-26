@@ -18,9 +18,10 @@
 import pickle
 from absl import logging
 import delta.compat as tf
+from delta.layers.dynamic_pooling import DynamicPoolingLayer
+from delta.layers.match_pyramid import MatchingLayer
 from delta.models.base_model import Model
 from delta.utils.register import registers
-from delta.layers import MatchLayer
 
 
 # pylint: disable=too-few-public-methods, abstract-method,too-many-ancestors
@@ -30,17 +31,16 @@ class MatchRnn(Model):
 
   def __init__(self, config, **kwargs):
     super().__init__(**kwargs)
-
     logging.info("Initialize MatchRnn...")
 
     self.use_pretrained_embedding = config['model']['use_pre_train_emb']
     if self.use_pretrained_embedding:
       self.embedding_path = config['model']['embedding_path']
       logging.info("Loading embedding file from: {}".format(
-          self.embedding_path))
+        self.embedding_path))
       self._word_embedding_init = pickle.load(open(self.embedding_path, 'rb'))
       self.embed_initializer = tf.constant_initializer(
-          self._word_embedding_init)
+        self._word_embedding_init)
     else:
       self.embed_initializer = tf.random_uniform_initializer(-0.1, 0.1)
 
@@ -66,28 +66,28 @@ class MatchRnnTextClassModel(MatchRnn):
     self.l2_reg_lambda = model_config['l2_reg_lambda']
 
     self.embed = tf.keras.layers.Embedding(
-        self.vocab_size,
-        self.embedding_size,
-        trainable=self.emb_trainable,
-        name='embdding',
-        embeddings_initializer=self.embed_initializer)
+      self.vocab_size,
+      self.embedding_size,
+      trainable=self.emb_trainable,
+      name='embdding',
+      embeddings_initializer=self.embed_initializer)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
     self.lstm_left = tf.keras.layers.LSTM(
-        self.lstm_num_units, return_sequences=True, name='lstm_left')
+      self.lstm_num_units, return_sequences=True, name='lstm_left')
     self.lstm_right = tf.keras.layers.LSTM(
-        self.lstm_num_units, return_sequences=True, name='lstm_right')
+      self.lstm_num_units, return_sequences=True, name='lstm_right')
     self.concat = tf.keras.layers.Concatenate(axis=1)
 
     self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
     self.outlayer = tf.keras.layers.Dense(self.fc_num_units, activation='tanh')
     self.tasktype = config['data']['task']['type']
-    #if self.tasktype == "Classification":
+    # if self.tasktype == "Classification":
     self.final_dense = tf.keras.layers.Dense(
-        self.num_classes,
-        activation=tf.keras.activations.linear,
-        name="final_dense")
+      self.num_classes,
+      activation=tf.keras.activations.linear,
+      name="final_dense")
 
     logging.info("Initialize MatchRnnTextClassModel done.")
 
@@ -148,14 +148,14 @@ class MatchPyramidTextClassModel(MatchRnn):
     # The padding mode in the convolution layer
     self.padding = model_config['padding']
     # The activation function
-    self.activation = model_confg['activation']
+    self.activation = model_config['activation']
 
     self.embed = tf.keras.layers.Embedding(
-        self.vocab_size,
-        self.embedding_size,
-        trainable=self.emb_trainable,
-        name='embdding',
-        embeddings_initializer=self.embed_initializer)
+      self.vocab_size,
+      self.embedding_size,
+      trainable=self.emb_trainable,
+      name='embdding',
+      embeddings_initializer=self.embed_initializer)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
@@ -163,23 +163,23 @@ class MatchPyramidTextClassModel(MatchRnn):
     self.matching_layer = MatchingLayer(matching_type='dot')
 
     self.conv = tf.keras.layers.Conv2D(
-            kernel_count,
-            kernel_size,
-            padding=padding,
-            activation=activation)
+      self.kernel_count,
+      self.kernel_size,
+      padding=self.padding,
+      activation=self.activation)
 
     self.dpool = DynamicPoolingLayer(*self.dpool_size)
 
     self.flatten = tf.keras.layers.Flatten()
-    
+
     self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
     self.outlayer = tf.keras.layers.Dense(self.fc_num_units, activation='tanh')
     self.tasktype = config['data']['task']['type']
-    #if self.tasktype == "Classification":
+    # if self.tasktype == "Classification":
     self.final_dense = tf.keras.layers.Dense(
-        self.num_classes,
-        activation=tf.keras.activations.linear,
-        name="final_dense")
+      self.num_classes,
+      activation=tf.keras.activations.linear,
+      name="final_dense")
 
     logging.info("Initialize MatchPyramidTextClassModel done.")
 
@@ -194,18 +194,18 @@ class MatchPyramidTextClassModel(MatchRnn):
 
     embed_cross = self.matching_layer([embed_left, embed_right])
     for i in range(self.num_blocks):
-        embed_cross = self.conv(
-                embed_cross,
-                self.kernel_count,
-                self.kernel_size,
-                self.padding,
-                self.activation)
+      embed_cross = self.conv(
+        embed_cross,
+        self.kernel_count,
+        self.kernel_size,
+        self.padding,
+        self.activation)
     embed_pool = self.dpool(
-            [embed_cross, tf.keras.layers.Input(
-                name='dpool_index',
-                shape=[self.embed_left['input_shapes'][0][0], 
-                       self.embed_left['input_shapes'][0][1],2],
-                dtype='int32')])
+      [embed_cross, tf.keras.layers.Input(
+        name='dpool_index',
+        shape=[self.embed_left['input_shapes'][0][0],
+               self.embed_left['input_shapes'][0][1], 2],
+        dtype='int32')])
 
     embed_flat = self.flatten(embed_pool)
 
@@ -213,5 +213,3 @@ class MatchPyramidTextClassModel(MatchRnn):
     out = self.outlayer(dropout)
     scores = self.final_dense(out)
     return scores
-
-

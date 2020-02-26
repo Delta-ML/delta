@@ -17,7 +17,7 @@
 import typing
 
 import delta.compat as tf
-from keras.engine import Layer
+from delta.layers.base_layer import Layer
 
 
 class MatchingLayer(Layer):

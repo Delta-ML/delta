@@ -16,8 +16,8 @@
 """An implementation of Dynamic Pooling Layer."""
 import typing
 
-import tensorflow as tf
-from tf.keras.engine import Layer
+import delta.compat as tf
+from delta.layers.base_layer import Layer
 
 
 class DynamicPoolingLayer(Layer):
