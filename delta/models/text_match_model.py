@@ -162,11 +162,14 @@ class MatchPyramidTextClassModel(MatchRnn):
     # TODO
     self.matching_layer = MatchingLayer(matching_type='dot')
 
-    self.conv = tf.keras.layers.Conv2D(
-      self.kernel_count,
-      self.kernel_size,
-      padding=self.padding,
-      activation=self.activation)
+    self.conv = []
+    for i in range(self.num_blocks):
+      conv = tf.keras.layers.Conv2D(
+        self.kernel_count,
+        self.kernel_size,
+        padding=self.padding,
+        activation=self.activation)
+      self.conv.append(conv)
 
     self.dpool = DynamicPoolingLayer(*self.dpool_size)
 
@@ -192,15 +195,17 @@ class MatchPyramidTextClassModel(MatchRnn):
     embed_left = embedding(input_left)
     embed_right = embedding(input_right)
 
+    # tf.keras.layers.Input(
+    #   name='dpool_index',
+    #   shape=[embed_left.get_shape().as_list()[1],
+    #          embed_right.get_shape().as_list()[1], 2],
+    #   dtype='int32')
+
     embed_cross = self.matching_layer([embed_left, embed_right])
     for i in range(self.num_blocks):
-      embed_cross = self.conv(embed_cross)
+      embed_cross = self.conv[i](embed_cross)
     embed_pool = self.dpool(
-      [embed_cross, tf.keras.layers.Input(
-        name='dpool_index',
-        shape=[self.embed_left['input_shapes'][0][0],
-               self.embed_left['input_shapes'][0][1], 2],
-        dtype='int32')])
+      [embed_cross, inputs['p_index']])
 
     embed_flat = self.flatten(embed_pool)
 

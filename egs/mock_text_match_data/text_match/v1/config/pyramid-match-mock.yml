@@ -63,12 +63,16 @@ model:
       activate: relu
       sent_hidden_size: 300
       # new
-      num_blocks: 2
-      kernel_count: 2
-      kernel_size: 2
-      dpool_size: 5,
+      num_blocks: 1
+      kernel_count: 32
+      kernel_size:
+        - 3
+        - 3
+      dpool_size:
+        - 3
+        - 10
       padding: same
-      activation: tanh
+      activation: relu
 
 solver:
   name: RawMatchSolver
