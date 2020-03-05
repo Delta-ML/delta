@@ -187,19 +187,12 @@ class MatchPyramidTextClassModel(MatchRnn):
     logging.info("Initialize MatchPyramidTextClassModel done.")
 
   def call(self, inputs, training=None, mask=None):  # pylint: disable=too-many-locals
-
     input_left = inputs["input_x_left"]
     input_right = inputs["input_x_right"]
 
     embedding = self.embed
     embed_left = embedding(input_left)
     embed_right = embedding(input_right)
-
-    # tf.keras.layers.Input(
-    #   name='dpool_index',
-    #   shape=[embed_left.get_shape().as_list()[1],
-    #          embed_right.get_shape().as_list()[1], 2],
-    #   dtype='int32')
 
     embed_cross = self.matching_layer([embed_left, embed_right])
     for i in range(self.num_blocks):

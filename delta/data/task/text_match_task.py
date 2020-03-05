@@ -101,6 +101,8 @@ class TextMatchTask(TextTask):
                        tf.TensorShape([self.max_seq_len]))]
     if not self.infer_without_label:
       feature_shapes.append(tf.TensorShape([self.num_classes]))
+
+    feature_shapes = [tuple(feature_shapes), (tf.TensorShape([]), tf.TensorShape([]))]
     if len(feature_shapes) == 1:
       return feature_shapes[0]
     return tuple(feature_shapes)
@@ -138,39 +140,37 @@ class TextMatchTask(TextTask):
 
   def dataset(self):
     """Data set function"""
-    data_set_left_right, text_len_left_right = self.generate_data()
+    data_set_left_right1, text_len_left_right1 = self.generate_data()
+    text_ds_left_right = tf.data.Dataset.zip((data_set_left_right1, text_len_left_right1))
 
-    logging.debug("data_set_left_right: {}".format(data_set_left_right))
     if self.mode == 'train':
       if self.need_shuffle:
         # shuffle batch size and repeat
         logging.debug("shuffle and repeat dataset ...")
-        data_set_left_right = data_set_left_right.apply(
+        text_ds_left_right = text_ds_left_right.apply(
           tf.data.experimental.shuffle_and_repeat(
             buffer_size=self.shuffle_buffer_size, count=None))
       else:
         logging.debug("repeat dataset ...")
-        data_set_left_right = data_set_left_right.repeat(count=None)
+        text_ds_left_right = text_ds_left_right.repeat(count=None)
+
     feature_shape = self.feature_spec()
     logging.debug("feature_shape: {}".format(feature_shape))
 
-    data_set_left_right = data_set_left_right.padded_batch(
+    # logging.debug("data_set_left_right：{}".format(data_set_left_right))
+
+    text_ds_left_right = text_ds_left_right.padded_batch(
       batch_size=self.batch_size, padded_shapes=feature_shape)
-    text_len_left_right = text_len_left_right.batch(self.batch_size)
 
-    data_set_left_right = data_set_left_right.prefetch(self.num_prefetch_batch)
-    text_len_left_right = text_len_left_right.prefetch(self.num_prefetch_batch)
+    text_ds_left_right = text_ds_left_right.prefetch(self.num_prefetch_batch)
 
-    iterator = data_set_left_right.make_initializable_iterator()
-    iterator_len = text_len_left_right.make_initializable_iterator()
+    iterator = text_ds_left_right.make_initializable_iterator()
     # pylint: disable=unused-variable
     if self.infer_without_label:
-      input_x_left, input_x_right = iterator.get_next()
+      (input_x_left, input_x_right), (input_x_left_len, input_x_right_len) = iterator.get_next()
     else:
+      ((input_x_left, input_x_right), input_y), (input_x_left_len, input_x_right_len) = iterator.get_next()
 
-      (input_x_left, input_x_right), input_y = iterator.get_next()
-
-    input_x_left_len, input_x_right_len = iterator_len.get_next()
     input_x_dict = collections.OrderedDict([("input_x_left", input_x_left),
                                             ("input_x_right", input_x_right)])
     input_x_len = collections.OrderedDict([
@@ -191,7 +191,6 @@ class TextMatchTask(TextTask):
       "input_x_dict": input_x_dict,
       "input_x_len": input_x_len,
       "iterator": iterator,
-      "iterator_len": iterator_len,
     }
 
     if not self.infer_without_label:
