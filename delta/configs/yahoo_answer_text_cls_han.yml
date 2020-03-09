@@ -100,7 +100,7 @@ solver:
           average: 'weighted'
   postproc:
     name: SavePredPostProc
-    res_file: ""
+    res_file: "res/infer_res.txt"
   saver:
     model_path: "exp/han-cls/ckpt"
     max_to_keep: 1

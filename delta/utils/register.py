@@ -155,7 +155,8 @@ PREPROCESS_MODULES = [
 ]
 
 NLP_DATA_SETS = ['atis', 'atis2', 'mock_text_cls_data', 'mock_text_match_data',
-                 'mock_text_nlu_joint_data', 'mock_text_seq2seq_data', 'mock_text_seq_label_data']
+                 'mock_text_nlu_joint_data', 'mock_text_seq2seq_data', 'mock_text_seq_label_data',
+                 'conll_2003', 'snli', 'trec', 'yahoo_answer']
 
 ALL_NLP_MODULES = [("delta.data.task", NLP_TASK_MODULES),
                    ("delta.models", NLP_MODEL_MODULES),

@@ -73,6 +73,8 @@ def config_join_project_dir(config):
       file_key_paths.append(['solver', 'metrics', 'target_file'])
     if "text_vocab" in metric:
       file_key_paths.append(['solver', 'metrics', 'text_vocab'])
+    if "res_file" in metric:
+      file_key_paths.append(['solver', 'metrics', 'res_file'])
     for j, cal in enumerate(metric['cals']):
       if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
         file_key_paths.append(['solver', 'metrics', 'cals', j, 'arguments', 'label_vocab_path'])
