@@ -39,6 +39,8 @@ class TextMatchTask(TextTask):
   def __init__(self, config, mode):
     super().__init__(config, mode)
 
+    self.p_index = None
+
     self.vocab_min_frequency = self.task_config['vocab_min_frequency']
     self.text_vocab_file_path = self.task_config['text_vocab']
     self.label_vocab_file_path = self.task_config['label_vocab']
@@ -125,12 +127,22 @@ class TextMatchTask(TextTask):
       lambda x: compute_sen_lens(x, padding_token=0), token_ids_left)
     token_ids_len_right = tf.map_fn(
       lambda x: compute_sen_lens(x, padding_token=0), token_ids_right)
+
+    self.p_index = self._dynamic_pooling_index(token_ids_len_left,
+                                               token_ids_len_right,
+                                               self.config['data']['task']['max_seq_len'],
+                                               self.config['data']['task']['max_seq_len'],
+                                               1,
+                                               1,
+                                               )
+
     export_data = {
       "export_inputs": {
         "input_sent_left": input_sent_left,
         "input_sent_right": input_sent_right,
       },
       "model_inputs": {
+        "p_index": self.p_index,
         "input_x_left": token_ids_left,
         "input_x_right": token_ids_right,
         "input_x_len": [token_ids_len_left, token_ids_len_right]
@@ -140,8 +152,8 @@ class TextMatchTask(TextTask):
 
   def dataset(self):
     """Data set function"""
-    data_set_left_right1, text_len_left_right1 = self.generate_data()
-    text_ds_left_right = tf.data.Dataset.zip((data_set_left_right1, text_len_left_right1))
+    ds_left_right, ds_left_right = self.generate_data()
+    text_ds_left_right = tf.data.Dataset.zip((ds_left_right, ds_left_right))
 
     if self.mode == 'train':
       if self.need_shuffle:
@@ -178,7 +190,7 @@ class TextMatchTask(TextTask):
       ("input_x_right_len", input_x_right_len)
     ])
 
-    p_index = self._dynamic_pooling_index(input_x_left_len,
+    self.p_index = self._dynamic_pooling_index(input_x_left_len,
                                           input_x_right_len,
                                           self.config['data']['task']['max_seq_len'],
                                           self.config['data']['task']['max_seq_len'],
@@ -186,7 +198,7 @@ class TextMatchTask(TextTask):
                                           1,
                                           )
 
-    input_x_dict["p_index"] = p_index
+    input_x_dict["p_index"] = self.p_index
     return_dict = {
       "input_x_dict": input_x_dict,
       "input_x_len": input_x_len,
