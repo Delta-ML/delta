@@ -128,7 +128,7 @@ class MatchPyramidTextClassModel(MatchRnn):
 
     self.vocab_size = config['data']['vocab_size']
     self.num_classes = config['data']['task']['classes']['num_classes']
-
+    self.max_seq_len = config['data']['task']['max_seq_len']
     model_config = config['model']['net']['structure']
     self.dropout_rate = model_config['dropout_rate']
     self.embedding_size = model_config['embedding_size']
@@ -190,15 +190,26 @@ class MatchPyramidTextClassModel(MatchRnn):
     input_left = inputs["input_x_left"]
     input_right = inputs["input_x_right"]
 
+    input_x_left_len = inputs["input_x_left_len"]
+    input_x_right_len = inputs["input_x_right_len"]
+
     embedding = self.embed
     embed_left = embedding(input_left)
     embed_right = embedding(input_right)
+
+    p_index = self._dynamic_pooling_index(input_x_left_len,
+                                          input_x_right_len,
+                                          self.max_seq_len,
+                                          self.max_seq_len,
+                                          1,
+                                          1,
+                                          )
 
     embed_cross = self.matching_layer([embed_left, embed_right])
     for i in range(self.num_blocks):
       embed_cross = self.conv[i](embed_cross)
     embed_pool = self.dpool(
-      [embed_cross, inputs['p_index']])
+      [embed_cross, p_index])
 
     embed_flat = self.flatten(embed_pool)
 
@@ -206,3 +217,60 @@ class MatchPyramidTextClassModel(MatchRnn):
     out = self.outlayer(dropout)
     scores = self.final_dense(out)
     return scores
+
+
+
+  def _dynamic_pooling_index(self, length_left,
+                             length_right,
+                             fixed_length_left: int,
+                             fixed_length_right: int,
+                             compress_ratio_left: float,
+                             compress_ratio_right: float) -> tf.Tensor:
+    def _dpool_index(one_length_left,
+                     one_length_right,
+                     fixed_length_left,
+                     fixed_length_right):
+
+      logging.info("fixed_length_left: {}".format(fixed_length_left))
+      logging.info("fixed_length_right: {}".format(fixed_length_right))
+
+      if one_length_left == 0:
+        stride_left = fixed_length_left
+      else:
+        stride_left = 1.0 * fixed_length_left / tf.cast(one_length_left, dtype=tf.float32)
+
+      if one_length_right == 0:
+        stride_right = fixed_length_right
+      else:
+        stride_right = 1.0 * fixed_length_right / tf.cast(one_length_right, dtype=tf.float32)
+
+      one_idx_left = [tf.cast(i / stride_left, dtype=tf.int32)
+                      for i in range(fixed_length_left)]
+      one_idx_right = [tf.cast(i / stride_right, dtype=tf.int32)
+                       for i in range(fixed_length_right)]
+      mesh1, mesh2 = tf.meshgrid(one_idx_left, one_idx_right)
+      index_one = tf.transpose(
+        tf.stack([mesh1, mesh2]), (2, 1, 0))
+      return index_one
+
+    index = []
+    dpool_bias_left = dpool_bias_right = 0
+    if fixed_length_left % compress_ratio_left != 0:
+      dpool_bias_left = 1
+    if fixed_length_right % compress_ratio_right != 0:
+      dpool_bias_right = 1
+    cur_fixed_length_left = int(
+      fixed_length_left // compress_ratio_left) + dpool_bias_left
+    cur_fixed_length_right = int(
+      fixed_length_right // compress_ratio_right) + dpool_bias_right
+    logging.info("length_left: {}".format(length_left))
+    logging.info("length_right: {}".format(length_right))
+    logging.info("cur_fixed_length_left: {}".format(cur_fixed_length_left))
+    logging.info("cur_fixed_length_right: {}".format(cur_fixed_length_right))
+
+    index = tf.map_fn(lambda x: _dpool_index(x[0], x[1], cur_fixed_length_left, cur_fixed_length_right),
+                      (length_left, length_right), dtype=tf.int32)
+
+    logging.info("index: {}".format(index))
+
+    return index

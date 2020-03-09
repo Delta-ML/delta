@@ -39,8 +39,6 @@ class TextMatchTask(TextTask):
   def __init__(self, config, mode):
     super().__init__(config, mode)
 
-    self.p_index = None
-
     self.vocab_min_frequency = self.task_config['vocab_min_frequency']
     self.text_vocab_file_path = self.task_config['text_vocab']
     self.label_vocab_file_path = self.task_config['label_vocab']
@@ -105,8 +103,10 @@ class TextMatchTask(TextTask):
       feature_shapes.append(tf.TensorShape([self.num_classes]))
 
     feature_shapes = [tuple(feature_shapes), (tf.TensorShape([]), tf.TensorShape([]))]
+
     if len(feature_shapes) == 1:
       return feature_shapes[0]
+
     return tuple(feature_shapes)
 
   def export_inputs(self):
@@ -128,23 +128,16 @@ class TextMatchTask(TextTask):
     token_ids_len_right = tf.map_fn(
       lambda x: compute_sen_lens(x, padding_token=0), token_ids_right)
 
-    self.p_index = self._dynamic_pooling_index(token_ids_len_left,
-                                               token_ids_len_right,
-                                               self.config['data']['task']['max_seq_len'],
-                                               self.config['data']['task']['max_seq_len'],
-                                               1,
-                                               1,
-                                               )
-
     export_data = {
       "export_inputs": {
         "input_sent_left": input_sent_left,
         "input_sent_right": input_sent_right,
       },
       "model_inputs": {
-        "p_index": self.p_index,
         "input_x_left": token_ids_left,
         "input_x_right": token_ids_right,
+        "input_x_left_len": token_ids_len_left,
+        "input_x_right_len": token_ids_len_right,
         "input_x_len": [token_ids_len_left, token_ids_len_right]
       }
     }
@@ -152,8 +145,8 @@ class TextMatchTask(TextTask):
 
   def dataset(self):
     """Data set function"""
-    ds_left_right, ds_left_right = self.generate_data()
-    text_ds_left_right = tf.data.Dataset.zip((ds_left_right, ds_left_right))
+    ds_left_right, ds_left_right_len = self.generate_data()
+    text_ds_left_right = tf.data.Dataset.zip((ds_left_right, ds_left_right_len))
 
     if self.mode == 'train':
       if self.need_shuffle:
@@ -184,21 +177,15 @@ class TextMatchTask(TextTask):
       ((input_x_left, input_x_right), input_y), (input_x_left_len, input_x_right_len) = iterator.get_next()
 
     input_x_dict = collections.OrderedDict([("input_x_left", input_x_left),
-                                            ("input_x_right", input_x_right)])
+                                            ("input_x_right", input_x_right),
+                                            ("input_x_left_len", input_x_left_len),
+                                            ("input_x_right_len", input_x_right_len),
+                                            ])
     input_x_len = collections.OrderedDict([
       ("input_x_left_len", input_x_left_len),
       ("input_x_right_len", input_x_right_len)
     ])
 
-    self.p_index = self._dynamic_pooling_index(input_x_left_len,
-                                          input_x_right_len,
-                                          self.config['data']['task']['max_seq_len'],
-                                          self.config['data']['task']['max_seq_len'],
-                                          1,
-                                          1,
-                                          )
-
-    input_x_dict["p_index"] = self.p_index
     return_dict = {
       "input_x_dict": input_x_dict,
       "input_x_len": input_x_len,
@@ -210,63 +197,3 @@ class TextMatchTask(TextTask):
                                                               input_y)])
     return return_dict
 
-  def _dynamic_pooling_index(self, length_left,
-                             length_right,
-                             fixed_length_left: int,
-                             fixed_length_right: int,
-                             compress_ratio_left: float,
-                             compress_ratio_right: float) -> tf.Tensor:
-    def _dpool_index(one_length_left,
-                     one_length_right,
-                     fixed_length_left,
-                     fixed_length_right):
-
-      logging.info("fixed_length_left: {}".format(fixed_length_left))
-      logging.info("fixed_length_right: {}".format(fixed_length_right))
-
-      if one_length_left == 0:
-        stride_left = fixed_length_left
-      else:
-        stride_left = 1.0 * fixed_length_left / tf.cast(one_length_left, dtype=tf.float32)
-
-      if one_length_right == 0:
-        stride_right = fixed_length_right
-      else:
-        stride_right = 1.0 * fixed_length_right / tf.cast(one_length_right, dtype=tf.float32)
-
-      one_idx_left = [tf.cast(i / stride_left, dtype=tf.int32)
-                      for i in range(fixed_length_left)]
-      one_idx_right = [tf.cast(i / stride_right, dtype=tf.int32)
-                       for i in range(fixed_length_right)]
-      mesh1, mesh2 = tf.meshgrid(one_idx_left, one_idx_right)
-      index_one = tf.transpose(
-        tf.stack([mesh1, mesh2]), (2, 1, 0))
-      return index_one
-
-    index = []
-    dpool_bias_left = dpool_bias_right = 0
-    if fixed_length_left % compress_ratio_left != 0:
-      dpool_bias_left = 1
-    if fixed_length_right % compress_ratio_right != 0:
-      dpool_bias_right = 1
-    cur_fixed_length_left = int(
-      fixed_length_left // compress_ratio_left) + dpool_bias_left
-    cur_fixed_length_right = int(
-      fixed_length_right // compress_ratio_right) + dpool_bias_right
-    logging.info("length_left: {}".format(length_left))
-    logging.info("length_right: {}".format(length_right))
-    logging.info("cur_fixed_length_left: {}".format(cur_fixed_length_left))
-    logging.info("cur_fixed_length_right: {}".format(cur_fixed_length_right))
-
-    index = tf.map_fn(lambda x: _dpool_index(x[0], x[1], cur_fixed_length_left, cur_fixed_length_right),
-                      (length_left, length_right), dtype=tf.int32)
-
-    logging.info("index: {}".format(index))
-
-    # for i in range(length_left.shape[0]):
-    #   index.append(_dpool_index(
-    #     length_left[i] // compress_ratio_left,
-    #     length_right[i] // compress_ratio_right,
-    #     cur_fixed_length_left,
-    #     cur_fixed_length_right))
-    return index
