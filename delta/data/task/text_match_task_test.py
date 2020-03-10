@@ -72,7 +72,7 @@ class TextMatchTaskTest(tf.test.TestCase):
     # with self.cached_session(use_gpu=False, force_gpu=False) as sess:
     #  sess.run(data["iterator"].initializer)
     with self.cached_session(use_gpu=False, force_gpu=False) as sess:
-      sess.run([data["iterator"].initializer, data["iterator_len"].initializer])
+      sess.run([data["iterator"].initializer])
       res = sess.run([
           data["input_x_dict"]["input_x_left"],
           data["input_x_dict"]["input_x_right"],
