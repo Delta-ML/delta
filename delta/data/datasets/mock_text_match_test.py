@@ -22,6 +22,7 @@ from delta.data.datasets.mock_text_match_data import MockTextMatchData
 
 
 class MockTextMatchDataTest(tf.test.TestCase):
+  """mock data class test for match task."""
 
   def test_build(self):
     mock_text_match_data = MockTextMatchData('mock_match_data')

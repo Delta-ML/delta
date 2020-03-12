@@ -21,6 +21,7 @@ from delta.data.datasets.conll_2003 import Conll2003
 
 
 class Conll2003Test(tf.test.TestCase):
+  """conll2003 data class for seqlabel task."""
 
   def test_build(self):
     conll_2003 = Conll2003('conll_2003')

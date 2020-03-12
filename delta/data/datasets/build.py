@@ -28,4 +28,3 @@ def build_dataset(dataset_name, dataset_dir):
     logging.info(f"Dataset: {dataset_name} built failed!")
     return
   logging.info(f"Dataset: {dataset_name} built successfully.")
-

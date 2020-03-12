@@ -21,6 +21,7 @@ from delta.data.datasets.atis2 import ATIS2
 
 
 class ATIS2Test(tf.test.TestCase):
+  """data class test for nlu-joint task."""
 
   def test_build(self):
     atis2 = ATIS2('/atis2')

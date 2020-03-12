@@ -21,6 +21,7 @@ from delta.data.datasets.atis import ATIS
 
 
 class ATISTest(tf.test.TestCase):
+  """atis data class for nlu joint task."""
 
   def test_build(self):
     atis = ATIS('atis')

@@ -20,9 +20,9 @@
 
 """
 
-from absl import logging
 import os
 import traceback
+from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
 from delta.utils.register import registers
@@ -30,6 +30,7 @@ from delta.utils.register import registers
 
 @registers.dataset.register('mock_text_seq_label_data')
 class MockTextSeqLabelData(BaseDataSet):
+  """data class for mock seqlabel task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -45,8 +46,9 @@ class MockTextSeqLabelData(BaseDataSet):
     # samples with label
     self.samples = ["O O O O\ti feel good .",
                "O O B-ORG O O O O O O\tby stumps kent had reached 108 for three ."]
-    self.text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "feel\t3", "good\t4", ".\t5",
-                       "by\t6", "stumps\t7", "kent\t8", "had\t9", "reached\t10", "108\t11", "for\t12", "three\t13"]
+    self.text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "feel\t3", "good\t4",
+                            ".\t5", "by\t6", "stumps\t7", "kent\t8", "had\t9",
+                            "reached\t10", "108\t11", "for\t12", "three\t13"]
     self.label_vocab_list = ["O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4",
                         "B-ORG\t5", "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"]
 
@@ -71,9 +73,4 @@ class MockTextSeqLabelData(BaseDataSet):
       logging.warning(traceback.format_exc())
       return False
     return True
-
-
-
-
-
 

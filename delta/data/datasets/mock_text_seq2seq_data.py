@@ -20,9 +20,9 @@
 
 """
 
-from absl import logging
 import os
 import traceback
+from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
 from delta.utils.register import registers
@@ -30,6 +30,7 @@ from delta.utils.register import registers
 
 @registers.dataset.register('mock_text_seq2seq_data')
 class MockTextSeq2SeqData(BaseDataSet):
+  """mock seq2seq data class seq2seq task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -67,4 +68,3 @@ class MockTextSeq2SeqData(BaseDataSet):
       logging.warning(traceback.format_exc())
       return False
     return True
-

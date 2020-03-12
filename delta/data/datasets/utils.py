@@ -13,19 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-from absl import logging
+
 import os
 import pickle
 import numpy as np
 from pathlib import Path
 import tempfile
+from absl import logging
 from sklearn.model_selection import train_test_split
 
 
 def data_generator(data):
   """Simple data generator"""
   while True:
-    for i in range(len(data)):
+    for i, ele in enumerate(data):
       yield data[i]
 
 
@@ -122,20 +123,20 @@ def save_a_vocab_file(vocab_file, vocab_list):
 def split_file(ori_file):
   src_file = ori_file + '.src'
   tgt_file = ori_file + '.tgt'
-  with open(ori_file, 'r', encoding='utf8') as f:
-    lines = f.readlines()
+  with open(ori_file, 'r', encoding='utf8') as in_f:
+    lines = in_f.readlines()
   src, tgt = zip(*[sent.split('\t') for sent in lines])
-  with open(src_file, 'w', encoding='utf8') as f:
+  with open(src_file, 'w', encoding='utf8') as out_f:
     for src_sent in src:
-      f.write(src_sent+'\n')
-  with open(tgt_file, 'w', encoding='utf8') as f:
+      out_f.write(src_sent+'\n')
+  with open(tgt_file, 'w', encoding='utf8') as out_f:
     for tgt_sent in tgt:
-      f.write(tgt_sent)
+      out_f.write(tgt_sent)
   os.remove(ori_file)
 
 
-def mock_data(samples, train_file, dev_file, test_file,
-              text_vocab_file=None, text_vocab_list=None, label_vocab_file=None, label_vocab_list=None):
+def mock_data(samples, train_file, dev_file, test_file, text_vocab_file=None,
+              text_vocab_list=None, label_vocab_file=None, label_vocab_list=None):
   logging.info("Generate mock data: {}".format(train_file))
   mock_a_text_file(samples, 300, train_file)
   logging.info("Generate mock data: {}".format(dev_file))
@@ -151,7 +152,8 @@ def mock_data(samples, train_file, dev_file, test_file,
     save_a_vocab_file(label_vocab_file, label_vocab_list)
 
   # for seq2seq
-  if not text_vocab_file and not text_vocab_list and not label_vocab_file and not label_vocab_list:
+  if not text_vocab_file and not text_vocab_list and not \
+    label_vocab_file and not label_vocab_list:
     logging.info("Generate mock data: {} and split to src and tgt.".format(train_file))
     split_file(train_file)
     logging.info("Generate mock data: {} and split to src and tgt.".format(dev_file))

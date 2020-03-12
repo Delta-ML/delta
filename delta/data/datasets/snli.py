@@ -17,7 +17,8 @@
 """
 ## References
 
-Stanford Natural Language Inference (SNLI) corpus is released in A large annotated corpus for learning natural language inference
+Stanford Natural Language Inference (SNLI) corpus is released in A large annotated
+corpus for learning natural language inference
 
 Available: https://sigann.github.io/LAW-XI-2017/papers/LAW01.pdf
 
@@ -27,7 +28,12 @@ https://nlp.stanford.edu/projects/snli/snli_1.0.zip
 
 ## Description
 
-Stanford Natural Language Inference corpus is a new, freely available collection of labeled sentence pairs, written by humans doing a novel grounded task based on image captioning. At 570K pairs, it is two orders of magnitude larger than all other resources of its type. This in- crease in scale allows lexicalized classi- fiers to outperform some sophisticated ex- isting entailment models, and it allows a neural network-based model to perform competitively on natural language infer- ence benchmarks for the first time.
+Stanford Natural Language Inference corpus is a new, freely available collection of
+labeled sentence pairs, written by humans doing a novel grounded task based on image captioning.
+At 570K pairs, it is two orders of magnitude larger than all other resources of its type.
+This in- crease in scale allows lexicalized classi- fiers to outperform some sophisticated
+existing entailment models, and it allows a neural network-based model to perform competitively
+on natural language infer- ence benchmarks for the first time.
 
 ## Data scale introduction
 
@@ -39,16 +45,15 @@ Stanford Natural Language Inference corpus is a new, freely available collection
 import wget
 import os
 import traceback
-import csv
 import json
 from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.utils.register import registers
-from delta.data.datasets.utils import split_train_dev
 
 
 @registers.dataset.register('snli')
 class SNLI(BaseDataSet):
+  """snli data class test for match task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)

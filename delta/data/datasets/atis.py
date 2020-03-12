@@ -17,8 +17,10 @@
 """
 ## References
 
-Charles T. Hemphill, John J. Godfrey, and George R. Doddington. 1990. The ATIS spoken language systems pilot corpus.
-In Proceedings of the DARPA Speech and Natural Language Workshop. http://www.aclweb.org/anthology/ H90-1021.
+Charles T. Hemphill, John J. Godfrey, and George R. Doddington. 1990.
+The ATIS spoken language systems pilot corpus.
+In Proceedings of the DARPA Speech and Natural Language Workshop.
+http://www.aclweb.org/anthology/ H90-1021.
 
 ## Download Links
 
@@ -27,8 +29,10 @@ https://github.com/howl-anderson/ATIS_dataset/raw/master/data/raw_data/ms-cntk-a
 ## Description
 
 the Air Travel Information System (ATIS) pilot corpus,
-a corpus designed to measure progress in Spoken Language Systems that include both a speech and natural language component.
-This pilot marks the first full-scale attempt to collect such a corpus and provides guidelines for future efforts.
+a corpus designed to measure progress in Spoken Language Systems
+that include both a speech and natural language component.
+This pilot marks the first full-scale attempt to collect such a corpus
+and provides guidelines for future efforts.
 
 
 ## Data scale introduction
@@ -41,9 +45,9 @@ This pilot marks the first full-scale attempt to collect such a corpus and provi
 
 """
 
-import wget
 import os
 import traceback
+import wget
 from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import summary_joint_nlu_data
@@ -52,6 +56,7 @@ from delta.utils.register import registers
 
 @registers.dataset.register('atis')
 class ATIS(BaseDataSet):
+  """atis data class for nlu joint task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -62,8 +67,10 @@ class ATIS(BaseDataSet):
     self.download_files = ["atis.train.pkl", "atis.test.pkl"]
 
   def download(self) -> bool:
-    train_url = "https://github.com/howl-anderson/ATIS_dataset/raw/master/data/raw_data/ms-cntk-atis/atis.train.pkl"
-    test_url = "https://github.com/howl-anderson/ATIS_dataset/raw/master/data/raw_data/ms-cntk-atis/atis.test.pkl"
+    train_url = "https://github.com/howl-anderson/ATIS_dataset/raw/master/" \
+                "data/raw_data/ms-cntk-atis/atis.train.pkl"
+    test_url = "https://github.com/howl-anderson/ATIS_dataset/raw/master/" \
+               "data/raw_data/ms-cntk-atis/atis.test.pkl"
     try:
       wget.download(train_url, self.download_dir)
       wget.download(test_url, self.download_dir)

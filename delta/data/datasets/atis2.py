@@ -14,7 +14,6 @@
 # limitations under the License.
 # ==============================================================================
 
-import wget
 import os
 from absl import logging
 import shutil
@@ -25,6 +24,7 @@ from delta.utils.register import registers
 
 @registers.dataset.register('atis2')
 class ATIS2(BaseDataSet):
+  """atis2 data class for nlu joint task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -40,6 +40,7 @@ class ATIS2(BaseDataSet):
 
   @staticmethod
   def to_standard_format(input_file, output_file):
+    """change data format for data input"""
     logging.info("Save file to {}".format(output_file))
 
     with open(input_file, encoding="utf-8") as in_file, \
@@ -82,5 +83,3 @@ class ATIS2(BaseDataSet):
       logging.warning(traceback.format_exc())
       return False
     return True
-
-

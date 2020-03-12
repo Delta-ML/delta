@@ -44,6 +44,7 @@ from delta.data.datasets.utils import split_train_dev
 
 @registers.dataset.register('yahoo_answer')
 class YahooAnswer(BaseDataSet):
+  """yahoo answer data class for cls task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)

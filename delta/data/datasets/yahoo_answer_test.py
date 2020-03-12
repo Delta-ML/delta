@@ -21,6 +21,7 @@ from delta.data.datasets.yahoo_answer import YahooAnswer
 
 
 class YahooAnswerTest(tf.test.TestCase):
+  """yahoo answer data class test for cls task."""
 
   def test_build(self):
     yahoo_answer = YahooAnswer('yahoo_answer')

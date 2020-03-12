@@ -25,10 +25,12 @@ https://www.clips.uantwerpen.be/conll2003/ner/
 
 ## Description
 
-The CoNLL-2003 named entity data consists of eight files covering two languages: English and German1.
-For each of the languages there is a training file, a development file, a test file and a large file with unannotated data.
-The learning methods were trained with the training data. The development data could be used for tuning the parameters
-of the learning methods
+The CoNLL-2003 named entity data consists of eight files covering two languages:
+English and German1.
+For each of the languages there is a training file, a development file,
+a test file and a large file with unannotated data.
+The learning methods were trained with the training data.
+The development data could be used for tuning the parameters of the learning methods
 
 ## Data scale introduction
 
@@ -50,18 +52,17 @@ of the learning methods
 
 """
 
-import wget
 import os
 import traceback
-import csv
+import wget
 from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.utils.register import registers
-from delta.data.datasets.utils import split_train_dev
 
 
 @registers.dataset.register('conll_2003')
 class Conll2003(BaseDataSet):
+  """conll2003 data class for seqlabel task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -99,8 +100,8 @@ class Conll2003(BaseDataSet):
             label = line.strip().split(' ')[-1]
             # here we dont do "DOCSTART" check
             if len(line.strip()) == 0:
-              l = [label for label in labels if len(label) > 0]
-              w = [word for word in words if len(word) > 0]
+              l = [label for label in labels if not label]
+              w = [word for word in words if not word]
               assert len(l) == len(w)
               l, w = ' '.join(l), ' '.join(w)
               output_file.write(l + "\t" + w + "\n")

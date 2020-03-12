@@ -21,6 +21,7 @@ from delta.data.datasets.trec import TREC
 
 
 class TRECTest(tf.test.TestCase):
+  """trec data class for cls task."""
 
   def test_build(self):
     trec = TREC('trec')

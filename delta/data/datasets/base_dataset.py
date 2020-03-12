@@ -19,7 +19,6 @@
 import os
 from typing import List
 from absl import logging
-from shutil import copyfile, SameFileError
 
 from delta import PACKAGE_ROOT_DIR
 from delta.utils.config import load_config

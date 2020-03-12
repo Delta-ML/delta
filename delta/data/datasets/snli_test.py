@@ -21,6 +21,7 @@ from delta.data.datasets.snli import SNLI
 
 
 class SNLITest(tf.test.TestCase):
+  """snli data class for match task."""
 
   def test_build(self):
     snli = SNLI('snli')

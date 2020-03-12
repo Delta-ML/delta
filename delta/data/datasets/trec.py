@@ -21,9 +21,13 @@ Xin Li, Dan Roth, Learning Question Classifiers. COLING'02, Aug., 2002.
 
 ## Description
 
-This data collection contains all the data used in our learning question classification experiments(Xin Li, Dan Roth, Learning Question Classifiers. COLING'02, Aug., 2002.),
-which has question class definitions, the training and testing question sets, examples of preprocessing the questions, feature definition scripts and examples of semantically related word features.
-This work has been done by Xin Li and Dan Roth and supported by Research supported by (NSF grants IIS-9801638 and ITR IIS-0085836 and an ONR MURI Award.) .
+This data collection contains all the data used in our learning question classification
+experiments(Xin Li, Dan Roth, Learning Question Classifiers. COLING'02, Aug., 2002.),
+which has question class definitions, the training and testing question sets, examples
+of preprocessing the questions, feature definition scripts and examples of semantically
+related word features.
+This work has been done by Xin Li and Dan Roth and supported by Research supported by
+(NSF grants IIS-9801638 and ITR IIS-0085836 and an ONR MURI Award.) .
 
 ## Download Links
 
@@ -37,9 +41,9 @@ https://github.com/thtrieu/qclass_dl/tree/master/data
 
 """
 
-import wget
 import os
 import traceback
+import wget
 from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.utils.register import registers
@@ -47,6 +51,7 @@ from delta.utils.register import registers
 
 @registers.dataset.register('trec')
 class TREC(BaseDataSet):
+  """trec data class test for cls task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)

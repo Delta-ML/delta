@@ -20,9 +20,9 @@
 
 """
 
-from absl import logging
 import os
 import traceback
+from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
 from delta.utils.register import registers
@@ -30,6 +30,7 @@ from delta.utils.register import registers
 
 @registers.dataset.register('mock_text_cls_data')
 class MockTextCLSData(BaseDataSet):
+  """mock data class for cls task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -51,7 +52,7 @@ class MockTextCLSData(BaseDataSet):
     self.text_vocab = "text_vocab.txt"
     files = [self.train_file, self.dev_file, self.test_file]
     self.data_files = [x.replace("txt", "")+data_type +".txt"
-                       for x in files for data_type in self.samples_dict.keys()]
+                       for x in files for data_type in self.samples_dict]
     self.config_files = ['cnn_cls_mock.yml']
     self.download_files = []
 
@@ -79,15 +80,19 @@ class MockTextCLSData(BaseDataSet):
 
   def after_download(self) -> bool:
     try:
-      for data_type in self.samples_dict.keys():
+      for data_type in self.samples_dict:
 
         samples = self.samples_dict[data_type]
         text_vocab_list = self.text_vocab_dict[data_type]
 
-        train_file_path = os.path.join(self.data_dir, self.train_file.replace("txt", "") + data_type + ".txt")
-        dev_file_path = os.path.join(self.data_dir, self.dev_file.replace("txt", "") + data_type + ".txt")
-        test_file_path = os.path.join(self.data_dir, self.test_file.replace("txt", "") + data_type + ".txt")
-        text_vocab_file = os.path.join(self.data_dir, self.text_vocab.replace("txt", "") + data_type + ".txt")
+        train_file_path = os.path.join(self.data_dir,
+                                       self.train_file.replace("txt", "") + data_type + ".txt")
+        dev_file_path = os.path.join(self.data_dir,
+                                     self.dev_file.replace("txt", "") + data_type + ".txt")
+        test_file_path = os.path.join(self.data_dir,
+                                      self.test_file.replace("txt", "") + data_type + ".txt")
+        text_vocab_file = os.path.join(self.data_dir,
+                                       self.text_vocab.replace("txt", "") + data_type + ".txt")
 
         mock_data(samples, train_file_path, dev_file_path, test_file_path, text_vocab_file, text_vocab_list)
 
@@ -95,9 +100,3 @@ class MockTextCLSData(BaseDataSet):
       logging.warning(traceback.format_exc())
       return False
     return True
-
-
-
-
-
-

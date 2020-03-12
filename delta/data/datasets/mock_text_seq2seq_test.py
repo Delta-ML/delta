@@ -22,6 +22,7 @@ from delta.data.datasets.mock_text_seq2seq_data import MockTextSeq2SeqData
 
 
 class MockTextSeq2SeqDataTest(tf.test.TestCase):
+  """data class test for seq2seq task."""
 
   def test_build(self):
     mock_text_seq2seq_data = MockTextSeq2SeqData('mock_seq2seq_data')

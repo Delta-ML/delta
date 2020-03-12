@@ -20,15 +20,16 @@
 
 """
 
-from absl import logging
 import os
 import traceback
+from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
 from delta.utils.register import registers
 
 @registers.dataset.register('mock_text_match_data')
 class MockTextMatchData(BaseDataSet):
+  """mock match data class for match task."""
 
   def __init__(self, project_dir):
     super().__init__(project_dir)
@@ -60,15 +61,10 @@ class MockTextMatchData(BaseDataSet):
       test_file_path = os.path.join(self.data_dir, self.test_file)
       text_vocab_file = os.path.join(self.data_dir, self.text_vocab)
 
-      mock_data(self.samples, train_file_path, dev_file_path, test_file_path, text_vocab_file, self.text_vocab_list)
+      mock_data(self.samples, train_file_path, dev_file_path, test_file_path,
+                text_vocab_file, self.text_vocab_list)
 
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False
     return True
-
-
-
-
-
-
