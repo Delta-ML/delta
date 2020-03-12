@@ -8,6 +8,7 @@ pandas
 librosa
 absl-py
 jieba
+wget
 kaldiio
 soundfile
 textgrid
@@ -28,5 +29,5 @@ pyAudioAnalysis
 flake8
 sentencepiece
 deepdiff
-tensorflow_addons
+tensorflow-addons==0.6.0
 tensorflow-model-optimization

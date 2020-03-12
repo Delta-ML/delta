@@ -16,7 +16,6 @@
 """Tests for data utilities."""
 import json
 import tempfile
-import random
 from pathlib import Path
 import kaldiio
 import numpy as np
