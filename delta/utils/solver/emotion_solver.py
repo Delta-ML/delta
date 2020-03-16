@@ -23,7 +23,7 @@ from tensorflow.python.keras.utils import losses_utils
 
 from delta import utils
 from delta.utils.solver.estimator_solver import EstimatorSolver
-from delta.utils.solver.keras_base_solver import KerasBaseSolver
+from delta.utils.solver.asr_solver import AsrSolver
 from delta.utils.register import registers
 
 
@@ -92,7 +92,7 @@ class EmotionSolver(EstimatorSolver):
 
 
 @registers.solver.register
-class EmoKerasSolver(KerasBaseSolver):
+class EmoKerasSolver(AsrSolver):
   ''' emotion keras solver '''
 
   def __init__(self, config):
