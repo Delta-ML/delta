@@ -41,7 +41,8 @@ def cross_entropy(logits,
       false_fn=lambda: labels)
 
   if label_length is not None:
-    weights = utils.len_to_mask(label_length)
+    max_len = tf.shape(logits)[1]
+    weights = utils.len_to_mask(label_length, max_len)
   else:
     weights = 1.0
 

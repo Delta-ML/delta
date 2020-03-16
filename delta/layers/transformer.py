@@ -22,8 +22,8 @@ import delta.compat as tf
 from tensorflow.python.util import nest
 
 from delta.layers.base_layer import Layer
+from delta.layers import utils_tf as utils
 import delta.layers
-import delta.layers.utils_transformer as utils
 
 # pylint: disable=invalid-name, too-many-instance-attributes, too-many-arguments, too-many-locals
 
@@ -45,6 +45,7 @@ class TransformerEncoderLayer(Layer):
       self.hidden_dim, self.head_num)
     self.feed_forward_layer = delta.layers.PositionwiseFeedForward(
       self.hidden_dim, self.inner_size, self.feed_forward_act)
+    self.embed_dense = tf.keras.layers.Dense(self.hidden_dim)
     
     self.self_attn_dropout = tf.keras.layers.Dropout(self.dropout_rate)
     self.feed_forward_dropout = tf.keras.layers.Dropout(self.dropout_rate)
@@ -58,21 +59,20 @@ class TransformerEncoderLayer(Layer):
     Mask shape: [batch_size, seq_enc_len]
     '''
     # Multi Head Attention
-    self_attn_outs = self.self_attn_layer(inps, training=training,
+    inps = self.embed_dense(inps)
+    self_attn_outs, _ = self.self_attn_layer((inps, inps, inps),
+                                          training=training,
                                              mask=mask)
     self_attn_outs = self.self_attn_dropout(
         self_attn_outs, training=training)
-    self_attn_outs = tf.keras.layers.add([inps, self_attn_outs])
-    self_attn_outs = self.attention_layernorm(self_attn_outs)
-
+    self_attn_outs += inps
+    self_attn_outs = self.self_attn_norm(self_attn_outs)
     # Position Wise Feed Forward
     feed_forward_outs = self.feed_forward_layer(self_attn_outs)
     feed_forward_outs = self.feed_forward_dropout(
         feed_forward_outs, training=training)
-    feed_forward_outs = tf.keras.layers.add(
-        [self_attn_outs, feed_forward_outs])
-    outs = self.feed_forward_layernorm(feed_forward_outs)
-
+    feed_forward_outs += self_attn_outs
+    outs = self.feed_forward_norm(feed_forward_outs)
     return outs
 
 
@@ -96,6 +96,8 @@ class TransformerDecoderLayer(Layer):
       self.hidden_dim, self.head_num)
     self.feed_forward_layer = delta.layers.PositionwiseFeedForward(
       self.hidden_dim, self.inner_size, self.feed_forward_act)
+    self.enc_embed_dense = tf.keras.layers.Dense(self.hidden_dim)
+    self.dec_embed_dense = tf.keras.layers.Dense(self.hidden_dim)
 
     self.self_attn_dropout = tf.keras.layers.Dropout(self.dropout_rate)
     self.context_attn_dropout = tf.keras.layers.Dropout(self.dropout_rate)
@@ -115,31 +117,35 @@ class TransformerDecoderLayer(Layer):
     Mask shape: [(batch_size, seq_dec_len), (batch_size, seq_enc_len)]
     '''
     dec_inps, enc_outs = inps
-    look_ahead_mask, dec_mask = mask
+    dec_inps = self.dec_embed_dense(dec_inps)
+    enc_outs = self.enc_embed_dense(enc_outs)
+    look_ahead_mask, enc_mask = mask
     # Self Attention
-    self_attn_outs = self.self_attention_layer(
-        dec_inps, training=training, mask=dec_mask)
-    self_attn_outs = self.self_attn_dropout(
-        self_attn_outs, training=training)
-    self_attn_outs = tf.keras.layers.add(
-        [dec_inps, self_attn_outs])
-
-    # Context Attention
-    context_attn_outs = self.context_attn_layer(
-      (self_attn_outs, enc_outs, enc_outs),
+    self_attn_outs, _ = self.self_attn_layer(
+      (dec_inps, dec_inps, dec_inps),
       training=training,
       mask=look_ahead_mask)
+    self_attn_outs = self.self_attn_dropout(
+        self_attn_outs, training=training)
+    self_attn_outs += dec_inps
+    self_attn_outs = self.self_attn_norm(self_attn_outs)
+
+    # Context Attention
+    context_attn_outs, _ = self.context_attn_layer(
+      (self_attn_outs, enc_outs, enc_outs),
+      training=training,
+      mask=enc_mask)
     context_attn_outs = self.context_attn_dropout(
         context_attn_outs, training=training)
-    context_attn_outs = tf.keras.layers.add(
-        [self_attn_outs, context_attn_outs])
+    context_attn_outs += self_attn_outs
+    context_attn_outs = self.context_attn_norm(context_attn_outs)
 
     # Position Wise Feed Forward
     feed_forward_outs = self.feed_forward_layer(context_attn_outs)
     feed_forward_outs = self.feed_forward_dropout(
         feed_forward_outs, training=training)
-    outs = tf.keras.layers.add(
-        [context_attn_outs, feed_forward_outs])
+    feed_forward_outs = context_attn_outs + feed_forward_outs
+    outs = self.feed_forward_norm(feed_forward_outs)
 
     return outs
 
@@ -176,7 +182,7 @@ class TransformerDecoder(Layer):
   TransformerdecLayers, consist of beamsearch for infrence.
   """
 
-  def __init__(self, config, emb_layer, vocab_size, **kwargs):
+  def __init__(self, config, embed_layer, vocab_size, **kwargs):
     super().__init__(**kwargs)
     model_config = config['model']['net']['structure']
     self.is_infer = config['model']['is_infer']
@@ -190,27 +196,32 @@ class TransformerDecoder(Layer):
     self.sos_id = model_config.get('sos_id', 4)
     self.eos_id = model_config.get('eos_id', 5)
     self.beam_size = model_config.get('beam_size')
+    self.use_const = model_config.get('use_const', True)
+    self.share_embedding = model_config.get('share_embedding', True)
 
     self.vocab_size = vocab_size
     self.embed_dropout = tf.keras.layers.Dropout(self.dropout_rate)
 
-    self.pos_embed = delta.layers.PositionEmbedding(
-      self.max_dec_len, self.embedding_size, self.use_const)
-
+    embed_layer, pos_embed_layer = embed_layer
+    if self.share_embedding:
+      self.pos_embed_layer = pos_embed_layer
+    else:
+      self.pos_embed_layer = delta.layers.PositionEmbedding(
+        self.max_dec_len, self.embedding_size, self.use_const, "dec_pos")
+    self.embed_layer = embed_layer
     self.transformer_decs = [
         TransformerDecoderLayer(config) for _ in range(self.num_layers)
     ]
+    self.final_dense = tf.keras.layers.Dense(vocab_size)
 
   def decode(self, dec_inps, enc_out, training=None, mask=None):
     """
     Decoder func
     """
-
     look_ahead_mask = utils.create_look_ahead_mask(dec_inps)
-    dec_mask = utils.create_padding_mask(dec_inps)
-    mask = (look_ahead_mask, dec_mask)
-    dec_emb = self.embed(dec_inps)
-    dec_pos_emb = self.pos_embed(dec_emb)
+    mask = (look_ahead_mask, mask)
+    dec_emb = self.embed_layer(dec_inps)
+    dec_pos_emb = self.pos_embed_layer(dec_inps)
     dec_emb += dec_pos_emb
 
     dec_inp = dec_emb
@@ -237,9 +248,11 @@ class TransformerDecoder(Layer):
           tf.expand_dims(enc_out, axis=1), [1, self.beam_size, 1, 1])
       enc_out = tf.reshape(
           enc_out, [enc_shape[0] * self.beam_size, enc_shape[1], enc_shape[2]])
-
+      enc_mask = tf.tile(tf.expand_dims(mask, axis=1), [1, self.beam_size, 1, 1, 1])
+      enc_mask = tf.reshape(enc_mask,
+                            [enc_shape[0] * self.beam_size, 1, 1, -1])
       def symbols_to_logits_fn(dec_inps):
-        dec_out = self.decode(dec_inps, enc_out, training, mask)
+        dec_out = self.decode(dec_inps, enc_out, training, enc_mask)
         scores = self.final_dense(dec_out)
         return scores[:, -1, :]
 

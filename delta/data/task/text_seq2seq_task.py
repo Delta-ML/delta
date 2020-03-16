@@ -109,8 +109,8 @@ class TextS2STask(TextTask):
         lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
         num_parallel_calls=self.num_parallel_calls)
 
-    src_ds = src_ds.map(
-        self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+    # src_ds = src_ds.map(
+    #     self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
     if self.infer_without_label:
       data_set = tf.data.Dataset.zip((src_ds, src_size_ds))
@@ -130,8 +130,8 @@ class TextS2STask(TextTask):
           lambda x: compute_sen_lens(x, padding_token=utils.PAD_IDX),
           num_parallel_calls=self.num_parallel_calls)
 
-      tgt_in_ds = tgt_in_ds.map(
-          self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+      # tgt_in_ds = tgt_in_ds.map(
+      #     self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
 
       inp_ds = tf.data.Dataset.zip(
           (src_ds, src_size_ds, tgt_in_ds, tgt_in_size_ds))
@@ -145,8 +145,8 @@ class TextS2STask(TextTask):
                                                 target_vocab_file_path),
           num_parallel_calls=self.num_parallel_calls)
 
-      tgt_out_ds = tgt_out_ds.map(
-          self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
+      # tgt_out_ds = tgt_out_ds.map(
+      #     self.exclude_padding, num_parallel_calls=self.num_parallel_calls)
       data_set = tf.data.Dataset.zip((inp_ds, tgt_out_ds))
 
     vocab_dict = load_vocab_dict(self.text_vocab_file_path)

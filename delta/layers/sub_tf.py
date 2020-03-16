@@ -18,6 +18,7 @@ from absl import logging
 import delta.compat as tf
 import numpy as np
 from delta.layers.base_layer import Layer
+from delta.layers.utils_tf import shape_list
 
 #pylint: disable=invalid-name, too-many-instance-attributes, too-many-arguments
 
@@ -27,16 +28,18 @@ class PositionEmbedding(Layer):
     PositionEmbedding represents the positional information of tokens
     consisting of two optional types: constant(untrainable) and trainable.
   """
-  def __init__(self, max_len, embed_dim, use_const, **kwargs):
+  def __init__(self, max_len, embed_dim, use_const, name, **kwargs):
     super().__init__(**kwargs)
     self.max_len = max_len
     self.embed_dim = embed_dim
     self.use_const = use_const
+    self.pos_name = name
     self.pos_embed = self.get_pos_embedding_matrix(self.max_len,
                                                    self.embed_dim,
-                                                   self.use_const)
+                                                   self.use_const,
+                                                   self.pos_name)
   @staticmethod
-  def get_pos_embedding_matrix(max_len, embed_dim, use_const):
+  def get_pos_embedding_matrix(max_len, embed_dim, use_const, name):
     """
     generate position embedding matrix, two optional types:
     constant(untrainable) and trainable.
@@ -56,11 +59,15 @@ class PositionEmbedding(Layer):
       # Second part, apply the cosine to even columns and sin to odds.
       pos_embed[:, 0::2] = np.sin(pos_embed[:, 0::2])  # dim 2i
       pos_embed[:, 1::2] = np.cos(pos_embed[:, 1::2])  # dim 2i+1
+      pos_embed = pos_embed[np.newaxis, ...]
+      pos_embed = tf.cast(pos_embed, dtype=tf.float32)
     else:
       pos_embed = tf.get_variable(
-          name="position_embedding",
+          name=name,
           shape=[max_len, embed_dim],
           initializer=tf.random_uniform_initializer(-0.1, 0.1))
+      pos_embed = tf.expand_dims(pos_embed, 0)
+
     return pos_embed
 
   def call(self, inputs, training=None, mask=None):
@@ -70,9 +77,11 @@ class PositionEmbedding(Layer):
     Return:
       pos_embed: [batch_size, seq_x_len, embed_dim]
     """
-    seq_len = tf.shape(inputs)[1]
+    seq_len = shape_list(inputs)[1]
+    print("seq_len", seq_len)
     pos_embed = self.pos_embed[:, :seq_len, :]
     return pos_embed
+
 
 class PositionwiseFeedForward(Layer):
   """
@@ -94,14 +103,15 @@ class PositionwiseFeedForward(Layer):
     ffn = self.dense2(self.dense1(inputs))
     return ffn
 
+
 class MultiHeadAttention(Layer):
   """
    Multi-headed attention is based on "Attention
   is all you Need" (https://arxiv.org/pdf/1706.03762.pdf).
   """
-  def __init__(self, num_heads, hidden_size, **kwargs):
+  def __init__(self, hidden_size, num_heads, **kwargs):
     super().__init__(**kwargs)
-
+    self.hidden_size, self.num_heads = hidden_size, num_heads
     assert self.hidden_size % self.num_heads == 0
 
     self.depth = self.hidden_size // self.num_heads

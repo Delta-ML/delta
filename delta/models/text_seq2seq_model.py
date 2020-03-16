@@ -25,7 +25,7 @@ from delta import utils
 from delta.models.base_model import Model
 from delta.utils import registers
 from delta.layers.utils import compute_sen_lens
-from delta.layers.utils_transformer import create_padding_mask
+from delta.layers.utils_tf import create_padding_mask
 
 
 class Seq2SeqModel(Model):
@@ -82,15 +82,16 @@ class TransformerSeq2SeqModel(Seq2SeqModel):
     self.num_layers = model_config['num_layers']
     self.max_enc_len = model_config['max_enc_len']
     self.max_dec_len = model_config['max_dec_len']
-    self.share_embedding = model_config['share_embedding']
+    self.share_embedding = model_config.get('share_embedding', True)
+    self.use_const = model_config.get('use_const', True)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
-
-    self.pos_embed = layers.PositionEmbedding(self.max_enc_len,
-                                              self.embedding_size)
+    self.pos_embed = layers.PositionEmbedding(
+      self.max_enc_len, self.embedding_size, self.use_const, "enc_pos")
 
     self.encoder = layers.TransformerEncoder(config)
-    self.decoder = layers.TransformerDecoder(config, self.embed,
+    self.decoder = layers.TransformerDecoder(config,
+                                             (self.embed, self.pos_embed),
                                              self.decode_vocab_size)
     logging.info("decode_vocab_size: {}".format(self.decode_vocab_size))
     logging.info("Initialize TransformerModel done.")
@@ -99,7 +100,7 @@ class TransformerSeq2SeqModel(Seq2SeqModel):
     input_enc_x = inputs["input_enc_x"]
     enc_mask = create_padding_mask(input_enc_x)
     enc_emb = self.embed(input_enc_x)
-    enc_pos_emb = self.pos_embed(enc_emb)
+    enc_pos_emb = self.pos_embed(input_enc_x)
     enc_emb += enc_pos_emb
     enc_emb = self.embed_d(enc_emb, training=training)
     enc_out = self.encoder(enc_emb, training=training, mask=enc_mask)
@@ -109,7 +110,7 @@ class TransformerSeq2SeqModel(Seq2SeqModel):
       dec_inputs = [input_dec_x, enc_out]
     else:
       dec_inputs = enc_out
-    dec_out = self.decoder(dec_inputs, training=training)
+    dec_out = self.decoder(dec_inputs, training=training, mask=enc_mask)
     return dec_out
 
 
