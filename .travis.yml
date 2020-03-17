@@ -24,9 +24,9 @@ before_install:
 jobs:
   include:
     - stage: test
-      script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/python_test.sh; bash <(curl -s https://codecov.io/bash)"
+      script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/python_test.sh; bash <(curl -s https://codecov.io/bash); echo ${PWD}; ls -1"
     - script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/lint.sh; ls *"
    #- script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
 
 after_success:
-  - "bash <(curl -s https://codecov.io/bash)"
+  - "bash <(curl -s https://codecov.io/bash)" -s ${DELTA_PATH}
