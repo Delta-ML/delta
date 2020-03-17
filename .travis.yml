@@ -14,7 +14,7 @@ before_install:
   - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
   - export CI_IMAGE=zh794390558/delta:ci-cpu-py3
   - docker pull ${CI_IMAGE}
-  - docker run -it -d --name travis_con --user root -e $CI_ENV -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
+  - docker run -it -d --name travis_con --user root -e ${CI_ENV} -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
   - docker exec travis_con bash -c "gcc -v && g++ -v"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
     #- docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
