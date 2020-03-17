@@ -24,4 +24,4 @@ jobs:
    #- script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
 
 after_success:
-  - docker exec travis_con bash -c "bash <(curl -s https://codecov.io/bash)"
+  - bash <(curl -s https://codecov.io/bash)
