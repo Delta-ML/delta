@@ -4,12 +4,17 @@ sudo: false # only for faster builds
 services:
   - docker
 
+env:
+  global:
+    - CODECOV_TOKEN="affa4d7a-d984-47ae-8526-bc11b0893514"
+
 before_install:
+  - export CI_ENV=`bash <(curl -s https://codecov.io/env)`
   - export DELTA_PATH=`pwd`; echo $DELTA_PATH
   - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
   - export CI_IMAGE=zh794390558/delta:ci-cpu-py3
   - docker pull ${CI_IMAGE}
-  - docker run -it -d --name travis_con --user root -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
+  - docker run -it -d --name travis_con --user root -e $CI_ENV -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
   - docker exec travis_con bash -c "gcc -v && g++ -v"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
     #- docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
@@ -24,4 +29,4 @@ jobs:
    #- script: docker exec travis_con bash -c "cd ${DOCKER_DELTA}; bash tools/test/cpp_test.sh"
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - docker exec travis_con bash -c "bash <(curl -s https://codecov.io/bash)"
