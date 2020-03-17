@@ -9,12 +9,12 @@ env:
     - CODECOV_TOKEN="affa4d7a-d984-47ae-8526-bc11b0893514"
 
 before_install:
-  - export CI_ENV=`bash <(curl -s https://codecov.io/env)`
+  - export CI_ENV=`bash <(curl -s https://codecov.io/env)`; echo ${CI_ENV}
   - export DELTA_PATH=`pwd`; echo $DELTA_PATH
   - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
   - export CI_IMAGE=zh794390558/delta:ci-cpu-py3
   - docker pull ${CI_IMAGE}
-  - docker run -it -d --name travis_con --user root -e ${CI_ENV} -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
+  - docker run -it -d --name travis_con --user root ${CI_ENV} -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
   - docker exec travis_con bash -c "gcc -v && g++ -v"
   - docker exec travis_con bash -c "cd ${DOCKER_DELTA}; source env.sh"
     #- docker exec travis_con bash -c "cd ${DOCKER_DELTA}/tools; make basic check_install test"
