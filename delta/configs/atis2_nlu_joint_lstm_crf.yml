@@ -1,0 +1,110 @@
+---
+data:
+  project_dir: ""
+  train:
+    paths: 
+      - "data/train.txt"
+  eval:
+    paths:
+      - "data/dev.txt"
+  infer:
+    paths: 
+      - "data/test.txt"
+    infer_no_label: false
+  task:
+    name: TextNLUJointTask
+    preparer:
+      enable: true
+      name: TextNLUJointPreparer
+      done_sign: "exp/prepare.done"
+      reuse: true
+    use_dense: false
+    language: english
+    vocab_min_frequency: 0
+    text_vocab: "exp/text_vocab.txt"
+    label_vocab:
+      - "exp/intent_label_vocab.txt"
+      - "exp/slots_label_vocab.txt"
+    max_seq_len: 1024
+    batch_size: 64
+    epochs: 10
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 4500
+    need_shuffle: true
+    classes:
+      - positive_id: 1
+        num_classes: 22
+      - positive_id: 1
+        num_classes: 120
+
+model:
+  name: JointBilstmCrfModel
+  type: keras # raw, keras or eager model
+  use_pre_train_emb: False
+  net:
+    structure:
+      embedding_size: 300
+      cell_type: lstm
+      cell_dim: 100
+      num_units: 300
+      num_layers: 1
+      batch_size: 64
+      max_len: 1024
+      dropout_rate: 0.5
+      l2_reg_lambda: 0
+      fc_dim: 100
+
+solver:
+  name: RawNLUJointSolver
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: adam
+    loss:
+      - CrossEntropyLoss
+      - CrfLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.001 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    batch_size: 64
+    epochs: 3
+    clip_global_norm: 5.0 # clip global norm
+  metrics:
+    - pos_label: 1
+      cals:
+        - name: AccuracyCal
+          arguments: Null
+    - pos_label: 1
+      cals:
+        - name: CrfCal
+          arguments:
+            label_vocab_path: "exp/slots_label_vocab.txt"
+  postproc:
+    - name: SavePredPostProc
+      res_file: "res/intent_infer_res.txt"
+    - name: SavePredEntityPostProc
+      res_file: "res/slots_infer_res.txt"
+  saver:
+    model_path: "ckpt/bilstmcrf/"
+    max_to_keep: 10
+    save_checkpoint_steps: 100
+    print_every: 10
+  service:
+    model_path: "exp/bilstmcrf/service"
+    model_version: "1"
+  run_config:
+    tf_random_seed: null
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true

@@ -166,7 +166,7 @@ def get_most_recently_modified_file_matching_pattern(dir_name,
 
   tf_checkpoint_file = tf.train.latest_checkpoint(dir_name)
   if tf_checkpoint_file is not None and re.match(file_name_regex,
-                                                 tf_checkpoint_file.name):
+                                                 tf_checkpoint_file):
     return tf_checkpoint_file
 
   file_list = [
