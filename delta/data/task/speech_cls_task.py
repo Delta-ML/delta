@@ -14,6 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 ''' emotion speech task '''
+import re
 import ast
 import os
 import copy
@@ -41,6 +42,10 @@ def _load_text(text_path):
     text = ' '.join([line.strip() for line in fin.readlines()])
     return text
 
+
+def _process_text(text):
+  text = re.findall(r"[\w']+|[.,!?;]", text.lower())
+  return text
 
 #pylint: disable=too-many-public-methods,too-many-instance-attributes
 @registers.task.register
@@ -117,8 +122,8 @@ class SpeechClsTask(SpeechTask):
     self.generate_meta(mode)
 
     # load text vocab table
-    use_text = self.taskconf['text']['enable']
-    if use_text:
+    self.use_text = self.taskconf['text']['enable']
+    if self.use_text:
       self.load_text_vocab_table()
 
     # use distilling
@@ -683,6 +688,7 @@ class SpeechClsTask(SpeechTask):
     ''' convert text to id'''
     max_text_len = self._max_text_len
     text2id = np.zeros(shape=[max_text_len])
+    text = _process_text(text)
     pad_len = min(max_text_len, len(text))
     for char_num in range(pad_len):
       ## handle unk
@@ -695,7 +701,6 @@ class SpeechClsTask(SpeechTask):
   #pylint: disable=too-many-statements,too-many-locals,too-many-branches
   def generate_data(self):
     ''' generate one example'''
-    use_text = self.taskconf['text']['enable']
 
     # total files
     total = len(self._train_by_filename.values())
@@ -707,7 +712,7 @@ class SpeechClsTask(SpeechTask):
       #logging.info("example info", filename, examples)
 
       # convert txt to ids
-      if use_text:
+      if self.use_text:
         text = _load_text('.'.join(filename.split('.')[:-1]))
         text2id = self._word_table_lookup(text)
       else:
@@ -732,7 +737,7 @@ class SpeechClsTask(SpeechTask):
             class_num = self.taskconf['classes']['num']
             soft_label = [0] * class_num
 
-          if use_text:
+          if self.use_text:
             if clip_id == 0:
               # only add into batch when meet the first clip
               batch.append(
@@ -780,7 +785,7 @@ class SpeechClsTask(SpeechTask):
           # convert string label to int label
           labelid = self.class_id(label)
 
-          if use_text:
+          if self.use_text:
             if clip_id == 0:
               # only add into batch when meet the first clip
               batch.append(
@@ -882,6 +887,7 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
     assert self.subset in ('impro', 'script', 'all')
     logging.info(f"using subset data: {self.subset}, shuffle: {self.shuffle}")
 
+
     self.examples_meta = []
     for _, (filename, examples) in enumerate(self.data_items):
       for label, seg, clip_id in examples:
@@ -932,7 +938,8 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
     feats = []
     labels = []
     filenames = []
-    for _, (filename, label, seg) in enumerate(batch_meta):
+    texts = []
+    for i, (filename, label, seg) in enumerate(batch_meta):
       feat = np.load(filename)
 
       # shape : [nframe, feat_size, 3]
@@ -953,15 +960,25 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
 
       # convert string label to int label
       labelid = self.class_id(label)
-
+      if self.use_text:
+        text = _load_text('.'.join(filename.split('.')[:-1]))
+        text2id = self._word_table_lookup(text)
+        texts.append(text2id)
       feats.append(feat)
       filenames.append(filename)
       labels.append(labelid)
 
-    features = {
-        'inputs': np.array(feats, dtype=np.float64),
-        'labels': np.array(labels, dtype=np.int32),
-    }
+    if self.use_text:
+      features = {
+          'inputs': np.array(feats, dtype=np.float32),
+          'labels': np.array(labels, dtype=np.int32),
+          'texts': np.array(texts, dtype=np.int32),
+      }
+    else:
+      features = {
+          'inputs': np.array(feats, dtype=np.float32),
+          'labels': np.array(labels, dtype=np.int32),
+      }
 
     one_hot_label = np.array(labels, dtype=np.int32)
     one_hot_label = tf.keras.utils.to_categorical(

@@ -18,10 +18,13 @@
 from absl import logging
 
 import delta.compat as tf
+import numpy as np
 #pylint: disable=import-error
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.callbacks import ModelCheckpoint
+from sklearn import metrics
 from tensorflow.keras import backend as K
+from sklearn import metrics
 #pylint: disable=no-name-in-module
 from tensorflow.python.data.ops import iterator_ops
 from tensorflow.python.data.ops import dataset_ops
@@ -97,6 +100,59 @@ class TokenErrMetricCallBack(Callback):
                                                         logs['loss']))
 
 
+class ClassReportCallBack(Callback):
+  def __init__(self, model, eval_ds, eval_task):
+    self.model = model
+    self.eval_task = eval_task
+    self.eval_ds = eval_ds
+    self.next_batch_gen = None
+
+  def on_epoch_end(self, epoch, logs={}):
+    '''computing every class prec/rec'''
+
+    cur_session = tf.keras.backend.get_session()
+    truth, predict = [], []
+
+    is_py_sequence = True
+    if isinstance(self.eval_task, (dataset_ops.DatasetV2, dataset_ops.DatasetV1)):
+      eval_gen = self.eval_task.make_one_shot_iterator()
+      self.next_batch_gen = eval_gen.get_next()
+      is_py_sequence = False
+    elif isinstance(self.eval_task,
+                    (iterator_ops.IteratorV2, iterator_ops.Iterator)):
+      self.next_batch_gen = self.ds.get_next()
+      is_py_sequence = False
+
+    for index in range(len(self.eval_task)):
+      batch_data = None
+      if is_py_sequence:
+        batch_data, batch_truth = self.eval_task[index]
+      else:
+        batch_data = cur_session.run(self.next_batch_gen)
+      #print("batch_data", batch_data)
+      batch_input = batch_data
+      batch_truth = batch_truth.tolist()
+
+      text = self.model.get_layer('text').input
+      speech = self.model.get_layer('speech').input
+      y_pred = self.model(batch_input)
+      f = K.function([text, speech], y_pred)
+      batch_predict = f([batch_input['inputs'], batch_input['texts']])
+      truth.extend(batch_truth)
+      predict.extend(batch_predict)
+    y_true = np.argmax(np.asarray(truth), axis=1)
+    y_pred = np.argmax(np.asarray(predict), axis=1)
+    accuracy = metrics.accuracy_score(y_true, y_pred)
+    unw_accuracy = metrics.precision_score(y_true, y_pred, average='macro')
+    logs['ClassReport'] = accuracy
+    logging.info("Epoch {}: on eval.".format(
+        epoch + 1))
+    logging.info("Weighted accuracy: {}".format(accuracy))
+    logging.info("Unweighted accuracy: {}".format(unw_accuracy))
+    logging.info("Specific results: {}".format('\n' + metrics.classification_report(
+      y_true, y_pred, digits=4)))
+
+
 class ParallelModelCheckpoint(ModelCheckpoint):
   '''Callback to save multi_gpu_model'''
 
@@ -128,3 +184,4 @@ class ParallelModelCheckpoint(ModelCheckpoint):
   def set_model(self, model):
     '''set the model to saved'''
     super().set_model(self.model_to_save)
+

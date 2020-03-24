@@ -103,7 +103,8 @@ MODEL_MODULES = [
     "speech_cls_rawmodel", "speaker_cls_rawmodel", "speech_cls_model",
     "kws_model", "asr_model", "resnet_model", "text_seq_model",
     "text_hierarchical_model", "text_seq_label_model", "text_nlu_joint_model",
-    "text_match_model", "text_seq_label_model", "text_seq2seq_model"
+    "text_match_model", "text_seq_label_model", "text_seq2seq_model",
+    "multimodal_cls_model"
 ]
 
 NLP_LOSS_MODULES = ["loss_impl"]

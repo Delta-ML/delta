@@ -19,10 +19,12 @@ from absl import logging
 
 #pylint: disable=no-name-in-module
 import delta.compat as tf
+from tensorflow.keras import backend as K
 from tensorflow.python.keras.utils import losses_utils
 
 from delta import utils
 from delta.utils.solver.estimator_solver import EstimatorSolver
+from delta.utils.solver.utils.callbacks import ClassReportCallBack
 #from delta.utils.solver.keras_base_solver import KerasBaseSolver
 from delta.utils.solver.asr_solver import AsrSolver
 from delta.utils.register import registers
@@ -152,3 +154,17 @@ class EmoKerasSolver(AsrSolver):
 
   def export_model(self):
     logging.fatal("Not Implemented")
+
+  def get_metric_callbacks(self, eval_gen, eval_task, monitor_used,
+                           decoder_type=None):
+    ''' metric_specific callbacks'''
+    callbacks = []
+
+    if monitor_used == 'ClassReport':
+      metric_func = self.model
+      metric_cal = ClassReportCallBack(metric_func, eval_gen, eval_task)
+      callbacks.append(metric_cal)
+
+    logging.info(f"CallBack: Val Metric on {monitor_used}")
+    return callbacks
+

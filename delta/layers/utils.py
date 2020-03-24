@@ -139,9 +139,18 @@ def get_pad_mask_from_token_idx(inputs, pad_idx):
   inputs: [batch_size, time_steps]
   mask: [batch_size, time_steps]
   """
-  pad_mask = tf.cast(tf.math.greater(inputs, pad_idx), tf.int32)
+  pad_mask = tf.cast(tf.math.greater(inputs, pad_idx), tf.float32)
   return pad_mask
 
+def get_expand_pad_mask(inputs, pad_idx):
+  """
+  get padding mask from the input token idx
+  inputs: [batch_size, time_steps]
+  mask: [batch_size, time_steps, 1]
+  """
+  pad_mask = tf.cast(tf.math.greater(inputs, pad_idx), tf.float32)
+  pad_mask = tf.expand_dims(pad_mask, -1)
+  return pad_mask
 
 def get_seg_mask_from_token_idx(inputs, seg_idx):
   """
