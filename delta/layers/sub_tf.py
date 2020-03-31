@@ -78,7 +78,6 @@ class PositionEmbedding(Layer):
       pos_embed: [batch_size, seq_x_len, embed_dim]
     """
     seq_len = shape_list(inputs)[1]
-    print("seq_len", seq_len)
     pos_embed = self.pos_embed[:, :seq_len, :]
     return pos_embed
 

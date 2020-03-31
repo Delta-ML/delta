@@ -62,6 +62,7 @@ model:
       l2_reg_lambda: 0
       transformer_dropout: 0.1
       head_num: 8
+      inner_size: 768
       hidden_dim: 256
       share_embedding: true
       beam_size: 2

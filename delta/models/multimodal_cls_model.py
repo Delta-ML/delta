@@ -98,7 +98,7 @@ class AlignClassModel(Model):
     self.built = True
 
   def call(self, inputs, training=None, mask=None):
-    logging.info(f"xxxx input: {inputs}, training: {training}")
+    #logging.info(f"xxxx input: {inputs}, training: {training}")
     speechs = inputs['inputs']
     speechs = self.speech(speechs)
     texts = inputs['texts']

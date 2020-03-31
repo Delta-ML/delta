@@ -59,12 +59,10 @@ class EmoLstmModel(Model):
     # https://stackoverflow.com/questions/55684949/subclass-of-tf-keras-model-can-not-get-summay-result
     # https://stackoverflow.com/questions/52826134/keras-model-subclassing-examples
     x = {}
-    print("input_shape.items()", input_shape.items())
     for key, shape in input_shape.items():
       x[key] = tf.convert_to_tensor(
           np.random.normal(size=[1] + shape.as_list()[1:]),
           dtype=tf.keras.backend.floatx())
-    print("x", x)
     _ = self.call(x)
     #super().build(input_shape=[input_shape['inputs'].as_list(), input_shape['labels'].as_list()])
     self.built = True
