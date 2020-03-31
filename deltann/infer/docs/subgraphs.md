@@ -2,16 +2,18 @@
 
 > ref :  transformer [子图转换example](https://github.com/pangge/delta/blob/master/deltann/infer/example/python/simple_transformer.py)
 
-利用Delta-infer的python API， 用户可以方便的根据tf的算法定义，把整体的算法描述的子图转换为单独的高性能算子，这里以transformer模型举例，其核心调用方式如下<sup>(详细代码参考example/python/)</sup>：
+利用`Delta-infer`的`python API`， 用户可以方便的根据`tf`的算法定义和描述方式，把大规模算法描述的子图转换为单独的高性能算子，这里以transformer模型举例，其核心调用方式如下<sup>(详细代码参考example/python/)</sup>：
 
 ```python
 import tensorflow as tf
 import delta_infer as dti  # import 安装的delta infer
 from standard_transformer.model import * # import 用户相关模型定义（transformer模型定义相关）
 
-# RegistPattern 为pattern注册装饰其，name参数指定内部描述的算法被何种算子替换
-# 		目前我们支持TransformerCell的高性能算子，用来替换transformer multi-head-attention计算
-#     standard_transformer 函数名称并不重要，用户可以随意指定函数名称
+# RegistPattern 为pattern注册装饰器，name参数指定内部描述的算法被何种算子替换，指定算子名称
+#  note：	
+#  		目前我们支持多种TransformerCell的高性能算子，用来替换transformer multi-head-attention计算
+#     具体参考：delta_infer/custom_ops/
+#     standard_transformer 函数名和参数并不重要，用户可以随意指定函数名称
 @dti.RegistPattern(name="TransformerCell")
 def standard_transformer(input_tensor = None,
                          attention_mask = None,
@@ -77,6 +79,7 @@ def standard_transformer(input_tensor = None,
                     kernel_initializer=create_initializer(initializer_range))
             #layer_output = dropout(layer_output, hidden_dropout_prob)
             layer_output = layer_norm(layer_output + attention_output)
+    # 像正常定义tensorflow model一样，用户需要返回最终的output，方便程序追踪计算逻辑链路
     return layer_output
 
   
@@ -124,11 +127,11 @@ if __name__ == "__main__":
 
 `Delta-infer`核心API包括：
 
-* dti.RegistPattern(name="xxx")
+* `dti.RegistPattern(name="xxx")`
 
   注册一个子图pattern，是一个装饰器，可以根据用户定义tf函数返回结果，确定一个pattern子图的计算方式
 
-* dti.GraphStream("/path/to/model.pb")
+* `dti.GraphStream("/path/to/model.pb")`
 
   图匹配优化流，用来获取用户训练并freeze好的`model.pb`文件并进行搜索和替换
 
@@ -136,7 +139,7 @@ if __name__ == "__main__":
 
   在搜索和替换的过程中，用户需要制定替换的目标函数算子类型`custom_op_type`， 并制定默认的`hint op` 。`hint_op_type`的作用是在目标图中，根据``hint_op_type`指定的类型为起始点进行搜索，`hint_op_type`需要出现在pattern中。
 
-* Gs.save("/path/to/new_model.pb")
+* `Gs.save("/path/to/new_model.pb")`
 
   设置并保存最终的优化好的图，输出的图已经经过子图替换，可以直接使用Delta-infer进行测试和部署。
 
@@ -144,14 +147,16 @@ if __name__ == "__main__":
 
   > ref: [customops](https://github.com/pangge/delta/blob/master/deltann/infer/docs/customops.md)
 
-* dti.RegistPattern.get_patterns("custom_op_type")
+* `dti.RegistPattern.get_patterns("custom_op_type")`
 
   获取注册的custom_op_type子图pattern，返回的是一个子图list，list的size和用户使用dti.RegistPattern注册相同的pattern 的数目一致。
 
   比如：
 
-  	*  dti.RegistPattern(name="gelu")注册两种pattern，那dti.RegistPattern.get_patterns("gelu")就会返回两种子图
-  	*  Delta-infer会把所有注册的子图针对目标图结构进行搜索和匹配替换，替换成相对应的`custom_op_type`
+  > * dti.RegistPattern(name="gelu")注册两种pattern，那dti.RegistPattern.get_patterns("gelu")就会返回两种子图
+  > * Delta-infer会把所有注册的子图针对目标图结构进行搜索和匹配替换，替换成相对应的`custom_op_type`
+  
+  
 
 
 

@@ -1,6 +1,6 @@
 ### 异构高性能算子库
 
-`Delta-infer`提供高性能的算子库，以及配套的perf工具组件，用来配合`Delta-infer Python API`的子图匹配模块，借助tensorflow的custom op设计方式，完成对图中新算子的替换，从而提升模型inference性能，具体的使用case如下<sub>我们还是使用transformer为例</sub>：
+`Delta-infer`提供高性能的算子库，以及配套的perf工具组件，用来配合`Delta-infer Python API`的子图匹配模块，借助`tensorflow`的`custom op`设计方式，完成把图中匹配的大规模子图替换成新的高性能算子，从而提升模型inference性能，具体的使用case如下<sub>我们还是使用transformer为例</sub>：
 
 ```c++
 // include tensorflow 标准头文件
@@ -60,18 +60,18 @@ int main(int argc, const char** argv) {
 
 ```
 
-熟悉tf的朋友可能已经发现，这个使用case和tf的c++接口非常类似。Delta-infer的API几乎完全使用tensorflow的原生API，因此c++接口端的使用和tensorflow的完全相同，我们这里提供的`perf.h`也是借鉴tensorflow rep里c++性能测试case编写，因此，用户完全使用之前的c++部署方式，几乎不需要改动代码即可完成高性能的部署。
+熟悉tf的朋友可能已经发现，这个用例和`tf c++`接口非常类似。`Delta-infer`的`API`几乎完全使用`tensorflow`的原生`API`，因此c++接口端的使用和`tensorflow`的完全相同，我们这里提供的`perf.h`也是借鉴`tensorflow rep`里c++性能测试用例编写，因此，用户完全使用之前的c++部署方式，几乎不需要改动代码即可完成高性能的部署。
 
 唯一需要改造的流程如下：
 
-> 1. 配置当前代码依赖， 具体方式参考`example/c++/benchmark.cc`，可以直接把部署代码放到当前统计目录编译
-> 2. 用户需要使用经过子图搜索替换后的模型（protobuf model）[Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/subgraphs.md)
+> 1. 配置当前代码依赖， 具体方式参考`example/c++/benchmark.cc`，可以直接把部署代码放到当前目录 <sup>**(example/c++/)**</sup> 编译
+> 2. 用户需要使用经过子图搜索替换后的模型  <sup>**(protobuf model)**</sup>  [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/subgraphs.md)
 
 
 
 #### Note
 
->  如果用户需要在外部编译使用delta-infer，需要注意使用delta-infer可能需要引入若干依赖：
+>  如果用户需要在外部编译使用`Delta-infer`，注意可能需要引入的若干依赖：
 >
 > 【共享库】
 >

@@ -1,20 +1,20 @@
 # Delta Inference Lib
 
-Delta 推理架构是基于tensorflow的深度定制，依赖tensorflow本身的grappler以及custom ops机制完成高性能的图匹配和高性能算子库，`Delta Inference Lib`可以方便使用户在tensorflow内部完成复杂子图替换，并采用已提供的高性能算子库完成模型在各个平台的高性能计算。
+Delta 推理架构基于tensorflow进行深度定制，依赖tensorflow本身的grappler以及custom ops机制完成高性能的图匹配逻辑和高性能算子库，`Delta Inference Lib`可以方便使用户在tensorflow内部完成大规模复杂子图替换，并采用已提供的高性能算子库支持模型在各个平台的高性能计算。
 
 `Delta Inference Lib`核心依赖用户安装的tensorflow环境，用户并不需要从源码安装tensorflow，可以极大的减少使用成本。模型部署时，用户只需要把动态链接库一起发布即可。
 
-此组件包含两部分内容：
+`Delta Inference Lib`包含两部分核心组件：
 
-* 算法子图搜索引擎 [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/subgraphs.md)
+* ***算法子图搜索引擎*** [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/subgraphs.md)
 
-* 异构高性能算子库 [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/customops.md)
+* ***异构高性能算子库*** [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/customops.md)
 
-算法子图搜索引擎的核心逻辑是做子图匹配和替换，其支持任意用户使用的tf语法定义的复杂算法结构，并根据用户训练好的模型，自动匹配这部分已定义算法并做替换，替换成用户设置的具体算子，最终完成大规模tensorflow自动生成子图结构的替换，从而极大的提升计算密集型和访存开销，为进一步性能提升打下坚实基础。
+***<u>算法子图搜索引擎</u>*** 的核心逻辑是做子图匹配和替换，其支持用户使用任意tf语法定义的复杂算法结构，并根据用户训练好的模型，自动匹配这部分已定义算法并做替换，替换成用户设置的具体算子，最终完成大规模tensorflow子图结构的替换，从而极大的提升计算密集型和访存开销，为进一步性能提升打下坚实基础。
 
-为了配合算法子图搜索引擎，`Delta Inference Lib`还提供了高性能的算子库`delta_infer/custom_ops`, 高性算子库可以同时支持GPU、X86的高性能算子<sup>（未来可以扩展更多支持）</sup>，目前核心支持transformer模型的若干实现，核心支持的硬件NV GPU平台 <sup> x86 后续会逐步添加</sup>
+为了配合算法子图搜索引擎，`Delta Inference Lib`还提供了***<u>高性能的算子库</u>*** `delta_infer/custom_ops`, 高性算子库可以同时支持GPU、X86的高性能算子<sup>（未来可以扩展更多支持）</sup>，目前核心支持transformer模型的若干实现，核心支持硬件NV GPU平台 <sup> x86 后续会逐步添加</sup>。
 
-## Compile
+## 编译
 
 #### 编译custom_ops & delta_infer高性能库
 
@@ -53,7 +53,7 @@ $ pip install dist/delta_infer-0.0.1-cp36-cp36m-linux_x86_64.whl
 
 
 
-## Note
+## 注意
 
 > 1. *目前已知的一个问题，公版的tf2.0 wheel安装包是有问题的，包内部缺少`tensorflow/core/protobuf`的内部cpp文件内容, 最终会导致`undefined`连接错误。而我们按照wheel包的编译方式从源码重新编译发现，没有上述问题，所以有理由怀疑是开源版本的安装包在安装过程中剪裁了部分内容。*
 > 2. 目前构建在TF version 2.0 版本，,同时支持1.x版本. (已测试版本tf v1.14.0 ~ v2.0.0)。
