@@ -19,7 +19,7 @@ void TransformerCellFunctor<CPUDevice, float>::init(TransformerParam<CPUDevice, 
 
 template<>
 void TransformerCellFunctor<CPUDevice, float>::operator() (OpKernelContext* context, TransformerParam<CPUDevice, float>& param) {
-        printf("ccw test in CPU \n");
+        printf("didi test in CPU \n");
         exit(0);
 }
 

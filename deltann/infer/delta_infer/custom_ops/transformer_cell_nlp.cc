@@ -314,7 +314,7 @@ public:
                 printf("get w data(%d): %f\n", i, tmp_w[i*225 + 0]);
                 sum += tmp_w[i*225 + 0];
             }
-            printf("ccw sum of tmp_w first col: %f\n", sum);
+            printf("didi sum of tmp_w first col: %f\n", sum);
         };*/
         _param.att_kernel_r = reinterpret_cast<const typename traits::DataType *>(context->input(183).flat<T>().data());
         _param.att_kernel_o = reinterpret_cast<const typename traits::DataType *>(context->input(186).flat<T>().data());

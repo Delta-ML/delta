@@ -19,12 +19,12 @@ void test_for_auto_fusion() {
     Pattern ori_graph;
     //ori_graph.LoadModel("/tmp-data/test/self/self_tf/my_test/transformer_pattern.pb");
     //ori_graph.LoadModel("/tmp-data/test/self/delta_infer/delta_infer/example/python/model.pb");
-    ori_graph.LoadModel("/home/test/self/fastertransformer/DeepLearningExamples/FasterTransformer/build/nv_fasttransformer.pb");
+    ori_graph.LoadModel("/path/to/nv_fasttransformer.pb");
     // Register pattern
     Pattern pattern;
     //pattern.LoadModel("/home/test/work/delta_infer/delta_infer/test/subgraphs/TansformerCell.pb");
     //pattern.LoadModel("/tmp-data/test/self/delta_infer/delta_infer/example/python/TransformerCell_1.pb");
-    pattern.LoadModel("/nfs/project/ccw/new/work_space/models/transformer_cell/TansformerCell.pb");
+    pattern.LoadModel("/path/to/TansformerCell.pb");
     RegisterFusionPattern("TransformerCell", pattern, "BatchMatMulV2");
     //RegisterFusionPattern("TansformerCell", pattern, "BatchMatMul");
 

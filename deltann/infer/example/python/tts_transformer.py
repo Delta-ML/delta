@@ -40,7 +40,6 @@ if __name__ == "__main__":
 
     with tf.compat.v1.Session() as sess:
         graph_def = dti.RegistPattern.get_patterns("TransformerCell")[0]
-        print("ccw: {}.{}".format(graph_def.versions.producer, graph_def.versions.min_consumer))
         with open("TransformerCell_tts.pb", "wb") as f:
             f.write(tf.compat.v1.graph_util.remove_training_nodes(graph_def).SerializeToString())
     sess.close()

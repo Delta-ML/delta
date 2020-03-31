@@ -100,7 +100,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
     typename _traits::DataType beta = (typename _traits::DataType)0.0f;
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(param.from_tensor);
-        printf("ccw 0 ck sum: %lf %d \n", sum, check++);
+        printf("didi 0 ck sum: %lf %d \n", sum, check++);
     };
     cublas(GemmEx(param.cublas_handle,
                   CUBLAS_OP_N, CUBLAS_OP_N,
@@ -114,7 +114,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
                   *static_cast<delta::CublasGemmAlgo*>(delta::Config::Instance()["0"].get())));
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(_query_buf);
-        printf("ccw 1 ck sum: %lf\n", sum);
+        printf("didi 1 ck sum: %lf\n", sum);
     };
 
     cublas(GemmEx(param.cublas_handle,
@@ -163,9 +163,9 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
 #if 1
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(_attr_out_buf);
-        printf("ccw _attr_out_buf before ck sum: %lf\n", sum);
+        printf("didi _attr_out_buf before ck sum: %lf\n", sum);
         sum = CheckSum<GPUDevice, float>(param.att_output_kernel);
-        printf("ccw param.att_output_kernel before ck sum: %lf\n", sum);
+        printf("didi param.att_output_kernel before ck sum: %lf\n", sum);
     };
 
     // feed forward
@@ -182,7 +182,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
 
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(_attr_matmul_buf);
-        printf("ccw _attr_matmul_buf after gemm ck sum: %lf\n", sum);
+        printf("didi _attr_matmul_buf after gemm ck sum: %lf\n", sum);
     };
 
     add_bias_input_layernorm_kernelLauncher<float>(_attr_matmul_buf, 
@@ -195,7 +195,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
     
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(_attr_matmul_buf);
-        printf("ccw _attr_matmul_buf after addbias_laynorm kernel ck sum: %lf\n", sum);
+        printf("didi _attr_matmul_buf after addbias_laynorm kernel ck sum: %lf\n", sum);
     };
 
     n *= 4;
@@ -214,7 +214,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
 
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(_inter_matmul_buf);
-        printf("ccw _inter_matmul_buf after gemm and addbias kernel ck sum: %lf\n", sum);
+        printf("didi _inter_matmul_buf after gemm and addbias kernel ck sum: %lf\n", sum);
     };
 
     n = k;
@@ -239,7 +239,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator() (OpKernelContext* cont
                                                    param.stream); 
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(param.transformer_out);
-        printf("ccw param.transformer_out after gemm and addbias kernel ck sum: %lf\n", sum);
+        printf("didi param.transformer_out after gemm and addbias kernel ck sum: %lf\n", sum);
     };
 
     // TODO

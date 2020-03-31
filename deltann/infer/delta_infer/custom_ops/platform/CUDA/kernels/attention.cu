@@ -240,13 +240,13 @@ void MultiHeadAtentionLauncher(DType<T>* query,
     dim3 block(k);
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(query);
-        printf("ccw query ck sum: %lf \n", sum);
+        printf("didi query ck sum: %lf \n", sum);
 
         sum = CheckSum<GPUDevice, float>(key);
-        printf("ccw key ck sum: %lf \n", sum);
+        printf("didi key ck sum: %lf \n", sum);
 
         sum = CheckSum<GPUDevice, float>(value);
-        printf("ccw value ck sum: %lf \n", sum);
+        printf("didi value ck sum: %lf \n", sum);
     };
 
     add_QKV_bias<DType<T> ><<<grid, block, 0, stream>>>(query, bias_Q, 
@@ -259,13 +259,13 @@ void MultiHeadAtentionLauncher(DType<T>* query,
     //cuda(DeviceSynchronize());
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(q_buf);
-        printf("ccw q_buf ck sum: %lf \n", sum);
+        printf("didi q_buf ck sum: %lf \n", sum);
 
         sum = CheckSum<GPUDevice, float>(k_buf);
-        printf("ccw k_buf ck sum: %lf \n", sum);
+        printf("didi k_buf ck sum: %lf \n", sum);
 
         sum = CheckSum<GPUDevice, float>(v_buf);
-        printf("ccw v_buf ck sum: %lf \n", sum);
+        printf("didi v_buf ck sum: %lf \n", sum);
     };
 
 #if 1
@@ -310,7 +310,7 @@ void MultiHeadAtentionLauncher(DType<T>* query,
   
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(qk_buf);
-        printf("ccw qk_buf before softmax ck sum: %lf\n", sum);
+        printf("didi qk_buf before softmax ck sum: %lf\n", sum);
     };
     if(batch_size * head_num <= 120) {
       grid.x = batch_size * head_num * from_seq_len;
@@ -321,7 +321,7 @@ void MultiHeadAtentionLauncher(DType<T>* query,
     }  
     DELTA_SCOPE {
         auto sum = CheckSum<GPUDevice, float>(qk_buf);
-        printf("ccw qk_buf after softmax ck sum: %lf\n", sum);
+        printf("didi qk_buf after softmax ck sum: %lf\n", sum);
     };
 
 #if (CUDART_VERSION >= 10000) /// cuda > 10.0
@@ -349,7 +349,7 @@ void MultiHeadAtentionLauncher(DType<T>* query,
 #endif
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(transpose_dst);
-        printf("ccw transpose_dst before softmax ck sum: %lf\n", sum);
+        printf("didi transpose_dst before softmax ck sum: %lf\n", sum);
     };
     const int seq_per_block = 1;
     grid.x = batch_size * head_num * from_seq_len / seq_per_block; 
@@ -362,7 +362,7 @@ void MultiHeadAtentionLauncher(DType<T>* query,
                                                      size_per_head);
     DELTA_SCOPE{
         auto sum = CheckSum<GPUDevice, float>(transpose_dst);
-        printf("ccw transpose_dst after softmax ck sum: %lf\n", sum);
+        printf("didi transpose_dst after softmax ck sum: %lf\n", sum);
     };
 #endif
 }
