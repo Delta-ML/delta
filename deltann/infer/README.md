@@ -4,7 +4,7 @@ Delta 推理架构是基于tensorflow的深度定制，依赖tensorflow本身的
 
 `Delta Inference Lib`核心依赖用户安装的tensorflow环境，用户并不需要从源码安装tensorflow，可以极大的减少使用成本。模型部署时，用户只需要把动态链接库一起发布即可。
 
-本项目主要包含两部分内容：
+此组件包含两部分内容：
 
 * 算法子图搜索引擎 [Details]()
 
@@ -12,7 +12,7 @@ Delta 推理架构是基于tensorflow的深度定制，依赖tensorflow本身的
 
 算法子图搜索引擎的核心逻辑是做子图匹配和替换，其支持任意用户使用的tf语法定义的复杂算法结构，并根据用户训练好的模型，自动匹配这部分已定义算法并做替换，替换成用户设置的具体算子，最终完成大规模tensorflow自动生成子图结构的替换，从而极大的提升计算密集型和访存开销，为进一步性能提升打下坚实基础。
 
-为了配合算法子图搜索引擎，`Delta Inference Lib`还提供了高性能的算子库`delta_infer/custom_ops`, 高性算子库可以同时支持GPU、X86的高性能算子<sup>（未来可以扩展更多支持）</sup>，目前核心支持transformer模型的若干实现，核心支持的硬件NV GPU平台 <sup> x86 后续会逐步添加</sup>。
+为了配合算法子图搜索引擎，`Delta Inference Lib`还提供了高性能的算子库`delta_infer/custom_ops`, 高性算子库可以同时支持GPU、X86的高性能算子<sup>（未来可以扩展更多支持）</sup>，目前核心支持transformer模型的若干实现，核心支持的硬件NV GPU平台 <sup> x86 后续会逐步添加</sup>
 
 ## Compile
 
