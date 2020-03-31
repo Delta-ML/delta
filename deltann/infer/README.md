@@ -53,7 +53,7 @@ $ pip install dist/delta_infer-0.0.1-cp36-cp36m-linux_x86_64.whl
 
 
 
-## 注意
+## Note
 
 > 1. *目前已知的一个问题，公版的tf2.0 wheel安装包是有问题的，包内部缺少`tensorflow/core/protobuf`的内部cpp文件内容, 最终会导致`undefined`连接错误。而我们按照wheel包的编译方式从源码重新编译发现，没有上述问题，所以有理由怀疑是开源版本的安装包在安装过程中剪裁了部分内容。*
 > 2. 目前构建在TF version 2.0 版本，,同时支持1.x版本. (已测试版本tf v1.14.0 ~ v2.0.0)。
