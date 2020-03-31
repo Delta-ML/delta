@@ -1,0 +1,123 @@
+---
+data:
+  project_dir: ""
+  train:
+    paths:
+      - "data/train.txt.elmo"
+  eval:
+    paths:
+      - "data/test.txt.elmo"
+  infer:
+    paths:
+      - "data/dev.txt.elmo"
+  task:
+    name: TextSeqLabelTask
+    preparer:
+      enable: true
+      name: TextSeqLabelPreparer
+      done_sign: "exp_elmo/prepare.done"
+      reuse: true
+    use_dense: false
+    language: english
+    split_by_space: true
+    use_custom_vocab: True
+    vocab_min_frequency: 0
+    text_vocab: "exp_elmo/text_elmo_vocab.txt"
+    label_vocab: "exp_elmo/label_elmo_vocab.txt"
+    max_seq_len: 150
+    num_classes: 9
+    batch_size: 64
+    epochs: 100
+    num_parallel_calls: 12
+    num_prefetch_batch: 2
+    shuffle_buffer_size: 14041
+    need_shuffle: true
+    classes:
+      positive_id: 1
+      num_classes: 9
+      vocab:
+        O: 0
+        B-PER: 1
+        I-PER: 2
+        B-LOC: 3
+        I-LOC: 4
+        B-ORG: 5
+        I-ORG: 6
+        B-MISC: 7
+        I-MISC: 8
+
+model:
+  name: BilstmCrfModel
+  type: keras # raw, keras or eager model
+  use_pre_train_emb: false
+  pre_train_emb_path: "data/glove.840B.300d.txt"
+  embedding_path: "data/embeding.pkl"
+  use_pre_train_model: true
+  pre_train_model:
+    name: 'elmo'
+    mode: 'fine-tune'
+    dim: 1024
+    path: "data/elmo_model_placeholder.ckpt"
+    seg: 102
+    cls: 101
+    pad: 0
+    output: 'seq' #seq/vec
+    layers: 0 # not use layers
+  net:
+    structure:
+      embedding_size: 300
+      cell_type: lstm
+      cell_dim: 100
+      num_units: 300
+      num_layers: 1
+      batch_size: 64
+      max_len: 150
+      dropout_rate: 0.5
+      l2_reg_lambda: 0
+      fc_dim: 100
+
+solver:
+  name: PretrainRawSeqLabelSolver
+  adversarial:
+    enable: false # whether to using adversiral training
+    adv_alpha: 0.5 # adviseral alpha of loss
+    adv_epslion: 0.1 # adviseral example epslion
+  model_average:
+    enable: false # use average model
+    var_avg_decay: 0.99 # the decay rate of varaibles
+  optimizer:
+    name: gradientdecent
+    loss: CrfLoss
+    label_smoothing: 0.0 # label smoothing rate
+    learning_rate:
+      rate: 0.1 # learning rate of Adam optimizer
+      type:  exp_decay # learning rate type
+      decay_rate: 0.99  # the lr decay rate
+      decay_steps: 100  # the lr decay_step for optimizer
+    batch_size: 64
+    epochs: 100
+    clip_global_norm: 5.0 # clip global norm
+  metrics:
+    pos_label: 1
+    cals:
+      - name: CrfCal
+        arguments:
+          label_vocab_path: "exp_elmo/label_elmo_vocab.txt"
+  postproc:
+    name: SavePredEntityPostProc
+    res_file: "res/infer_res.txt"
+  saver:
+    model_path: "elmo_ckpt/bilstmcrf_elmo/"
+    max_to_keep: 10
+    save_checkpoint_steps: 100
+    print_every: 10
+  service:
+    model_path: "exp_elmo/bilstmcrf_elmo/service"
+    model_version: "1"
+  run_config:
+    tf_random_seed: null
+    allow_soft_placement: true
+    log_device_placement: false
+    intra_op_parallelism_threads: 10
+    inter_op_parallelism_threads: 10
+    allow_growth: true
