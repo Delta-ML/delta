@@ -6,9 +6,9 @@ Delta 推理架构是基于tensorflow的深度定制，依赖tensorflow本身的
 
 此组件包含两部分内容：
 
-* 算法子图搜索引擎 [Details]()
+* 算法子图搜索引擎 [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/subgraphs.md)
 
-* 异构高性能算子库 [Details]()
+* 异构高性能算子库 [Details](https://github.com/pangge/delta/blob/master/deltann/infer/docs/customops.md)
 
 算法子图搜索引擎的核心逻辑是做子图匹配和替换，其支持任意用户使用的tf语法定义的复杂算法结构，并根据用户训练好的模型，自动匹配这部分已定义算法并做替换，替换成用户设置的具体算子，最终完成大规模tensorflow自动生成子图结构的替换，从而极大的提升计算密集型和访存开销，为进一步性能提升打下坚实基础。
 

@@ -71,7 +71,7 @@ def standard_transformer(input_tensor = None,
 
 if __name__ == "__main__":
     # open graph optimizer stream
-    with dti.GraphStream("/home/test/self/delta_infer/delta_infer/build/haiyang/frozen_model_tf14.pb") as gs:
+    with dti.GraphStream("/path/to/frozen_model_tf14.pb") as gs:
         batch_size = 1
         seq_length = 100
         hidden_size = 768

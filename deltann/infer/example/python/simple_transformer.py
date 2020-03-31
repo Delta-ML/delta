@@ -71,8 +71,7 @@ def standard_transformer(input_tensor = None,
 
 if __name__ == "__main__":
     # open graph optimizer stream
-    #with dti.GraphStream("/tmp-data/test/self/self_tf/my_test/transformer_pattern.pb") as gs:
-    with dti.GraphStream("/home/test/self/fastertransformer/DeepLearningExamples/FasterTransformer/build/nv_fasttransformer.pb") as gs:
+    with dti.GraphStream("/path/to/DeepLearningExamples/FasterTransformer/build/nv_fasttransformer.pb") as gs:
         batch_size = 1
         seq_length = 100
         hidden_size = 768

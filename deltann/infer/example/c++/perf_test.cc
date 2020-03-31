@@ -10,27 +10,7 @@
 
 #include "example/c++/basic/perf.h"
 
-#include "pkg.h"
-
 namespace tensorflow {
-
-void test(int fd) {
-    pkg::Elf elf_info(std::make_shared<pkg::MMap>(fd));
-    auto section = elf_info.get_section("test");
-    if(!section.valid()) {
-        printf("section not found!\n");
-    }
-    size_t size = section.size();
-    printf("section test size: %d\n", size);
-    const char* data = (const char*)section.data();
-    for(int i=0; i<size; i++) {
-        printf("%c", data[i]);
-    }
-    printf("\n");
-    /*for (int i=0; i<*embeded_embed_size; i++) {
-        printf("%c", embeded_embed[i]);
-    }*/
-}
 
 void perf_of_inference(const char * graph, int batch, int  seq) {
     Perf::Config cfg;
