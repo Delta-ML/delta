@@ -22,7 +22,6 @@ import numpy as np
 #pylint: disable=import-error
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.callbacks import ModelCheckpoint
-from sklearn import metrics
 from tensorflow.keras import backend as K
 from sklearn import metrics
 #pylint: disable=no-name-in-module
