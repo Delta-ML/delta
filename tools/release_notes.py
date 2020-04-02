@@ -44,12 +44,12 @@ if __name__ == '__main__':
     'repository',
     metavar='repository',
     type=str,
-    help='githb repository'
+    help='github repository'
   )
 
   parser.add_argument(
     'milestone',
-    metavar='name of milestone',
+    metavar='milestone',
     type=str,
     help='name of used milestone'
   )
