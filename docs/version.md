@@ -14,3 +14,11 @@ Version No.
 | RC2 | 0.9 |  AB-test, evaluate gains  | v0.0.9.0 |
 | Release | 1.0 |  production  | v0.1.0.0 |
 
+# Release Version
+
+Make sure all PRs under milestone `v0.3.2` are closed, then close the milestone.
+Using below command to generate relase note.
+
+`python tools/release_notes.py -c didi delta v0.3.2`
+
+
