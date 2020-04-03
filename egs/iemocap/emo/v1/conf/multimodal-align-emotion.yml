@@ -71,8 +71,8 @@ model:
       cell_type: gru
       cell_dim: 100
       num_layers: 1
-      dropout_rate: 0.6
-      speech_dropout_rate: 0.6
+      dropout_rate: 0.5
+      speech_dropout_rate: 0.5
       l2_reg_lambda: 0
       hidden_dim: 200
       head_num: 8
@@ -103,7 +103,7 @@ solver:
     early_stopping:
       enable: false
   metrics:
-    monitor_used: 'ClassReport'
+    monitor_used: 'val_acc'
     metrics_used : ['accuracy']
     pos_label: 1 # int, same to sklearn
     cals:
