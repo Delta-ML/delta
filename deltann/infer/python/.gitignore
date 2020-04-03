@@ -1,0 +1,7 @@
+build/
+*.o
+*.pyc
+__pycache__
+*.egg-info
+dist/
+*.pb
