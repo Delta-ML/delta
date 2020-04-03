@@ -2,15 +2,15 @@
 data:
   train:
     paths:
-    - "egs/iemocap/emo/v1/data/dump/all/train"
+    - "data/dump/all/train"
     segments:
   eval:
     paths:
-    - "egs/iemocap/emo/v1/data/dump/all/eval"
+    - "data/dump/all/eval"
     segments:
   infer:
     paths:
-    - "egs/iemocap/emo/v1/data/dump/all/eval"
+    - "data/dump/all/eval"
     segments:
   task:
     name: IEmoCapTask
@@ -43,7 +43,7 @@ data:
       cmvn_path: 'data/dump/cmvn.npy' # cmvn file
     text:
       enable: True
-      vocab_path: "egs/iemocap/emo/v1/data/vocab.new.txt"
+      vocab_path: "data/vocab.txt"
       vocab_size: 2570 # vocab size
       max_text_len: 100 # max length for text
     classes:
@@ -63,7 +63,7 @@ model:
   type: keras # raw, keras or eager model
   use_pre_train_emb: True
   pre_train_emb_path: ""
-  embedding_path: "egs/iemocap/emo/v1/data/glove.min.new.pkl"
+  embedding_path: "data/glove.min.pkl"
   net:
     structure:
       embedding_size: 300
@@ -71,8 +71,8 @@ model:
       cell_type: gru
       cell_dim: 100
       num_layers: 1
-      dropout_rate: 0.7
-      speech_dropout_rate: 0.7
+      dropout_rate: 0.6
+      speech_dropout_rate: 0.6
       l2_reg_lambda: 0
       hidden_dim: 200
       head_num: 8
@@ -103,7 +103,7 @@ solver:
     early_stopping:
       enable: false
   metrics:
-    monitor_used: 'val_acc'
+    monitor_used: 'ClassReport'
     metrics_used : ['accuracy']
     pos_label: 1 # int, same to sklearn
     cals:
@@ -132,7 +132,7 @@ solver:
           enable: true
           count: 2
   saver:
-    model_path: "egs/iemocap/emo/v1/exp/emo/multimodal_align_drop0.7"
+    model_path: "exp/emo/multimodal_align"
     max_to_keep: 10
     save_checkpoints_steps: 100
     keep_checkpoint_every_n_hours: 10000
