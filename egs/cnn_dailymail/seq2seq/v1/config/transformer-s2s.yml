@@ -3,21 +3,21 @@ data:
   train:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/train.cnndm.src"
+        - "egs/cnn_dailymail/seq2seq/v1/data/train.cnndm.src"
       target:
-        - "/egs/cnn_dailymail/nlp1/data/train.cnndm.tgt"
+        - "egs/cnn_dailymail/seq2seq/v1/data/train.cnndm.tgt"
   eval:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/val.cnndm.src"
+        - "egs/cnn_dailymail/seq2seq/v1/data/val.cnndm.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/val.cnndm.tgt"
+        - "egs/cnn_dailymail/seq2seq/v1/data/val.cnndm.tgt"
   infer:
     paths:
       source:
-        - "egs/cnn_dailymail/nlp1/data/test.cnndm.src"
+        - "egs/cnn_dailymail/seq2seq/v1/data/test.cnndm.src"
       target:
-        - "egs/cnn_dailymail/nlp1/data/test.cnndm.tgt"
+        - "egs/cnn_dailymail/seq2seq/v1/data/test.cnndm.tgt"
     infer_no_label: false
   task:
     name: TextS2STask
@@ -59,9 +59,11 @@ model:
       transformer_dropout: 0.1
       head_num: 8
       hidden_dim: 256
-      share_embedding: true
+      inner_size: 768
+      share_embedding: False
       beam_size: 2
       length_penalty: 5
+      use_const: True
 
 solver:
   name: RawS2SSolver

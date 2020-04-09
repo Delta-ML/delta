@@ -25,6 +25,7 @@ from delta import utils
 from delta.models.base_model import Model
 from delta.utils import registers
 from delta.layers.utils import compute_sen_lens
+from delta.layers.utils_tf import create_padding_mask
 
 
 class Seq2SeqModel(Model):
@@ -77,37 +78,30 @@ class TransformerSeq2SeqModel(Seq2SeqModel):
     tf.logging.info("Initialize TransformerModel...")
     model_config = config['model']['net']['structure']
     self.is_infer = config['model']['is_infer']
-    if self.is_infer:
-      self.length_penalty = model_config['length_penalty']
     self.dropout_rate = model_config['dropout_rate']
     self.num_layers = model_config['num_layers']
-    self.l2_reg_lambda = model_config['l2_reg_lambda']
     self.max_enc_len = model_config['max_enc_len']
     self.max_dec_len = model_config['max_dec_len']
-    self.share_embedding = model_config['share_embedding']
-    self.padding_token = utils.PAD_IDX
-    self.beam_size = model_config['beam_size']
-
-    self.mask_layer = tf.keras.layers.Lambda(lambda inputs: tf.cast(
-        tf.not_equal(inputs, self.padding_token), tf.int32))
+    self.share_embedding = model_config.get('share_embedding', True)
+    self.use_const = model_config.get('use_const', True)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
-
-    self.pos_embed = layers.PositionEmbedding(self.max_enc_len,
-                                              self.embedding_size)
+    self.pos_embed = layers.PositionEmbedding(
+      self.max_enc_len, self.embedding_size, self.use_const, "enc_pos")
 
     self.encoder = layers.TransformerEncoder(config)
-    self.decoder = layers.TransformerDecoder(config, self.embed,
+    self.decoder = layers.TransformerDecoder(config,
+                                             (self.embed, self.pos_embed),
                                              self.decode_vocab_size)
     logging.info("decode_vocab_size: {}".format(self.decode_vocab_size))
     logging.info("Initialize TransformerModel done.")
 
   def call(self, inputs, training=None, mask=None):
     input_enc_x = inputs["input_enc_x"]
-    enc_mask = self.mask_layer(input_enc_x)
+    enc_mask = create_padding_mask(input_enc_x)
     enc_emb = self.embed(input_enc_x)
-    enc_pos_emb = self.pos_embed(enc_emb)
-    enc_emb = tf.keras.layers.add([enc_emb, enc_pos_emb])
+    enc_pos_emb = self.pos_embed(input_enc_x)
+    enc_emb += enc_pos_emb
     enc_emb = self.embed_d(enc_emb, training=training)
     enc_out = self.encoder(enc_emb, training=training, mask=enc_mask)
 
