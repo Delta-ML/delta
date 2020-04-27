@@ -2,13 +2,13 @@
 data:
   train:
     paths:
-      - "egs/mock_text_match_data/text_match/v1/data/msr.train"
+      - "egs/mock_text_match_data/text_match/v1/data/train.txt"
   eval:
     paths:
-      - "egs/mock_text_match_data/text_match/v1/data/msr.test"
+      - "egs/mock_text_match_data/text_match/v1/data/test.txt"
   infer:
     paths:
-      - "egs/mock_text_match_data/text_match/v1/data/msr.test"
+      - "egs/mock_text_match_data/text_match/v1/data/test.txt"
 
     infer_no_label: False
   task:
@@ -17,7 +17,7 @@ data:
     preparer:
       enable: true
       name: TextMatchPreparer
-      done_sign: "egs/mock_text_match_data/text_match/v1/exp/prepare.msr.done"
+      done_sign: "egs/mock_text_match_data/text_match/v1/exp/prepare.done"
       reuse: false
     use_dense: false
     language: english
@@ -26,8 +26,8 @@ data:
     split_by_space: false
     use_word: true
     use_custom_vocab: true
-    text_vocab: "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt.msr"
-    label_vocab: "egs/mock_text_match_data/text_match/v1/exp/label_vocab.txt.msr"
+    text_vocab: "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt"
+    label_vocab: "egs/mock_text_match_data/text_match/v1/exp/label_vocab.txt"
     max_seq_len: 42
     num_parallel_calls: 12
     num_prefetch_batch: 2
@@ -48,7 +48,7 @@ model:
   type: keras
   use_pre_train_emb: false
   pre_train_emb_path: ""
-  embedding_path: "egs/mock_text_match_data/text_match/v1/exp/embeding.msr.pkl"
+  embedding_path: "egs/mock_text_match_data/text_match/v1/exp/embeding.pkl"
 
   net:
     structure:
@@ -110,9 +110,9 @@ solver:
           average: 'weighted'
   postproc:
     name: SavePredPostProc
-    res_file: "egs/mock_text_match_data/text_match/v1/exp/text-match/res.msr.txt"
+    res_file: "egs/mock_text_match_data/text_match/v1/exp/text-match/res.txt"
   saver:
-    model_path: "egs/mock_text_match_data/text_match/v1/exp/text-match/ckpt-msr"
+    model_path: "egs/mock_text_match_data/text_match/v1/exp/text-match/ckpt"
     max_to_keep: 30 #30
     save_checkpoint_steps: 10 #100
     print_every: 10
