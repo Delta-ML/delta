@@ -149,6 +149,7 @@ class MatchPyramidTextClassModel(MatchRnn):
     self.padding = model_config['padding']
     # The activation function
     self.activation = model_config['activation']
+    self.matching_type = model_config['matching_type']
 
     self.embed = tf.keras.layers.Embedding(
       self.vocab_size,
@@ -159,8 +160,7 @@ class MatchPyramidTextClassModel(MatchRnn):
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
-    # TODO
-    self.matching_layer = MatchingLayer(matching_type='dot')
+    self.matching_layer = MatchingLayer(matching_type=self.matching_type)
 
     self.conv = []
     for i in range(self.num_blocks):

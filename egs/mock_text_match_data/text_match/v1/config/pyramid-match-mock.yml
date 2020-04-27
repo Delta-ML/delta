@@ -2,13 +2,13 @@
 data:
   train:
     paths:
-      - "egs/mock_text_match_data/text_match/v1/data/train.txt"
+      - "egs/mock_text_match_data/text_match/v1/data/msr.train"
   eval:
     paths:
-      - "egs/mock_text_match_data/text_match/v1/data/test.txt"
+      - "egs/mock_text_match_data/text_match/v1/data/msr.test"
   infer:
     paths:
-      - "egs/mock_text_match_data/text_match/v1/data/test.txt"
+      - "egs/mock_text_match_data/text_match/v1/data/msr.test"
 
     infer_no_label: False
   task:
@@ -17,7 +17,7 @@ data:
     preparer:
       enable: true
       name: TextMatchPreparer
-      done_sign: "egs/mock_text_match_data/text_match/v1/exp/prepare.done"
+      done_sign: "egs/mock_text_match_data/text_match/v1/exp/prepare.msr.done"
       reuse: false
     use_dense: false
     language: english
@@ -26,15 +26,15 @@ data:
     split_by_space: false
     use_word: true
     use_custom_vocab: true
-    text_vocab: "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt"
-    label_vocab: "egs/mock_text_match_data/text_match/v1/exp/label_vocab.txt"
+    text_vocab: "egs/mock_text_match_data/text_match/v1/data/text_vocab.txt.msr"
+    label_vocab: "egs/mock_text_match_data/text_match/v1/exp/label_vocab.txt.msr"
     max_seq_len: 42
     num_parallel_calls: 12
     num_prefetch_batch: 2
     shuffle_buffer_size: 15000
     need_shuffle: true
     batch_size: 30
-    epochs: 2
+    epochs: 30
     classes:
       positive_id: 1
       num_classes: 2
@@ -48,7 +48,7 @@ model:
   type: keras
   use_pre_train_emb: false
   pre_train_emb_path: ""
-  embedding_path: "egs/mock_text_match_data/text_match/v1/exp/embeding.pkl"
+  embedding_path: "egs/mock_text_match_data/text_match/v1/exp/embeding.msr.pkl"
 
   net:
     structure:
@@ -58,11 +58,12 @@ model:
       cell_dim: 100
       lstm_num_units: 256  #256
       fc_num_units: 100  #100
-      dropout_rate: 0.2
+      dropout_rate: 0.0
       l2_reg_lambda: 4e-6
       activate: relu
       sent_hidden_size: 300
-      # new
+      # pyramid
+      matching_type: dot
       num_blocks: 1
       kernel_count: 32
       kernel_size:
@@ -72,7 +73,7 @@ model:
         - 3
         - 10
       padding: same
-      activation: relu
+      activation: tanh
 
 solver:
   name: RawMatchSolver
@@ -109,9 +110,9 @@ solver:
           average: 'weighted'
   postproc:
     name: SavePredPostProc
-    res_file: "egs/mock_text_match_data/text_match/v1/exp/text-match/res.txt"
+    res_file: "egs/mock_text_match_data/text_match/v1/exp/text-match/res.msr.txt"
   saver:
-    model_path: "egs/mock_text_match_data/text_match/v1/exp/text-match/ckpt"
+    model_path: "egs/mock_text_match_data/text_match/v1/exp/text-match/ckpt-msr"
     max_to_keep: 30 #30
     save_checkpoint_steps: 10 #100
     print_every: 10
