@@ -12,6 +12,7 @@ private
 !delta/data/feat/python_speech_features/english.wav
 *.mp3
 tags
+venv
 gen
 *.cxx
 *.o
