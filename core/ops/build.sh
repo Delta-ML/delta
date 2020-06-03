@@ -17,7 +17,14 @@ set -u
 set -o pipefail
 
 # check tf compiler version
-local_ver=`gcc --version | grep ^gcc | sed 's/^.* //g'`
+
+os_type=`uname  -a`
+if [[ $os_type =~ "Darwin" ]];then
+    local_ver=`gcc --version 2>&1 | grep ^Configured | awk  '{print substr($0,length($0)-4)}'`
+else
+    local_ver=`gcc --version | grep ^gcc | sed 's/^.* //g'`
+fi
+
 tf_ver=`python -c "import tensorflow as tf; print(tf.version.COMPILER_VERSION.split()[0]);"`
 
 if [  ${local_ver:0:1} -ne ${tf_ver:0:1} ];then

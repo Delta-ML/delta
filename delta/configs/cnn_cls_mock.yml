@@ -6,7 +6,7 @@ data:
       - "data/train.chinese_word.txt"
   eval:
     paths:
-      - "data/eval.chinese_word.txt"
+      - "data/dev.chinese_word.txt"
   infer:
     paths:
       - "data/test.chinese_word.txt"
