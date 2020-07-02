@@ -33,7 +33,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/glog"
-	"strconv"
 	"unsafe"
 )
 
@@ -69,24 +68,22 @@ func DeltaCreateHandel() (unsafe.Pointer, error) {
 }
 
 func ValueInputsJson (ins []C.Input,valueInputs interface{}) []C.Input{
-	var mapInputs map[string]interface{}
+	var mapInputs map[string][]byte
 	if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
 		json.Unmarshal([]byte(fmt.Sprintf("%v", valueInputs)), &mapInputs)
 	}
 	graphName := conf.DeltaConf.Model.Graph[0].Name
 	for i := 0; i < len(conf.DeltaConf.Model.Graph[0].Inputs); i++ {
 		inputName := conf.DeltaConf.Model.Graph[0].Inputs[i].Name
-		inputId := conf.DeltaConf.Model.Graph[0].Inputs[i].Id
-		inputNameAndId := inputName+":"+strconv.Itoa(inputId)
 		if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
-			ins[i].ptr = unsafe.Pointer(C.CString(mapInputs[inputNameAndId].(string)))
-			ins[i].size = C.int(len(mapInputs[inputNameAndId].(string)))
+			ins[i].ptr = unsafe.Pointer(C.CBytes(mapInputs[inputName]))
+			ins[i].size = C.int(unsafe.Sizeof(mapInputs[inputName]))
 		}else if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_STRING {
 			ins[i].ptr = unsafe.Pointer(C.CString(valueInputs.(string)))
 			// len(valueInputs.(string)) + 1   for text /0
 			ins[i].size = C.int(len(valueInputs.(string)) + 1)
 		}
-		ins[i].input_name =  C.CString(inputNameAndId)
+		ins[i].input_name =  C.CString(inputName)
 		ins[i].graph_name = C.CString(graphName)
 	}
 	return ins

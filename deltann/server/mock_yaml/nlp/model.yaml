@@ -50,7 +50,7 @@ runtime:
   num_threads: 20
 
 serving:
-  api_type: "d_json"  # d_grpc ,  d_string (will be deprecated in the future),   d_json
+  api_type: "d_json"  # d_grpc ,  d_string,   d_json
   max_worker: 5
   max_queue: 100
 
