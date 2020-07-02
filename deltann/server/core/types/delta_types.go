@@ -21,3 +21,9 @@ const (
 	Prod    string = `prod`
 	Online  string = `online`
 )
+
+const (
+	D_GRPC string =  `d_grpc`
+	D_JSON string =  `d_json`
+	D_STRING string =  `d_string`
+)

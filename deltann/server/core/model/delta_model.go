@@ -27,10 +27,13 @@ import "C"
 import (
 	"bytes"
 	"delta/deltann/server/core/conf"
+	"delta/deltann/server/core/types"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/golang/glog"
+	"strconv"
 	"unsafe"
 )
 
@@ -65,6 +68,30 @@ func DeltaCreateHandel() (unsafe.Pointer, error) {
 	return unsafe.Pointer(deltaInf), nil
 }
 
+func ValueInputsJson (ins []C.Input,valueInputs interface{}) []C.Input{
+	var mapInputs map[string]interface{}
+	if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
+		json.Unmarshal([]byte(fmt.Sprintf("%v", valueInputs)), &mapInputs)
+	}
+	graphName := conf.DeltaConf.Model.Graph[0].Name
+	for i := 0; i < len(conf.DeltaConf.Model.Graph[0].Inputs); i++ {
+		inputName := conf.DeltaConf.Model.Graph[0].Inputs[i].Name
+		inputId := conf.DeltaConf.Model.Graph[0].Inputs[i].Id
+		inputNameAndId := inputName+":"+strconv.Itoa(inputId)
+		if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
+			ins[i].ptr = unsafe.Pointer(C.CString(mapInputs[inputNameAndId].(string)))
+			ins[i].size = C.int(len(mapInputs[inputNameAndId].(string)))
+		}else if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_STRING {
+			ins[i].ptr = unsafe.Pointer(C.CString(valueInputs.(string)))
+			// len(valueInputs.(string)) + 1   for text /0
+			ins[i].size = C.int(len(valueInputs.(string)) + 1)
+		}
+		ins[i].input_name =  C.CString(inputNameAndId)
+		ins[i].graph_name = C.CString(graphName)
+	}
+	return ins
+}
+
 func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error) {
 
 	inf := *(*C.InferHandel)(unsafe.Pointer(&cInf))
@@ -72,46 +99,10 @@ func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error)
 	if inf == nil {
 		return "", nil
 	}
-
 	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
-	var ins C.Input
+	var ins [] C.Input
+	ins = ValueInputsJson(ins,valueInputs)
 
-	switch t := valueInputs.(type) {
-	case string:
-		deltaPtr := C.CString(valueInputs.(string))
-		defer C.free(unsafe.Pointer(deltaPtr))
-		ins.ptr = unsafe.Pointer(deltaPtr)
-		// len(valueInputs.(string)) + 1   for text /0
-		ins.size = C.int(len(valueInputs.(string)) + 1)
-
-	case int:
-		//TODO
-
-	case float32:
-		//TODO
-
-	case []string:
-		//TODO
-
-	case []float32:
-		//TODO
-
-	case []int:
-		//TODO
-
-	default:
-		_ = t
-
-	}
-
-	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
-	defer C.free(unsafe.Pointer(inputName))
-	ins.input_name = inputName
-
-	graphName := C.CString(conf.DeltaConf.Model.Graph[0].Name)
-	defer C.free(unsafe.Pointer(graphName))
-	ins.graph_name = graphName
-	glog.Infof("before DeltaSetInputs")
 	C.DeltaSetInputs(inf, &ins, inNum)
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)

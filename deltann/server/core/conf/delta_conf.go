@@ -28,6 +28,7 @@ type DeltaConfig struct {
 }
 
 type DeltaServingConf struct {
+	DeltaApiType string `yaml:"api_type"`
 	DeltaMaxWorker int `yaml:"max_worker"`
 	DeltaMaxQueue  int `yaml:"max_queue"`
 }
