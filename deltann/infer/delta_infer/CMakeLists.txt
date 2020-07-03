@@ -21,4 +21,4 @@ else()
 endif()
 
 # putting test after lib is compiled.
-add_subdirectory(${DELTA_INFER_DELTA_INFER}/test/)
+#add_subdirectory(${DELTA_INFER_DELTA_INFER}/test/)

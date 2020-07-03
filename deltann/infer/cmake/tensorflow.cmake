@@ -68,8 +68,8 @@ function(find_tf)
     exec_program(python .
                  ARGS "-c \"import tensorflow as tf;\
                             print(\' %s %s %s\' % (\
-                                    tf.__version__, \
-                                    tf.sysconfig.get_include(), \
+                                    tf.__version__,\
+                                    tf.sysconfig.get_include(),\
                                     tf.sysconfig.get_lib())\
                                  );\""
                  OUTPUT_VARIABLE OUTPUT
