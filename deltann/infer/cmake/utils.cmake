@@ -5,9 +5,9 @@
 # and save to parent scope var outputs
 function(delta_fetch_files_with_suffix search_dir suffix outputs)
 	exec_program(ls ${search_dir}
-             ARGS "*.${suffix}"
-             OUTPUT_VARIABLE OUTPUT
-             RETURN_VALUE VALUE)
+                ARGS "*.${suffix}"
+                OUTPUT_VARIABLE OUTPUT
+                RETURN_VALUE VALUE)
 	if(NOT VALUE)
 		string(REPLACE "\n" ";" OUTPUT_LIST "${OUTPUT}")
 		set(abs_dir "")
