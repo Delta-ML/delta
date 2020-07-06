@@ -58,7 +58,7 @@ elif [ $target == 'deltann' ]; then
     if [ -L $ops_dir ] && [ -d $ops_dir ]; then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
     fi
-    ln -s $MAIN_ROOT/delta/layers/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
+    ln -s $MAIN_ROOT/core/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
     
     pushd $MAIN_ROOT/tools/tensorflow
    

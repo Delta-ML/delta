@@ -73,18 +73,20 @@ func ValueInputsJson (ins []C.Input,valueInputs interface{}) []C.Input{
 		json.Unmarshal([]byte(fmt.Sprintf("%v", valueInputs)), &mapInputs)
 	}
 	graphName := conf.DeltaConf.Model.Graph[0].Name
+	var insStruct C.Input
 	for i := 0; i < len(conf.DeltaConf.Model.Graph[0].Inputs); i++ {
 		inputName := conf.DeltaConf.Model.Graph[0].Inputs[i].Name
 		if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
-			ins[i].ptr = unsafe.Pointer(C.CBytes(mapInputs[inputName]))
-			ins[i].size = C.int(unsafe.Sizeof(mapInputs[inputName]))
+			insStruct.ptr = unsafe.Pointer(C.CBytes(mapInputs[inputName]))
+			insStruct.size = C.int(unsafe.Sizeof(mapInputs[inputName]))
 		}else if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_STRING {
-			ins[i].ptr = unsafe.Pointer(C.CString(valueInputs.(string)))
+			insStruct.ptr = unsafe.Pointer(C.CString(valueInputs.(string)))
 			// len(valueInputs.(string)) + 1   for text /0
-			ins[i].size = C.int(len(valueInputs.(string)) + 1)
+			insStruct.size = C.int(len(valueInputs.(string)) + 1)
 		}
-		ins[i].input_name =  C.CString(inputName)
-		ins[i].graph_name = C.CString(graphName)
+		insStruct.input_name =  C.CString(inputName)
+		insStruct.graph_name = C.CString(graphName)
+		ins = append(ins,insStruct)
 	}
 	return ins
 }
@@ -100,7 +102,7 @@ func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error)
 	var ins [] C.Input
 	ins = ValueInputsJson(ins,valueInputs)
 
-	C.DeltaSetInputs(inf, &ins, inNum)
+	C.DeltaSetInputs(inf, &ins[0], inNum)
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
