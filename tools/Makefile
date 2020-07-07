@@ -208,9 +208,7 @@ go.done:
 	touch go.done
 
 pybind11.done:
-	if ! [ -d ../deltann/infer/third_party/pybind11 ];then
-		cd .. && git submodule update --init --recursive
-	fi
+	if [ -d ../deltann/infer/third_party/pybind11 ];then cd .. && git submodule update --init --recursive; fi
 	touch pybind11.done
 
 deltann-clean:
