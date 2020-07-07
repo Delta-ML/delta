@@ -52,6 +52,7 @@ class Shape {
 
   const int operator[](int i) const;
 
+  // num elemetns
   size_t size(void) const;
 
   void set_dim(int idx, int size);

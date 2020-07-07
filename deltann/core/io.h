@@ -54,6 +54,7 @@ class BaseInOut {
 
   Shape& shape(void) { return _shape; }
 
+  // num delements
   const size_t size(void) const { return _shape.size(); }
 
   DataType dtype(void) const { return _dtype; }
@@ -71,12 +72,12 @@ class BaseInOut {
 
   friend std::ostream& operator<<(std::ostream& os, const BaseInOut& inout) {
     if (inout.inout_type() == InOut::DELTA_IN) {
-      os << "Input: ";
+      os << "Input: [";
     } else {
-      os << "Output: ";
+      os << "Output: [";
     }
-    os << inout._name << " id:" << inout._id << " shape: " << inout._shape
-       << " dtype: " << delta_dtype_str(inout._dtype);
+    os << inout._name << "] id: [" << inout._id << "] shape: [" << inout._shape
+       << "] dtype: [" << delta_dtype_str(inout._dtype) << "]";
     return os;
   }
 
