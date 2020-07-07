@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## Data scale introduction
 
@@ -40,21 +39,21 @@ class MockTextSeq2SeqData(BaseDataSet):
 
     files = [self.train_file, self.dev_file, self.test_file]
     suffix = [".tgt", ".src"]
-    self.data_files = [file+suf for suf in suffix for file in files]
+    self.data_files = [file + suf for suf in suffix for file in files]
 
     self.config_files = ['transformer_s2s_mock.yml']
     self.download_files = []
 
-
     # samples with label
-    self.samples = [" a shooting at a bar popular with expatriates in mali on saturday killed "
-               "five people \t killed five people",
-               "a pennsylvania community is pulling together to search for an eighth-grade "
-               "student who has been missing since wednesday\tsearch for missing student"]
+    self.samples = [
+        " a shooting at a bar popular with expatriates in mali on saturday killed "
+        "five people \t killed five people",
+        "a pennsylvania community is pulling together to search for an eighth-grade "
+        "student who has been missing since wednesday\tsearch for missing student"
+    ]
 
   def download(self) -> bool:
     return True
-
 
   def after_download(self) -> bool:
     try:

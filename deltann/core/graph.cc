@@ -58,7 +58,7 @@ Graph::Graph(const YAML::Node& cfg) : _cfg(cfg) {
       LOG_INFO << "model type : [ "
                << static_cast<std::underlying_type<ModelType>::type>(
                       _model_meta.local.model_type)
-	       << " ]";
+               << " ]";
 
     } else if (server_type == "remote") {
       LOG_INFO << "load remote model";

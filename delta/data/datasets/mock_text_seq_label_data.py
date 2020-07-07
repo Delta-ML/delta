@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## Data scale introduction
 
@@ -44,18 +43,22 @@ class MockTextSeqLabelData(BaseDataSet):
     self.label_vocab = "label_vocab.txt"
 
     # samples with label
-    self.samples = ["O O O O\ti feel good .",
-               "O O B-ORG O O O O O O\tby stumps kent had reached 108 for three ."]
-    self.text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "feel\t3", "good\t4",
-                            ".\t5", "by\t6", "stumps\t7", "kent\t8", "had\t9",
-                            "reached\t10", "108\t11", "for\t12", "three\t13"]
-    self.label_vocab_list = ["O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4",
-                        "B-ORG\t5", "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"]
-
+    self.samples = [
+        "O O O O\ti feel good .",
+        "O O B-ORG O O O O O O\tby stumps kent had reached 108 for three ."
+    ]
+    self.text_vocab_list = [
+        "<unk>\t0", "</s>\t1", "i\t2", "feel\t3", "good\t4", ".\t5", "by\t6",
+        "stumps\t7", "kent\t8", "had\t9", "reached\t10", "108\t11", "for\t12",
+        "three\t13"
+    ]
+    self.label_vocab_list = [
+        "O\t0", "B-PER\t1", "I-PER\t2", "B-LOC\t3", "I-LOC\t4", "B-ORG\t5",
+        "I-ORG\t6", "B-MISC\t7", "I-MISC\t8"
+    ]
 
   def download(self) -> bool:
     return True
-
 
   def after_download(self) -> bool:
     try:
@@ -67,10 +70,10 @@ class MockTextSeqLabelData(BaseDataSet):
       label_vocab_file = os.path.join(self.data_dir, self.label_vocab)
 
       mock_data(self.samples, train_file_path, dev_file_path, test_file_path,
-                text_vocab_file, self.text_vocab_list, label_vocab_file, self.label_vocab_list)
+                text_vocab_file, self.text_vocab_list, label_vocab_file,
+                self.label_vocab_list)
 
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False
     return True
-

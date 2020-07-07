@@ -86,8 +86,9 @@ class TransformerSeq2SeqModel(Seq2SeqModel):
     self.use_const = model_config.get('use_const', True)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
-    self.pos_embed = layers.PositionEmbedding(
-      self.max_enc_len, self.embedding_size, self.use_const, "enc_pos")
+    self.pos_embed = layers.PositionEmbedding(self.max_enc_len,
+                                              self.embedding_size,
+                                              self.use_const, "enc_pos")
 
     self.encoder = layers.TransformerEncoder(config)
     self.decoder = layers.TransformerDecoder(config,

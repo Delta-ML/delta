@@ -100,6 +100,7 @@ class TokenErrMetricCallBack(Callback):
 
 
 class ClassReportCallBack(Callback):
+
   def __init__(self, model, eval_ds, eval_task):
     self.model = model
     self.eval_task = eval_task
@@ -113,7 +114,8 @@ class ClassReportCallBack(Callback):
     truth, predict = [], []
 
     is_py_sequence = True
-    if isinstance(self.eval_task, (dataset_ops.DatasetV2, dataset_ops.DatasetV1)):
+    if isinstance(self.eval_task,
+                  (dataset_ops.DatasetV2, dataset_ops.DatasetV1)):
       eval_gen = self.eval_task.make_one_shot_iterator()
       self.next_batch_gen = eval_gen.get_next()
       is_py_sequence = False
@@ -144,12 +146,11 @@ class ClassReportCallBack(Callback):
     accuracy = metrics.accuracy_score(y_true, y_pred)
     unw_accuracy = metrics.precision_score(y_true, y_pred, average='macro')
     logs['ClassReport'] = accuracy
-    logging.info("Epoch {}: on eval.".format(
-        epoch + 1))
+    logging.info("Epoch {}: on eval.".format(epoch + 1))
     logging.info("Weighted accuracy: {}".format(accuracy))
     logging.info("Unweighted accuracy: {}".format(unw_accuracy))
-    logging.info("Specific results: {}".format('\n' + metrics.classification_report(
-      y_true, y_pred, digits=4)))
+    logging.info("Specific results: {}".format(
+        '\n' + metrics.classification_report(y_true, y_pred, digits=4)))
 
 
 class ParallelModelCheckpoint(ModelCheckpoint):
@@ -183,4 +184,3 @@ class ParallelModelCheckpoint(ModelCheckpoint):
   def set_model(self, model):
     '''set the model to saved'''
     super().set_model(self.model_to_save)
-

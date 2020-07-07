@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## References
 
@@ -95,12 +94,15 @@ class SNLI(BaseDataSet):
     try:
       download_file = os.path.join(self.download_dir, "snli_1.0.zip")
       os.system(f"unzip {download_file}  -d {self.download_dir}")
-      self.to_standard_format(os.path.join(self.download_dir, "snli_1.0/snli_1.0_train.jsonl"),
-                              os.path.join(self.data_dir, self.train_file))
-      self.to_standard_format(os.path.join(self.download_dir, "snli_1.0/snli_1.0_dev.jsonl"),
-                              os.path.join(self.data_dir, self.dev_file))
-      self.to_standard_format(os.path.join(self.download_dir, "snli_1.0/snli_1.0_test.jsonl"),
-                              os.path.join(self.data_dir, self.test_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, "snli_1.0/snli_1.0_train.jsonl"),
+          os.path.join(self.data_dir, self.train_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, "snli_1.0/snli_1.0_dev.jsonl"),
+          os.path.join(self.data_dir, self.dev_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, "snli_1.0/snli_1.0_test.jsonl"),
+          os.path.join(self.data_dir, self.test_file))
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False

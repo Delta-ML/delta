@@ -119,8 +119,8 @@ def deframesig(frames,
   win = winfunc(frame_len)
 
   for i in range(0, numframes):
-    window_correction[indices[i, :]] = window_correction[
-        indices[i, :]] + win + 1e-15  # add a little bit so it is never zero
+    window_correction[indices[i, :]] = window_correction[indices[
+        i, :]] + win + 1e-15  # add a little bit so it is never zero
     rec_signal[indices[i, :]] = rec_signal[indices[i, :]] + frames[i, :]
 
   rec_signal = rec_signal / window_correction

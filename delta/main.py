@@ -34,12 +34,15 @@ def define_flags():
   flags.DEFINE_string('config', '', 'config path')
   flags.DEFINE_string(
       'cmd', '',
-      'train, eval, infer, train_and_eval, export_model, gen_feat, gen_cmvn, build')
+      'train, eval, infer, train_and_eval, export_model, gen_feat, gen_cmvn, build'
+  )
   flags.DEFINE_bool('test', 'False', 'run all unit test')
   flags.DEFINE_bool('dry_run', 'False', 'dry run, to no save file')
   flags.DEFINE_bool('log_debug', 'False', 'logging debug switch')
   flags.DEFINE_string('name', '', 'Data set name')
   flags.DEFINE_string('dir', '', 'Data set directory')
+
+
 FLAGS = flags.FLAGS
 
 

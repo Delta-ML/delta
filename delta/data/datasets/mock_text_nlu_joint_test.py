@@ -20,7 +20,6 @@ import delta.compat as tf
 from delta.data.datasets.mock_text_nlu_joint_data import MockTextNLUJointData
 
 
-
 class MockTextNLUJointDataTest(tf.test.TestCase):
   """mock data class test for nlu-joint task."""
 

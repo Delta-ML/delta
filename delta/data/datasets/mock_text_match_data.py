@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## Data scale introduction
 
@@ -26,6 +25,7 @@ from absl import logging
 from delta.data.datasets.base_dataset import BaseDataSet
 from delta.data.datasets.utils import mock_data
 from delta.utils.register import registers
+
 
 @registers.dataset.register('mock_text_match_data')
 class MockTextMatchData(BaseDataSet):
@@ -42,17 +42,18 @@ class MockTextMatchData(BaseDataSet):
     self.text_vocab = "text_vocab.txt"
 
     # samples with label
-    self.samples = ["0\tHow should I approach forgiveness?\tI got chickenpox as a child.",
-               "1\tI love china。\tI love china very much。"]
-    self.text_vocab_list = ["<unk>\t0", "</s>\t1", "how\t2", "should\t3",
-                       "i\t4", "approach\t5", "forgiveness\t6", "got\t7",
-                       "chickenpox\t8", "as\t9", "a\t10",
-                       "child\t11", "love\t12", "china\t13",
-                       "very\t14", "much\t15"]
+    self.samples = [
+        "0\tHow should I approach forgiveness?\tI got chickenpox as a child.",
+        "1\tI love china。\tI love china very much。"
+    ]
+    self.text_vocab_list = [
+        "<unk>\t0", "</s>\t1", "how\t2", "should\t3", "i\t4", "approach\t5",
+        "forgiveness\t6", "got\t7", "chickenpox\t8", "as\t9", "a\t10",
+        "child\t11", "love\t12", "china\t13", "very\t14", "much\t15"
+    ]
 
   def download(self) -> bool:
     return True
-
 
   def after_download(self) -> bool:
     try:

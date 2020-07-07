@@ -75,8 +75,7 @@ def summary_joint_nlu_data(fname, output_file_path):
 
   t2i, s2i, in2i = map(dicts.get, ['token_ids', 'slot_ids', 'intent_ids'])
   i2t, i2s, i2in = map(lambda d: {d[k]: k for k in d.keys()}, [t2i, s2i, in2i])
-  query, slots, intent = map(ds.get,
-                             ['query', 'slot_labels', 'intent_labels'])
+  query, slots, intent = map(ds.get, ['query', 'slot_labels', 'intent_labels'])
 
   with open(output_file_path, "w", encoding="utf-8") as out_file:
     for i in range(len(query)):
@@ -128,15 +127,21 @@ def split_file(ori_file):
   src, tgt = zip(*[sent.split('\t') for sent in lines])
   with open(src_file, 'w', encoding='utf8') as out_f:
     for src_sent in src:
-      out_f.write(src_sent+'\n')
+      out_f.write(src_sent + '\n')
   with open(tgt_file, 'w', encoding='utf8') as out_f:
     for tgt_sent in tgt:
       out_f.write(tgt_sent)
   os.remove(ori_file)
 
 
-def mock_data(samples, train_file, dev_file, test_file, text_vocab_file=None,
-              text_vocab_list=None, label_vocab_file=None, label_vocab_list=None):
+def mock_data(samples,
+              train_file,
+              dev_file,
+              test_file,
+              text_vocab_file=None,
+              text_vocab_list=None,
+              label_vocab_file=None,
+              label_vocab_list=None):
   logging.info("Generate mock data: {}".format(train_file))
   mock_a_text_file(samples, 300, train_file)
   logging.info("Generate mock data: {}".format(dev_file))
@@ -154,9 +159,12 @@ def mock_data(samples, train_file, dev_file, test_file, text_vocab_file=None,
   # for seq2seq
   if not text_vocab_file and not text_vocab_list and not \
     label_vocab_file and not label_vocab_list:
-    logging.info("Generate mock data: {} and split to src and tgt.".format(train_file))
+    logging.info(
+        "Generate mock data: {} and split to src and tgt.".format(train_file))
     split_file(train_file)
-    logging.info("Generate mock data: {} and split to src and tgt.".format(dev_file))
+    logging.info(
+        "Generate mock data: {} and split to src and tgt.".format(dev_file))
     split_file(dev_file)
-    logging.info("Generate mock data: {} and split to src and tgt.".format(test_file))
+    logging.info(
+        "Generate mock data: {} and split to src and tgt.".format(test_file))
     split_file(test_file)

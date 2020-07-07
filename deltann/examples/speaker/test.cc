@@ -16,11 +16,11 @@ limitations under the License.
 
 #include <assert.h>
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
+#include <iostream>
 #include <vector>
 
 #include "api/c_api.h"
@@ -163,9 +163,10 @@ template struct DeltaModel<float>;
 
 int main(int argc, char** argv) {
   const char* yaml_file = argv[1];
-  if (argc != 2){
-     std::cout << "usage: " << argv[0] << " config.yaml" << "\n";
-     return 0;
+  if (argc != 2) {
+    std::cout << "usage: " << argv[0] << " config.yaml"
+              << "\n";
+    return 0;
   }
 
   DeltaModel<float> m(yaml_file);
@@ -175,7 +176,7 @@ int main(int argc, char** argv) {
   for (int i = 0; i < cnt; i++) {
     fprintf(stderr, "====================\n");
     std::vector<int> shape = {1, 260, 40, 1};
-    //shape[0] = i + 1;
+    // shape[0] = i + 1;
 
     // set inputs
     float* buf = m.AllocInputs(shape);
@@ -185,7 +186,7 @@ int main(int argc, char** argv) {
     }
     m.SetInputs(buf, shape);
 
-     //run
+    // run
     float dur = m.TimeRun();
     fprintf(stderr, "Duration %04f sec.\n", dur);
     avg += dur;
@@ -194,7 +195,7 @@ int main(int argc, char** argv) {
     free(buf);
     buf = nullptr;
 
-    //get output
+    // get output
     Output* outs = m.AllocOutputs();
     m.GetOutputs(outs);
 

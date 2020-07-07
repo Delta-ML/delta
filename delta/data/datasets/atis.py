@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## References
 
@@ -81,10 +80,12 @@ class ATIS(BaseDataSet):
 
   def after_download(self) -> bool:
     try:
-      summary_joint_nlu_data(os.path.join(self.download_dir, "atis.train.pkl"),
-                             os.path.join(self.data_dir, self.train_file))
-      summary_joint_nlu_data(os.path.join(self.download_dir, "atis.test.pkl"),
-                             os.path.join(self.data_dir, self.test_file))
+      summary_joint_nlu_data(
+          os.path.join(self.download_dir, "atis.train.pkl"),
+          os.path.join(self.data_dir, self.train_file))
+      summary_joint_nlu_data(
+          os.path.join(self.download_dir, "atis.test.pkl"),
+          os.path.join(self.data_dir, self.test_file))
     except Exception as e:
 
       logging.warning(traceback.format_exc())

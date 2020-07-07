@@ -263,9 +263,11 @@ def gelu(x):
       (np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3)))))
   return x * cdf
 
+
 def gelu_new(x):
-    cdf = 0.5 * (1.0 + tf.erf(tf.realdiv(x, tf.sqrt(tf.constant(2, dtype=tf.float32)))))
-    return x * cdf
+  cdf = 0.5 * (1.0 +
+               tf.erf(tf.realdiv(x, tf.sqrt(tf.constant(2, dtype=tf.float32)))))
+  return x * cdf
 
 
 def get_activation(activation_string):

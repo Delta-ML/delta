@@ -14,9 +14,11 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.util import nest
 
+
 def log_prob_from_logits(logits, reduce_axis=-1):
   """return log prob use log sum func"""
   return logits - tf.reduce_logsumexp(logits, axis=reduce_axis, keepdims=True)
+
 
 #
 def shape_list(tensor):
@@ -208,6 +210,7 @@ def create_masks(inp, tar):
   combined_mask = tf.maximum(dec_target_padding_mask, look_ahead_mask)
 
   return enc_padding_mask, combined_mask, dec_padding_mask
+
 
 def create_look_ahead_mask(tar):
   """

@@ -20,7 +20,6 @@ import delta.compat as tf
 from delta.data.datasets.mock_text_seq2seq_data import MockTextSeq2SeqData
 
 
-
 class MockTextSeq2SeqDataTest(tf.test.TestCase):
   """data class test for seq2seq task."""
 

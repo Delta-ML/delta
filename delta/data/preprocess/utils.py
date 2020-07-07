@@ -90,7 +90,9 @@ def get_vocab_size(vocab_file_path):
   return len(vocab_dict)
 
 
-def prepare_vocab(vocab_file_path, text, min_frequency=1,
+def prepare_vocab(vocab_file_path,
+                  text,
+                  min_frequency=1,
                   use_default_dict=True):
   """Prepare vocab"""
   text_vocab = Vocabulary(use_default_dict=use_default_dict)

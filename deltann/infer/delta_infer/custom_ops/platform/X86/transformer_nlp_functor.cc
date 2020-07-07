@@ -2,26 +2,25 @@
 
 namespace tensorflow {
 
-namespace x86 {
+namespace x86 {} /* namespace x86 */
 
-} /* namespace x86 */
+// using CPUDevice = Eigen::ThreadPoolDevice;
 
-//using CPUDevice = Eigen::ThreadPoolDevice;
-
-template<>
+template <>
 TransformerCellNLPFunctor<CPUDevice, float>::TransformerCellNLPFunctor() {}
 
-template<>
+template <>
 TransformerCellNLPFunctor<CPUDevice, float>::~TransformerCellNLPFunctor() {}
 
-template<>
-void TransformerCellNLPFunctor<CPUDevice, float>::init(TransformerNLPParam<CPUDevice, float>& param) {}
+template <>
+void TransformerCellNLPFunctor<CPUDevice, float>::init(
+    TransformerNLPParam<CPUDevice, float>& param) {}
 
-template<>
-void TransformerCellNLPFunctor<CPUDevice, float>::operator() (OpKernelContext* context, TransformerNLPParam<CPUDevice, float>& param) {
-        printf("ccw test in CPU \n");
-        exit(0);
+template <>
+void TransformerCellNLPFunctor<CPUDevice, float>::operator()(
+    OpKernelContext* context, TransformerNLPParam<CPUDevice, float>& param) {
+  printf("ccw test in CPU \n");
+  exit(0);
 }
 
-} /* namespace tensorflow */ 
-
+} /* namespace tensorflow */
