@@ -159,8 +159,9 @@ apt.done:
 	$(PIP_INSTALL) --user shyaml meson ninja
 	touch apt.done
 
-abseil.done: 
+abseil.done:
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
+	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git
 	touch abseil.done
 
 tensorflow-src.done:
