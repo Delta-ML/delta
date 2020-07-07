@@ -68,17 +68,19 @@ func DeltaCreateHandel() (unsafe.Pointer, error) {
 }
 
 func ValueInputsJson (ins []C.Input,valueInputs interface{}) []C.Input{
-	var mapInputs map[string][]byte
-	if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
-		json.Unmarshal([]byte(fmt.Sprintf("%v", valueInputs)), &mapInputs)
-	}
 	graphName := conf.DeltaConf.Model.Graph[0].Name
 	var insStruct C.Input
 	for i := 0; i < len(conf.DeltaConf.Model.Graph[0].Inputs); i++ {
 		inputName := conf.DeltaConf.Model.Graph[0].Inputs[i].Name
 		if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_JSON {
-			insStruct.ptr = unsafe.Pointer(C.CBytes(mapInputs[inputName]))
-			insStruct.size = C.int(unsafe.Sizeof(mapInputs[inputName]))
+			myMap := valueInputs.(map[string]interface {})
+			ptrData := myMap[inputName]
+			byteKey := []byte(fmt.Sprintf("%v", ptrData.([]interface{})))
+
+			glog.Infof("ins []byte to string： %v", string(byteKey))
+			glog.Infof("ins []byte size： %v", len(byteKey))
+			insStruct.ptr = unsafe.Pointer(C.CBytes(byteKey))
+			insStruct.size = C.int(len(byteKey))
 		}else if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.D_STRING {
 			insStruct.ptr = unsafe.Pointer(C.CString(valueInputs.(string)))
 			// len(valueInputs.(string)) + 1   for text /0
