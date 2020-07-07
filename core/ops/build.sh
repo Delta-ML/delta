@@ -5,6 +5,10 @@ if [ $# != 1 ];then
     exit 1
 fi
 
+# be careful:
+# delta depend on tensorflow python package
+# deltann not depend on tensorflow python package
+
 target=$1
 
 if [ -z $MAIN_ROOT ];then
@@ -17,12 +21,13 @@ set -u
 set -o pipefail
 
 # check tf compiler version
-local_ver=`gcc --version | grep ^gcc | sed 's/^.* //g'`
-tf_ver=`python -c "import tensorflow as tf; print(tf.version.COMPILER_VERSION.split()[0]);"`
-
-if [  ${local_ver:0:1} -ne ${tf_ver:0:1} ];then
-  echo "gcc version($local_ver) not compatiable with tf compile version($tf_ver)"
-  exit -1
+if [ $target == 'delta' ];then
+    local_ver=`gcc --version | grep ^gcc | sed 's/^.* //g'`
+    tf_ver=`python -c "import tensorflow as tf; print(tf.version.COMPILER_VERSION.split()[0]);"`
+    if [  ${local_ver:0:1} -ne ${tf_ver:0:1} ];then
+      echo "gcc version($local_ver) not compatiable with tf compile version($tf_ver)"
+      exit -1
+    fi
 fi
 
 
