@@ -37,9 +37,9 @@ BaseConfig::BaseConfig(std::string path) : _file_path(path) {
   auto search = _global_config.find(_file_path);
 
   if (search != _global_config.end()) {
-    LOG_WARN << "config path:" << _file_path << " already loaded!";
+    LOG_WARN << "config path: [" << _file_path << "] already loaded!";
   } else {
-    LOG_INFO << "config path:" << _file_path;
+    LOG_INFO << "config path: [" << _file_path << "]";
     try {
       _global_config[path] = YAML::LoadFile(_file_path);
       LOG_INFO << "load config success";
@@ -50,7 +50,7 @@ BaseConfig::BaseConfig(std::string path) : _file_path(path) {
   }
 
   _custom_ops_path = config()["model"]["custom_ops_path"].as<std::string>();
-  LOG_INFO << "custom ops path:" << _custom_ops_path;
+  LOG_INFO << "custom ops path: [" << _custom_ops_path << "]";
 }
 
 BaseConfig::~BaseConfig() {}
@@ -70,7 +70,8 @@ DeltaStatus Config::load_graphs() {
   const YAML::Node& model_cfg = config()["model"];
 
   int graph_num = model_cfg["graphs"].size();
-  LOG_INFO << "graph num is: " << graph_num;
+  LOG_INFO << "graph num is: [" << graph_num << "]";
+
   for (int i = 0; i < graph_num; ++i) {
     const YAML::Node& graph_cfg = model_cfg["graphs"][i];
     std::string name = model_cfg["graphs"][i]["name"].as<std::string>();
@@ -90,7 +91,7 @@ RuntimeConfig::RuntimeConfig(std::string path) : Config(path) {
   DELTA_ASSERT_OK(load_runtime());
   _rt_cfg = config()["runtime"];
   _num_threads = _rt_cfg["num_threads"].as<int>();
-  LOG_WARN << "_num_threads is " << _num_threads;
+  LOG_WARN << "_num_threads is: [" << _num_threads << "]";
 }
 
 RuntimeConfig::~RuntimeConfig() {}

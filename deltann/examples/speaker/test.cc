@@ -16,6 +16,7 @@ limitations under the License.
 
 #include <assert.h>
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -86,6 +87,10 @@ struct DeltaModel {
     ins[0].input_name = "inputs:0";
     ins[0].shape = shape;
     ins[0].ndims = ndims;
+    printf("%d\n", sizeof(ins));
+    printf("%d\n", sizeof(ins[0]));
+    printf("%d\n", sizeof(ins) / sizeof(ins[0]));
+    printf("%s\n", ins[0].graph_name);
     return DeltaSetInputs(inf_, ins, sizeof(ins) / sizeof(ins[0]));
   }
 
@@ -158,29 +163,38 @@ template struct DeltaModel<float>;
 
 int main(int argc, char** argv) {
   const char* yaml_file = argv[1];
+  if (argc != 2){
+     std::cout << "usage: " << argv[0] << " config.yaml" << "\n";
+     return 0;
+  }
 
   DeltaModel<float> m(yaml_file);
 
   float avg = 0;
-  int cnt = 1000;
+  int cnt = 10;
   for (int i = 0; i < cnt; i++) {
+    fprintf(stderr, "====================\n");
     std::vector<int> shape = {1, 260, 40, 1};
-    shape[0] = i + 1;
+    //shape[0] = i + 1;
 
+    // set inputs
     float* buf = m.AllocInputs(shape);
     auto nelems = m.NumElems(shape);
     for (auto i = 0; i < nelems; i++) {
-      buf[i] = 0;
+      buf[i] = 0.01;
     }
     m.SetInputs(buf, shape);
 
+     //run
     float dur = m.TimeRun();
     fprintf(stderr, "Duration %04f sec.\n", dur);
     avg += dur;
 
+    // free buf
     free(buf);
     buf = nullptr;
 
+    //get output
     Output* outs = m.AllocOutputs();
     m.GetOutputs(outs);
 
@@ -195,6 +209,7 @@ int main(int argc, char** argv) {
       }
     }
 
+    // free output
     m.FreeOutputs(outs);
   }
   fprintf(stderr, "Avg Duration %04f sec.\n", avg / cnt);

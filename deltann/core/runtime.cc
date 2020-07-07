@@ -29,7 +29,7 @@ DeltaStatus load_custom_ops_lib(const std::string& lib) {
   }
 
 #ifdef USE_TF
-  LOG_INFO << "custom op lib is: " << lib;
+  LOG_INFO << "custom op lib is: [" << lib << "]";
   TF_Status* status = TF_NewStatus();
   TF_Library* custom_op_lib = TF_LoadLibrary(lib.c_str(), status);
 
@@ -39,13 +39,13 @@ DeltaStatus load_custom_ops_lib(const std::string& lib) {
   if (TF_OK != code) {
     LOG_FATAL << status_msg;
   }
-  LOG_INFO << "custom op lib load succesfully" << lib;
+  LOG_INFO << "custom op lib load succesfully!";
 
   TF_Buffer op_list_buf = TF_GetOpList(custom_op_lib);
   tensorflow::OpList op_list;
   DELTA_CHECK(op_list.ParseFromArray(op_list_buf.data, op_list_buf.length));
   for (int i = 0; i != op_list.op_size(); ++i) {
-    LOG_INFO << "cutsom op: " << op_list.op(i).name();
+    LOG_INFO << "cutsom op: [" << op_list.op(i).name() << "]";
   }
 
   TF_DeleteLibraryHandle(custom_op_lib);
@@ -59,12 +59,12 @@ DeltaStatus load_models(const RuntimeConfig& rt_cfg,
   const int num_threads = rt_cfg.num_threads();
 
   if (!graphs->size()) {
-    LOG_WARN << "graphs size is empty, " << graphs->size();
+    LOG_WARN << "graphs size is empty, size: [" << graphs->size() << "]";
     return DeltaStatus::STATUS_ERROR;
   }
 
   for (auto& iter : *graphs) {
-    LOG_INFO << "Load model for graph " << iter.first;
+    LOG_INFO << "Load model for graph: [" << iter.first << "]";
 
     Graph& graph = iter.second;
     std::string engine_type = graph.engine_type();
@@ -76,25 +76,25 @@ DeltaStatus load_models(const RuntimeConfig& rt_cfg,
     if (search != _global_engines.end()) {
 #ifdef USE_TF
       if (EngineType::DELTA_EIGINE_TF == _global_engines[engine_type]) {
-        LOG_INFO << "User engine tf";
+        LOG_INFO << "User engine: [TF]";
         model = new TFModel(model_meta, num_threads);
 #endif
 
       } else if (EngineType::DELTA_EIGINE_TFTRT ==
                  _global_engines[engine_type]) {
-        LOG_INFO << "User engine tftrt";
+        LOG_INFO << "User engine: [TFTRT]";
 
 #ifdef USE_TFLITE
       } else if (EngineType::DELTA_EIGINE_TFLITE ==
                  _global_engines[engine_type]) {
-        LOG_INFO << "User engine tf lite";
+        LOG_INFO << "User engine: [TFLITE]";
         model = new TFLiteModel(model_meta, num_threads);
 #endif
 
 #ifdef USE_TF_SERVING
       } else if (EngineType::DELTA_EIGINE_TFSERVING ==
                  _global_engines[engine_type]) {
-        LOG_INFO << "User engine TFSERVING";
+        LOG_INFO << "User engine: [TFSERVING]";
         model = new TFServingModel(model_meta, num_threads);
 #endif
 
@@ -136,12 +136,13 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
   _inputs_data.clear();
 
   for (auto& in : ins) {
-    LOG_INFO << "Graph name: " << in._graph_name;
+    LOG_INFO << "Graph name: [" << in._graph_name << "]";
+
     auto search = _graphs.find(in._graph_name);
     if (search != _graphs.end()) {
       Graph& graph = search->second;
 
-      LOG_INFO << "input name: " << in._input_name;
+      LOG_INFO << "input name: [" << in._input_name << "]";
       try {
         Input& input = graph.get_inputs().at(in._input_name);
 
@@ -162,7 +163,7 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
                   << in._graph_name << "] graph: " << e.what();
       }
     } else {
-      LOG_FATAL << "Error, Graph " << in._graph_name << " not exist!";
+      LOG_FATAL << "Error, Graph [" << in._graph_name << "] not exist!";
     }
   }
   return DeltaStatus::STATUS_OK;
@@ -189,15 +190,15 @@ DeltaStatus Runtime::warmup() {
     for (auto& input : inputs) {
       Input& in(input.second);
 
-      LOG_INFO << in;
-      LOG_INFO << in.shape().ndim();
+      LOG_INFO << " in : " << in;
+      LOG_INFO << " ndim : " << in.shape().ndim();
 
       if (in.shape().is_partial()) {
         in.shape().set_dim(0, 1);
       }
 
-      LOG_INFO << in;
-      LOG_INFO << in.size();
+      LOG_INFO << " in : " << in;
+      LOG_INFO << " size : " << in.size();
 
       InputData in_data(in);
       in_data.feed_random_data();

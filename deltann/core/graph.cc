@@ -31,17 +31,18 @@ Graph::Graph(const YAML::Node& cfg) : _cfg(cfg) {
     _engine_type = cfg["engine"].as<string>();
     string model_path = cfg["local"]["path"].as<string>();
     DELTA_CHECK(version > 0);
-    LOG_INFO << "graph name: [" << _name << "]";
-    LOG_INFO << "server type: " << server_type;
-    LOG_INFO << "engine: " << _engine_type;
-    LOG_INFO << "version: " << version;
+
+    LOG_INFO << "graph name: [" << _name << " ]";
+    LOG_INFO << "server type: [ " << server_type << " ]";
+    LOG_INFO << "engine: [ " << _engine_type << " ]";
+    LOG_INFO << "version: [ " << version << " ]";
 
     _model_meta.server_type = server_type;
     _model_meta.version = version;
     if (server_type == "local") {
       LOG_INFO << "load local model";
       _model_meta.local.model_path = model_path + "/" + std::to_string(version);
-      LOG_INFO << "model path: " << _model_meta.local.model_path;
+      LOG_INFO << "model path: [ " << _model_meta.local.model_path << " ]";
 
       string model_type = cfg["local"]["model_type"].as<string>();
       if (model_type == kSavedModel) {
@@ -54,9 +55,10 @@ Graph::Graph(const YAML::Node& cfg) : _cfg(cfg) {
         LOG_FATAL << "Error, not support model_type " << model_type;
       }
 
-      LOG_INFO << "model type : "
+      LOG_INFO << "model type : [ "
                << static_cast<std::underlying_type<ModelType>::type>(
-                      _model_meta.local.model_type);
+                      _model_meta.local.model_type)
+	       << " ]";
 
     } else if (server_type == "remote") {
       LOG_INFO << "load remote model";
@@ -87,17 +89,18 @@ Graph::~Graph() {
 // inputs
 DeltaStatus Graph::add_inputs() {
   int in_num = _cfg["inputs"].size();
-  LOG_INFO << "inputs num is " << in_num;
+  LOG_INFO << "Inputs num : [ " << in_num << " ]";
   for (int i = 0; i < in_num; ++i) {
-    LOG_INFO << "in name is " << _cfg["inputs"][i]["name"];
-    LOG_INFO << "in dtype is " << _cfg["inputs"][i]["dtype"];
+    LOG_INFO << "inputs : " << i;
+    LOG_INFO << "\t name [ " << _cfg["inputs"][i]["name"] << " ]";
+    LOG_INFO << "\t dtype [ " << _cfg["inputs"][i]["dtype"] << " ]";
 
     string name = _cfg["inputs"][i]["name"].as<string>();
     string dtype = _cfg["inputs"][i]["dtype"].as<string>();
     int id = _cfg["inputs"][i]["id"].as<int>();
 
     if (_cfg["inputs"][i]["shape"]) {
-      LOG_INFO << "in shape is " << _cfg["inputs"][i]["shape"];
+      LOG_INFO << "\t shape [ " << _cfg["inputs"][i]["shape"] << " ]";
       YAML::Node s = _cfg["inputs"][i]["shape"];
       std::vector<int> v;
       for (std::size_t i = 0; i < s.size(); i++) {
@@ -106,7 +109,7 @@ DeltaStatus Graph::add_inputs() {
       _inputs.insert(pair<string, Input>(
           name, Input(name, id, Shape(v), delta_str_dtype(dtype))));
     } else {
-      LOG_INFO << "graph " << _name << " shape is None"
+      LOG_INFO << "graph [" << _name << "] shape is None"
                << _cfg["inputs"][i]["shape"];
       _inputs.insert(
           pair<string, Input>(name, Input(name, id, delta_str_dtype(dtype))));
@@ -119,11 +122,13 @@ DeltaStatus Graph::add_inputs() {
 // outputs
 DeltaStatus Graph::add_outputs() {
   int out_num = _cfg["outputs"].size();
-  LOG_INFO << "output num is " << out_num;
+  LOG_INFO << "Output num : [ " << out_num << " ]";
 
   for (int i = 0; i < out_num; ++i) {
-    LOG_INFO << "out name is " << _cfg["outputs"][i]["name"];
-    LOG_INFO << "out dtype is " << _cfg["outputs"][i]["dtype"];
+    LOG_INFO << "\tout name is [ " << _cfg["outputs"][i]["name"] << " ]";
+    LOG_INFO << "\tout dtype is [ " << _cfg["outputs"][i]["dtype"] << " ]";
+    LOG_INFO << "\tout shape is [ " << _cfg["outputs"][i]["shape"] << " ]";
+
     string name = _cfg["outputs"][i]["name"].as<string>();
     string dtype = _cfg["outputs"][i]["dtype"].as<string>();
 
