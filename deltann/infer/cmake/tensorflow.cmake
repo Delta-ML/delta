@@ -67,14 +67,16 @@ endmacro()
 function(find_tf)
     exec_program(python .
                  ARGS "-c \"import tensorflow as tf;\
-                           print(' ',tf.__version__,\
-                           tf.sysconfig.get_include(),\
-                           tf.sysconfig.get_lib());\"" 
+                            print(\' %s %s %s\' % (\
+                                    tf.__version__,\
+                                    tf.sysconfig.get_include(),\
+                                    tf.sysconfig.get_lib())\
+                                 );\""
                  OUTPUT_VARIABLE OUTPUT
                  RETURN_VALUE VALUE)
     if(NOT VALUE)
         string(REGEX REPLACE "[\]\r\n\'\:\;\[]+" "" NEW_OUTPUT ${OUTPUT})
-        #delta_msg(INFO STR "ccw: ${NEW_OUTPUT}")
+        delta_msg(INFO STR "ccw: ${NEW_OUTPUT}")
         string(REPLACE " " ";" OUTPUT_LIST ${NEW_OUTPUT})
         #delta_msg(INFO ITEMS ${OUTPUT_LIST})
         list(GET OUTPUT_LIST -3 TF_VERSION)
