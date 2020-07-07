@@ -42,7 +42,7 @@ if ! [ -f $MAIN_ROOT/tools/cppjieba.done ]; then
   pushd $MAIN_ROOT/tools && make cppjieba.done && popd
 fi
 
-ln -s $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/core/ops/cppjieba || { echo "build ops: link jieba error" ; exit 1; }
+ln -sf $MAIN_ROOT/tools/cppjieba $MAIN_ROOT/core/ops/cppjieba || { echo "build ops: link jieba error" ; exit 1; }
 
 # clean 
 
@@ -63,7 +63,7 @@ elif [ $target == 'deltann' ]; then
     if [ -L $ops_dir ] && [ -d $ops_dir ]; then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
     fi
-    ln -s $MAIN_ROOT/delta/layers/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
+    ln -sf $MAIN_ROOT/core/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
     
     pushd $MAIN_ROOT/tools/tensorflow
    
