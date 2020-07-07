@@ -2,26 +2,25 @@
 
 namespace tensorflow {
 
-namespace x86 {
+namespace x86 {} /* namespace x86 */
 
-} /* namespace x86 */
+// using CPUDevice = Eigen::ThreadPoolDevice;
 
-//using CPUDevice = Eigen::ThreadPoolDevice;
-
-template<>
+template <>
 TransformerCellFunctor<CPUDevice, float>::TransformerCellFunctor() {}
 
-template<>
+template <>
 TransformerCellFunctor<CPUDevice, float>::~TransformerCellFunctor() {}
 
-template<>
-void TransformerCellFunctor<CPUDevice, float>::init(TransformerParam<CPUDevice, float>& param) {}
+template <>
+void TransformerCellFunctor<CPUDevice, float>::init(
+    TransformerParam<CPUDevice, float>& param) {}
 
-template<>
-void TransformerCellFunctor<CPUDevice, float>::operator() (OpKernelContext* context, TransformerParam<CPUDevice, float>& param) {
-        printf("didi test in CPU \n");
-        exit(0);
+template <>
+void TransformerCellFunctor<CPUDevice, float>::operator()(
+    OpKernelContext* context, TransformerParam<CPUDevice, float>& param) {
+  printf("didi test in CPU \n");
+  exit(0);
 }
 
-} /* namespace tensorflow */ 
-
+} /* namespace tensorflow */

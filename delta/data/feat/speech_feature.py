@@ -193,7 +193,10 @@ def load_wav(wavpath, sr=8000):
 
 
 #pylint: disable=invalid-name
-def extract_fbank(samples, sr=8000, winlen=0.025, winstep=0.01,
+def extract_fbank(samples,
+                  sr=8000,
+                  winlen=0.025,
+                  winstep=0.01,
                   feature_size=40):
   ''' extract logfbank with delta and delta-delta
   Return:

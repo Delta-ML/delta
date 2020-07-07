@@ -35,7 +35,9 @@ class ATIS2(BaseDataSet):
     self.train_download = "origin_data/atis-2.train.w-intent.iob"
     self.dev_download = "origin_data/atis-2.dev.w-intent.iob"
     self.test_download = "origin_data/atis.test.w-intent.iob"
-    self.download_files = [self.train_download, self.dev_download, self.test_download]
+    self.download_files = [
+        self.train_download, self.dev_download, self.test_download
+    ]
     self.config_files = ['atis2_nlu_joint_lstm_crf.yml']
 
   @staticmethod
@@ -57,28 +59,30 @@ class ATIS2(BaseDataSet):
         text = text.rstrip("EOS")
         text = text.strip()
 
-        out_file.write(intent_label + "\t"
-                       + slots_label + "\t"
-                       + text + "\n")
+        out_file.write(intent_label + "\t" + slots_label + "\t" + text + "\n")
 
   def download(self) -> bool:
-      github_url = "https://github.com/yvchen/JointSLU.git"
-      res = os.system(f'cd {self.download_dir}; git clone {github_url}')
-      if res != 0:
-        return False
-      return True
+    github_url = "https://github.com/yvchen/JointSLU.git"
+    res = os.system(f'cd {self.download_dir}; git clone {github_url}')
+    if res != 0:
+      return False
+    return True
 
   def after_download(self) -> bool:
     try:
-      shutil.move(os.path.join(self.download_dir, "JointSLU/data"),
-                  os.path.join(self.download_dir, "origin_data"))
+      shutil.move(
+          os.path.join(self.download_dir, "JointSLU/data"),
+          os.path.join(self.download_dir, "origin_data"))
       shutil.rmtree(os.path.join(self.download_dir, "JointSLU"))
-      self.to_standard_format(os.path.join(self.download_dir, self.train_download),
-                              os.path.join(self.data_dir, self.train_file))
-      self.to_standard_format(os.path.join(self.download_dir, self.dev_download),
-                              os.path.join(self.data_dir, self.dev_file))
-      self.to_standard_format(os.path.join(self.download_dir, self.test_download),
-                              os.path.join(self.data_dir, self.test_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, self.train_download),
+          os.path.join(self.data_dir, self.train_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, self.dev_download),
+          os.path.join(self.data_dir, self.dev_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, self.test_download),
+          os.path.join(self.data_dir, self.test_file))
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False

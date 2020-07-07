@@ -1,15 +1,14 @@
 #include "absl/strings/match.h"
 #include "absl/strings/substitute.h"
-#include "tensorflow/core/lib/core/status.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/grappler/grappler_item.h"
 #include "tensorflow/core/grappler/optimizers/custom_graph_optimizer.h"
 #include "tensorflow/core/grappler/optimizers/custom_graph_optimizer_registry.h"
 #include "tensorflow/core/grappler/utils.h"
+#include "tensorflow/core/lib/core/status.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/protobuf/config.pb.h"
-
 
 namespace tensorflow {
 namespace grappler {

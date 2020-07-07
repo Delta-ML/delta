@@ -37,10 +37,10 @@ class MatchRnn(Model):
     if self.use_pretrained_embedding:
       self.embedding_path = config['model']['embedding_path']
       logging.info("Loading embedding file from: {}".format(
-        self.embedding_path))
+          self.embedding_path))
       self._word_embedding_init = pickle.load(open(self.embedding_path, 'rb'))
       self.embed_initializer = tf.constant_initializer(
-        self._word_embedding_init)
+          self._word_embedding_init)
     else:
       self.embed_initializer = tf.random_uniform_initializer(-0.1, 0.1)
 
@@ -66,18 +66,18 @@ class MatchRnnTextClassModel(MatchRnn):
     self.l2_reg_lambda = model_config['l2_reg_lambda']
 
     self.embed = tf.keras.layers.Embedding(
-      self.vocab_size,
-      self.embedding_size,
-      trainable=self.emb_trainable,
-      name='embdding',
-      embeddings_initializer=self.embed_initializer)
+        self.vocab_size,
+        self.embedding_size,
+        trainable=self.emb_trainable,
+        name='embdding',
+        embeddings_initializer=self.embed_initializer)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
     self.lstm_left = tf.keras.layers.LSTM(
-      self.lstm_num_units, return_sequences=True, name='lstm_left')
+        self.lstm_num_units, return_sequences=True, name='lstm_left')
     self.lstm_right = tf.keras.layers.LSTM(
-      self.lstm_num_units, return_sequences=True, name='lstm_right')
+        self.lstm_num_units, return_sequences=True, name='lstm_right')
     self.concat = tf.keras.layers.Concatenate(axis=1)
 
     self.dropout = tf.keras.layers.Dropout(rate=self.dropout_rate)
@@ -85,9 +85,9 @@ class MatchRnnTextClassModel(MatchRnn):
     self.tasktype = config['data']['task']['type']
     # if self.tasktype == "Classification":
     self.final_dense = tf.keras.layers.Dense(
-      self.num_classes,
-      activation=tf.keras.activations.linear,
-      name="final_dense")
+        self.num_classes,
+        activation=tf.keras.activations.linear,
+        name="final_dense")
 
     logging.info("Initialize MatchRnnTextClassModel done.")
 
@@ -152,11 +152,11 @@ class MatchPyramidTextClassModel(MatchRnn):
     self.matching_type = model_config['matching_type']
 
     self.embed = tf.keras.layers.Embedding(
-      self.vocab_size,
-      self.embedding_size,
-      trainable=self.emb_trainable,
-      name='embdding',
-      embeddings_initializer=self.embed_initializer)
+        self.vocab_size,
+        self.embedding_size,
+        trainable=self.emb_trainable,
+        name='embdding',
+        embeddings_initializer=self.embed_initializer)
 
     self.embed_d = tf.keras.layers.Dropout(self.dropout_rate)
 
@@ -165,10 +165,10 @@ class MatchPyramidTextClassModel(MatchRnn):
     self.conv = []
     for i in range(self.num_blocks):
       conv = tf.keras.layers.Conv2D(
-        self.kernel_count,
-        self.kernel_size,
-        padding=self.padding,
-        activation=self.activation)
+          self.kernel_count,
+          self.kernel_size,
+          padding=self.padding,
+          activation=self.activation)
       self.conv.append(conv)
 
     self.dpool = DynamicPoolingLayer(*self.dpool_size)
@@ -180,9 +180,9 @@ class MatchPyramidTextClassModel(MatchRnn):
     self.tasktype = config['data']['task']['type']
     # if self.tasktype == "Classification":
     self.final_dense = tf.keras.layers.Dense(
-      self.num_classes,
-      activation=tf.keras.activations.linear,
-      name="final_dense")
+        self.num_classes,
+        activation=tf.keras.activations.linear,
+        name="final_dense")
 
     logging.info("Initialize MatchPyramidTextClassModel done.")
 
@@ -197,19 +197,19 @@ class MatchPyramidTextClassModel(MatchRnn):
     embed_left = embedding(input_left)
     embed_right = embedding(input_right)
 
-    p_index = self._dynamic_pooling_index(input_x_left_len,
-                                          input_x_right_len,
-                                          self.max_seq_len,
-                                          self.max_seq_len,
-                                          1,
-                                          1,
-                                          )
+    p_index = self._dynamic_pooling_index(
+        input_x_left_len,
+        input_x_right_len,
+        self.max_seq_len,
+        self.max_seq_len,
+        1,
+        1,
+    )
 
     embed_cross = self.matching_layer([embed_left, embed_right])
     for i in range(self.num_blocks):
       embed_cross = self.conv[i](embed_cross)
-    embed_pool = self.dpool(
-      [embed_cross, p_index])
+    embed_pool = self.dpool([embed_cross, p_index])
 
     embed_flat = self.flatten(embed_pool)
 
@@ -218,17 +218,12 @@ class MatchPyramidTextClassModel(MatchRnn):
     scores = self.final_dense(out)
     return scores
 
-
-
-  def _dynamic_pooling_index(self, length_left,
-                             length_right,
-                             fixed_length_left: int,
-                             fixed_length_right: int,
+  def _dynamic_pooling_index(self, length_left, length_right,
+                             fixed_length_left: int, fixed_length_right: int,
                              compress_ratio_left: float,
                              compress_ratio_right: float) -> tf.Tensor:
-    def _dpool_index(one_length_left,
-                     one_length_right,
-                     fixed_length_left,
+
+    def _dpool_index(one_length_left, one_length_right, fixed_length_left,
                      fixed_length_right):
 
       logging.info("fixed_length_left: {}".format(fixed_length_left))
@@ -237,20 +232,25 @@ class MatchPyramidTextClassModel(MatchRnn):
       if one_length_left == 0:
         stride_left = fixed_length_left
       else:
-        stride_left = 1.0 * fixed_length_left / tf.cast(one_length_left, dtype=tf.float32)
+        stride_left = 1.0 * fixed_length_left / tf.cast(
+            one_length_left, dtype=tf.float32)
 
       if one_length_right == 0:
         stride_right = fixed_length_right
       else:
-        stride_right = 1.0 * fixed_length_right / tf.cast(one_length_right, dtype=tf.float32)
+        stride_right = 1.0 * fixed_length_right / tf.cast(
+            one_length_right, dtype=tf.float32)
 
-      one_idx_left = [tf.cast(i / stride_left, dtype=tf.int32)
-                      for i in range(fixed_length_left)]
-      one_idx_right = [tf.cast(i / stride_right, dtype=tf.int32)
-                       for i in range(fixed_length_right)]
+      one_idx_left = [
+          tf.cast(i / stride_left, dtype=tf.int32)
+          for i in range(fixed_length_left)
+      ]
+      one_idx_right = [
+          tf.cast(i / stride_right, dtype=tf.int32)
+          for i in range(fixed_length_right)
+      ]
       mesh1, mesh2 = tf.meshgrid(one_idx_left, one_idx_right)
-      index_one = tf.transpose(
-        tf.stack([mesh1, mesh2]), (2, 1, 0))
+      index_one = tf.transpose(tf.stack([mesh1, mesh2]), (2, 1, 0))
       return index_one
 
     index = []
@@ -260,16 +260,19 @@ class MatchPyramidTextClassModel(MatchRnn):
     if fixed_length_right % compress_ratio_right != 0:
       dpool_bias_right = 1
     cur_fixed_length_left = int(
-      fixed_length_left // compress_ratio_left) + dpool_bias_left
+        fixed_length_left // compress_ratio_left) + dpool_bias_left
     cur_fixed_length_right = int(
-      fixed_length_right // compress_ratio_right) + dpool_bias_right
+        fixed_length_right // compress_ratio_right) + dpool_bias_right
     logging.info("length_left: {}".format(length_left))
     logging.info("length_right: {}".format(length_right))
     logging.info("cur_fixed_length_left: {}".format(cur_fixed_length_left))
     logging.info("cur_fixed_length_right: {}".format(cur_fixed_length_right))
 
-    index = tf.map_fn(lambda x: _dpool_index(x[0], x[1], cur_fixed_length_left, cur_fixed_length_right),
-                      (length_left, length_right), dtype=tf.int32)
+    index = tf.map_fn(
+        lambda x: _dpool_index(x[0], x[1], cur_fixed_length_left,
+                               cur_fixed_length_right),
+        (length_left, length_right),
+        dtype=tf.int32)
 
     logging.info("index: {}".format(index))
 

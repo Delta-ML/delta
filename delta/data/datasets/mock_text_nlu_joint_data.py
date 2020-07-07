@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## Data scale introduction
 
@@ -43,15 +42,18 @@ class MockTextNLUJointData(BaseDataSet):
     self.text_vocab = "text_vocab.txt"
 
     # samples with label
-    self.samples = ["0\tO O O O\tmy feeling is low",
-               "1\tO O O O B-ORG\ti am happy in the kfc"]
+    self.samples = [
+        "0\tO O O O\tmy feeling is low",
+        "1\tO O O O B-ORG\ti am happy in the kfc"
+    ]
 
-    self.text_vocab_list = ["<unk>\t0", "</s>\t1", "i\t2", "am\t3", "kfc\t4", "my\t5",
-                       "feeling\t6", "happy\t7", "is\t8", "low\t9", "in\t10", "the\t11"]
+    self.text_vocab_list = [
+        "<unk>\t0", "</s>\t1", "i\t2", "am\t3", "kfc\t4", "my\t5", "feeling\t6",
+        "happy\t7", "is\t8", "low\t9", "in\t10", "the\t11"
+    ]
 
   def download(self) -> bool:
     return True
-
 
   def after_download(self) -> bool:
     try:
@@ -60,8 +62,8 @@ class MockTextNLUJointData(BaseDataSet):
       test_file_path = os.path.join(self.data_dir, self.test_file)
       text_vocab_file = os.path.join(self.data_dir, self.text_vocab)
 
-      mock_data(self.samples, train_file_path, dev_file_path,
-                test_file_path, text_vocab_file, self.text_vocab_list)
+      mock_data(self.samples, train_file_path, dev_file_path, test_file_path,
+                text_vocab_file, self.text_vocab_list)
 
     except Exception as e:
       logging.warning(traceback.format_exc())

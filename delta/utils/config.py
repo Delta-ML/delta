@@ -49,6 +49,7 @@ def config_join_project_path(project_dir: str, config: dict,
     logging.warning(f"key_path: {key_path} error.")
     raise TypeError("path is not str or list!")
 
+
 def config_join_project_dir(config):
   """operations after the config been loaded."""
   if 'data' not in config or "project_dir" not in config['data']:
@@ -77,15 +78,19 @@ def config_join_project_dir(config):
       file_key_paths.append(['solver', 'metrics', 'res_file'])
     for j, cal in enumerate(metric['cals']):
       if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
-        file_key_paths.append(['solver', 'metrics', 'cals', j, 'arguments', 'label_vocab_path'])
+        file_key_paths.append(
+            ['solver', 'metrics', 'cals', j, 'arguments', 'label_vocab_path'])
   else:
     for i, metric in enumerate(config['solver']['metrics']):
       for j, cal in enumerate(metric['cals']):
-        if cal['arguments'] is not None and 'label_vocab_path' in cal['arguments']:
-          file_key_paths.append(['solver', 'metrics', i, 'cals', j, 'arguments', 'label_vocab_path'])
+        if cal['arguments'] is not None and 'label_vocab_path' in cal[
+            'arguments']:
+          file_key_paths.append([
+              'solver', 'metrics', i, 'cals', j, 'arguments', 'label_vocab_path'
+          ])
 
   if isinstance(config['solver']['postproc'], list):
-    for i,postproc in enumerate(config['solver']['postproc']):
+    for i, postproc in enumerate(config['solver']['postproc']):
       file_key_paths.append(['solver', 'postproc', i, 'res_file'])
   else:
     file_key_paths.append(['solver', 'postproc', 'res_file'])

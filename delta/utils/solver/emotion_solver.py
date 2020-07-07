@@ -155,7 +155,10 @@ class EmoKerasSolver(AsrSolver):
   def export_model(self):
     logging.fatal("Not Implemented")
 
-  def get_metric_callbacks(self, eval_gen, eval_task, monitor_used,
+  def get_metric_callbacks(self,
+                           eval_gen,
+                           eval_task,
+                           monitor_used,
                            decoder_type=None):
     ''' metric_specific callbacks'''
     callbacks = []
@@ -167,4 +170,3 @@ class EmoKerasSolver(AsrSolver):
 
     logging.info(f"CallBack: Val Metric on {monitor_used}")
     return callbacks
-

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## Description
 Yahoo answers are obtained from (Zhang et al., 2015). This is a topic classification task with 10 classes: Society & Culture,
@@ -79,13 +78,16 @@ class YahooAnswer(BaseDataSet):
     try:
       download_file = os.path.join(self.download_dir, "yahoo_answers_csv.tgz")
       os.system(f"tar zxvf {download_file}  -C {self.download_dir}")
-      self.to_standard_format(os.path.join(self.download_dir, "yahoo_answers_csv/train.csv"),
-                              os.path.join(self.data_dir, "train_all.txt"))
-      self.to_standard_format(os.path.join(self.download_dir, "yahoo_answers_csv/test.csv"),
-                              os.path.join(self.data_dir, "test.txt"))
-      split_train_dev(os.path.join(self.data_dir, "train_all.txt"),
-                      os.path.join(self.data_dir, "train.txt"),
-                      os.path.join(self.data_dir, "dev.txt"), 0.1)
+      self.to_standard_format(
+          os.path.join(self.download_dir, "yahoo_answers_csv/train.csv"),
+          os.path.join(self.data_dir, "train_all.txt"))
+      self.to_standard_format(
+          os.path.join(self.download_dir, "yahoo_answers_csv/test.csv"),
+          os.path.join(self.data_dir, "test.txt"))
+      split_train_dev(
+          os.path.join(self.data_dir, "train_all.txt"),
+          os.path.join(self.data_dir, "train.txt"),
+          os.path.join(self.data_dir, "dev.txt"), 0.1)
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False

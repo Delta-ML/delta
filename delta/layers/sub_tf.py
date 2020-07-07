@@ -28,16 +28,17 @@ class PositionEmbedding(Layer):
     PositionEmbedding represents the positional information of tokens
     consisting of two optional types: constant(untrainable) and trainable.
   """
+
   def __init__(self, max_len, embed_dim, use_const, name, **kwargs):
     super().__init__(**kwargs)
     self.max_len = max_len
     self.embed_dim = embed_dim
     self.use_const = use_const
     self.pos_name = name
-    self.pos_embed = self.get_pos_embedding_matrix(self.max_len,
-                                                   self.embed_dim,
+    self.pos_embed = self.get_pos_embedding_matrix(self.max_len, self.embed_dim,
                                                    self.use_const,
                                                    self.pos_name)
+
   @staticmethod
   def get_pos_embedding_matrix(max_len, embed_dim, use_const, name):
     """
@@ -52,9 +53,10 @@ class PositionEmbedding(Layer):
     # First part of the PE function: sin and cos argument
     if use_const:
       pos_embed = np.array([[
-        pos / np.power(10000, (i - i % 2) / embed_dim)
-        for i in range(embed_dim)
-      ] for pos in range(max_len)])
+          pos / np.power(10000, (i - i % 2) / embed_dim)
+          for i in range(embed_dim)
+      ]
+                            for pos in range(max_len)])
 
       # Second part, apply the cosine to even columns and sin to odds.
       pos_embed[:, 0::2] = np.sin(pos_embed[:, 0::2])  # dim 2i
@@ -86,6 +88,7 @@ class PositionwiseFeedForward(Layer):
   """
   A two-layer Feed-Forward-Network.
   """
+
   def __init__(self, d_model, dff, act_func, **kwargs):
     super().__init__(**kwargs)
     self.dense1 = tf.keras.layers.Dense(dff, activation=act_func)
@@ -108,6 +111,7 @@ class MultiHeadAttention(Layer):
    Multi-headed attention is based on "Attention
   is all you Need" (https://arxiv.org/pdf/1706.03762.pdf).
   """
+
   def __init__(self, hidden_size, num_heads, **kwargs):
     super().__init__(**kwargs)
     self.hidden_size, self.num_heads = hidden_size, num_heads
@@ -157,21 +161,29 @@ class MultiHeadAttention(Layer):
     k = self.wk(k)  # (batch_size, seq_len_k, hidden_size)
     v = self.wv(v)  # (batch_size, seq_len_v, hidden_size)
 
-    q = self.split_heads(q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
-    k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
-    v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
+    q = self.split_heads(
+        q, batch_size)  # (batch_size, num_heads, seq_len_q, depth)
+    k = self.split_heads(
+        k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
+    v = self.split_heads(
+        v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
 
     # scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)
     # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
     scaled_attention, attention_weights = self.scaled_dot_product_attention(
-      q, k, v, mask)
+        q, k, v, mask)
 
-    scaled_attention = tf.transpose(scaled_attention, perm=[0, 2, 1, 3])  # (batch_size, seq_len_q, num_heads, depth)
+    scaled_attention = tf.transpose(
+        scaled_attention, perm=[0, 2, 1,
+                                3])  # (batch_size, seq_len_q, num_heads, depth)
 
-    concat_attention = tf.reshape(scaled_attention,
-                                  (batch_size, -1, self.hidden_size))  # (batch_size, seq_len_q, hidden_size)
+    concat_attention = tf.reshape(
+        scaled_attention,
+        (batch_size, -1,
+         self.hidden_size))  # (batch_size, seq_len_q, hidden_size)
 
-    output = self.dense(concat_attention)  # (batch_size, seq_len_q, hidden_size)
+    output = self.dense(
+        concat_attention)  # (batch_size, seq_len_q, hidden_size)
 
     return output, attention_weights
 
@@ -190,7 +202,8 @@ class MultiHeadAttention(Layer):
       attention_weights: (batch_size, num_heads, seq_len_q, seq_len_k)
     """
 
-    matmul_qk = tf.matmul(q, k, transpose_b=True)  # (batch_size, seq_len_q, seq_len_k)
+    matmul_qk = tf.matmul(
+        q, k, transpose_b=True)  # (batch_size, seq_len_q, seq_len_k)
 
     # Scaled
     dk = tf.cast(tf.shape(k)[-1], tf.float32)
@@ -201,7 +214,8 @@ class MultiHeadAttention(Layer):
       scaled_attention_logits += (mask * -1e9)
 
     # Normalized
-    attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)  # (batch_size, seq_len_q, seq_len_k)
+    attention_weights = tf.nn.softmax(
+        scaled_attention_logits, axis=-1)  # (batch_size, seq_len_q, seq_len_k)
 
     # Weighted sum
     output = tf.matmul(attention_weights, v)  # (batch_size, seq_len_q, depth_v)

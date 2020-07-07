@@ -28,7 +28,6 @@ from delta.utils.register import registers
 from delta.layers.utils import compute_sen_lens
 from delta import utils
 
-
 # pylint: disable=too-many-instance-attributes
 
 
@@ -47,10 +46,10 @@ class TextMatchTask(TextTask):
 
     self.paths = self.data_config[mode]['paths']
     self.paths_after_pre_process = [
-      one_path + ".after" for one_path in self.paths
+        one_path + ".after" for one_path in self.paths
     ]
     self.infer_no_label = self.config["data"][utils.INFER].get(
-      'infer_no_label', False)
+        'infer_no_label', False)
     self.infer_without_label = bool(mode == utils.INFER and self.infer_no_label)
 
     self.prepare()
@@ -61,26 +60,26 @@ class TextMatchTask(TextTask):
     if self.infer_without_label:
       column_num = 2
       text_ds_left, text_ds_right = load_textline_dataset(
-        self.paths_after_pre_process, column_num)
+          self.paths_after_pre_process, column_num)
     else:
       column_num = 3
       label, text_ds_left, text_ds_right = load_textline_dataset(
-        self.paths_after_pre_process, column_num)
+          self.paths_after_pre_process, column_num)
 
     input_pipeline_func = self.get_input_pipeline(for_export=False)
     text_ds_left = text_ds_left.map(
-      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
     text_ds_right = text_ds_right.map(
-      input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
+        input_pipeline_func, num_parallel_calls=self.num_parallel_calls)
     text_size_ds_left = text_ds_left.map(
-      lambda x: compute_sen_lens(x, padding_token=0),
-      num_parallel_calls=self.num_parallel_calls)
+        lambda x: compute_sen_lens(x, padding_token=0),
+        num_parallel_calls=self.num_parallel_calls)
     text_size_ds_right = text_ds_right.map(
-      lambda x: compute_sen_lens(x, padding_token=0),
-      num_parallel_calls=self.num_parallel_calls)
+        lambda x: compute_sen_lens(x, padding_token=0),
+        num_parallel_calls=self.num_parallel_calls)
     text_ds_left_right = tf.data.Dataset.zip((text_ds_left, text_ds_right))
     text_len_left_right = tf.data.Dataset.zip(
-      (text_size_ds_left, text_size_ds_right))
+        (text_size_ds_left, text_size_ds_right))
     if self.infer_without_label:
       data_set_left_right = text_ds_left_right
     else:
@@ -91,7 +90,7 @@ class TextMatchTask(TextTask):
 
     self.config['data']['vocab_size'] = vocab_size
     self.config['data']['{}_data_size'.format(self.mode)] = get_file_len(
-      self.paths_after_pre_process)
+        self.paths_after_pre_process)
 
     return data_set_left_right, text_len_left_right
 
@@ -102,7 +101,9 @@ class TextMatchTask(TextTask):
     if not self.infer_without_label:
       feature_shapes.append(tf.TensorShape([self.num_classes]))
 
-    feature_shapes = [tuple(feature_shapes), (tf.TensorShape([]), tf.TensorShape([]))]
+    feature_shapes = [
+        tuple(feature_shapes), (tf.TensorShape([]), tf.TensorShape([]))
+    ]
 
     if len(feature_shapes) == 1:
       return feature_shapes[0]
@@ -116,30 +117,30 @@ class TextMatchTask(TextTask):
     self.config['data']['vocab_size'] = vocab_size
 
     input_sent_left = tf.placeholder(
-      shape=(None,), dtype=tf.string, name="input_sent_left")
+        shape=(None,), dtype=tf.string, name="input_sent_left")
     input_sent_right = tf.placeholder(
-      shape=(None,), dtype=tf.string, name="input_sent_right")
+        shape=(None,), dtype=tf.string, name="input_sent_right")
     input_pipeline_func = self.get_input_pipeline(for_export=True)
 
     token_ids_left = input_pipeline_func(input_sent_left)
     token_ids_right = input_pipeline_func(input_sent_right)
     token_ids_len_left = tf.map_fn(
-      lambda x: compute_sen_lens(x, padding_token=0), token_ids_left)
+        lambda x: compute_sen_lens(x, padding_token=0), token_ids_left)
     token_ids_len_right = tf.map_fn(
-      lambda x: compute_sen_lens(x, padding_token=0), token_ids_right)
+        lambda x: compute_sen_lens(x, padding_token=0), token_ids_right)
 
     export_data = {
-      "export_inputs": {
-        "input_sent_left": input_sent_left,
-        "input_sent_right": input_sent_right,
-      },
-      "model_inputs": {
-        "input_x_left": token_ids_left,
-        "input_x_right": token_ids_right,
-        "input_x_left_len": token_ids_len_left,
-        "input_x_right_len": token_ids_len_right,
-        "input_x_len": [token_ids_len_left, token_ids_len_right]
-      }
+        "export_inputs": {
+            "input_sent_left": input_sent_left,
+            "input_sent_right": input_sent_right,
+        },
+        "model_inputs": {
+            "input_x_left": token_ids_left,
+            "input_x_right": token_ids_right,
+            "input_x_left_len": token_ids_len_left,
+            "input_x_right_len": token_ids_len_right,
+            "input_x_len": [token_ids_len_left, token_ids_len_right]
+        }
     }
     return export_data
 
@@ -153,8 +154,8 @@ class TextMatchTask(TextTask):
         # shuffle batch size and repeat
         logging.debug("shuffle and repeat dataset ...")
         text_ds_left_right = text_ds_left_right.apply(
-          tf.data.experimental.shuffle_and_repeat(
-            buffer_size=self.shuffle_buffer_size, count=None))
+            tf.data.experimental.shuffle_and_repeat(
+                buffer_size=self.shuffle_buffer_size, count=None))
       else:
         logging.debug("repeat dataset ...")
         text_ds_left_right = text_ds_left_right.repeat(count=None)
@@ -165,35 +166,37 @@ class TextMatchTask(TextTask):
     # logging.debug("data_set_left_right：{}".format(data_set_left_right))
 
     text_ds_left_right = text_ds_left_right.padded_batch(
-      batch_size=self.batch_size, padded_shapes=feature_shape)
+        batch_size=self.batch_size, padded_shapes=feature_shape)
 
     text_ds_left_right = text_ds_left_right.prefetch(self.num_prefetch_batch)
 
     iterator = text_ds_left_right.make_initializable_iterator()
     # pylint: disable=unused-variable
     if self.infer_without_label:
-      (input_x_left, input_x_right), (input_x_left_len, input_x_right_len) = iterator.get_next()
+      (input_x_left, input_x_right), (input_x_left_len,
+                                      input_x_right_len) = iterator.get_next()
     else:
-      ((input_x_left, input_x_right), input_y), (input_x_left_len, input_x_right_len) = iterator.get_next()
+      ((input_x_left, input_x_right),
+       input_y), (input_x_left_len, input_x_right_len) = iterator.get_next()
 
-    input_x_dict = collections.OrderedDict([("input_x_left", input_x_left),
-                                            ("input_x_right", input_x_right),
-                                            ("input_x_left_len", input_x_left_len),
-                                            ("input_x_right_len", input_x_right_len),
-                                            ])
+    input_x_dict = collections.OrderedDict([
+        ("input_x_left", input_x_left),
+        ("input_x_right", input_x_right),
+        ("input_x_left_len", input_x_left_len),
+        ("input_x_right_len", input_x_right_len),
+    ])
     input_x_len = collections.OrderedDict([
-      ("input_x_left_len", input_x_left_len),
-      ("input_x_right_len", input_x_right_len)
+        ("input_x_left_len", input_x_left_len),
+        ("input_x_right_len", input_x_right_len)
     ])
 
     return_dict = {
-      "input_x_dict": input_x_dict,
-      "input_x_len": input_x_len,
-      "iterator": iterator,
+        "input_x_dict": input_x_dict,
+        "input_x_len": input_x_len,
+        "iterator": iterator,
     }
 
     if not self.infer_without_label:
       return_dict["input_y_dict"] = collections.OrderedDict([("input_y",
                                                               input_y)])
     return return_dict
-

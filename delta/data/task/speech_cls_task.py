@@ -47,6 +47,7 @@ def _process_text(text):
   text = re.findall(r"[\w']+|[.,!?;]", text.lower())
   return text
 
+
 #pylint: disable=too-many-public-methods,too-many-instance-attributes
 @registers.task.register
 class SpeechClsTask(SpeechTask):
@@ -66,8 +67,8 @@ class SpeechClsTask(SpeechTask):
 
     self._data_path = self.dataconf[mode]['paths']
     logging.info("data_path : {}".format(self._data_path))
-    if 'segments' in self.dataconf[
-        mode] and self.dataconf[mode]['segments'] is not None:
+    if 'segments' in self.dataconf[mode] and self.dataconf[mode][
+        'segments'] is not None:
       self._textgrid_path = self.dataconf[mode]['segments']
     else:
       self._textgrid_path = []
@@ -886,7 +887,6 @@ class IEmoCapTask(SpeechClsTask, tf.keras.utils.Sequence):
     self.subset = subset
     assert self.subset in ('impro', 'script', 'all')
     logging.info(f"using subset data: {self.subset}, shuffle: {self.shuffle}")
-
 
     self.examples_meta = []
     for _, (filename, examples) in enumerate(self.data_items):

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## References
 
@@ -70,9 +69,10 @@ class Conll2003(BaseDataSet):
     self.dev_file = "dev.txt"
     self.test_file = "test.txt"
     self.data_files = [self.train_file, self.test_file, self.dev_file]
-    self.config_files = ["conll_2003_seq_label_bert.yml",
-                         "conll_2003_seq_label_elmo.yml",
-                         "conll_2003_seq_label_lstm_crf.yml"]
+    self.config_files = [
+        "conll_2003_seq_label_bert.yml", "conll_2003_seq_label_elmo.yml",
+        "conll_2003_seq_label_lstm_crf.yml"
+    ]
     self.download_files = [self.train_file, self.test_file, self.dev_file]
 
   def download(self) -> bool:
@@ -91,35 +91,38 @@ class Conll2003(BaseDataSet):
   @staticmethod
   def to_standard_format(input_file, output_file):
 
-      logging.info("Change data format: {}".format(input_file))
-      words, labels = [], []
-      with open(output_file, "w", encoding="utf-8") as output_file:
-        with open(input_file, "r", encoding="utf-8") as file_input:
-          for line in file_input.readlines():
-            word = line.strip().split(' ')[0]
-            label = line.strip().split(' ')[-1]
-            # here we dont do "DOCSTART" check
-            if len(line.strip()) == 0:
-              l = [label for label in labels if not label]
-              w = [word for word in words if not word]
-              assert len(l) == len(w)
-              l, w = ' '.join(l), ' '.join(w)
-              output_file.write(l + "\t" + w + "\n")
-              words, labels = [], []
-            words.append(word)
-            labels.append(label)
-      logging.info("Change data done: {}".format(output_file))
+    logging.info("Change data format: {}".format(input_file))
+    words, labels = [], []
+    with open(output_file, "w", encoding="utf-8") as output_file:
+      with open(input_file, "r", encoding="utf-8") as file_input:
+        for line in file_input.readlines():
+          word = line.strip().split(' ')[0]
+          label = line.strip().split(' ')[-1]
+          # here we dont do "DOCSTART" check
+          if len(line.strip()) == 0:
+            l = [label for label in labels if not label]
+            w = [word for word in words if not word]
+            assert len(l) == len(w)
+            l, w = ' '.join(l), ' '.join(w)
+            output_file.write(l + "\t" + w + "\n")
+            words, labels = [], []
+          words.append(word)
+          labels.append(label)
+    logging.info("Change data done: {}".format(output_file))
 
   def after_download(self) -> bool:
     try:
       download_file = os.path.join(self.download_dir, "yahoo_answers_csv.tgz")
       os.system(f"tar zxvf {download_file}  -C {self.download_dir}")
-      self.to_standard_format(os.path.join(self.download_dir, self.train_file),
-                              os.path.join(self.data_dir, self.train_file))
-      self.to_standard_format(os.path.join(self.download_dir, self.dev_file),
-                              os.path.join(self.data_dir, self.dev_file))
-      self.to_standard_format(os.path.join(self.download_dir, self.test_file),
-                              os.path.join(self.data_dir, self.test_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, self.train_file),
+          os.path.join(self.data_dir, self.train_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, self.dev_file),
+          os.path.join(self.data_dir, self.dev_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, self.test_file),
+          os.path.join(self.data_dir, self.test_file))
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False

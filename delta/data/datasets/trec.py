@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """
 ## References
 
@@ -91,10 +90,12 @@ class TREC(BaseDataSet):
 
   def after_download(self) -> bool:
     try:
-      self.to_standard_format(os.path.join(self.download_dir, "train"),
-                              os.path.join(self.data_dir, self.train_file))
-      self.to_standard_format(os.path.join(self.download_dir, "test"),
-                              os.path.join(self.data_dir, self.test_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, "train"),
+          os.path.join(self.data_dir, self.train_file))
+      self.to_standard_format(
+          os.path.join(self.download_dir, "test"),
+          os.path.join(self.data_dir, self.test_file))
     except Exception as e:
       logging.warning(traceback.format_exc())
       return False

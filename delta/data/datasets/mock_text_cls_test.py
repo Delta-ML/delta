@@ -20,7 +20,6 @@ import delta.compat as tf
 from delta.data.datasets.mock_text_cls_data import MockTextCLSData
 
 
-
 class MockTextClsDataTest(tf.test.TestCase):
   """mock cls data class for cls task."""
 
