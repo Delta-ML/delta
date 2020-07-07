@@ -64,11 +64,11 @@ elif [ $target == 'deltann' ]; then
         unlink $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops/ops
     fi
     ln -sf $MAIN_ROOT/core/ops $MAIN_ROOT/tools/tensorflow/tensorflow/core/user_ops
-    
+
+    python3 gen_build.py
     pushd $MAIN_ROOT/tools/tensorflow
-   
     bazel build --verbose_failures -c opt //tensorflow/core/user_ops/ops:x_ops.so || { echo "compile custom ops error"; exit 1; }
-    
+
     cp bazel-bin/tensorflow/core/user_ops/ops/*.so $MAIN_ROOT/dpl/lib/custom_ops
     cp $MAIN_ROOT/dpl/lib/custom_ops/x_ops.so $MAIN_ROOT/core/ops/
 
