@@ -159,8 +159,9 @@ apt.done:
 	$(PIP_INSTALL) --user shyaml meson ninja
 	touch apt.done
 
-abseil.done: 
+abseil.done:
 	test -d abseil-cpp || git clone --depth=1 https://github.com/abseil/abseil-cpp.git
+	test -d googletest || git clone --depth=1 https://github.com/google/googletest.git
 	touch abseil.done
 
 tensorflow-src.done:
@@ -188,9 +189,7 @@ jsoncpp.done:
 
 mbedtls.done:
 	if ! [ -d mbedtls ]; then git clone --depth=1 --recursive https://github.com/ARMmbed/mbedtls.git; fi
-	cd mbedtls/crypto && make clean
 	cd mbedtls && make clean
-	cd mbedtls/crypto && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	cd mbedtls && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	touch mbedtls.done
 
@@ -210,9 +209,7 @@ go.done:
 	touch go.done
 
 pybind11.done:
-	if ! [ -d ../deltann/infer/third_party/pybind11 ];then
-		cd .. && git submodule update --init --recursive
-	fi
+	if [ -d ../deltann/infer/third_party/pybind11 ];then cd .. && git submodule update --init --recursive; fi
 	touch pybind11.done
 
 deltann-clean:

@@ -37,9 +37,10 @@ mock
 docs/_build
 
 # layers
-delta/layers/ops/cppjieba
-delta/layers/ops/gen
-delta/layers/ops/*.so
+core/ops/cppjieba
+core/ops/gen
+core/ops/*.so
+core/ops/BUILD
 
 # tools related
 tools/test/gen

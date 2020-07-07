@@ -152,7 +152,7 @@ function compile_custom_ops(){
           exit 1
     fi
 
-    pushd ${MAIN_ROOT}/delta/layers/ops/
+    pushd ${MAIN_ROOT}/core/ops/
     bash build.sh ${target} || { echo "build ops error"; exit 1; }
     popd
     echo "Compile custom ops successfully."
