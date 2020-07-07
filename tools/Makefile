@@ -187,10 +187,11 @@ jsoncpp.done:
 	touch jsoncpp.done
 
 mbedtls.done:
+	# commit b23abcb38df6b38a50fd5cbd2e409811b0dcc67e has `crypto` dir
 	if ! [ -d mbedtls ]; then git clone --depth=1 --recursive https://github.com/ARMmbed/mbedtls.git; fi
-	cd mbedtls/crypto && make clean
+	#cd mbedtls/crypto && make clean
 	cd mbedtls && make clean
-	cd mbedtls/crypto && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
+	#cd mbedtls/crypto && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	cd mbedtls && SHARED=1 CLAFGS='-O2 -Werror -fPIC' make && $(SUDO) make install
 	touch mbedtls.done
 
