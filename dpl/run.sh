@@ -99,7 +99,8 @@ function compile_tensorflow(){
   pushd ${MAIN_ROOT}/tools/tensorflow
 
   if [ ${target} == 'linux' ] && [ ${arch} == 'x86_64' ];then
-    ${BAZEL} build ${OPTIONS} //tensorflow:libtensorflow_cc.so || exit 1
+    #${BAZEL} build ${OPTIONS} //tensorflow:libtensorflow_cc.so || exit 1
+    ${BAZEL} build ${OPTIONS} //tensorflow:tensorflow_cc || exit 1
     echo "Compile tensorflow cpu successfully."
   elif [ ${target} == 'linux' ] && [ ${arch} == 'gpu' ];then
     pushd ${MAIN_ROOT}/tools/tensorflow

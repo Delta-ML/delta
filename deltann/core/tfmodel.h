@@ -35,7 +35,6 @@ namespace delta {
 namespace core {
 
 using tensorflow::SavedModelBundleLite;
-using tensorflow::Status;
 using tensorflow::Tensor;
 
 class TFModel : public BaseModel {
@@ -45,8 +44,8 @@ class TFModel : public BaseModel {
           std::vector<OutputData>* output) override;
 
  private:
-  Status load_from_saved_model();
-  Status load_from_frozen_graph();
+  DeltaStatus load_from_saved_model();
+  DeltaStatus load_from_frozen_graph();
   void feed_tensor(Tensor* tensor, const InputData& input);
   void fetch_tensor(const Tensor& tensor, OutputData* output);
   int set_feeds(std::vector<std::pair<string, Tensor>>* feeds,

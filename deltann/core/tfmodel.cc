@@ -24,6 +24,7 @@ limitations under the License.
 #include "tensorflow/c/c_api.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/strings/str_util.h"
 
 namespace delta {
 namespace core {
@@ -36,7 +37,7 @@ tensorflow::DataType tf_data_type(DataType type) {
     case DataType::DELTA_INT32:
       return tensorflow::DataTypeToEnum<int>::v();
     case DataType::DELTA_CHAR:
-      return tensorflow::DataTypeToEnum<string>::v();
+      return tensorflow::DataTypeToEnum<tensorflow::tstring>::v();
     default:
       LOG_FATAL << "Not support dtype:" << delta_dtype_str(type);
       return tensorflow::DataType::DT_INVALID;
@@ -84,7 +85,7 @@ void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
     case DataType::DELTA_CHAR: {
       char* cstr = static_cast<char*>(input.ptr());
       std::string str = std::string(cstr);
-      tensor->scalar<std::string>()() = str;
+      tensor->scalar<tensorflow::tstring>()() = str;
       break;
     }
     default:
@@ -182,7 +183,7 @@ int TFModel::run(const std::vector<InputData>& inputs,
   // Session run
   RunOptions run_options;
   RunMetadata run_meta;
-  Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
+  tensorflow::Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
                                        &(output_tensors), &(run_meta));
   if (!s.ok()) {
     LOG_FATAL << "Error, TF Model run failed: " << s;
@@ -195,12 +196,12 @@ int TFModel::run(const std::vector<InputData>& inputs,
   return 0;
 }
 
-Status TFModel::load_from_frozen_graph() {
-  Status s;
+DeltaStatus TFModel::load_from_frozen_graph() {
+  tensorflow::Status s;
   std::string path = _model_meta.local.model_path;
   if (path.empty()) {
     LOG_FATAL << "model path is empty" << path;
-    return s;
+    return DeltaStatus::STATUS_ERROR;
   }
   std::string model_name = path + "/frozen_graph.pb";
 
@@ -209,8 +210,8 @@ Status TFModel::load_from_frozen_graph() {
   // Read graph from disk
   s = ReadBinaryProto(tensorflow::Env::Default(), model_name, graph_def.get());
   if (!s.ok()) {
-    LOG_FATAL << "Could not create TensorFlow Graph: " << s;
-    return s;
+    LOG_FATAL << "Could not create TensorFlow Graph: " << s.error_message();
+    return DeltaStatus::STATUS_ERROR;
   }
   LOG_INFO << "Loaded Graph from " << model_name;
 
@@ -232,8 +233,8 @@ Status TFModel::load_from_frozen_graph() {
   legacy_bundle.session.reset(tensorflow::NewSession(options));
   s = legacy_bundle.GetSession()->Create(*(graph_def.get()));
   if (!s.ok()) {
-    LOG_FATAL << "Could not create TensorFlow Session: " << s;
-    return s;
+    LOG_FATAL << "Could not create TensorFlow Session: " << s.error_message();
+    return DeltaStatus::STATUS_ERROR;
   }
   // do not call GetSignatures
   _bundle = tensorflow::SavedModelBundleLite(
@@ -241,10 +242,10 @@ Status TFModel::load_from_frozen_graph() {
       std::move(*legacy_bundle.meta_graph_def.mutable_signature_def()));
   LOG_INFO << "Created Session.";
 
-  return Status::OK();
+  return DeltaStatus::STATUS_OK;
 }
 
-Status TFModel::load_from_saved_model() {
+DeltaStatus TFModel::load_from_saved_model() {
   // create session options
   SessionOptions options;
   ConfigProto& config = options.config;
@@ -262,16 +263,16 @@ Status TFModel::load_from_saved_model() {
   LOG_INFO << "load saved model from path: " << path;
   if (!MaybeSavedModelDirectory(path)) {
     LOG_FATAL << "SaveModel not in :" << path;
-    return Status(NotFound("Not a saved model dir"));
+    return DeltaStatus::STATUS_ERROR; 
   }
 
-  Status s = LoadSavedModel(options, run_options, path,
+  tensorflow::Status s = LoadSavedModel(options, run_options, path,
                             {tensorflow::kSavedModelTagServe}, &_bundle);
   if (!s.ok()) {
-    LOG_FATAL << "Failed Load model from saved_model.pb : " << s;
+    LOG_FATAL << "Failed Load model from saved_model.pb : " << s.error_message();
   }
 
-  return Status::OK();
+  return DeltaStatus::STATUS_OK;
 }
 
 }  // namespace core
