@@ -41,13 +41,12 @@ int main(int argc, char** argv) {
   int in_num = 1;
   Input ins[1] = {0};
   const char* text = "I'm angry.";
-  int bytes = sizeof(text) + 1;
+  int bytes = strlen(text) + 1;
   char* buf = (char*)malloc(bytes);
   memset(buf, 0, bytes);
   memcpy(buf, text, bytes);
-  // ins[0].ptr = reinterpret_cast<void*>(&text);
   ins[0].ptr = reinterpret_cast<void*>(buf);
-  ins[0].size = sizeof(text) + 1;
+  ins[0].nelms = strlen(text) + 1;
   ins[0].input_name = "input_sentence";
   ins[0].graph_name = "default";
 

@@ -42,26 +42,26 @@ using std::vector;
 
 struct In {
   // Input for Constant TensorShape
-  In(string graph_name, string input_name, const void* ptr, std::size_t size)
+  In(string graph_name, string input_name, const void* ptr, std::size_t nelms)
       : _graph_name(graph_name),
         _input_name(input_name),
         _ptr(ptr),
-        _size(size) {}
+        _nelms(nelms) {}
 
   // Input for PartialTensorShape
   In(string graph_name, string input_name, const int* shape, const int ndims,
-     const void* ptr, std::size_t size)
+     const void* ptr, std::size_t nelms)
       : _graph_name(graph_name),
         _input_name(input_name),
         _ptr(ptr),
-        _size(size) {
+        _nelms(nelms) {
     _shape = Shape(shape, ndims);
   }
 
   std::string _graph_name;
   std::string _input_name;
   const void* _ptr;
-  std::size_t _size;
+  std::size_t _nelms; // elements 
   Shape _shape;
 };
 

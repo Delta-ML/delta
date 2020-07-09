@@ -83,7 +83,7 @@ void Shape::set_dim(int dim, int val) {
   _data_aux[dim] = val;
 }
 
-size_t Shape::size(void) const {
+size_t Shape::nelms(void) const {
   if (_ndim < 1) {
     return 0;
   } else {

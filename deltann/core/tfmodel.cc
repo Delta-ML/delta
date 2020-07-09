@@ -100,8 +100,8 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
   // copy data
   std::size_t num_elements = tensor.NumElements();
   std::size_t total_bytes = tensor.TotalBytes();
-  DELTA_CHECK(num_elements == output->size())
-      << "expect " << num_elements << "elems, but given " << output->size();
+  DELTA_CHECK(num_elements == output->nelms())
+      << "expect " << num_elements << "elems, but given " << output->nelms();
   switch (tensor.dtype()) {
     case tensorflow::DT_FLOAT: {
       output->set_dtype(DataType::DELTA_FLOAT32);
