@@ -61,7 +61,7 @@ class SentenceToIdsOp : public OpKernel {
     OP_REQUIRES_OK(ctx, ctx->input("sentence_in", &t_sentence_in));
 
     if (t_sentence_in->dims() == 0) {
-      const auto& sentence_in = t_sentence_in->scalar<string>()();
+      const auto& sentence_in = t_sentence_in->scalar<tstring>()();
       Tensor token_ids(DT_INT32, TensorShape({maxlen_}));
       Tensor paddings(DT_FLOAT, TensorShape({maxlen_}));
       auto t_token_ids = token_ids.tensor<int32, 1>();
@@ -119,7 +119,7 @@ class SentenceToIdsOp : public OpKernel {
       OP_REQUIRES(
           ctx, t_sentence_in->dims() == 1,
           errors::InvalidArgument("Input must be a scalar or 1D tensor."));
-      const auto& sentence_in = t_sentence_in->vec<string>();
+      const auto& sentence_in = t_sentence_in->vec<tstring>();
       const int32 b_size = t_sentence_in->dim_size(0);
       Tensor token_ids(DT_INT32, TensorShape({b_size, maxlen_}));
       Tensor paddings(DT_FLOAT, TensorShape({b_size, maxlen_}));

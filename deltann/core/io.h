@@ -203,14 +203,15 @@ class BaseInOutData {
 
 #ifdef USE_TF
   tensorflow::TensorShape tensor_shape() const {
-    tensorflow::Status status;
+    //tensorflow::Status::Status status;
     const Shape& shape = this->shape();
     tensorflow::TensorShape ts;
-    status =
-        tensorflow::TensorShapeUtils::MakeShape(std::move(shape.vec()), &ts);
+    auto s = shape.vec();
+    auto status =
+        tensorflow::TensorShapeUtils::MakeShape(s.data(), s.size(), &ts);
     if (!status.ok()) {
-      LOG_FATAL << "Error when make shape from vector: " << shape.vec() << ", "
-                << status;
+      LOG_FATAL << "Error when make shape from vector: " << s << ", "
+                << status.error_message();
     }
     return ts;
   }

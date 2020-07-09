@@ -15,6 +15,7 @@ ifeq ($(TARGET), linux)
         
        INCLUDES += -I$(TF_DIR) \
                 -I$(TF_DIR)/bazel-genfiles \
+		-I$(TF_DIR)/bazel-out/k8-opt/bin/ \
                 -I$(TF_DIR)/bazel-tensorflow/external/nsync/public/ \
                 -I$(TF_DIR)/bazel-tensorflow \
                 -I$(TF_DIR)/bazel-tensorflow/external/com_google_protobuf/src \
