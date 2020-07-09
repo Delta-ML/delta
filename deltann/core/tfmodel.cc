@@ -73,22 +73,38 @@ TFModel::TFModel(ModelMeta model_meta, int num_threads)
 void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
   std::int64_t num_elements = tensor->NumElements();
   switch (input.dtype()) {
-    case DataType::DELTA_FLOAT32:
+    case DataType::DELTA_FLOAT32:{
+      std::cout << "in tensor bytes" << tensor->TotalBytes() << std::endl;
+      std::cout << "in tensor nelms" << num_elements << std::endl;
+      auto ptr = tensor->flat<float>().data();
+      std::fill_n(ptr, num_elements, 0.0);
+      for (auto i = 0; i < 40 ; i ++ ) {
+         std::cout << std::showpoint << ptr[i] << "\t";
+      }
+      std::cout << "\n";
+
       std::copy_n(static_cast<float*>(input.ptr()), num_elements,
-                  tensor->flat<float>().data());
+                 ptr); 
+      for (auto i = 0; i < 40 ; i ++ ) {
+         std::cout << std::showpoint << ptr[i] << "\t";
+      }
+      std::cout << "\n";
       break;
-    case DataType::DELTA_INT32:
+				 }
+    case DataType::DELTA_INT32:{
       std::copy_n(static_cast<int*>(input.ptr()), num_elements,
                   tensor->flat<int>().data());
       break;
+			       }
     case DataType::DELTA_CHAR: {
       char* cstr = static_cast<char*>(input.ptr());
       std::string str = std::string(cstr);
       tensor->scalar<std::string>()() = str;
       break;
     }
-    default:
+    default:{
       LOG_FATAL << "Not support dtype:" << delta_dtype_str(input.dtype());
+	    }
   }
 }
 
@@ -100,6 +116,7 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
   // copy data
   std::size_t num_elements = tensor.NumElements();
   std::size_t total_bytes = tensor.TotalBytes();
+  std::cout << "output: " << num_elements << " "  << total_bytes << "\n";
   DELTA_CHECK(num_elements == output->nelms())
       << "expect " << num_elements << "elems, but given " << output->nelms();
   switch (tensor.dtype()) {
@@ -107,10 +124,11 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
       output->set_dtype(DataType::DELTA_FLOAT32);
       output->resize(total_bytes);
 
-      auto c = tensor.flat<float>();
+      auto c = tensor.flat<float>().data();
       float* ptr = static_cast<float*>(output->ptr());
       for (int i = 0; i < num_elements; i++) {
-        ptr[i] = c(i);
+        ptr[i] = c[i];
+	std::cout << std::showpoint <<  c[i] << "\t";
       }
       break;
     }
@@ -140,6 +158,14 @@ int TFModel::set_feeds(std::vector<std::pair<string, Tensor>>* feeds,
     feeds->emplace_back(std::pair<string, Tensor>(
         input.name(),
         std::move(Tensor(tf_data_type(input.dtype()), input.tensor_shape()))));
+
+    auto ptr = static_cast<float*>(input.ptr());
+    for (auto i = 0; i < 40; i++){
+	    std::cout << std::showpoint << ptr[i] << "\t";
+    }
+    std::cout << "\n";
+    std::cout << "\n";
+
     feed_tensor(&(feeds->at(feeds->size() - 1).second), input);
   }
 
@@ -174,9 +200,7 @@ int TFModel::run(const std::vector<InputData>& inputs,
   std::vector<std::string> fetches;
   std::vector<Tensor> output_tensors;
 
-  LOG_INFO << "set feeds ...";
   set_feeds(&feeds, inputs);
-  LOG_INFO << "set  fetches ...";
   set_fetches(&fetches, *output);
 
   // Session run
