@@ -78,11 +78,6 @@ void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
       std::cout << "in tensor nelms" << num_elements << std::endl;
       auto ptr = tensor->flat<float>().data();
       std::fill_n(ptr, num_elements, 0.0);
-      for (auto i = 0; i < 40 ; i ++ ) {
-         std::cout << std::showpoint << ptr[i] << "\t";
-      }
-      std::cout << "\n";
-
       std::copy_n(static_cast<float*>(input.ptr()), num_elements,
                  ptr); 
       for (auto i = 0; i < 40 ; i ++ ) {
@@ -119,6 +114,7 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
   std::cout << "output: " << num_elements << " "  << total_bytes << "\n";
   DELTA_CHECK(num_elements == output->nelms())
       << "expect " << num_elements << "elems, but given " << output->nelms();
+
   switch (tensor.dtype()) {
     case tensorflow::DT_FLOAT: {
       output->set_dtype(DataType::DELTA_FLOAT32);
@@ -128,7 +124,7 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
       float* ptr = static_cast<float*>(output->ptr());
       for (int i = 0; i < num_elements; i++) {
         ptr[i] = c[i];
-	std::cout << std::showpoint <<  c[i] << "\t";
+	std::cout << std::showpoint << c[i] << "\t";
       }
       break;
     }
@@ -158,14 +154,6 @@ int TFModel::set_feeds(std::vector<std::pair<string, Tensor>>* feeds,
     feeds->emplace_back(std::pair<string, Tensor>(
         input.name(),
         std::move(Tensor(tf_data_type(input.dtype()), input.tensor_shape()))));
-
-    auto ptr = static_cast<float*>(input.ptr());
-    for (auto i = 0; i < 40; i++){
-	    std::cout << std::showpoint << ptr[i] << "\t";
-    }
-    std::cout << "\n";
-    std::cout << "\n";
-
     feed_tensor(&(feeds->at(feeds->size() - 1).second), input);
   }
 
@@ -207,11 +195,19 @@ int TFModel::run(const std::vector<InputData>& inputs,
   RunOptions run_options;
   RunMetadata run_meta;
   Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
-                                       &(output_tensors), &(run_meta));
+                                       &output_tensors, &run_meta);
   if (!s.ok()) {
     LOG_FATAL << "Error, TF Model run failed: " << s;
     exit(-1);
   }
+
+  std::cout << "output xxxxxxxxxxxxxxxxx"<< "\n";
+  auto t = output_tensors[0];
+  for (auto i = 0; i < t.NumElements(); i++){
+	  std::cout << std::showpoint << t.flat<float>()(i) << "\t",
+  }
+  std::cout << "\n";
+  std::cout << "output -------------------"<< "\n";
 
   get_featches(output_tensors, output);
 
