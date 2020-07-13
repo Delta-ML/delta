@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
   DeltaModel<float> m(yaml_file);
 
   float avg = 0;
-  int cnt = 2;
+  int cnt = 1;
   for (int i = 0; i < cnt; i++) {
     fprintf(stderr, "====================\n");
     std::vector<int> shape = {1, 260, 40, 1};
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
     float* buf = m.AllocInputs(shape);
     auto nelems = m.NumElems(shape);
     for (auto j = 0; j < nelems; j++) {
-      buf[j] = 1 * i;
+      buf[j] = j;
     }
     m.SetInputs(buf, shape);
 

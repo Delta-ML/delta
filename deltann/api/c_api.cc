@@ -47,8 +47,8 @@ DeltaStatus DeltaSetInputs(InferHandel inf, Input* inputs, int num) {
   Runtime* rt = static_cast<Runtime*>(inf);
   std::vector<In> ins;
   for (int i = 0; i < num; ++i) {
-    std::cout << "set inputs name : " << inputs[i].input_name << "\n";
-    std::cout << "set inputs  nelms: " << inputs[i].nelms <<  "\n";
+    //std::cout << "set inputs name : " << inputs[i].input_name << "\n";
+    //std::cout << "set inputs nelms: " << inputs[i].nelms <<  "\n";
 
     const int *data = static_cast<const int*>(inputs[i].ptr);
     if (inputs[i].shape == NULL) {

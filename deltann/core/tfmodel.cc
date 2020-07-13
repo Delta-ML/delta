@@ -75,18 +75,13 @@ void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
   std::int64_t num_elements = tensor->NumElements();
   switch (input.dtype()) {
     case DataType::DELTA_FLOAT32:{
-      std::cout << "in tensor bytes" << tensor->TotalBytes() << std::endl;
-      std::cout << "in tensor nelms" << num_elements << std::endl;
+      std::cout << "input: " << num_elements  << " " << tensor->TotalBytes() << std::endl;
       auto ptr = tensor->flat<float>().data();
       std::fill_n(ptr, num_elements, 0.0);
       std::copy_n(static_cast<float*>(input.ptr()), num_elements,
                  ptr); 
-      for (auto i = 0; i < 40 ; i ++ ) {
-         std::cout << std::showpoint << ptr[i] << "\t";
-      }
-      std::cout << "\n";
       break;
-				 }
+    }
     case DataType::DELTA_INT32:{
       std::copy_n(static_cast<int*>(input.ptr()), num_elements,
                   tensor->flat<int>().data());
@@ -125,7 +120,6 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
       float* ptr = static_cast<float*>(output->ptr());
       for (int i = 0; i < num_elements; i++) {
         ptr[i] = c[i];
-	std::cout << std::showpoint << c[i] << "\t";
       }
       break;
     }
@@ -183,7 +177,7 @@ int TFModel::get_featches(const std::vector<Tensor>& output_tensors,
 
 int TFModel::run(const std::vector<InputData>& inputs,
                  std::vector<OutputData>* output) {
-  LOG_INFO << "TFModel run ...";
+  LOG_INFO << "TFModel run start.";
 
   std::vector<std::pair<std::string, Tensor>> feeds;
   std::vector<std::string> fetches;
@@ -191,6 +185,16 @@ int TFModel::run(const std::vector<InputData>& inputs,
 
   set_feeds(&feeds, inputs);
   set_fetches(&fetches, *output);
+
+  //std::cout << "input xxxxxxxxxxxxxxxxx"<< "\n";
+  //auto ti = feeds[0].second;
+  //for (auto i = 0; i < ti.NumElements(); i++){
+  //        std::cout << std::showpoint << ti.flat<float>()(i) << " ";
+  //        if (i % 40 == 1){std::cout << "\n";}
+  //}
+  //std::cout << "\n";
+  //std::cout << "input -------------------"<< "\n";
+
 
   // Session run
   RunOptions run_options;
@@ -202,17 +206,17 @@ int TFModel::run(const std::vector<InputData>& inputs,
     exit(-1);
   }
 
-  std::cout << "output xxxxxxxxxxxxxxxxx"<< "\n";
-  auto t = output_tensors[0];
-  for (auto i = 0; i < t.NumElements(); i++){
-	  std::cout << std::showpoint << t.flat<float>()(i) << "\t",
-  }
-  std::cout << "\n";
-  std::cout << "output -------------------"<< "\n";
+  //std::cout << "output xxxxxxxxxxxxxxxxx"<< "\n";
+  //auto t = output_tensors[0];
+  //for (auto i = 0; i < t.NumElements(); i++){
+  //        std::cout << std::showpoint << t.flat<float>()(i) << " ";
+  //}
+  //std::cout << "\n";
+  //std::cout << "output -------------------"<< "\n";
 
   get_featches(output_tensors, output);
 
-  LOG_INFO << "TFModel run done";
+  LOG_INFO << "TFModel run done.";
   return 0;
 }
 
