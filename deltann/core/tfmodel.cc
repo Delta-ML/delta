@@ -74,22 +74,28 @@ TFModel::TFModel(ModelMeta model_meta, int num_threads)
 void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
   std::int64_t num_elements = tensor->NumElements();
   switch (input.dtype()) {
-    case DataType::DELTA_FLOAT32:
+    case DataType::DELTA_FLOAT32:{
+      std::cout << "input: " << num_elements  << " " << tensor->TotalBytes() << std::endl;
+      auto ptr = tensor->flat<float>().data();
+      std::fill_n(ptr, num_elements, 0.0);
       std::copy_n(static_cast<float*>(input.ptr()), num_elements,
-                  tensor->flat<float>().data());
+                 ptr); 
       break;
-    case DataType::DELTA_INT32:
+    }
+    case DataType::DELTA_INT32:{
       std::copy_n(static_cast<int*>(input.ptr()), num_elements,
                   tensor->flat<int>().data());
       break;
+			       }
     case DataType::DELTA_CHAR: {
       char* cstr = static_cast<char*>(input.ptr());
       std::string str = std::string(cstr);
       tensor->scalar<tensorflow::tstring>()() = str;
       break;
     }
-    default:
+    default:{
       LOG_FATAL << "Not support dtype:" << delta_dtype_str(input.dtype());
+	    }
   }
 }
 
@@ -101,17 +107,19 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
   // copy data
   std::size_t num_elements = tensor.NumElements();
   std::size_t total_bytes = tensor.TotalBytes();
-  DELTA_CHECK(num_elements == output->size())
-      << "expect " << num_elements << "elems, but given " << output->size();
+  std::cout << "output: " << num_elements << " "  << total_bytes << "\n";
+  DELTA_CHECK(num_elements == output->nelms())
+      << "expect " << num_elements << "elems, but given " << output->nelms();
+
   switch (tensor.dtype()) {
     case tensorflow::DT_FLOAT: {
       output->set_dtype(DataType::DELTA_FLOAT32);
       output->resize(total_bytes);
 
-      auto c = tensor.flat<float>();
+      auto c = tensor.flat<float>().data();
       float* ptr = static_cast<float*>(output->ptr());
       for (int i = 0; i < num_elements; i++) {
-        ptr[i] = c(i);
+        ptr[i] = c[i];
       }
       break;
     }
@@ -169,30 +177,46 @@ int TFModel::get_featches(const std::vector<Tensor>& output_tensors,
 
 int TFModel::run(const std::vector<InputData>& inputs,
                  std::vector<OutputData>* output) {
-  LOG_INFO << "TFModel run ...";
+  LOG_INFO << "TFModel run start.";
 
   std::vector<std::pair<std::string, Tensor>> feeds;
   std::vector<std::string> fetches;
   std::vector<Tensor> output_tensors;
 
-  LOG_INFO << "set feeds ...";
   set_feeds(&feeds, inputs);
-  LOG_INFO << "set  fetches ...";
   set_fetches(&fetches, *output);
+
+  //std::cout << "input xxxxxxxxxxxxxxxxx"<< "\n";
+  //auto ti = feeds[0].second;
+  //for (auto i = 0; i < ti.NumElements(); i++){
+  //        std::cout << std::showpoint << ti.flat<float>()(i) << " ";
+  //        if (i % 40 == 1){std::cout << "\n";}
+  //}
+  //std::cout << "\n";
+  //std::cout << "input -------------------"<< "\n";
+
 
   // Session run
   RunOptions run_options;
   RunMetadata run_meta;
   tensorflow::Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
-                                       &(output_tensors), &(run_meta));
+                                       &output_tensors, &run_meta);
   if (!s.ok()) {
     LOG_FATAL << "Error, TF Model run failed: " << s;
     exit(-1);
   }
 
+  //std::cout << "output xxxxxxxxxxxxxxxxx"<< "\n";
+  //auto t = output_tensors[0];
+  //for (auto i = 0; i < t.NumElements(); i++){
+  //        std::cout << std::showpoint << t.flat<float>()(i) << " ";
+  //}
+  //std::cout << "\n";
+  //std::cout << "output -------------------"<< "\n";
+
   get_featches(output_tensors, output);
 
-  LOG_INFO << "TFModel run done";
+  LOG_INFO << "TFModel run done.";
   return 0;
 }
 

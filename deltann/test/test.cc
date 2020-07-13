@@ -30,15 +30,14 @@ int main(int argc, char** argv) {
   Input ins[2] = {0};
   int text = 1;
   ins[0].ptr = reinterpret_cast<void*>(&text);
-  ins[0].size = 1;
+  ins[0].nelms = 1;
   ins[0].input_name = "texts";
   ins[0].graph_name = "emotion";
 
-  int size = 3000 * 40 * 3;
-  float* buffer = reinterpret_cast<float*>(malloc(size * sizeof(float)));
+  int nelms = 3000 * 40 * 3;
+  float* buffer = reinterpret_cast<float*>(malloc(nelms * sizeof(float)));
   ins[1].ptr = reinterpret_cast<void*>(buffer);
-  ins[1].size = size;
-
+  ins[1].nelms = nelms;
   ins[1].input_name = "inputs";
   ins[1].graph_name = "emotion";
 

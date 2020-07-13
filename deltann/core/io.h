@@ -55,7 +55,7 @@ class BaseInOut {
   Shape& shape(void) { return _shape; }
 
   // num delements
-  const size_t size(void) const { return _shape.size(); }
+  const size_t nelms(void) const { return _shape.nelms(); }
 
   DataType dtype(void) const { return _dtype; }
 
@@ -114,7 +114,7 @@ class BaseInOutData {
   explicit BaseInOutData(BaseInOut& inout) : _inout(inout) { allocate(); }
 
   void allocate(void) {
-    if (this->dtype() != DataType::DELTA_NONE && 0 != this->size()) {
+    if (this->dtype() != DataType::DELTA_NONE && 0 != this->nelms()) {
       _data = std::make_shared<Buffer>(this->bytes());
     } else {
       _data = std::make_shared<Buffer>();
@@ -131,12 +131,12 @@ class BaseInOutData {
 
   const Shape& shape(void) const { return _inout.shape(); }
 
-  const size_t size(void) const { return _inout.size(); }
+  const size_t nelms(void) const { return _inout.nelms(); }
 
   DataType dtype() const { return _inout.dtype(); }
 
   const size_t bytes(void) const {
-    return _inout.size() * delta_dtype_size(_inout.dtype());
+    return _inout.nelms() * delta_dtype_size(_inout.dtype());
   }
 
   const std::string name() const { return _inout.name(); }
@@ -157,13 +157,13 @@ class BaseInOutData {
     DataType dtype = this->dtype();
     switch (dtype) {
       case DataType::DELTA_FLOAT32:
-        make_random(static_cast<float*>(this->ptr()), this->size());
+        make_random(static_cast<float*>(this->ptr()), this->nelms());
         break;
       case DataType::DELTA_INT32:
-        std::fill_n(static_cast<int*>(this->ptr()), this->size(), 1);
+        std::fill_n(static_cast<int*>(this->ptr()), this->nelms(), 1);
         break;
       case DataType::DELTA_CHAR:
-        for (int i = 0; i < size(); ++i) {
+        for (int i = 0; i < this->nelms(); ++i) {
           char* ptr = static_cast<char*>(this->ptr());
           std::fill_n(ptr + i, 1, gen_random_char());
         }
@@ -179,20 +179,20 @@ class BaseInOutData {
     _data->resize(bytes);
   }
 
-  void copy_from(const void* src, std::size_t size) {
+  void copy_from(const void* src, std::size_t nelms) {
     DataType dtype = this->dtype();
     DELTA_CHECK(dtype != DataType::DELTA_NONE);
-    std::size_t bytes = size * delta_dtype_size(dtype);
+    std::size_t bytes = nelms * delta_dtype_size(dtype);
     this->resize(bytes);
     _data->copy_from(src, bytes);
-  }
+}
 
-  void copy_from(const float* src) { copy_from(src, this->size()); }
+  void copy_from(const float* src) { copy_from(src, this->nelms()); }
 
-  void copy_from(const float* src, std::size_t size) {
+  void copy_from(const float* src, std::size_t nelms) {
     DataType dtype = this->dtype();
     DELTA_CHECK(dtype != DataType::DELTA_NONE);
-    std::size_t bytes = size * delta_dtype_size(dtype);
+    std::size_t bytes = nelms * delta_dtype_size(dtype);
     this->resize(bytes);
     _data->copy_from(src, bytes);
   }

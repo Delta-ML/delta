@@ -74,23 +74,19 @@ struct DeltaModel {
   }
 
   DeltaStatus SetInputs(T* buf, const std::vector<int> shape) {
-    return this->SetInputs(buf, this->Bytes(shape), shape.data(), shape.size());
+    return this->SetInputs(buf, this->NumElems(shape), shape.data(), shape.size());
   }
 
-  DeltaStatus SetInputs(T* buf, int bytes, const int* shape, const int ndims) {
+  DeltaStatus SetInputs(T* buf, int nelms, const int* shape, const int ndims) {
     Input ins[1];
     memset(ins, 0, sizeof(ins));
 
     ins[0].ptr = (void*)buf;
-    ins[0].size = bytes;
+    ins[0].nelms = nelms;
     ins[0].graph_name = "spk-resnet";
     ins[0].input_name = "inputs:0";
     ins[0].shape = shape;
     ins[0].ndims = ndims;
-    printf("%d\n", sizeof(ins));
-    printf("%d\n", sizeof(ins[0]));
-    printf("%d\n", sizeof(ins) / sizeof(ins[0]));
-    printf("%s\n", ins[0].graph_name);
     return DeltaSetInputs(inf_, ins, sizeof(ins) / sizeof(ins[0]));
   }
 
@@ -172,7 +168,7 @@ int main(int argc, char** argv) {
   DeltaModel<float> m(yaml_file);
 
   float avg = 0;
-  int cnt = 10;
+  int cnt = 1;
   for (int i = 0; i < cnt; i++) {
     fprintf(stderr, "====================\n");
     std::vector<int> shape = {1, 260, 40, 1};
@@ -181,8 +177,8 @@ int main(int argc, char** argv) {
     // set inputs
     float* buf = m.AllocInputs(shape);
     auto nelems = m.NumElems(shape);
-    for (auto i = 0; i < nelems; i++) {
-      buf[i] = 0.01;
+    for (auto j = 0; j < nelems; j++) {
+      buf[j] = j;
     }
     m.SetInputs(buf, shape);
 
@@ -204,6 +200,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < out_num; i++) {
       fprintf(stderr, "Out Node %d\n", i);
       float* data = (float*)outs[i].ptr;
+      fprintf(stderr, "Out elems %d\n", outs[i].elems);
       for (int j = 0; j < outs[i].elems; j++) {
         fprintf(stderr, "%2.7f\t", data[j]);
         if ((j + 1) % 16 == 0) fprintf(stderr, "\n");
@@ -212,6 +209,7 @@ int main(int argc, char** argv) {
 
     // free output
     m.FreeOutputs(outs);
+    fprintf(stderr, "*****************\n");
   }
   fprintf(stderr, "Avg Duration %04f sec.\n", avg / cnt);
   return 0;

@@ -29,7 +29,7 @@ typedef enum { kDeltaOk = 0, kDeltaError = 1 } DeltaStatus;
 
 typedef struct {
   const void* ptr;
-  int size;  // byte_size;
+  int nelms;
   const char* input_name;
   const char* graph_name;
   const int* shape;

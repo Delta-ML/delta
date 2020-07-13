@@ -151,12 +151,12 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
                    << in._shape;
           input.set_shape(in._shape);
         }
-        DELTA_CHECK_EQ(in._size, input.size() * delta_dtype_size(input.dtype()))
-            << in._size << ":"
-            << input.size() * delta_dtype_size(input.dtype());
+        DELTA_CHECK_EQ(in._nelms, input.nelms())
+            << in._nelms << ":"
+            << input.nelms();
 
         InputData input_data(input);
-        input_data.copy_from(in._ptr, in._size);
+        input_data.copy_from(in._ptr, in._nelms);
         _inputs_data.push_back(input_data);
       } catch (std::out_of_range& e) {
         LOG_FATAL << "Can not find [" << in._input_name << "] node in ["
@@ -192,13 +192,11 @@ DeltaStatus Runtime::warmup() {
 
       LOG_INFO << " in : " << in;
       LOG_INFO << " ndim : " << in.shape().ndim();
-
       if (in.shape().is_partial()) {
         in.shape().set_dim(0, 1);
       }
-
       LOG_INFO << " in : " << in;
-      LOG_INFO << " size : " << in.size();
+      LOG_INFO << " nelms : " << in.nelms();
 
       InputData in_data(in);
       in_data.feed_random_data();
@@ -251,19 +249,19 @@ DeltaStatus Runtime::get_outputs(std::vector<string>* results) {
   for (auto& output_data : _outputs_data) {
     LOG_INFO << "out shape is " << output_data.shape();
     DataType dtype = output_data.dtype();
-    int size = output_data.size();
-    LOG_INFO << "out size is " << size;
+    int nelms = output_data.nelms();
+    LOG_INFO << "out nelms is " << nelms;
     std::stringstream ss;
     switch (dtype) {
       case DataType::DELTA_FLOAT32: {
         float* ptr = static_cast<float*>(output_data.ptr());
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < nelms; ++i) {
           ss << ptr[i] << ",";
         }
       } break;
       case DataType::DELTA_INT32: {
         int* ptr = static_cast<int*>(output_data.ptr());
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < nelms; ++i) {
           ss << ptr[i] << ",";
         }
       } break;
