@@ -50,3 +50,7 @@ export PYTHONPATH=${PYTHONPATH}:$MAIN_ROOT:$MAIN_ROOT/tools/espnet
 if [ -e $MAIN_ROOT/tools/go.env ];then
   source $MAIN_ROOT/tools/go.env
 fi
+
+# tensorflow lib path
+TF_LIB_PATH=$(python -c 'import tensorflow as tf; print(tf.sysconfig.get_lib())')
+export LD_LIBRARY_PATH=${TF_LIB_PATH}:${LD_LIBRARY_PATH}

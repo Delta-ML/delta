@@ -5,7 +5,8 @@
 matplotlib
 sklearn
 pandas
-librosa
+librosa>=0.7.2
+numba==0.48.0  #must be this by librosa>=0.7.2
 absl-py
 jieba
 wget
