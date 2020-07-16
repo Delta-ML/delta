@@ -151,9 +151,8 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
                    << in._shape;
           input.set_shape(in._shape);
         }
-        DELTA_CHECK_EQ(in._nelms, input.nelms())
-            << in._nelms << ":"
-            << input.nelms();
+        DELTA_CHECK_EQ(in._nelms, input.nelms()) << in._nelms << ":"
+                                                 << input.nelms();
 
         InputData input_data(input);
         input_data.copy_from(in._ptr, in._nelms);

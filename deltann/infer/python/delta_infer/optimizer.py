@@ -32,7 +32,7 @@ class GraphStream(object):
   def __hint_op_type(self, pattern_name):
     assert (pattern_name in self.__hint_map), \
             "Pattern name({}) with hint op must be registered by \
-                function register_hint_op."                                                                                  .format(pattern_name)
+                function register_hint_op."                                                                                                                             .format(pattern_name)
     return self.__hint_map[pattern_name]
 
   def register_hint_op(self, pattern_name, hint_op_type):

@@ -30,13 +30,6 @@ def print_ops(graph, prefix=''):
     logging.info('{} : op name: {}'.format(prefix, operator.name))
 
 
-def log_vars(prefix, variables):
-  """Print tensorflow variables."""
-  for var in variables:
-    logging.info("{}: name: {} shape: {} device: {}".format(
-        prefix, var.name, var.shape, var.device))
-
-
 def model_size(variables):
   """Get model size."""
   total_params = sum(

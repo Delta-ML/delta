@@ -185,7 +185,7 @@ class BaseInOutData {
     std::size_t bytes = nelms * delta_dtype_size(dtype);
     this->resize(bytes);
     _data->copy_from(src, bytes);
-}
+  }
 
   void copy_from(const float* src) { copy_from(src, this->nelms()); }
 
@@ -203,7 +203,7 @@ class BaseInOutData {
 
 #ifdef USE_TF
   tensorflow::TensorShape tensor_shape() const {
-    //tensorflow::Status::Status status;
+    // tensorflow::Status::Status status;
     const Shape& shape = this->shape();
     tensorflow::TensorShape ts;
     auto s = shape.vec();

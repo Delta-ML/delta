@@ -74,7 +74,8 @@ struct DeltaModel {
   }
 
   DeltaStatus SetInputs(T* buf, const std::vector<int> shape) {
-    return this->SetInputs(buf, this->NumElems(shape), shape.data(), shape.size());
+    return this->SetInputs(buf, this->NumElems(shape), shape.data(),
+                           shape.size());
   }
 
   DeltaStatus SetInputs(T* buf, int nelms, const int* shape, const int ndims) {

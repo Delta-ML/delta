@@ -11,8 +11,7 @@ struct Compare {
   Compare() {
     std::vector<absl::flat_hash_set<std::string>> op_maps = {
         {
-            "BatchMatMulV2",
-            "BatchMatMul",
+            "BatchMatMulV2", "BatchMatMul",
         },
         {"Const", "Shape"},
     };

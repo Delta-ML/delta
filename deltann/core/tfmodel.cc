@@ -74,28 +74,28 @@ TFModel::TFModel(ModelMeta model_meta, int num_threads)
 void TFModel::feed_tensor(Tensor* tensor, const InputData& input) {
   std::int64_t num_elements = tensor->NumElements();
   switch (input.dtype()) {
-    case DataType::DELTA_FLOAT32:{
-      std::cout << "input: " << num_elements  << " " << tensor->TotalBytes() << std::endl;
+    case DataType::DELTA_FLOAT32: {
+      std::cout << "input: " << num_elements << " " << tensor->TotalBytes()
+                << std::endl;
       auto ptr = tensor->flat<float>().data();
       std::fill_n(ptr, num_elements, 0.0);
-      std::copy_n(static_cast<float*>(input.ptr()), num_elements,
-                 ptr); 
+      std::copy_n(static_cast<float*>(input.ptr()), num_elements, ptr);
       break;
     }
-    case DataType::DELTA_INT32:{
+    case DataType::DELTA_INT32: {
       std::copy_n(static_cast<int*>(input.ptr()), num_elements,
                   tensor->flat<int>().data());
       break;
-			       }
+    }
     case DataType::DELTA_CHAR: {
       char* cstr = static_cast<char*>(input.ptr());
       std::string str = std::string(cstr);
       tensor->scalar<tensorflow::tstring>()() = str;
       break;
     }
-    default:{
+    default: {
       LOG_FATAL << "Not support dtype:" << delta_dtype_str(input.dtype());
-	    }
+    }
   }
 }
 
@@ -107,7 +107,7 @@ void TFModel::fetch_tensor(const Tensor& tensor, OutputData* output) {
   // copy data
   std::size_t num_elements = tensor.NumElements();
   std::size_t total_bytes = tensor.TotalBytes();
-  std::cout << "output: " << num_elements << " "  << total_bytes << "\n";
+  std::cout << "output: " << num_elements << " " << total_bytes << "\n";
   DELTA_CHECK(num_elements == output->nelms())
       << "expect " << num_elements << "elems, but given " << output->nelms();
 
@@ -186,33 +186,32 @@ int TFModel::run(const std::vector<InputData>& inputs,
   set_feeds(&feeds, inputs);
   set_fetches(&fetches, *output);
 
-  //std::cout << "input xxxxxxxxxxxxxxxxx"<< "\n";
-  //auto ti = feeds[0].second;
-  //for (auto i = 0; i < ti.NumElements(); i++){
+  // std::cout << "input xxxxxxxxxxxxxxxxx"<< "\n";
+  // auto ti = feeds[0].second;
+  // for (auto i = 0; i < ti.NumElements(); i++){
   //        std::cout << std::showpoint << ti.flat<float>()(i) << " ";
   //        if (i % 40 == 1){std::cout << "\n";}
   //}
-  //std::cout << "\n";
-  //std::cout << "input -------------------"<< "\n";
-
+  // std::cout << "\n";
+  // std::cout << "input -------------------"<< "\n";
 
   // Session run
   RunOptions run_options;
   RunMetadata run_meta;
-  tensorflow::Status s = _bundle.GetSession()->Run(run_options, feeds, fetches, {},
-                                       &output_tensors, &run_meta);
+  tensorflow::Status s = _bundle.GetSession()->Run(
+      run_options, feeds, fetches, {}, &output_tensors, &run_meta);
   if (!s.ok()) {
     LOG_FATAL << "Error, TF Model run failed: " << s;
     exit(-1);
   }
 
-  //std::cout << "output xxxxxxxxxxxxxxxxx"<< "\n";
-  //auto t = output_tensors[0];
-  //for (auto i = 0; i < t.NumElements(); i++){
+  // std::cout << "output xxxxxxxxxxxxxxxxx"<< "\n";
+  // auto t = output_tensors[0];
+  // for (auto i = 0; i < t.NumElements(); i++){
   //        std::cout << std::showpoint << t.flat<float>()(i) << " ";
   //}
-  //std::cout << "\n";
-  //std::cout << "output -------------------"<< "\n";
+  // std::cout << "\n";
+  // std::cout << "output -------------------"<< "\n";
 
   get_featches(output_tensors, output);
 
@@ -287,13 +286,14 @@ DeltaStatus TFModel::load_from_saved_model() {
   LOG_INFO << "load saved model from path: " << path;
   if (!MaybeSavedModelDirectory(path)) {
     LOG_FATAL << "SaveModel not in :" << path;
-    return DeltaStatus::STATUS_ERROR; 
+    return DeltaStatus::STATUS_ERROR;
   }
 
-  tensorflow::Status s = LoadSavedModel(options, run_options, path,
-                            {tensorflow::kSavedModelTagServe}, &_bundle);
+  tensorflow::Status s = LoadSavedModel(
+      options, run_options, path, {tensorflow::kSavedModelTagServe}, &_bundle);
   if (!s.ok()) {
-    LOG_FATAL << "Failed Load model from saved_model.pb : " << s.error_message();
+    LOG_FATAL << "Failed Load model from saved_model.pb : "
+              << s.error_message();
   }
 
   return DeltaStatus::STATUS_OK;

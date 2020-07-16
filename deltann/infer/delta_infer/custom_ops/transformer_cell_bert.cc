@@ -230,9 +230,8 @@ class TansformerCellBertOp : public OpKernel {
                 errors::InvalidArgument("output_layernorm_gamma is null"));
     Tensor *output = nullptr;
     OP_REQUIRES_OK(context, context->allocate_output(
-                                0,
-                                {_param.batch_size * _param.from_seq_len,
-                                 _param.head_num * _param.size_per_head},
+                                0, {_param.batch_size * _param.from_seq_len,
+                                    _param.head_num * _param.size_per_head},
                                 &output));
     _param.transformer_out =
         reinterpret_cast<typename traits::DataType *>(output->flat<T>().data());

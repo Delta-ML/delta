@@ -207,6 +207,12 @@ solver:
     eval_on_dev_every_secs: 1
     print_every: 50
     resume_model_path: ""
+  transfer:
+    enable: false # transfer from checkpoint
+    ckpt_path:  null
+    exclude_reg:
+      - '^.*/logits/weights:\d+$'
+    include_reg: null
   run_config:
     debug: false # use tfdbug
     tf_random_seed: null # 0-2**32; null is None, try to read data from /dev/urandom if available or seed from the clock otherwise
