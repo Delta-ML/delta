@@ -18,40 +18,45 @@
     python release_notes.py -c didi delta v.xxxxx
 """
 
+import sys
+import json
 import argparse
 import urllib.request
-import json
 import collections
 
 github_url = 'https://api.github.com/repos'
 
 if __name__ == '__main__':
+  # usage: 
+  # 1. close milestone on github
+  # 2. python tools/release_notes.py -c didi delta v0.3.3
 
   # Parse arguments
-
   parser = argparse.ArgumentParser(
-    description='Create a draft release with the issues from a milestone.'
+    description='Create a draft release with the issues from a milestone.',
   )
 
   parser.add_argument(
     'user',
     metavar='user',
     type=str,
-    help='github user'
+    default='didi',
+    help='github user: didi'
   )
 
   parser.add_argument(
     'repository',
     metavar='repository',
     type=str,
-    help='github repository'
+    default='delta',
+    help='github repository: delta'
   )
 
   parser.add_argument(
     'milestone',
     metavar='milestone',
     type=str,
-    help='name of used milestone'
+    help='name of used milestone: v0.3.3'
   )
 
   parser.add_argument(
@@ -60,10 +65,10 @@ if __name__ == '__main__':
     action='store_true'
   )
 
+  parser.print_help()
   args = parser.parse_args()
 
-  # Fetch milestone id
-
+  # Fetch milestone infos
   url = "%s/%s/%s/milestones" % (
     github_url,
     args.user,
@@ -83,20 +88,17 @@ if __name__ == '__main__':
 
   if args.closed:
     url += "?state=closed"
+
   req = urllib.request.Request(url, headers=headers)
   github_request = urllib.request.urlopen(req)
-
   if not github_request:
     parser.error('Cannot read milestone list.')
 
   decoder = json.JSONDecoder()
-
   milestones = decoder.decode(github_request.read().decode('utf-8'))
-
-  print('parse milestones')
-
   github_request.close()
 
+  print('parse milestones', file=sys.stderr)
   milestone_id = None
   for milestone in milestones:
     if milestone['title'] == args.milestone:
@@ -104,24 +106,26 @@ if __name__ == '__main__':
   if not milestone_id:
     parser.error('Cannot find milestone')
 
+
+  # Get milestone related issue info
   url = '%s/%s/%s/issues?milestone=%d' % (
     github_url,
     args.user,
     args.repository,
     milestone_id
   )
-
   if args.closed:
     url += "&state=closed"
+
   req = urllib.request.Request(url, headers=headers)
   github_request = urllib.request.urlopen(req)
   if not github_request:
     parser.error('Cannot read issue list.')
 
   issues = decoder.decode(github_request.read().decode('utf-8'))
-  print('parse issues')
   github_request.close()
 
+  print('parse issues', file=sys.stderr)
   final_data = []
   labels = []
   thanks_to = []
@@ -145,7 +149,7 @@ if __name__ == '__main__':
       if '[%s]' % l_release in f_data:
         dic[l_release].add(f_data)
 
-  for key, value in dic.items():
-    print('# %s\n%s' % (key, ''.join(value)))
-
-  print('# %s\n%s' % ('Acknowledgements', 'Special thanks to %s ' % ('  '.join(list(set(thanks_to))))))
+  with open(f"release_note_{args.milestone}.md", 'w') as f:
+    for key, value in dic.items():
+      print('# %s\n%s' % (key, ''.join(value)), file=f)
+    print('# %s\n%s' % ('Acknowledgements', 'Special thanks to %s ' % ('  '.join(list(set(thanks_to))))), file=f)
