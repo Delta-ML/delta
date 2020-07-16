@@ -15,7 +15,9 @@
 # ==============================================================================
 ''' Estimator base class for classfication '''
 import os
+import re
 import functools
+import collections
 from absl import logging
 import delta.compat as tf
 from tensorflow.python import debug as tf_debug  #pylint: disable=no-name-in-module
@@ -71,6 +73,80 @@ class EstimatorSolver(ABCEstimatorSolver):
         _l2_loss = weight_decay * tf.add_n([tf.nn.l2_loss(v) for v in tvars])
         summary_lib.scalar('l2_loss', _l2_loss)
     return _l2_loss
+
+  def get_assignment_map_from_checkpoint(self, tvars, init_checkpoint):
+    """Compute the union of the current variables and checkpoint variables."""
+    assignment_map = {}
+    initialized_variable_names = {}
+
+    name_to_variable = collections.OrderedDict()
+    for var in tvars:
+      name = var.name
+      m = re.match("^(.*):\\d+$", name)
+      if m is not None:
+        name = m.group(1)
+      name_to_variable[name] = var
+
+    init_vars = tf.train.list_variables(init_checkpoint)
+
+    assignment_map = collections.OrderedDict()
+    for x in init_vars:
+      (name, var) = (x[0], x[1])
+      if name not in name_to_variable:
+        continue
+      assignment_map[name] = name
+      initialized_variable_names[name] = 1
+      initialized_variable_names[name + ":0"] = 1
+
+    return (assignment_map, initialized_variable_names)
+
+  def init_from_checkpoint(self):
+    ''' do transfer learning by init sub vars from other checkpoint. '''
+    if 'transfer' not in self.config['solver']:
+      return 
+    transfer_cfg = self.config['solver']['transfer']
+    enable = transfer_cfg['enable']
+    if not enable:
+      return
+    init_checkpoint = transfer_cfg['ckpt_path']
+    exclude = transfer_cfg['exclude_reg']
+    include = transfer_cfg['include_reg']
+    logging.info(f"Transfer from checkpoint: {init_checkpoint}")
+    logging.info(f"Transfer exclude: {exclude}")
+    logging.info(f"Transfer include: {include}")
+
+    tvars = tf.trainable_variables()
+    initialized_variable_names = {}
+    if init_checkpoint:
+      def _filter_by_reg(tvars, include, exclude):
+        include = include if include else []
+        exclude = exclude if exclude else []
+        outs = []
+        for var in tvars:
+          name = var.name
+          for reg_str in include:
+            logging.debug(f"var:{name}, reg: {reg_str}")
+            m = re.match(reg_str, name)
+            if m is not None:
+              outs.append(var)
+          for reg_str in exclude:
+            logging.debug(f"var:{name}, reg: {reg_str}")
+            m = re.match(reg_str, name)
+            if m is None:
+              outs.append(var)
+        return outs
+      tvars = _filter_by_reg(tvars, include, exclude) 
+      assignment_map, initialized_variable_names = \
+        self.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+      tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+
+    logging.info("**** Trainable Variables ****")
+    for var in tvars:
+      init_string = ""
+      if var.name in initialized_variable_names:
+        init_string = ", *INIT_FROM_CKPT*"
+      logging.info("  name = %s, shape = %s%s", var.name, var.shape,
+                      init_string)
 
   def model_fn(self):
     ''' return model_fn '''
@@ -144,10 +220,11 @@ class EstimatorSolver(ABCEstimatorSolver):
         # L2 loss
         loss_all += self.l2_loss()
 
+        utils.log_vars('****** Global Vars *****', tf.global_variables())
+        self.init_from_checkpoint()
         train_op = self.get_train_op(loss_all)
         train_hooks = self.get_train_hooks(labels, logits, alpha=alignment)
 
-        utils.log_vars('Global Vars', tf.global_variables())
         return tf.estimator.EstimatorSpec(  #pylint: disable=no-member
             mode=mode,
             loss=loss_all,
@@ -179,7 +256,7 @@ class EstimatorSolver(ABCEstimatorSolver):
     # multi-gpus
     devices, num_gpu = utils.gpu_device_names()
     distribution = utils.get_distribution_strategy(num_gpu)
-    logging.info('Device: {}/{}'.format(num_gpu, devices))
+    logging.info('Device: num = {}, list = {}'.format(num_gpu, devices))
 
     # run config
     tfconf = self.config['solver']['run_config']
