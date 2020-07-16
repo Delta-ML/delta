@@ -61,7 +61,7 @@ struct In {
   std::string _graph_name;
   std::string _input_name;
   const void* _ptr;
-  std::size_t _nelms; // elements 
+  std::size_t _nelms;  // elements
   Shape _shape;
 };
 

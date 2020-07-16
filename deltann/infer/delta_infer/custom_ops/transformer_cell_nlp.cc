@@ -434,11 +434,10 @@ class TansformerCellNLPOp : public OpKernel {
                 errors::InvalidArgument("ff_layer_2_1_bias is null"));
 
     Tensor *output = nullptr;
-    OP_REQUIRES_OK(
-        context,
-        context->allocate_output(
-            0, {w_shape.dim_size(0), w_shape.dim_size(1), w_shape.dim_size(2)},
-            &output));
+    OP_REQUIRES_OK(context, context->allocate_output(
+                                0, {w_shape.dim_size(0), w_shape.dim_size(1),
+                                    w_shape.dim_size(2)},
+                                &output));
     _param.transformer_out =
         reinterpret_cast<typename traits::DataType *>(output->flat<T>().data());
     // initial

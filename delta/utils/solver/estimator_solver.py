@@ -103,7 +103,7 @@ class EstimatorSolver(ABCEstimatorSolver):
   def init_from_checkpoint(self):
     ''' do transfer learning by init sub vars from other checkpoint. '''
     if 'transfer' not in self.config['solver']:
-      return 
+      return
     transfer_cfg = self.config['solver']['transfer']
     enable = transfer_cfg['enable']
     if not enable:
@@ -118,6 +118,7 @@ class EstimatorSolver(ABCEstimatorSolver):
     tvars = tf.trainable_variables()
     initialized_variable_names = {}
     if init_checkpoint:
+
       def _filter_by_reg(tvars, include, exclude):
         include = include if include else []
         exclude = exclude if exclude else []
@@ -135,7 +136,8 @@ class EstimatorSolver(ABCEstimatorSolver):
             if m is None:
               outs.append(var)
         return outs
-      tvars = _filter_by_reg(tvars, include, exclude) 
+
+      tvars = _filter_by_reg(tvars, include, exclude)
       assignment_map, initialized_variable_names = \
         self.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
       tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
@@ -146,7 +148,7 @@ class EstimatorSolver(ABCEstimatorSolver):
       if var.name in initialized_variable_names:
         init_string = ", *INIT_FROM_CKPT*"
       logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-                      init_string)
+                   init_string)
 
   def model_fn(self):
     ''' return model_fn '''

@@ -211,7 +211,7 @@ void TransformerCellFunctor<GPUDevice, float>::operator()(
         sum);
   };
 
-    // TODO
+// TODO
 #endif
 }
 

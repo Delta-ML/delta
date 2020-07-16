@@ -65,7 +65,8 @@ def log_vars(prefix, variables):
   ''' logging TF varables metadata '''
   logging.info(f"{prefix}:")
   for var in variables:
-    logging.info(f"\tname = {var.name}, shape = {var.shape}, device = {var.device}")
+    logging.info(
+        f"\tname = {var.name}, shape = {var.shape}, device = {var.device}")
 
 
 #pylint: disable=bad-continuation

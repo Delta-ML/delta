@@ -24,9 +24,8 @@ PYBIND11_MODULE(export_py, module) {
       .def("LoadModel",
            delta_overload_cast<const char*>()(&grappler::Pattern::LoadModel),
            "Load tf model from pb files.")
-      .def("LoadModelCT",
-           delta_overload_cast<const std::string&>()(
-               &grappler::Pattern::LoadModelCT),
+      .def("LoadModelCT", delta_overload_cast<const std::string&>()(
+                              &grappler::Pattern::LoadModelCT),
            "Load tf model from GraphDef string buffer.")
       .def("get_hint_node", &grappler::Pattern::get_hint_node)
       .def("set_hint_node_type", &grappler::Pattern::set_hint_node_type)
@@ -40,9 +39,8 @@ PYBIND11_MODULE(export_py, module) {
       .def("node",
            delta_overload_cast<int>()(&grappler::Pattern::node, py::const_),
            "Get Node by index.")
-      .def("node",
-           delta_overload_cast<const std::string&>()(&grappler::Pattern::node,
-                                                     py::const_),
+      .def("node", delta_overload_cast<const std::string&>()(
+                       &grappler::Pattern::node, py::const_),
            "Get Node by name.")
       .def_property_readonly("is_input", &grappler::Pattern::is_input);
   //.def(py::self == py::self)
