@@ -90,6 +90,7 @@ class Mfcc(BaseFrontend):
     coefficient_count = 13
     use_energy = True
     dither = 0.0
+    is_log10 = False
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -109,6 +110,7 @@ class Mfcc(BaseFrontend):
     hparams.add_hparam('coefficient_count', coefficient_count)
     hparams.add_hparam('use_energy', use_energy)
     hparams.add_hparam('dither', dither)
+    hparams.add_hparam('is_log10', is_log10)
 
     if config is not None:
       hparams.override_from_dict(config)
