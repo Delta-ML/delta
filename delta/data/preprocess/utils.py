@@ -129,7 +129,6 @@ def prepare_embedding(pre_train_emb_path, text_vocab_path, embedding_path):
     line = line.strip().split(' ')
     word = line[0]
     vector = [float(i) for i in line[1:]]
-    vector = vector / np.linalg.norm(vector)
     emb_dict[word] = vector
     emb_size = len(vector)
   logging.info("Load {} vectors".format(line_num))
@@ -139,7 +138,7 @@ def prepare_embedding(pre_train_emb_path, text_vocab_path, embedding_path):
   # get embedding vector for words in vocab
   vocab_size = len(vocabs)
   emb_list = [[]] * vocab_size
-  bound = np.sqrt(1.0) / np.sqrt(vocab_size)
+  bound = 1
   count_exist = 0
   count_not_exist = 0
   word_id = 0
