@@ -42,6 +42,7 @@ plp = gen_x_ops.plp
 analyfiltbank = gen_x_ops.analyfiltbank
 synthfiltbank = gen_x_ops.synthfiltbank
 fbank = gen_x_ops.fbank
+mel_spectrum = gen_x_ops.mel_spectrum
 ngram = gen_x_ops.ngram
 vocab_token_to_id = gen_x_ops.vocab_token_to_id
 vocab_id_to_token = gen_x_ops.vocab_id_to_token

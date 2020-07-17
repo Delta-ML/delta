@@ -57,10 +57,16 @@ class Fbank {
     filterbank_channel_count_ = filterbank_channel_count;
   }
 
+   void set_is_log10(bool is_log10) {
+    CHECK(!initialized_) << "Set log format before calling Initialize.";
+    is_log10_ = is_log10;
+  }
+
  private:
   MfccMelFilterbank mel_filterbank_;
   int input_length_;
   bool initialized_;
+  bool is_log10_;
   double lower_frequency_limit_;
   double upper_frequency_limit_;
   int filterbank_channel_count_;

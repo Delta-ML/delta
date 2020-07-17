@@ -65,6 +65,22 @@ class PitchOp : public OpKernel {
                    context->GetAttr("recompute_frame", &recompute_frame_));
     OP_REQUIRES_OK(context,
                    context->GetAttr("nccf_ballast_online", &nccf_ballast_online_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("pitch_scale", &pitch_scale_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("pov_scale", &pov_scale_));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("pov_offset", &pov_offset_));
+    OP_REQUIRES_OK(context, context->GetAttr("delta_pitch_scale", &delta_pitch_scale_));
+    OP_REQUIRES_OK(context, context->GetAttr("delta_pitch_noise_stddev", &delta_pitch_noise_stddev_));
+    OP_REQUIRES_OK(context, context->GetAttr("normalization_left_context", &normalization_left_context_));
+    OP_REQUIRES_OK(context, context->GetAttr("normalization_right_context", &normalization_right_context_));
+    OP_REQUIRES_OK(context, context->GetAttr("delta_window", &delta_window_));
+    OP_REQUIRES_OK(context, context->GetAttr("delay", &delay_));
+    OP_REQUIRES_OK(context, context->GetAttr("add_pov_feature", &add_pov_feature_));
+    OP_REQUIRES_OK(context, context->GetAttr("add_normalized_log_pitch", &add_normalized_log_pitch_));
+    OP_REQUIRES_OK(context, context->GetAttr("add_delta_pitch", &add_delta_pitch_));
+    OP_REQUIRES_OK(context, context->GetAttr("add_raw_log_pitch", &add_raw_log_pitch_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -87,10 +103,6 @@ class PitchOp : public OpKernel {
     int i_NumFrm = (L - i_WinLen) / i_FrmLen + 1;
     if (snip_edges_ == false)
         i_NumFrm = (L + i_FrmLen / 2) / i_FrmLen;
-    OP_REQUIRES_OK(
-        context, context->allocate_output(0, TensorShape({i_NumFrm, 2}),
-                                          &output_tensor));
-    float* output_flat = output_tensor->flat<float>().data();
     PitchExtractionOptions pitch_opts;
     pitch_opts.set_samp_freq(static_cast<BaseFloat>(sample_rate));
     pitch_opts.set_frame_shift_ms(static_cast<BaseFloat>(frame_length_));
@@ -118,12 +130,40 @@ class PitchOp : public OpKernel {
         waveform[i] = static_cast<BaseFloat>(input_flat[i]);
     }
     ComputeKaldiPitch(pitch_opts, waveform, &features);
-    for(int j = 0; j < i_NumFrm; j++){
-        for(int k = 0; k < 2; k++){
-            output_flat[j * 2 + k] = static_cast<float>(features[j][k]);
+
+//    Process Pitch features
+    ProcessPitchOptions process_opts;
+    process_opts.set_pitch_scale(static_cast<BaseFloat>(pitch_scale_));
+    process_opts.set_pov_scale(pov_scale_);
+    process_opts.set_pov_offset(pov_offset_);
+    process_opts.set_delta_pitch_scale(delta_pitch_scale_);
+    process_opts.set_delta_pitch_noise_stddev(delta_pitch_noise_stddev_);
+    process_opts.set_normalization_left_context(normalization_left_context_);
+    process_opts.set_normalization_right_context(normalization_right_context_);
+    process_opts.set_delta_window(delta_window_);
+    process_opts.set_delay(delay_);
+    process_opts.set_add_pov_feature(add_pov_feature_);
+    process_opts.set_add_normalized_log_pitch(add_normalized_log_pitch_);
+    process_opts.set_add_delta_pitch(add_delta_pitch_);
+    process_opts.set_add_raw_log_pitch(add_raw_log_pitch_);
+
+    vector<vector<BaseFloat>> prcocessd_features(i_NumFrm, vector<BaseFloat>(3));
+    ProcessPitch(process_opts, features, &prcocessd_features);
+    int dim = prcocessd_features[0].size();
+    OP_REQUIRES_OK(
+    context, context->allocate_output(0, TensorShape({i_NumFrm, dim}),
+                                      &output_tensor));
+    float* output_flat = output_tensor->flat<float>().data();
+     for(int n = 0; n < i_NumFrm; n++){
+        for(int m = 0; m < dim; m++){
+            output_flat[n * dim + m] = static_cast<float>(prcocessd_features[n][m]);
         }
-    }
+     }
+
+    for (int i = 0; i < i_NumFrm; i++)
+    vector<BaseFloat>().swap(features[i]);
    }
+
 
  private:
   float window_length_;
@@ -145,6 +185,19 @@ class PitchOp : public OpKernel {
   int recompute_frame_;
   bool nccf_ballast_online_;
   bool snip_edges_;
+  float pitch_scale_;
+  float pov_scale_;
+  float pov_offset_;
+  float delta_pitch_scale_;
+  float delta_pitch_noise_stddev_;
+  int normalization_left_context_;
+  int normalization_right_context_;
+  int delta_window_;
+  int delay_;
+  bool add_pov_feature_;
+  bool add_normalized_log_pitch_;
+  bool add_delta_pitch_;
+  bool add_raw_log_pitch_;
 };
 
 REGISTER_KERNEL_BUILDER(Name("Pitch").Device(DEVICE_CPU), PitchOp);

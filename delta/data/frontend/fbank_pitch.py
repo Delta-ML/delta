@@ -144,6 +144,21 @@ class FbankPitch(BaseFrontend):
     simulate_first_pass_online = False
     recompute_frame = 500
     nccf_ballast_online = False
+    is_log10 = False
+
+    pitch_scale = 2.0
+    pov_scale = 2.0
+    pov_offset = 0.0
+    delta_pitch_scale = 10.0
+    delta_pitch_noise_stddev = 0.005
+    normalization_left_context = 75
+    normalization_right_context = 75
+    delta_window = 2
+    delay = 0
+    add_pov_feature = True
+    add_normalized_log_pitch = True
+    add_delta_pitch = True
+    add_raw_log_pitch = False
 
     hparams.add_hparam('sample_rate', sample_rate)
     hparams.add_hparam('snip_edges', snip_edges)
@@ -175,6 +190,21 @@ class FbankPitch(BaseFrontend):
     hparams.add_hparam('window_type', window_type)
     hparams.add_hparam('remove_dc_offset', remove_dc_offset)
     hparams.add_hparam('is_fbank', is_fbank)
+    hparams.add_hparam('is_log10', is_log10)
+    hparams.add_hparam('pitch_scale', pitch_scale)
+    hparams.add_hparam('pov_offset', pov_offset)
+    hparams.add_hparam('pov_scale', pov_scale)
+    hparams.add_hparam('delta_pitch_scale', delta_pitch_scale)
+    hparams.add_hparam('delta_pitch_noise_stddev', delta_pitch_noise_stddev)
+    hparams.add_hparam('normalization_left_context', normalization_left_context)
+    hparams.add_hparam('normalization_right_context', normalization_right_context)
+    hparams.add_hparam('delta_window', delta_window)
+    hparams.add_hparam('delay', delay)
+    hparams.add_hparam('add_pov_feature', add_pov_feature)
+    hparams.add_hparam('add_normalized_log_pitch',
+                       add_normalized_log_pitch)
+    hparams.add_hparam('add_delta_pitch', add_delta_pitch)
+    hparams.add_hparam('add_raw_log_pitch', add_raw_log_pitch)
 
     if config is not None:
       hparams.override_from_dict(config)

@@ -15,7 +15,7 @@ limitations under the License.
 ==============================================================================*/
 
 // See docs in ../ops/audio_ops.cc
-#include "kernels/fbank.h"
+#include "kernels/mel_spectrum.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/tensor.h"
@@ -25,18 +25,15 @@ limitations under the License.
 
 namespace delta {
 
-// Create a speech fingerpring from spectrogram data.
-class FbankOp : public OpKernel {
+class MelSpectrumOp : public OpKernel {
  public:
-  explicit FbankOp(OpKernelConstruction* context) : OpKernel(context) {
+  explicit MelSpectrumOp(OpKernelConstruction* context) : OpKernel(context) {
     OP_REQUIRES_OK(context, context->GetAttr("upper_frequency_limit",
                                              &upper_frequency_limit_));
     OP_REQUIRES_OK(context, context->GetAttr("lower_frequency_limit",
                                              &lower_frequency_limit_));
     OP_REQUIRES_OK(context, context->GetAttr("filterbank_channel_count",
                                              &filterbank_channel_count_));
-    OP_REQUIRES_OK(context, context->GetAttr("is_log10",
-                                             &is_log10_));
   }
 
   void Compute(OpKernelContext* context) override {
@@ -61,14 +58,11 @@ class FbankOp : public OpKernel {
     const int spectrogram_samples = spectrogram.dim_size(1);
     const int audio_channels = spectrogram.dim_size(0);
 
-    Fbank fbank;
-    fbank.set_upper_frequency_limit(upper_frequency_limit_);
-    fbank.set_lower_frequency_limit(lower_frequency_limit_);
-    fbank.set_filterbank_channel_count(filterbank_channel_count_);
-    fbank.set_is_log10(is_log10_);
-    OP_REQUIRES(context, fbank.Initialize(spectrogram_channels, sample_rate),
+    MelSpectrum mel_spectrum;
+    OP_REQUIRES(context, mel_spectrum.Initialize(spectrogram_channels, sample_rate,
+        filterbank_channel_count_, lower_frequency_limit_, upper_frequency_limit_),
                 errors::InvalidArgument(
-                    "Fbank initialization failed for channel count ",
+                    "MelSpectrum initialization failed for channel count ",
                     spectrogram_channels, " and sample rate ", sample_rate));
 
     Tensor* output_tensor = nullptr;
@@ -90,20 +84,20 @@ class FbankOp : public OpKernel {
             spectrogram_flat +
             (audio_channel * spectrogram_samples * spectrogram_channels) +
             (spectrogram_sample * spectrogram_channels);
-        std::vector<double> fbank_input(sample_data,
+        std::vector<double> spectrogram_input(sample_data,
                                         sample_data + spectrogram_channels);
-        std::vector<double> fbank_output;
-        fbank.Compute(fbank_input, &fbank_output);
-        DCHECK_EQ(filterbank_channel_count_, fbank_output.size());
+        std::vector<double> mel_spectrum_output;
+        mel_spectrum.Compute(spectrogram_input, &mel_spectrum_output);
+        DCHECK_EQ(filterbank_channel_count_, mel_spectrum_output.size());
         float* output_data =
             output_flat +
             (audio_channel * spectrogram_samples * filterbank_channel_count_) +
             (spectrogram_sample * filterbank_channel_count_);
         for (int i = 0; i < filterbank_channel_count_; ++i) {
-          output_data[i] = fbank_output[i];
+          output_data[i] = mel_spectrum_output[i];
         }
-        std::vector<double>().swap(fbank_input);
-        std::vector<double>().swap(fbank_output);
+        std::vector<double>().swap(spectrogram_input);
+        std::vector<double>().swap(mel_spectrum_output);
       }
     }
   }
@@ -112,9 +106,8 @@ class FbankOp : public OpKernel {
   float upper_frequency_limit_;
   float lower_frequency_limit_;
   int32 filterbank_channel_count_;
-  bool is_log10_;
 };
 
-REGISTER_KERNEL_BUILDER(Name("Fbank").Device(DEVICE_CPU), FbankOp);
+REGISTER_KERNEL_BUILDER(Name("MelSpectrum").Device(DEVICE_CPU), MelSpectrumOp);
 
 }  // namespace delta

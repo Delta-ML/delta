@@ -27,33 +27,27 @@ limitations under the License.
 #include "tensorflow/core/platform/logging.h"
 #include "kernels/support_functions.h"
 #include "kernels/resample.h"
+#include "kernels/delta_delta.h"
 
 using namespace tensorflow;  // NOLINT
 
 namespace delta {
 
 struct PitchExtractionOptions {
-  // FrameExtractionOptions frame_opts;
-  BaseFloat samp_freq;          // sample frequency in hertz
-  BaseFloat frame_shift_ms;     // in milliseconds.
-  BaseFloat frame_length_ms;    // in milliseconds.
-  BaseFloat preemph_coeff;      // Preemphasis coefficient. [use is deprecated.]
-  BaseFloat min_f0;             // min f0 to search (Hz)
-  BaseFloat max_f0;             // max f0 to search (Hz)
-  BaseFloat soft_min_f0;        // Minimum f0, applied in soft way, must not
-                                // exceed min-f0
-  BaseFloat penalty_factor;     // cost factor for FO change
-  BaseFloat lowpass_cutoff;     // cutoff frequency for Low pass filter
-  BaseFloat resample_freq;      // Integer that determines filter width when
-                                // upsampling NCCF
-  BaseFloat delta_pitch;        // the pitch tolerance in pruning lags
-  BaseFloat nccf_ballast;       // Increasing this factor reduces NCCF for
-                                // quiet frames, helping ensure pitch
-                                // continuity in unvoiced region
-  int lowpass_filter_width;   // Integer that determines filter width of
-                                // lowpass filter
-  int upsample_filter_width;  // Integer that determines filter width when
-                                // upsampling NCCF
+  BaseFloat samp_freq;
+  BaseFloat frame_shift_ms;
+  BaseFloat frame_length_ms;
+  BaseFloat preemph_coeff;
+  BaseFloat min_f0;
+  BaseFloat max_f0;
+  BaseFloat soft_min_f0;
+  BaseFloat penalty_factor;
+  BaseFloat lowpass_cutoff;
+  BaseFloat resample_freq;
+  BaseFloat delta_pitch;
+  BaseFloat nccf_ballast;
+  int lowpass_filter_width;
+  int upsample_filter_width;
 
   int max_frames_latency;
   int frames_per_chunk;
@@ -116,6 +110,56 @@ struct PitchExtractionOptions {
   }
 };
 
+struct ProcessPitchOptions {
+  BaseFloat pitch_scale;
+  BaseFloat pov_scale;
+  BaseFloat pov_offset;
+
+  BaseFloat delta_pitch_scale;
+  BaseFloat delta_pitch_noise_stddev;
+  int normalization_left_context;
+  int normalization_right_context;
+
+  int delta_window;
+  int delay;
+
+  bool add_pov_feature;
+  bool add_normalized_log_pitch;
+  bool add_delta_pitch;
+  bool add_raw_log_pitch;
+
+  ProcessPitchOptions() :
+      pitch_scale(2.0),
+      pov_scale(2.0),
+      pov_offset(0.0),
+      delta_pitch_scale(10.0),
+      delta_pitch_noise_stddev(0.005),
+      normalization_left_context(75),
+      normalization_right_context(75),
+      delta_window(2),
+      delay(0),
+      add_pov_feature(true),
+      add_normalized_log_pitch(true),
+      add_delta_pitch(true),
+      add_raw_log_pitch(false) { }
+
+  void set_pitch_scale(BaseFloat pitch_scale_) { pitch_scale = pitch_scale_; }
+  void set_pov_scale(BaseFloat pov_scale_) { pov_scale = pov_scale_; }
+  void set_pov_offset(BaseFloat pov_offset_) { pov_offset = pov_offset_; }
+  void set_delta_pitch_scale(BaseFloat delta_pitch_scale_) { delta_pitch_scale = delta_pitch_scale_; }
+  void set_delta_pitch_noise_stddev(BaseFloat delta_pitch_noise_stddev_) { delta_pitch_noise_stddev = delta_pitch_noise_stddev_; }
+  void set_normalization_left_context(int normalization_left_context_) {normalization_left_context = normalization_left_context_; }
+  void set_normalization_right_context(int normalization_right_context_) { normalization_right_context = normalization_right_context_;}
+  void set_delta_window(int delta_window_) { delta_window = delta_window_; }
+  void set_delay(int delay_) { delay = delay_; }
+  void set_add_pov_feature(bool add_pov_feature_) { add_pov_feature = add_pov_feature_; }
+  void set_add_normalized_log_pitch(bool add_normalized_log_pitch_) { add_normalized_log_pitch = add_normalized_log_pitch_; }
+  void set_add_delta_pitch(bool add_delta_pitch_) { add_delta_pitch = add_delta_pitch_; }
+  void set_add_raw_log_pitch(bool add_raw_log_pitch_) { add_raw_log_pitch = add_raw_log_pitch_; }
+
+};
+
+
 class OnlinePitchFeatureImpl;
 
 class OnlineFeatureInterface {
@@ -148,9 +192,6 @@ class OnlineBaseFeature: public OnlineFeatureInterface {
 };
 
 
-
-// Note: to start on a new waveform, just construct a new version
-// of this object.
 class OnlinePitchFeature: public OnlineBaseFeature {
  public:
   explicit OnlinePitchFeature(const PitchExtractionOptions &opts);
@@ -163,8 +204,6 @@ class OnlinePitchFeature: public OnlineBaseFeature {
 
   virtual bool IsLastFrame(int frame) const;
 
-  /// Outputs the two-dimensional feature consisting of (pitch, NCCF).  You
-  /// should probably post-process this using class OnlineProcessPitch.
   virtual void GetFrame(int frame, vector<BaseFloat> *feat);
 
   virtual void AcceptWaveform(BaseFloat sampling_rate,
@@ -178,10 +217,100 @@ class OnlinePitchFeature: public OnlineBaseFeature {
   OnlinePitchFeatureImpl *impl_;
 };
 
-/// This function extracts (pitch, NCCF) per frame.
+class OnlineMatrixFeature: public OnlineFeatureInterface {
+ public:
+  explicit OnlineMatrixFeature(const vector<vector<BaseFloat>> &mat): mat_(mat) { }
+
+  virtual int Dim() const { return mat_[0].size(); }
+
+  virtual BaseFloat FrameShiftInSeconds() const {
+    return 0.01f;
+  }
+
+  virtual int NumFramesReady() const { return mat_.size(); }
+
+  virtual void GetFrame(int frame, vector<BaseFloat> *feat) {
+    (*feat) = mat_[frame];
+  }
+
+  virtual bool IsLastFrame(int frame) const {
+    return (frame + 1 == mat_.size());
+  }
+
+
+ private:
+  const vector<vector<BaseFloat>> &mat_;
+};
+
+class OnlineProcessPitch: public OnlineFeatureInterface {
+ public:
+  virtual int Dim() const { return dim_; }
+
+  virtual bool IsLastFrame(int frame) const {
+    if (frame <= -1)
+      return src_->IsLastFrame(-1);
+    else if (frame < opts_.delay)
+      return src_->IsLastFrame(-1) == true ? false : src_->IsLastFrame(0);
+    else
+      return src_->IsLastFrame(frame - opts_.delay);
+  }
+  virtual BaseFloat FrameShiftInSeconds() const {
+    return src_->FrameShiftInSeconds();
+  }
+
+  virtual int NumFramesReady() const;
+
+  virtual void GetFrame(int frame, vector<BaseFloat> *feat);
+
+  virtual ~OnlineProcessPitch() {  }
+
+  OnlineProcessPitch(const ProcessPitchOptions &opts,
+                     OnlineFeatureInterface *src);
+
+ private:
+  enum { kRawFeatureDim = 2};
+
+  ProcessPitchOptions opts_;
+  OnlineFeatureInterface *src_;
+  int dim_;
+
+  struct NormalizationStats {
+    int cur_num_frames;
+    bool input_finished;
+    double sum_pov;
+    double sum_log_pitch_pov;
+
+    NormalizationStats(): cur_num_frames(-1), input_finished(false),
+                          sum_pov(0.0), sum_log_pitch_pov(0.0) { }
+  };
+
+  std::vector<BaseFloat> delta_feature_noise_;
+
+  std::vector<NormalizationStats> normalization_stats_;
+
+  inline BaseFloat GetPovFeature(int frame) const;
+
+  inline BaseFloat GetDeltaPitchFeature(int frame);
+
+  inline BaseFloat GetRawLogPitchFeature(int frame) const;
+
+  inline BaseFloat GetNormalizedLogPitchFeature(int frame);
+
+  inline void GetNormalizationWindow(int frame,
+                                     int src_frames_ready,
+                                     int *window_begin,
+                                     int *window_end) const;
+
+  inline void UpdateNormalizationStats(int frame);
+};
+
 void ComputeKaldiPitch(const PitchExtractionOptions &opts,
                        const vector<BaseFloat> &wave,
                        vector<vector<BaseFloat>> *output);
+
+void ProcessPitch(const ProcessPitchOptions &opts,
+                  const vector<vector<BaseFloat>> &input,
+                  vector<vector<BaseFloat>> *output);
 
 }  // namespace delta
 #endif  // DELTA_LAYERS_OPS_KERNELS_PITCH_H_

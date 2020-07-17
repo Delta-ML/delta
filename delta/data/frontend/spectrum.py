@@ -55,7 +55,7 @@ class Spectrum(BaseFrontend):
                                   If false, using the frame energy instead of the square of the
                                   constant component of the signal. (bool, default = false)
           --output_type			: If 1, return power spectrum. If 2, return log-power spectrum.
-                                  (int, default = 2)
+                                  If 3, return magnitude spectrum. (int, default = 2)
           --dither		        : Dithering constant (0.0 means no dither).
                                  (float, default = 1) [add robust to training]
     :return: An object of class HParams, which is a set of hyperparameters as name-value pairs.

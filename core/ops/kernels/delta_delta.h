@@ -36,6 +36,7 @@ namespace delta {
 class DeltaDelta {
  public:
   DeltaDelta();
+  ~DeltaDelta();
 
   bool Initialize(int order, int window);
 
@@ -43,6 +44,8 @@ class DeltaDelta {
   // the feature, delta, delta-delta values.
   void Compute(const Tensor& input_feats, int frame,
                std::vector<double>* output) const;
+  void Compute_frame(const std::vector<std::vector<float>> &input_feats, int frame,
+                std::vector<float>* output) const;
 
   void set_order(int order) {
     CHECK(!initialized_) << "Set order before calling Initialize.";

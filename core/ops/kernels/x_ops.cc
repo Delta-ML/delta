@@ -349,6 +349,19 @@ REGISTER_OP("Pitch")
     .Attr("simulate_first_pass_online: bool = false")
     .Attr("recompute_frame: int = 500")
     .Attr("nccf_ballast_online: bool = false")
+    .Attr("pitch_scale: float = 2.0")
+    .Attr("pov_scale: float = 2.0")
+    .Attr("pov_offset: float = 0.0")
+    .Attr("delta_pitch_scale: float = 10.0")
+    .Attr("delta_pitch_noise_stddev: float = 0.005")
+    .Attr("normalization_left_context: int = 75")
+    .Attr("normalization_right_context: int = 75")
+    .Attr("delta_window: int = 2")
+    .Attr("delay: int = 0")
+    .Attr("add_pov_feature: bool = true")
+    .Attr("add_normalized_log_pitch: bool = true")
+    .Attr("add_delta_pitch: bool = true")
+    .Attr("add_raw_log_pitch: bool = true")
     .Output("output: float")
     .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c){
         return Status::OK();
@@ -519,6 +532,7 @@ REGISTER_OP("Fbank")
     .Attr("upper_frequency_limit: float = 4000")
     .Attr("lower_frequency_limit: float = 20")
     .Attr("filterbank_channel_count: int = 40")
+    .Attr("is_log10: bool = false")
     .Output("output: float")
     .SetShapeFn(FbankShapeFn)
     .Doc(R"doc(
@@ -528,7 +542,29 @@ spectrogram
 sample_rate: int32, how many samples per second the source audio used. e.g. 16000, 8000.
 upper_frequency_limit: float, the highest frequency to use when calculating the ceptstrum.
 lower_frequency_limit: float, the lowest frequency to use when calculating the ceptstrum.
-filterbank_channel_count: int, resolution of the Mel bank used internally. 
+filterbank_channel_count: int, resolution of the Mel bank used internally.
+output: float, fbank features, a tensor of shape [audio_channels, spectrogram_length, bank_feat_dim].
+)doc");
+
+REGISTER_OP("MelSpectrum")
+    .Input("spectrogram: float")
+    .Input("sample_rate: int32")
+    .Attr("upper_frequency_limit: float = 0")
+    .Attr("lower_frequency_limit: float = 20")
+    .Attr("filterbank_channel_count: int = 23")
+    .Output("output: float")
+    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c){
+        return Status::OK();
+    })
+//    .SetShapeFn(FbankShapeFn)
+    .Doc(R"doc(
+Create Mel-Spectrum feature files.(
+spectrogram
+: float, A tensor of shape [audio_channels, spectrogram_length, spectrogram_feat_dim].
+sample_rate: int32, how many samples per second the source audio used. e.g. 16000, 8000.
+upper_frequency_limit: float, the highest frequency to use when calculating the ceptstrum.
+lower_frequency_limit: float, the lowest frequency to use when calculating the ceptstrum.
+filterbank_channel_count: int, resolution of the Mel bank used internally.
 output: float, fbank features, a tensor of shape [audio_channels, spectrogram_length, bank_feat_dim].
 )doc");
 

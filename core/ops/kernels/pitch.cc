@@ -985,9 +985,7 @@ void ComputeKaldiPitchFirstPass(
   vector<vector<BaseFloat>> feats(cur_rows, vector<BaseFloat>(2));
 
   OnlinePitchFeature pitch_extractor(opts);
-  assert(opts.frames_per_chunk > 0 &&
-               "--simulate-first-pass-online option does not make sense "
-               "unless you specify --frames-per-chunk");
+  assert(opts.frames_per_chunk > 0 );
 
   int cur_offset = 0, cur_frame = 0, samp_per_chunk =
       opts.frames_per_chunk * opts.samp_freq * opts.frame_shift_ms / 1000.0f;
@@ -1065,5 +1063,181 @@ void ComputeKaldiPitch(const PitchExtractionOptions &opts,
   }
 }
 
-}  // namespace delta
+OnlineProcessPitch::OnlineProcessPitch(
+    const ProcessPitchOptions &opts,
+    OnlineFeatureInterface *src):
+    opts_(opts), src_(src),
+    dim_ ((opts.add_pov_feature ? 1 : 0)
+          + (opts.add_normalized_log_pitch ? 1 : 0)
+          + (opts.add_delta_pitch ? 1 : 0)
+          + (opts.add_raw_log_pitch ? 1 : 0)) {
+  assert(dim_ > 0);
+  assert(src->Dim() == kRawFeatureDim);
+}
 
+
+void OnlineProcessPitch::GetFrame(int frame,
+                                  vector<BaseFloat> *feat) {
+  int frame_delayed = frame < opts_.delay ? 0 : frame - opts_.delay;
+  assert(feat->size() == dim_ && frame_delayed < NumFramesReady());
+  int index = 0;
+  if (opts_.add_pov_feature)
+    (*feat)[index++] = GetPovFeature(frame_delayed);
+  if (opts_.add_normalized_log_pitch)
+    (*feat)[index++] = GetNormalizedLogPitchFeature(frame_delayed);
+  if (opts_.add_delta_pitch)
+    (*feat)[index++] = GetDeltaPitchFeature(frame_delayed);
+  if (opts_.add_raw_log_pitch)
+    (*feat)[index++] = GetRawLogPitchFeature(frame_delayed);
+  assert(index == dim_);
+}
+
+BaseFloat OnlineProcessPitch::GetPovFeature(int frame) const {
+  vector<BaseFloat> tmp(kRawFeatureDim);
+  src_->GetFrame(frame, &tmp);
+  BaseFloat nccf = tmp[0];
+  return opts_.pov_scale * NccfToPovFeature(nccf)
+      + opts_.pov_offset;
+}
+
+BaseFloat OnlineProcessPitch::GetDeltaPitchFeature(int frame) {
+  int context = opts_.delta_window;
+  int start_frame = std::max(0, frame - context),
+      end_frame = std::min(frame + context + 1, src_->NumFramesReady()),
+      frames_in_window = end_frame - start_frame;
+  vector<vector<BaseFloat>> feats(frames_in_window, vector<BaseFloat>(1)),
+      delta_feats(frames_in_window, vector<BaseFloat>(2));
+
+  for (int f = start_frame; f < end_frame; f++)
+    feats[f - start_frame][0] = GetRawLogPitchFeature(f);
+
+  DeltaDelta delta;
+  delta.Initialize(1, opts_.delta_window);
+  for (int i = 0; i < frames_in_window; i++)
+    delta.Compute_frame(feats, frame, &(delta_feats[i]));
+
+  while (delta_feature_noise_.size() <= static_cast<size_t>(frame)) {
+    delta_feature_noise_.push_back(RandGauss() *
+                                   opts_.delta_pitch_noise_stddev);
+  }
+  // note: delta_feats will have two columns, second contains deltas.
+  return (delta_feats[frame - start_frame][1] + delta_feature_noise_[frame]) *
+      opts_.delta_pitch_scale;
+}
+
+BaseFloat OnlineProcessPitch::GetRawLogPitchFeature(int frame) const {
+  vector<BaseFloat> tmp(kRawFeatureDim);
+  src_->GetFrame(frame, &tmp);
+  BaseFloat pitch = tmp[1];
+  assert(pitch > 0);
+  return log(pitch);
+}
+
+BaseFloat OnlineProcessPitch::GetNormalizedLogPitchFeature(int frame) {
+  UpdateNormalizationStats(frame);
+  BaseFloat log_pitch = GetRawLogPitchFeature(frame),
+      avg_log_pitch = normalization_stats_[frame].sum_log_pitch_pov /
+        normalization_stats_[frame].sum_pov,
+      normalized_log_pitch = log_pitch - avg_log_pitch;
+  return normalized_log_pitch * opts_.pitch_scale;
+}
+
+
+// inline
+void OnlineProcessPitch::GetNormalizationWindow(int t,
+                                                int src_frames_ready,
+                                                int *window_begin,
+                                                int *window_end) const {
+  int left_context = opts_.normalization_left_context;
+  int right_context = opts_.normalization_right_context;
+  *window_begin = std::max(0, t - left_context);
+  *window_end = std::min(t + right_context + 1, src_frames_ready);
+}
+
+void OnlineProcessPitch::UpdateNormalizationStats(int frame) {
+  assert(frame >= 0);
+  if (normalization_stats_.size() <= frame)
+    normalization_stats_.resize(frame + 1);
+  int cur_num_frames = src_->NumFramesReady();
+  bool input_finished = src_->IsLastFrame(cur_num_frames - 1);
+
+  NormalizationStats &this_stats = normalization_stats_[frame];
+  if (this_stats.cur_num_frames == cur_num_frames &&
+      this_stats.input_finished == input_finished) {
+    return;
+  }
+  int this_window_begin, this_window_end;
+  GetNormalizationWindow(frame, cur_num_frames,
+                         &this_window_begin, &this_window_end);
+
+  if (frame > 0) {
+    const NormalizationStats &prev_stats = normalization_stats_[frame - 1];
+    if (prev_stats.cur_num_frames == cur_num_frames &&
+        prev_stats.input_finished == input_finished) {
+      this_stats = prev_stats;
+      int prev_window_begin, prev_window_end;
+      GetNormalizationWindow(frame - 1, cur_num_frames,
+                             &prev_window_begin, &prev_window_end);
+      if (this_window_begin != prev_window_begin) {
+        assert(this_window_begin == prev_window_begin + 1);
+        vector<BaseFloat> tmp(kRawFeatureDim);
+        src_->GetFrame(prev_window_begin, &tmp);
+        BaseFloat accurate_pov = NccfToPov(tmp[0]),
+            log_pitch = log(tmp[1]);
+        this_stats.sum_pov -= accurate_pov;
+        this_stats.sum_log_pitch_pov -= accurate_pov * log_pitch;
+      }
+      if (this_window_end != prev_window_end) {
+        assert(this_window_end == prev_window_end + 1);
+        vector<BaseFloat> tmp(kRawFeatureDim);
+        src_->GetFrame(prev_window_end, &tmp);
+        BaseFloat accurate_pov = NccfToPov(tmp[0]),
+            log_pitch = log(tmp[1]);
+        this_stats.sum_pov += accurate_pov;
+        this_stats.sum_log_pitch_pov += accurate_pov * log_pitch;
+      }
+      return;
+    }
+  }
+  this_stats.cur_num_frames = cur_num_frames;
+  this_stats.input_finished = input_finished;
+  this_stats.sum_pov = 0.0;
+  this_stats.sum_log_pitch_pov = 0.0;
+  vector<BaseFloat> tmp(kRawFeatureDim);
+  for (int f = this_window_begin; f < this_window_end; f++) {
+    src_->GetFrame(f, &tmp);
+    BaseFloat accurate_pov = NccfToPov(tmp[0]),
+        log_pitch = log(tmp[1]);
+    this_stats.sum_pov += accurate_pov;
+    this_stats.sum_log_pitch_pov += accurate_pov * log_pitch;
+  }
+}
+
+int OnlineProcessPitch::NumFramesReady() const {
+  int src_frames_ready = src_->NumFramesReady();
+  if (src_frames_ready == 0) {
+    return 0;
+  } else if (src_->IsLastFrame(src_frames_ready - 1)) {
+    return src_frames_ready + opts_.delay;
+  } else {
+    return std::max(0, src_frames_ready -
+      opts_.normalization_right_context + opts_.delay);
+  }
+}
+
+void ProcessPitch(const ProcessPitchOptions &opts,
+                  const vector<vector<BaseFloat>> &input,
+                  vector<vector<BaseFloat>> *output) {
+  OnlineMatrixFeature pitch_feat(input);
+
+  OnlineProcessPitch online_process_pitch(opts, &pitch_feat);
+
+  output->resize(online_process_pitch.NumFramesReady());
+  for(int i = 0; i < online_process_pitch.NumFramesReady(); i++)
+    (*output)[i].resize(online_process_pitch.Dim());
+  for (int t = 0; t < online_process_pitch.NumFramesReady(); t++) {
+    online_process_pitch.GetFrame(t, &((*output)[t]));
+  }
+}
+
+}  // namespace delta

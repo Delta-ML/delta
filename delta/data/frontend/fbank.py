@@ -56,6 +56,8 @@ class Fbank(BaseFrontend):
                                          If false, using the frame energy instead of the
                                          square of the constant component of the signal.
                                          (bool, default = true)
+           --is_log10                  : If true, using log10 to fbank. If false, using loge.
+                                              (bool, default = false)
            --output_type				: If 1, return power spectrum. If 2, return log-power
                                          spectrum. (int, default = 1)
            --upper_frequency_limit		: High cutoff frequency for mel bins (if <= 0, offset
@@ -82,6 +84,7 @@ class Fbank(BaseFrontend):
     remove_dc_offset = True
     is_fbank = True
     dither = 0.0
+    is_log10 = False
 
     hparams = HParams(cls=cls)
     hparams.add_hparam('upper_frequency_limit', upper_frequency_limit)
@@ -98,6 +101,7 @@ class Fbank(BaseFrontend):
     hparams.add_hparam('remove_dc_offset', remove_dc_offset)
     hparams.add_hparam('is_fbank', is_fbank)
     hparams.add_hparam('dither', dither)
+    hparams.add_hparam('is_log10', is_log10)
 
     if config is not None:
       hparams.override_from_dict(config)
@@ -138,7 +142,8 @@ class Fbank(BaseFrontend):
             sample_rate,
             upper_frequency_limit=p.upper_frequency_limit,
             lower_frequency_limit=p.lower_frequency_limit,
-            filterbank_channel_count=p.filterbank_channel_count)
+            filterbank_channel_count=p.filterbank_channel_count,
+            is_log10=p.is_log10)
 
         fbank = tf.squeeze(fbank, axis=0)
         shape = tf.shape(fbank)
