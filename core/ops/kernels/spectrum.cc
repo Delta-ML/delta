@@ -170,6 +170,10 @@ int Spectrum::proc_spc(const float* mic_buf, int input_size) {
       for (k = 0; k < i_NumFrq; k++) {
         pf_SPC[n * i_NumFrq + k] = log(complex_abs2(fftwin[k]));
       }
+    } else if (i_OutTyp == 3) {
+      for (k = 0; k < i_NumFrq; k++) {
+        pf_SPC[n * i_NumFrq + k] = sqrt(complex_abs2(fftwin[k]));
+      }
     } else {
       return -1;
     }

@@ -26,6 +26,12 @@ const int kWindow = 2;
 DeltaDelta::DeltaDelta()
     : initialized_(false), order_(kOrder), window_(kWindow) {}
 
+DeltaDelta::~DeltaDelta() {
+    for (int i = 0; i < scales_.size(); i++)
+      std::vector<double>().swap(scales_[i]);
+    (scales_).clear();
+}
+
 bool DeltaDelta::Initialize(int order, int window) {
   if (order < 0 || order > 1000) {
     LOG(ERROR) << "order must be greater than zero and less than 1000.";
@@ -105,6 +111,44 @@ void DeltaDelta::Compute(const Tensor& input_feats, int frame,
       if (scale != 0.0) {
         for (int k = 0; k < feat_dim; k++) {
           (*output)[i + k * (order_ + 1)] += input(offset_frame, k) * scale;
+        }
+      }
+    }
+  }
+  return;
+}
+
+void DeltaDelta::Compute_frame(const std::vector<std::vector<float>> &input_feats, int frame,
+                std::vector<float>* output) const {
+
+   if (!initialized_) {
+   LOG(ERROR) << "DeltaDelta not initialized.";
+   return;
+   }
+
+  int num_frames = input_feats.size();
+  int feat_dim = input_feats[0].size();
+  int output_dim = feat_dim * (order_ + 1);
+
+  output->resize(output_dim);
+
+  for (int i = 0; i <= order_; i++) {
+    const std::vector<double>& scales = scales_[i];
+    int max_offset = (scales.size() - 1) / 2;
+    // e.g. max_offset=2, (-2, 2)
+    for (int j = -max_offset; j <= max_offset; j++) {
+      // if asked to read
+      int offset_frame = frame + j;
+      if (offset_frame < 0)
+        offset_frame = 0;
+      else if (offset_frame >= num_frames)
+        offset_frame = num_frames - 1;
+
+      // sacles[0] for `-max_offset` frame
+      double scale = scales[j + max_offset];
+      if (scale != 0.0) {
+        for (int k = 0; k < feat_dim; k++) {
+          (*output)[i + k * (order_ + 1)] += input_feats[offset_frame][k] * scale;
         }
       }
     }
