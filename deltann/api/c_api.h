@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#include <string>
 #ifndef DELTANN_API_C_API_H_
 #define DELTANN_API_C_API_H_
 
@@ -24,6 +25,7 @@ extern "C" {
 #define DELTA_CAPI_EXPORT __attribute__((visibility("default")))
 
 #define MAX_NAME_SIZE 30
+using namespace std;
 
 typedef enum { kDeltaOk = 0, kDeltaError = 1 } DeltaStatus;
 
@@ -48,6 +50,8 @@ DELTA_CAPI_EXPORT extern InferHandel DeltaCreate(ModelHandel model);
 // set input
 DELTA_CAPI_EXPORT extern DeltaStatus DeltaSetInputs(InferHandel inf, Input* in,
                                                     int elem_num);
+DELTA_CAPI_EXPORT extern DeltaStatus DeltaSetJsonInputs(InferHandel inf, 
+                                                        std::string inputs, const char* yaml_file);                                                   
 
 // run
 DELTA_CAPI_EXPORT extern DeltaStatus DeltaRun(InferHandel inf);
