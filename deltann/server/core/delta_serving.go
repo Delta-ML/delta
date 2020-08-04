@@ -49,11 +49,13 @@ func DeltaListen(opts DeltaOptions) (*gin.Engine, error) {
 	defer glog.Flush()
 	conf.SetConfPath(opts.DeltaModelYaml)
 	dParams := DeltaParam{DeltaYaml: opts.DeltaModelYaml}
+	glog.Infof("start DeltaModelInit...")
 	err := dParams.DeltaModelInit()
+	glog.Infof("end DeltaModelInit...")
 	if err != nil {
 		return nil, err
 	}
-
+	glog.Infof("start DeltaDispatcher...")
 	dispatcher = DeltaDispatcher(conf.DeltaConf.DeltaServingPoll.DeltaMaxWorker, conf.DeltaConf.DeltaServingPoll.DeltaMaxQueue)
 	dispatcher.Run()
 
