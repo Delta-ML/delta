@@ -3,7 +3,7 @@
 #url="$(wget -qO- https://golang.org/dl/ | grep -oP 'https:\/\/dl\.google\.com\/go\/go([0-9\.]+)\.linux-amd64\.tar\.gz' | head -n 1 )"
 #latest="$(echo $url | grep -oP 'go[0-9\.]+' | grep -oP '[0-9\.]+' | head -c -2 )"
 #echo "Downloading latest Go for AMD64: ${latest}"
-latest="1.13.3"
+latest="1.14.4"
 url="https://mirrors.ustc.edu.cn/golang/go${latest}.linux-amd64.tar.gz"
 wget --quiet --continue --show-progress "${url}"
 unset url

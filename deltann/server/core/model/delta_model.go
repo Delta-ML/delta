@@ -27,6 +27,7 @@ import "C"
 import (
 	"bytes"
 	"delta/deltann/server/core/conf"
+	"delta/deltann/server/core/types"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
@@ -66,53 +67,38 @@ func DeltaCreateHandel() (unsafe.Pointer, error) {
 }
 
 func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error) {
-
 	inf := *(*C.InferHandel)(unsafe.Pointer(&cInf))
 
 	if inf == nil {
-		return "", nil
+		return "", errors.New("C.InferHandel nil")
 	}
 
-	inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
-	var ins C.Input
-
-	switch t := valueInputs.(type) {
-	case string:
+	if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.DJson {
+		valPtr := C.CString(valueInputs.(string))
+		defer C.free(unsafe.Pointer(valPtr))
+		C.DeltaSetJsonInputs(inf, valPtr)
+	}else if conf.DeltaConf.DeltaServingPoll.DeltaApiType == types.DString {
+		inNum := C.int(len(conf.DeltaConf.Model.Graph[0].Inputs))
+		var ins C.Input
 		deltaPtr := C.CString(valueInputs.(string))
 		defer C.free(unsafe.Pointer(deltaPtr))
 		ins.ptr = unsafe.Pointer(deltaPtr)
 		// len(valueInputs.(string)) + 1   for text /0
-		ins.size = C.int(len(valueInputs.(string)) + 1)
+		ins.nelms = C.int(len(valueInputs.(string)) + 1)
 
-	case int:
-		//TODO
+		inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
+		defer C.free(unsafe.Pointer(inputName))
+		ins.input_name = inputName
 
-	case float32:
-		//TODO
-
-	case []string:
-		//TODO
-
-	case []float32:
-		//TODO
-
-	case []int:
-		//TODO
-
-	default:
-		_ = t
-
+		graphName := C.CString(conf.DeltaConf.Model.Graph[0].Name)
+		defer C.free(unsafe.Pointer(graphName))
+		ins.graph_name = graphName
+		glog.Infof("before DeltaSetInputs")
+		C.DeltaSetInputs(inf, &ins, inNum)
+	}else{
+		return "", errors.New("unsupported data type")
 	}
 
-	inputName := C.CString(conf.DeltaConf.Model.Graph[0].Inputs[0].Name)
-	defer C.free(unsafe.Pointer(inputName))
-	ins.input_name = inputName
-
-	graphName := C.CString(conf.DeltaConf.Model.Graph[0].Name)
-	defer C.free(unsafe.Pointer(graphName))
-	ins.graph_name = graphName
-	glog.Infof("before DeltaSetInputs")
-	C.DeltaSetInputs(inf, &ins, inNum)
 	C.DeltaRun(inf)
 	outNum := C.DeltaGetOutputCount(inf)
 	glog.Infof("The output num is %d", outNum)
@@ -127,7 +113,6 @@ func DeltaModelRun(valueInputs interface{}, cInf unsafe.Pointer) (string, error)
 
 		for j := 0; j < int(num); j++ {
 			p := (*[1 << 30]C.float)(unsafe.Pointer(data))
-			glog.Infof("score is %f", p[j])
 			dynaArr = append(dynaArr, p[j])
 		}
 	}
