@@ -92,7 +92,8 @@ int main(int argc, char** argv) {
 
   ModelHandel model = DeltaLoadModel(yaml_file);
   InferHandel inf = DeltaCreate(model);
-  DeltaSetJsonInputs(inf, input_json, yaml_file);
+  DeltaSetJsonInputs(inf, input_json.c_str());
+  cout<<"finish parse"<<endl;
 
   // DeltaRun(inf);
   float dur = time_run(inf);

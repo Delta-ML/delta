@@ -67,9 +67,9 @@ DeltaStatus DeltaSetInputs(InferHandel inf, Input* inputs, int num) {
   return DeltaStatus::kDeltaOk;
 }
 
-DeltaStatus DeltaSetJsonInputs(InferHandel inf, string inputs, const char* yaml_file) {
-  std::string yaml = yaml_file;
-  Config* conf = new Config(yaml_file);
+DeltaStatus DeltaSetJsonInputs(InferHandel inf, const char* inputs) {
+  //std::string yaml = yaml_file;
+  //Config* conf = new Config(yaml_file);
   Runtime* rt = static_cast<Runtime*>(inf);
   bool bRet = false;
 
@@ -90,7 +90,7 @@ DeltaStatus DeltaSetJsonInputs(InferHandel inf, string inputs, const char* yaml_
   for (Json::Value::Members::iterator iterKey = keys.begin(); iterKey != keys.end(); iterKey++) 
   { 
     std::string strKey = *iterKey;  
-    Json::Value val_array = root[strKey]; 
+    Json::Value val_array = root[*iterKey]; 
     int iSize = val_array.size();  
     int* input_val = new int[iSize]();
     for ( int nIndex = 0;nIndex < iSize;++ nIndex ) {
@@ -98,11 +98,11 @@ DeltaStatus DeltaSetJsonInputs(InferHandel inf, string inputs, const char* yaml_
     }
     ins[idx].ptr = reinterpret_cast<void*>(input_val);
     ins[idx].nelms = iSize;
-    ins[idx].shape = (*conf).config()["model"]["graphs"][0]["inputs"][idx]["shape"].as<std::vector<int>>().data();
+    //ins[idx].shape = (*conf).config()["model"]["graphs"][0]["inputs"][idx]["shape"].as<std::vector<int>>().data();
     ins[idx].input_name = strKey.c_str();
     ins[idx].graph_name = "default";
     insVec.push_back(In(ins[idx].graph_name, ins[idx].input_name,
-                      ins[idx].shape, ins[idx].ndims, ins[idx].ptr,
+                       ins[idx].ptr,
                       ins[idx].nelms));    
     idx += 1;
   }

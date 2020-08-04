@@ -17,7 +17,7 @@
 # template model.yaml
 
 model:
-  custom_ops_path: "../dpl/output/lib/custom_ops/x_ops.so" 
+  custom_ops_path: "lib/custom_ops/x_ops.so" 
   graphs:
     -
       # meta data
@@ -31,7 +31,7 @@ model:
       # model config
       version: 1    # model version
       local:  # local run
-        path: "../dpl/output/model/saved_model" # model path without version info
+        path: "model/saved_model" # model path without version info
         model_type: "saved_model" # e.g. saved_model, frozen_graph_pb, frozen_graph_txt
       # inputs and outputs
       inputs:
