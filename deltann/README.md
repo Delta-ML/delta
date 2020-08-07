@@ -15,7 +15,7 @@ drwxrwxr-x  2 60847 60847    28 Jul  7 04:34 test/
 
 drwxrwxr-x  4 60847 60847    85 Jul  7 01:24 examples/
 
-drwxrwxr-x  8 60847 60847  4096 Jul  7 01:24 infer/
+drwxrwxr-x  8 60847 60847  4096 Jul  7 01:24 gcompiler/
 
 drwxrwxr-x  5 60847 60847   118 Jul  7 01:24 server/
 ```
@@ -26,4 +26,4 @@ drwxrwxr-x  5 60847 60847   118 Jul  7 01:24 server/
 
 `server` are RESTful API for `deltann` wrapper by golang 
 
-`infer` are Graph Compiler using `TensorFlow grappler`
+`gcompiler` are Graph Compiler using `TensorFlow grappler`
