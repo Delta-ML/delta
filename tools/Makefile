@@ -209,7 +209,7 @@ go.done:
 	touch go.done
 
 pybind11.done:
-	if [ -d ../deltann/gcompiler/third_party/pybind11 ];then cd .. && git submodule update --init --recursive; fi
+	if [ -d ../gcompiler/third_party/pybind11 ];then cd .. && git submodule update --init --recursive; fi
 	touch pybind11.done
 
 deltann-clean:
