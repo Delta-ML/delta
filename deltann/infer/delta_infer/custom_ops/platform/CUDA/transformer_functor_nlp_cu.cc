@@ -212,11 +212,11 @@ void TransformerCellNLPFunctor<GPUDevice, float>::operator()(
   k = param.d_head;
 #if (CUDART_VERSION >= 10000)
   cublas(GemmStridedBatchedEx(param.cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, n,
-                              m, k, &alpha, _w_head_k, traits::ComputeType, k,
-                              n * k, _rw_head_q, traits::ComputeType, k, m * k,
-                              &beta, _AC, traits::ComputeType, n, m * n,
+                              m, k, &alpha, _w_head_k, _traits::ComputeType, k,
+                              n * k, _rw_head_q, _traits::ComputeType, k, m * k,
+                              &beta, _AC, _traits::ComputeType, n, m * n,
                               param.batch_size * param.n_head,
-                              traits::ComputeType, CUBLAS_GEMM_DEFAULT));
+                              _traits::ComputeType, CUBLAS_GEMM_DEFAULT));
 #else
   cublas(SgemmStridedBatched(param.cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, n,
                              m, k, &alpha, _w_head_k, k, n * k, _rw_head_q, k,
@@ -235,10 +235,10 @@ void TransformerCellNLPFunctor<GPUDevice, float>::operator()(
 #if (CUDART_VERSION >= 10000)
     cublas(GemmStridedBatchedEx(
         param.cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, n, m, k, &alpha,
-        _r_head_k_trans, traits::ComputeType, k, n * k,
-        _rr_head_q + batch_idx * m * k * param.n_head, traits::ComputeType, k,
+        _r_head_k_trans, _traits::ComputeType, k, n * k,
+        _rr_head_q + batch_idx * m * k * param.n_head, _traits::ComputeType, k,
         m * k, &beta, _BD + batch_idx * m * n * param.n_head,
-        traits::ComputeType, n, m * n, param.n_head, traits::ComputeType,
+        _traits::ComputeType, n, m * n, param.n_head, _traits::ComputeType,
         CUBLAS_GEMM_DEFAULT));
 #else
     cublas(SgemmStridedBatched(
@@ -275,9 +275,9 @@ void TransformerCellNLPFunctor<GPUDevice, float>::operator()(
 #if (CUDART_VERSION >= 10000)
   cublas(GemmStridedBatchedEx(
       param.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n, m, k, &alpha, _w_head_v,
-      traits::ComputeType, n, n * k, _AC, traits::ComputeType, k, m * k, &beta,
-      _attn_vec, traits::ComputeType, n, m * n, param.batch_size * param.n_head,
-      traits::ComputeType, CUBLAS_GEMM_DEFAULT));
+      _traits::ComputeType, n, n * k, _AC, _traits::ComputeType, k, m * k, &beta,
+      _attn_vec, _traits::ComputeType, n, m * n, param.batch_size * param.n_head,
+      _traits::ComputeType, CUBLAS_GEMM_DEFAULT));
 #else
   cublas(SgemmStridedBatched(param.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n,
                              m, k, &alpha, _w_head_v, n, n * k, _AC, k, m * k,

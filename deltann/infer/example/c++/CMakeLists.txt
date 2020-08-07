@@ -1,8 +1,6 @@
 
-include_directories(/nfs/ml-k80-ser017/cuichaowen/work/pkgtool/elf)
 delta_fetch_files_with_suffix(${DELTA_INFER_ROOT}/example/c++ "cc" DELTA_INFER_EXAMPLES)
 delta_fetch_files_with_suffix(${DELTA_INFER_ROOT}/example/c++/basic "cc" DELTA_INFER_EXAMPLES_BASIC)
-
 
 foreach(SRC_NAME ${DELTA_INFER_EXAMPLES})
     #unpack the dir "/"

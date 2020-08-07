@@ -34,6 +34,8 @@ inline const char* CuBaseCublasGetErrorString(cublasStatus_t status) {
     ERROR_STATUS(CUBLAS_STATUS_INTERNAL_ERROR);
     ERROR_STATUS(CUBLAS_STATUS_NOT_SUPPORTED);
     ERROR_STATUS(CUBLAS_STATUS_LICENSE_ERROR);
+    default:
+       break;
   }
   return "[ERROR] Cublas status value not known.";
 }
@@ -48,6 +50,8 @@ inline const char* CuBaseCudnnGetErrorString(cudnnStatus_t status) {
     ERROR_STATUS(CUDNN_STATUS_EXECUTION_FAILED);
     ERROR_STATUS(CUDNN_STATUS_INTERNAL_ERROR);
     ERROR_STATUS(CUDNN_STATUS_NOT_SUPPORTED);
+    default:
+       break;
   }
   return "[ERROR] Cudnn status value not known.";
 }

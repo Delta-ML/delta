@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <vector>
 
+// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/benchmark/benchmark_model.cc
+
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def.pb.h"
 #include "tensorflow/core/framework/step_stats.pb.h"
@@ -12,6 +14,7 @@
 #include "tensorflow/core/graph/algorithm.h"
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/graph/graph_constructor.h"
+#include "tensorflow/core/lib/strings/numbers.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/platform/env.h"
@@ -19,11 +22,11 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/platform.h"
 #include "tensorflow/core/platform/types.h"
-#include "tensorflow/core/protobuf/rewriter_config.pb.h"
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/util/command_line_flags.h"
 #include "tensorflow/core/util/stat_summarizer.h"
 
+#include "tensorflow/core/protobuf/rewriter_config.pb.h"
 #include "tensorflow/core/graph/default_device.h"
 
 namespace tensorflow {
