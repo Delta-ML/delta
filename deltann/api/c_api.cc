@@ -29,7 +29,7 @@ extern "C" {
 #endif  // __cplusplus
 
 using delta::RuntimeConfig;
-using delta::Config;
+//using delta::Config;
 using delta::core::In;
 using delta::core::Runtime;
 
@@ -68,6 +68,8 @@ DeltaStatus DeltaSetInputs(InferHandel inf, Input* inputs, int num) {
 }
 
 DeltaStatus DeltaSetJsonInputs(InferHandel inf, const char* inputs) {
+  // only support int input now
+  // TODO: support int, string, float
   //std::string yaml = yaml_file;
   //Config* conf = new Config(yaml_file);
   Runtime* rt = static_cast<Runtime*>(inf);

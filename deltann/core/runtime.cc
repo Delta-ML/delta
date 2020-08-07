@@ -156,6 +156,7 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
           DELTA_CHECK_EQ(in._nelms, input.nelms()) << in._nelms << ":"
                                                    << input.nelms();
 	} else {
+          // If string shape is [1], the memory layout is bytes, not equal 1, so do not check
           LOG_INFO << "Handle char type input!";
 	}
 
