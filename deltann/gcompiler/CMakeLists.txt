@@ -1,5 +1,5 @@
-project(DeltaInfer)
 cmake_minimum_required(VERSION 3.1)
+project(DeltannGraphCompiler)
 
 set(DELTA_INFER_ROOT ${PROJECT_SOURCE_DIR})
 set(DELTA_INFER_DELTA_INFER ${DELTA_INFER_ROOT}/delta_infer/)

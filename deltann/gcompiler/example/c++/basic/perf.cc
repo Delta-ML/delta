@@ -6,6 +6,43 @@ namespace {
 
 std::once_flag flag;
 
+// Split "text" at "delim" characters, and parse each component as
+// an integer.  If successful, adds the individual numbers in order
+// to "*result" and returns true.  Otherwise returns false.
+template <typename T>
+bool SplitAndParseAsInts(StringPiece text, char delim,
+                         std::function<bool(StringPiece, T*)> converter,
+                         std::vector<T>* result) {
+  result->clear();
+  std::vector<string> num_strings = tensorflow::str_util::Split(text, delim);
+  for (const auto& s : num_strings) {
+    T num;
+    if (!converter(s, &num)) return false;
+    result->push_back(num);
+  }
+  return true;
+}
+
+bool SplitAndParseAsInts(StringPiece text, char delim,
+                         std::vector<int32>* result) {
+  return SplitAndParseAsInts<int32>(text, delim, strings::safe_strto32, result);
+}
+
+bool SplitAndParseAsInts(StringPiece text, char delim,
+                         std::vector<int64>* result) {
+  return SplitAndParseAsInts<int64>(text, delim, strings::safe_strto64, result);
+}
+
+bool SplitAndParseAsFloats(StringPiece text, char delim,
+                           std::vector<float>* result) {
+  return SplitAndParseAsInts<float>(
+      text, delim,
+      [](StringPiece str, float* value) {
+        return strings::safe_strtof(str, value);
+      },
+      result);
+}
+
 void PrintTensor(tensorflow::Tensor& output_tensor, const char* file_path) {
   std::call_once(flag, [&]() {
     printf("get into print tensor\n");
@@ -85,7 +122,7 @@ void CreateTensorsFromInputInfo(
         if (!input.initialization_values.empty()) {
           LOG(FATAL) << "Initialization values are not supported for strings";
         }
-        auto type_tensor = input_tensor.flat<string>();
+        auto type_tensor = input_tensor.flat<tstring>();
         type_tensor = type_tensor.constant("");
         break;
       }
@@ -111,6 +148,7 @@ Status InitializeSession(int num_threads, const string& graph,
     config.set_intra_op_parallelism_threads(1);
     config.set_inter_op_parallelism_threads(num_threads);
   }
+
   // set grappler ref:
   // https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/protobuf/rewriter_config.proto
   /*tensorflow::RewriterConfig* rewirter_cfg =
@@ -124,10 +162,11 @@ Status InitializeSession(int num_threads, const string& graph,
   session->reset(tensorflow::NewSession(options));
   graph_def->reset(new GraphDef());
   // tensorflow::GraphDef tensorflow_graph;
-  Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
-  if (!s.ok()) {
-    s = ReadTextProto(Env::Default(), graph, graph_def->get());
-  }
+  //Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
+  //if (!s.ok()) {
+  //  s = ReadTextProto(Env::Default(), graph, graph_def->get());
+  //}
+  Status s = ReadTextOrBinaryProto(Env::Default(), graph, graph_def->get());
 
   if (!s.ok()) {
     LOG(ERROR) << "Could not create TensorFlow Graph: " << s;
@@ -201,7 +240,7 @@ Perf::Perf(const Config* config) : cfg(config) {
     CHECK(DataTypeFromString(input_layer_types[n], &input.data_type))
         << input_layer_types[n] << " [idx " << n << "] was an invalid type";
     std::vector<int32> sizes;
-    CHECK(str_util::SplitAndParseAsInts(input_layer_shapes[n], ',', &sizes))
+    CHECK(SplitAndParseAsInts(input_layer_shapes[n], ',', &sizes))
         << "Incorrect size string specified: " << input_layer_shapes[n];
     for (int i = 0; i < sizes.size(); ++i) {
       int32 size = sizes[i];
@@ -215,7 +254,7 @@ Perf::Perf(const Config* config) : cfg(config) {
     input.name = input_layers[n];
     // printf("input name %s\n", input.name.c_str());
     if (n < input_layer_values.size()) {
-      CHECK(str_util::SplitAndParseAsFloats(input_layer_values[n], ',',
+      CHECK(SplitAndParseAsFloats(input_layer_values[n], ',',
                                             &input.initialization_values))
           << "Incorrect initialization values string specified: "
           << input_layer_values[n];

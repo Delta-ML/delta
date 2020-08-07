@@ -1,3 +1,3 @@
-[submodule "deltann/infer/third_party/pybind11"]
-	path = deltann/infer/third_party/pybind11
+[submodule "deltann/gcompiler/third_party/pybind11"]
+	path = deltann/gcompiler/third_party/pybind11
 	url = https://github.com/pybind/pybind11.git
