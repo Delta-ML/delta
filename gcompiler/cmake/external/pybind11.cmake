@@ -5,8 +5,8 @@ FetchContent_Declare(
   pybind11 
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG        master 
-  INSTALL_DIR   ${PYBIND11_DIR}
-  SOURCE_DI R   ${PYBIND11_DIR}
+  DOWNLOAD_DIR  ${PYBIND11_DIR}
+  SOURCE_DIR    ${PYBIND11_DIR}
 )
 
 FetchContent_MakeAvailable(pybind11)
