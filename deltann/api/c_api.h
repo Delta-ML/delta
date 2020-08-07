@@ -48,6 +48,8 @@ DELTA_CAPI_EXPORT extern InferHandel DeltaCreate(ModelHandel model);
 // set input
 DELTA_CAPI_EXPORT extern DeltaStatus DeltaSetInputs(InferHandel inf, Input* in,
                                                     int elem_num);
+DELTA_CAPI_EXPORT extern DeltaStatus DeltaSetJsonInputs(InferHandel inf, 
+                                                        const char* inputs);                                                   
 
 // run
 DELTA_CAPI_EXPORT extern DeltaStatus DeltaRun(InferHandel inf);
