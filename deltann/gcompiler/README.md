@@ -1,4 +1,4 @@
-# Delta Inference Lib
+# Deltann Graph Compiler Stack 
 
 Delta 推理架构基于tensorflow进行深度定制，依赖tensorflow本身的grappler以及custom ops机制完成高性能的图匹配逻辑和高性能算子库，`Delta Inference Lib`可以方便使用户在tensorflow内部完成大规模复杂子图替换，并采用已提供的高性能算子库支持模型在各个平台的高性能计算。
 

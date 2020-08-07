@@ -6,10 +6,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 if(BUILD_DEBUG)
-    delta_add_compile(GCC FLAGS -std=c++14 -Wall -ldl -fPIC)
+    delta_add_compile(GCC FLAGS -std=c++11 -Wall -ldl -fPIC)
     delta_add_compile(GCC FLAGS -O0 -g)
 else()
-    delta_add_compile(GCC FLAGS -std=c++14 -Wall -ldl -fPIC)
+    delta_add_compile(GCC FLAGS -std=c++11 -Wall -ldl -fPIC)
     delta_add_compile(GCC FLAGS -O3)
 endif()
 
