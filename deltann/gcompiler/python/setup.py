@@ -81,11 +81,11 @@ class DeltaExtBuild(build_ext):
 
 
 setup(
-    name='delta_infer',
+    name='deltann-gcompiler',
     version='0.0.1',
-    author='Speech-HPC',
-    author_email='cuichaowen@didiglobal.com',
-    description='Delta inference python api setup',
+    author='ChaoWen Cui, Hui Zhang',
+    author_email='cuichaowen@didiglobal.com, zhtclz@foxmail.com',
+    description='Deltann Graph Compiler Stack.',
     long_description=load_readme("./README.txt"),
     packages=find_packages(),
     include_package_data=True,
