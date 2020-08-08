@@ -151,8 +151,7 @@ clean_extra:
 # deltann
 # make under `tensorflow/tensorflow:devel-py3` docker for cpu
 deltann: apt.done yaml.done abseil.done jemalloc.done tcmalloc.done \
-	tensorflow-src.done jsoncpp.done curl.done https_client.done go.done \
-	pybind11.done
+	tensorflow-src.done jsoncpp.done curl.done https_client.done go.done
 
 apt.done:
 	cmake --version || if ! [ -f /etc/centos-release ]; then $(SUDO) apt-get update && $(SUDO) $(APT_INSTALL) autoconf libtool cmake; else $(SUDO) yum install -y cmake3; fi
@@ -207,10 +206,6 @@ https_client.done:
 go.done:
 	cd install && ./install-go.sh
 	touch go.done
-
-pybind11.done:
-	if [ -d ../deltann/gcompiler/third_party/pybind11 ];then cd .. && git submodule update --init --recursive; fi
-	touch pybind11.done
 
 deltann-clean:
 	-rm -rf *.done jsoncpp yaml tensorflow abseil-cpp curl mbedtls .cache/

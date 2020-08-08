@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(DeltannGraphCompiler)
 
 set(DELTA_INFER_ROOT ${PROJECT_SOURCE_DIR})
@@ -19,11 +20,14 @@ option(BUILD_DELTA_INFER_PYTHON "Build Python binaries." OFF)
 option(BUILD_DELTA_INFER_CUSTOM_OPS "Build customed ops lib." OFF)
 option(BUILD_WITH_EXAMPLE "Build with example(c++)." OFF)
 
+option(WITH_PYTHON      "Compile with python interpreter"  ON)
+
 # configure environment
 set(DELTA_INFER_LINK_LIBS "")
 include(cmake/utils.cmake)
 include(cmake/build.cmake)
 include(cmake/tensorflow.cmake)
+include(cmake/external/pybind11.cmake)
 
 if(BUILD_DEBUG)
     add_definitions(-DBUILD_DEBUG)

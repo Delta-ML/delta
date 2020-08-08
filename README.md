@@ -215,6 +215,10 @@ We organize the model deployment scripts under `./dpl` directory.
 
 For more information, please see [dpl/README.md](dpl/README.md).
 
+### Graph Compiler
+
+Graph Compiler using `TensorFlow grappler`, see [gcompiler/README.md](gcompiler/README.md).
+
 ## Benchmarks
 
 In DELTA, we provide experimental results for each task on public datasets as benchmarks. 
