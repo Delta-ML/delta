@@ -16,7 +16,10 @@ else()
 endif()
 
 # pybind11 is a header only lib, so we import it directly.
-add_subdirectory(${DELTA_INFER_ROOT}/third_party/pybind11 binary_dir)
+# same to gcompiler/cmake/external/pybind11.cmake  FetchContent_MakeAvailable(pybind11), so comment out
+# which cause error: add_library cannot create target "pybind11" because another target with the same name already exists
+#add_subdirectory(${DELTA_INFER_ROOT}/third_party/pybind11 binary_dir)
+
 pybind11_add_module(export_py SHARED ${DELTA_INFER_EXPORT_TO_PY_SRC} ${DELTA_INFER_SRC})
 add_dependencies(export_py pywrap_tf_internal)
 target_link_libraries(export_py LINK_PRIVATE pywrap_tf_internal)

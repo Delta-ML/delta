@@ -8,6 +8,9 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
+
+# https://github.com/pybind/cmake_example/blob/master/setup.py
+
 #if "DELTA_BUILD_DIR" in os.environ:
 #    DELTA_BUILD_DIR = os.environ['DELTA_BUILD_DIR']
 #else:
