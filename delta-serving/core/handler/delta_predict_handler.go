@@ -16,7 +16,7 @@ limitations under the License.
 package handler
 
 import (
-	. "delta/deltann/server/core/pool"
+	. "delta/delta-serving/core/pool"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"net/http"

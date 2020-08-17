@@ -76,14 +76,14 @@ The request body for predict API must be JSON object formatted as follows:
  
  ### Demo code
   ```sh   
- $cd deltann/server/examples/
+ $cd delta-serving/examples/
  $ cat main.go
  ```
 
  ```go
  package main
  import (
-     . "delta/deltann/server/core"
+     . "delta/delta-serving/core"
      "flag"
      "github.com/golang/glog"
      "os"
