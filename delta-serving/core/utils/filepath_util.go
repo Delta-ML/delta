@@ -16,7 +16,7 @@ limitations under the License.
 package utils
 
 import (
-	"delta/deltann/server/core/types"
+	"delta/delta-serving/core/types"
 	"path"
 	"path/filepath"
 	"runtime"
