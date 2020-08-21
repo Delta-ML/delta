@@ -84,7 +84,7 @@ linux.done:
 
 # compile custom ops on your environment
 compile_ops.done:
-	/bin/bash -c 'pushd ../core/ops; bash build.sh delta'
+	/bin/bash -c 'pushd ../transform/tf_wrapper/ops; bash build.sh delta'
 	touch compile_ops.done
 
 # only for speech
