@@ -1,9 +1,0 @@
-gen/
-cppjieba
-*.so
-!data/sm1_cln.wav
-*.scp
-!noiselist.scp
-!rirlist.scp
-!noise
-!rir
