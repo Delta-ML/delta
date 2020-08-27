@@ -1,4 +1,5 @@
 #!/bin/bash 
+set -x
 
 if [ $# != 3 ];then
   echo "usage: $0 [ci|delta|deltann] [cpu|gpu] [build|push|dockerfile]"
@@ -34,7 +35,7 @@ fi
 
 TAG=${TF_VER}-${TARGET}-${DEVICE}-py3
 DOCKER='sudo docker'
-PIP_INSTALL="pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/"
+PIP_INSTALL="pip --no-cache-dir install -i https://mirrors.aliyun.com/pypi/simple"
 
 set -e
 set -u
@@ -48,14 +49,19 @@ on_exit() {
 trap on_exit HUP INT PIPE QUIT TERM EXIT
 
 
+# https://hub.docker.com/r/tensorflow/tensorflow
+# Versioned images <= 1.15.0 (1.x) and <= 2.1.0 (2.x) have Python 3 
+# (3.5 for Ubuntu 16-based images; 3.6 for Ubuntu 18-based images) in images tagged "-py3"
+# and Python 2.7 in images without "py" in the tag. 
+# All newer images are Python 3 only. Tags containing -py3 are deprecated.
 if [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'deltann' ];then
-  IMAGE=tensorflow/tensorflow:devel-py3
+  IMAGE=tensorflow/tensorflow:devel
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'deltann' ];then
-  IMAGE=tensorflow/tensorflow:devel-gpu-py3
+  IMAGE=tensorflow/tensorflow:devel-gpu
 elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:${TF_VER}-py3
+  IMAGE=tensorflow/tensorflow:${TF_VER}
 elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
-  IMAGE=tensorflow/tensorflow:${TF_VER}-gpu-py3
+  IMAGE=tensorflow/tensorflow:${TF_VER}-gpu
 else
   echo "no support target or device"
   exit -1
@@ -134,11 +140,11 @@ if [ $MODE == 'push' ] || [ $MODE == 'build' ];then
   $DOCKER pull $IMAGE
   
   # build image
-  $DOCKER build --no-cache=false -t delta:$TAG -f $DOCKERFILE . || { echo "build ${TARGET} ${DEVICE} error"; exit 1; }
+  $DOCKER build --no-cache=false -t zh794390558/delta:$TAG -f $DOCKERFILE . || { echo "build ${TARGET} ${DEVICE} error"; exit 1; }
   
   #push image
   if [ $MODE == 'push' ];then
-    $DOCKER tag delta:${TAG} zh794390558/delta:${TAG}
+    #$DOCKER tag delta:${TAG} zh794390558/delta:${TAG}
     $DOCKER push zh794390558/delta:$TAG
 
     if [ $? == 0  ]; then
