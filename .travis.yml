@@ -6,7 +6,7 @@ services:
 before_install:
   - export DELTA_PATH=`pwd`; echo $DELTA_PATH
   - export DOCKER_DELTA="/home/gitlab-runner/delta"; echo $DOCKER_DELTA
-  - export CI_IMAGE=zh794390558/delta:ci-cpu-py3
+  - export CI_IMAGE=zh794390558/delta:2.3.0-ci-cpu-py3
   - docker pull ${CI_IMAGE}
   - docker run -it -d --name travis_con --user root -v ${DELTA_PATH}:${DOCKER_DELTA} ${CI_IMAGE} bash
   - docker exec travis_con bash -c "gcc -v && g++ -v"

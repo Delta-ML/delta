@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:devel-gpu-py3
+FROM tensorflow/tensorflow:devel-gpu
 COPY sources.list.ubuntu18.04 /etc/apt/sources.list
 
 # install tools 
