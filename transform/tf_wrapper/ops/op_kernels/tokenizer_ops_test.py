@@ -19,7 +19,7 @@ import tempfile
 import delta.compat as tf
 from absl import logging
 
-from delta.layers.ops import py_x_ops
+from transform.tf_wrapper.ops import py_x_ops
 
 
 class TokenizerOpsTest(tf.test.TestCase):

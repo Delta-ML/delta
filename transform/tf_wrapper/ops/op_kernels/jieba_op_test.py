@@ -21,7 +21,7 @@ import delta.compat as tf
 from absl import logging
 
 from delta.data.utils import read_lines_from_text_file
-from delta.layers.ops import py_x_ops
+from transform.tf_wrapper.ops import py_x_ops
 
 # pylint: disable=not-context-manager, invalid-name
 

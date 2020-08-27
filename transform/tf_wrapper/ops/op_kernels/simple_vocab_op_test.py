@@ -15,7 +15,7 @@
 # ==============================================================================
 """Tests for simple_vocab."""
 import delta.compat as tf
-from delta.layers.ops import py_x_ops
+from transform.tf_wrapper.ops import py_x_ops
 
 
 class VocabOpsTest(tf.test.TestCase):

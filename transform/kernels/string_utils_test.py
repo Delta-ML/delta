@@ -16,7 +16,7 @@
 ''' string utils op unittest'''
 import delta.compat as tf
 
-from delta.layers.ops import py_x_ops
+from transform.tf_wrapper.ops import py_x_ops
 
 
 class StringUtilsOpTest(tf.test.TestCase):
