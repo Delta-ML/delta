@@ -17,7 +17,7 @@ package pool
 
 import "C"
 import (
-	"delta/deltann/server/core/model"
+	"delta/delta-serving/core/model"
 	"github.com/golang/glog"
 	"unsafe"
 )

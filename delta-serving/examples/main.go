@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	. "delta/deltann/server/core"
+	. "delta/delta-serving/core"
 	"flag"
 	"github.com/golang/glog"
 	"os"

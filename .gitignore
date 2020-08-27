@@ -103,12 +103,12 @@ dpl/output_model/*
 !dpl/output_model/.gitkeep
 
 #deltann serving
-deltann/server/examples/output
-deltann/server/dpl
-deltann/server/examples/main
-deltann/server/examples/delta-service
-deltann/server/examples/log/
-deltann/server/examples/nohup.out
+delta-serving/examples/output
+delta-serving/dpl
+delta-serving/examples/main
+delta-serving/examples/delta-service
+delta-serving/examples/log/
+delta-serving/examples/nohup.out
 dpl/output/
 .bash_history
 .viminfo

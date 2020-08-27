@@ -26,8 +26,8 @@ package model
 import "C"
 import (
 	"bytes"
-	"delta/deltann/server/core/conf"
-	"delta/deltann/server/core/types"
+	"delta/delta-serving/core/conf"
+	"delta/delta-serving/core/types"
 	"encoding/gob"
 	"encoding/json"
 	"errors"

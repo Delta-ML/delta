@@ -16,10 +16,10 @@ limitations under the License.
 package core
 
 import (
-	"delta/deltann/server/core/conf"
-	"delta/deltann/server/core/handler"
-	. "delta/deltann/server/core/model"
-	. "delta/deltann/server/core/pool"
+	"delta/delta-serving/core/conf"
+	"delta/delta-serving/core/handler"
+	. "delta/delta-serving/core/model"
+	. "delta/delta-serving/core/pool"
 	"fmt"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"

@@ -1,4 +1,4 @@
-module delta/deltann/server
+module delta/delta-serving
 
 go 1.12
 

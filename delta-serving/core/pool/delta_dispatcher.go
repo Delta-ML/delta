@@ -16,7 +16,7 @@ limitations under the License.
 package pool
 
 import (
-	. "delta/deltann/server/core/model"
+	. "delta/delta-serving/core/model"
 	"github.com/golang/glog"
 	"os"
 )
