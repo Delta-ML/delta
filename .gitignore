@@ -8,7 +8,7 @@ __pycache__
 private
 *.npy
 *.wav
-!delta/layers/ops/data/sm1_cln.wav
+!transform/tf_wrapper/ops/data/sm1_cln.wav
 !delta/data/feat/python_speech_features/english.wav
 *.mp3
 tags
