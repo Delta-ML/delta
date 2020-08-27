@@ -20,7 +20,7 @@ from absl import logging
 from pathlib import Path
 
 from delta import utils
-from delta.layers.ops import py_x_ops
+from transform.tf_wrapper.ops import py_x_ops
 from delta.utils.register import registers
 from utils.edit_pbtxt import edit_pb_txt
 
