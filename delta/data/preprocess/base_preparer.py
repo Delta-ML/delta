@@ -144,7 +144,7 @@ class TextPreparer(Preparer):
       if self.multi_output:
         for i in range(self.output_num):
           label_ds = label[i].batch(self.batch_size)
-          label_iterator = label_ds.make_initializable_iterator()
+          label_iterator = tf.data.make_initializable_iterator(label_ds)
           label_after_arr = self.run_dataset(label_iterator, batch_num)
           label_after_one = [
               one_line.decode("utf-8") for one_line in label_after_arr
@@ -154,7 +154,7 @@ class TextPreparer(Preparer):
       else:
         label = label[0]
         label_ds = label.batch(self.batch_size)
-        label_iterator = label_ds.make_initializable_iterator()
+        label_iterator = tf.data.make_initializable_iterator(label_ds)
         label_after_arr = self.run_dataset(label_iterator, batch_num)
         one_label_after = [
             one_line.decode("utf-8") for one_line in label_after_arr

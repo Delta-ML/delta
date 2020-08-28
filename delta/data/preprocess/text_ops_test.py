@@ -121,7 +121,7 @@ class TextOpsTest(tf.test.TestCase):
     true_res = [0, 0, 0, 8]
     label_ds = process_one_label_dataset(label_ds, self.config)
 
-    iterator = label_ds.make_initializable_iterator()
+    iterator = tf.data.make_initializable_iterator(label_ds)
     label_res = iterator.get_next()
 
     with tf.Session() as sess:
@@ -139,7 +139,7 @@ class TextOpsTest(tf.test.TestCase):
     label_ds = tf.data.TextLineDataset(label_filepath)
     true_res = [[0, 8, 8], [0, 7, 8]]
     label_ds = process_multi_label_dataset(label_ds, self.config)
-    iterator = label_ds.make_initializable_iterator()
+    iterator = tf.data.make_initializable_iterator(label_ds)
     label_res = iterator.get_next()
 
     with tf.Session() as sess:

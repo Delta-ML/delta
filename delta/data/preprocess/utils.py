@@ -37,7 +37,7 @@ def get_pre_process_text_ds_iter(
 
   text_ds = text_ds.batch(batch_size)
 
-  iterator = text_ds.make_initializable_iterator()
+  iterator = tf.data.make_initializable_iterator(text_ds)
 
   return iterator
 
