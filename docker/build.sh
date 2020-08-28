@@ -1,5 +1,4 @@
 #!/bin/bash 
-set -x
 
 if [ $# != 3 ];then
   echo "usage: $0 [ci|delta|deltann] [cpu|gpu] [build|push|dockerfile]"
@@ -60,7 +59,7 @@ elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'deltann' ];then
   IMAGE=tensorflow/tensorflow:devel-gpu
 elif [ ${DEVICE} == 'cpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
   IMAGE=tensorflow/tensorflow:${TF_VER}
-elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ] || [ ${TARGET} == 'ci' ];then
+elif [ ${DEVICE} == 'gpu' ] && [ ${TARGET} == 'delta' ];then
   IMAGE=tensorflow/tensorflow:${TF_VER}-gpu
 else
   echo "no support target or device"

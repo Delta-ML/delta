@@ -8,7 +8,7 @@ endif
 #$(info $(MAKEFILE_DIR))
 #$(info $(MAIN_ROOT))
 
-CXX := g++ 
+CXX := g++-7
 NVCC := nvcc
 PYTHON_BIN_PATH= python3
 CC :=

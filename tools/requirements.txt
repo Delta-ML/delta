@@ -32,3 +32,8 @@ sentencepiece
 deepdiff
 tensorflow-addons==0.11.1
 tensorflow-model-optimization
+
+
+# TODO: rm below
+# https://github.com/tensorflow/addons/issues/864
+tensorflow-cpu==2.3.0

@@ -12,7 +12,6 @@ apt-get update && apt-get install -y --no-install-recommends \
         vim \
         zlib1g-dev \
         wget \
-        gfortran \
         subversion \
         ca-certificates \
         unzip \
