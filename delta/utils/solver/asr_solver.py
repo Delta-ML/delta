@@ -25,7 +25,7 @@ import delta.compat as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Lambda
-from tensorflow.keras.experimental import export_saved_model
+#from tensorflow.keras.experimental import export_saved_model
 
 from delta import utils
 from delta.utils.decode import py_ctc
@@ -265,10 +265,11 @@ class AsrSolver(KerasBaseSolver):
         inputs=[input_feat, input_length], outputs=greedy_decode)
 
     model_export_path = Path(self._model_path).joinpath("export")
-    export_saved_model(
-        model=model_to_export,
-        saved_model_path=str(model_export_path),
-        custom_objects=None,
-        as_text=False,
-        input_signature=None,
-        serving_only=False)
+    model_to_export.save(
+        filepath=str(model_export_path),
+        overwrite=True,
+        include_optimizer=True,
+        save_format='tf',
+        signatures=None,
+        options=None,
+    )
