@@ -224,7 +224,7 @@ class TextS2STask(TextTask):
 
     data_set = data_set.prefetch(self.num_prefetch_batch)
 
-    iterator = data_set.make_initializable_iterator()
+    iterator = tf.data.make_initializable_iterator(data_set)
 
     # pylint: disable=unused-variable
     if self.infer_without_label:

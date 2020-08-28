@@ -170,7 +170,7 @@ class TextMatchTask(TextTask):
 
     text_ds_left_right = text_ds_left_right.prefetch(self.num_prefetch_batch)
 
-    iterator = text_ds_left_right.make_initializable_iterator()
+    iterator = tf.data.make_initializable_iterator(text_ds_left_right)
     # pylint: disable=unused-variable
     if self.infer_without_label:
       (input_x_left, input_x_right), (input_x_left_len,

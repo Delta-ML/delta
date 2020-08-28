@@ -139,7 +139,7 @@ class TextSeqLabelTask(TextTask):
 
     data_set = data_set.prefetch(self.num_prefetch_batch)
 
-    iterator = data_set.make_initializable_iterator()
+    iterator = tf.data.make_initializable_iterator(data_set)
 
     if self.infer_without_label:
       input_x, input_x_len = iterator.get_next()
