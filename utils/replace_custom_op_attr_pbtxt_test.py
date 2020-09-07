@@ -32,7 +32,7 @@ class EditPbtxtTest(tf.test.TestCase):
     main_root = os.environ['MAIN_ROOT']
     self.main_root = Path(main_root)
     config_file = self.main_root.joinpath(
-        'delta/config/han-cls-keras/han-cls.yml')
+        'delta/configs/han_cls_mock.yml')
     self.config = utils.load_config(config_file)
     solver_name = self.config['solver']['name']
     self.solver = registers.solver[solver_name](self.config)
