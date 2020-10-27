@@ -22,7 +22,7 @@ from pathlib import Path
 from delta import utils
 from transform.tf_wrapper.ops import py_x_ops
 from delta.utils.register import registers
-from utils.replace_custom_op_attr_pbtxt import edit_pb_txt
+from utils.edit_pbtxt import edit_pb_txt
 
 
 class EditPbtxtTest(tf.test.TestCase):
@@ -32,7 +32,7 @@ class EditPbtxtTest(tf.test.TestCase):
     main_root = os.environ['MAIN_ROOT']
     self.main_root = Path(main_root)
     config_file = self.main_root.joinpath(
-        'delta/configs/han_cls_mock.yml')
+        'delta/config/han-cls-keras/han-cls.yml')
     self.config = utils.load_config(config_file)
     solver_name = self.config['solver']['name']
     self.solver = registers.solver[solver_name](self.config)
