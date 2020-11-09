@@ -50,6 +50,3 @@ Recently several deep learning based approaches have been successfully used in s
 ### Textual+numeric
 
 We implement the direct concatenation data fusion in data processing stage,therefore this type of multimodal training can be directly used for existing models in DELTA.
-
-
-
