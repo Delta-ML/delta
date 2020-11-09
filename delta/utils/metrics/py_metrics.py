@@ -220,8 +220,8 @@ class RougeCal(Metric):
         in_f.write(ref_sent)
         in_f.write("\n")
 
-    files_rouge = FilesRouge(self.hyp_path, self.ref_path)
-    scores = files_rouge.get_scores(avg=True)
+    files_rouge = FilesRouge()
+    scores = files_rouge.get_scores(self.hyp_path, self.ref_path, avg=True)
     return self.get_scores_output(scores)
 
   @staticmethod

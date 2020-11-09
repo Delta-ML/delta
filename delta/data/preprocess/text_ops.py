@@ -99,12 +99,9 @@ def char_cut_tf(input_str):
 
 def load_textline_dataset(paths, column_num):
   """Load raw data for text task."""
-  print(paths)
   ds = tf.data.TextLineDataset(paths)
-  #return (ds, ds)
-
   ds = ds.map(
-      lambda x: tf.squeeze(tf.strings.split(x, sep="\t", result_type="RaggedTensor"), axis = 0))
+    lambda x: tf.squeeze(tf.strings.split(x, sep="\t", result_type="RaggedTensor"), axis = 0))
   ds = ds.filter(lambda line: tf.equal(tf.size(line), column_num))
   ds_list = []
   for i in range(column_num):

@@ -20,5 +20,3 @@ Make sure all PRs under milestone `v0.3.2` are closed, then close the milestone.
 Using below command to generate relase note.
 
 `python tools/release_notes.py -c didi delta v0.3.2`
-
-
