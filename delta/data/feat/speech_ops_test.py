@@ -209,13 +209,13 @@ class SpeechOpsFeatTest(tf.test.TestCase):
           self.assertTupleEqual(out.eval().shape, (1, 3, 2 * ctx))
           self.assertAllEqual(out, tf.ones([1, 3, 2 * ctx]))
 
-      with self.assertRaises(ValueError):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
         out = tffeat.splice(feat, left_context=-2, right_context=-2).eval()
 
-      with self.assertRaises(ValueError):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
         out = tffeat.splice(feat, left_context=2, right_context=-2).eval()
 
-      with self.assertRaises(ValueError):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
         out = tffeat.splice(feat, left_context=-2, right_context=2).eval()
 
 

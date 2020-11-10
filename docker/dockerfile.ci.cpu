@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.0.0-py3
+FROM tensorflow/tensorflow:2.3.0
 COPY sources.list.ubuntu18.04 /etc/apt/sources.list
 
 # install tools 
@@ -7,6 +7,6 @@ RUN /bin/bash /install.sh
 
 COPY requirements.txt /ci/requirements.txt
 WORKDIR /ci
-RUN sudo pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --upgrade pip && pip --no-cache-dir install -i https://pypi.tuna.tsinghua.edu.cn/simple/ --user -r requirements.txt
+RUN sudo pip --no-cache-dir install -i https://mirrors.aliyun.com/pypi/simple --upgrade pip && pip --no-cache-dir install -i https://mirrors.aliyun.com/pypi/simple --user -r requirements.txt
 
 CMD ["/bin/bash", "-c"]

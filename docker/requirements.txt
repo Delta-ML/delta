@@ -5,9 +5,11 @@
 matplotlib
 sklearn
 pandas
-librosa
+librosa>=0.7.2
+numba==0.48.0  #must be this by librosa>=0.7.2
 absl-py
 jieba
+wget
 kaldiio
 soundfile
 textgrid
@@ -28,4 +30,10 @@ pyAudioAnalysis
 flake8
 sentencepiece
 deepdiff
-tensorflow_addons
+tensorflow-addons==0.11.1
+tensorflow-model-optimization
+
+
+# TODO: rm below
+# https://github.com/tensorflow/addons/issues/864
+tensorflow-cpu==2.3.0

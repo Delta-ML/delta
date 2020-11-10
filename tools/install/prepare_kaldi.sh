@@ -40,8 +40,9 @@ pushd ${MAIN_ROOT}/tools/kaldi/tools
 extras/check_dependencies.sh || ${SUDO} apt-get install -y zlib1g-dev wget gfortran subversion
 
 SPH2PIPE_VERSION=v2.5
+test -e sph2pipe_${SPH2PIPE_VERSION}.tar.gz && rm sph2pipe_${SPH2PIPE_VERSION}.tar.gz
 wget -T 10 -t 3 https://www.openslr.org/resources/3/sph2pipe_${SPH2PIPE_VERSION}.tar.gz || wget -T 10 https://sourceforge.net/projects/kaldi/files/sph2pipe_${SPH2PIPE_VERSION}.tar.gz || exit 1
 tar --no-same-owner -xzf sph2pipe_v2.5.tar.gz
-cd sph2pipe_v2.5/
-gcc -o sph2pipe  *.c -lm
+cd sph2pipe_${SPH2PIPE_VERSION}; patch -p1 < ${MAIN_ROOT}/tools/install/sph2pipe.patch; gcc -o sph2pipe  *.c -lm; cd -
+touch  sph2pipe_${SPH2PIPE_VERSION}/.patched
 popd

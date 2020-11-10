@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.0.0-py3
+FROM tensorflow/tensorflow:2.3.0
 COPY sources.list.ubuntu18.04 /etc/apt/sources.list
 
 # install tools 

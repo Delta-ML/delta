@@ -118,9 +118,9 @@ To verify the installation, run:
 
 ```shell
 # Activate conda environment
-conda activate delta-py3.6-tf2.0.0
+conda activate delta-py3.6-tf2.3.0
 # Or use the following command if your conda version is < 4.6
-# source activate delta-py3.6-tf2.0.0
+# source activate delta-py3.6-tf2.3.0
 
 # Add DELTA environment
 source env.sh
