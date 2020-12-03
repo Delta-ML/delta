@@ -21,6 +21,7 @@ from pathlib import Path
 
 from delta import utils
 from delta.utils.register import registers
+from delta.utils.register import import_all_modules_for_register
 from utils.replace_custom_op_attr_pbtxt import edit_pb_txt
 
 
@@ -33,6 +34,7 @@ class EditPbtxtTest(tf.test.TestCase):
     config_file = self.main_root.joinpath(
         'delta/configs/han_cls_mock.yml')
     self.config = utils.load_config(config_file)
+    import_all_modules_for_register()
     solver_name = self.config['solver']['name']
     self.solver = registers.solver[solver_name](self.config)
 
