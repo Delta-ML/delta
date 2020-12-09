@@ -23,7 +23,7 @@ import kaldiio
 import numpy as np
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-from delta.data.frontend.fbank_pitch import FbankPitch
+from transform.tf_wrapper.frontend.fbank_pitch import FbankPitch
 from espnet.utils.cli_writers import KaldiWriter
 
 

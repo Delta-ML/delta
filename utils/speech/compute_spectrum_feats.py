@@ -24,7 +24,7 @@ import kaldiio
 import numpy as np
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-from delta.data.frontend.spectrum import Spectrum
+from transform.tf_wrapper.frontend.spectrum import Spectrum
 from espnet.utils.cli_writers import KaldiWriter
 
 
