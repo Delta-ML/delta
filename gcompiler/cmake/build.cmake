@@ -28,7 +28,7 @@ if(BUILD_X86)
         delta_add_compile(GCC FLAGS -march=${X86_ARCH})
         if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.0)
             # https://www.tensorflow.org/install/source
-            delta_add_compile(GCC FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")
+            #delta_add_compile(GCC FLAGS "-D_GLIBCXX_USE_CXX11_ABI=0")
 		endif()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         set(X86_ARCH "clang_native")
