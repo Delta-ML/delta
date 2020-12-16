@@ -29,7 +29,7 @@ int main(int argc, const char** argv) {
   if (argc < 5) {
     fprintf(
         stderr,
-        "ERROR: need paramter batch_size, seq_len, head_num, size_per_head");
+        "ERROR: need paramter batch_size, seq_len, head_num, size_per_head\n");
     exit(1);
   }
 

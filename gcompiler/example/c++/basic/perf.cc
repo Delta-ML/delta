@@ -140,7 +140,7 @@ Status InitializeSession(int num_threads, const string& graph,
   LOG(INFO) << "Loading TensorFlow.";
 
   tensorflow::SessionOptions options;
-  // set thread pool
+  //// set thread pool
   tensorflow::ConfigProto& config = options.config;
   config.mutable_gpu_options()->set_allow_growth(true);
   // config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.5);
@@ -158,9 +158,9 @@ Status InitializeSession(int num_threads, const string& graph,
   graph_optimizer->set_name("SubGraphFusionOptimizer");*/
 
   LOG(INFO) << "Got config, " << config.device_count_size() << " devices";
-
   session->reset(tensorflow::NewSession(options));
   graph_def->reset(new GraphDef());
+  LOG(INFO) << "new session ok!";
   // tensorflow::GraphDef tensorflow_graph;
   //Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
   //if (!s.ok()) {
