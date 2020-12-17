@@ -35,12 +35,11 @@ bool SplitAndParseAsInts(StringPiece text, char delim,
 
 bool SplitAndParseAsFloats(StringPiece text, char delim,
                            std::vector<float>* result) {
-  return SplitAndParseAsInts<float>(
-      text, delim,
-      [](StringPiece str, float* value) {
-        return strings::safe_strtof(str, value);
-      },
-      result);
+  return SplitAndParseAsInts<float>(text, delim,
+                                    [](StringPiece str, float* value) {
+                                      return strings::safe_strtof(str, value);
+                                    },
+                                    result);
 }
 
 void PrintTensor(tensorflow::Tensor& output_tensor, const char* file_path) {
@@ -140,7 +139,7 @@ Status InitializeSession(int num_threads, const string& graph,
   LOG(INFO) << "Loading TensorFlow.";
 
   tensorflow::SessionOptions options;
-  // set thread pool
+  //// set thread pool
   tensorflow::ConfigProto& config = options.config;
   config.mutable_gpu_options()->set_allow_growth(true);
   // config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.5);
@@ -158,15 +157,13 @@ Status InitializeSession(int num_threads, const string& graph,
   graph_optimizer->set_name("SubGraphFusionOptimizer");*/
 
   LOG(INFO) << "Got config, " << config.device_count_size() << " devices";
-
   session->reset(tensorflow::NewSession(options));
   graph_def->reset(new GraphDef());
   // tensorflow::GraphDef tensorflow_graph;
-  //Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
-  //if (!s.ok()) {
-  //  s = ReadTextProto(Env::Default(), graph, graph_def->get());
-  //}
-  Status s = ReadTextOrBinaryProto(Env::Default(), graph, graph_def->get());
+  Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
+  if (!s.ok()) {
+    s = ReadTextProto(Env::Default(), graph, graph_def->get());
+  }
 
   if (!s.ok()) {
     LOG(ERROR) << "Could not create TensorFlow Graph: " << s;
@@ -255,7 +252,7 @@ Perf::Perf(const Config* config) : cfg(config) {
     // printf("input name %s\n", input.name.c_str());
     if (n < input_layer_values.size()) {
       CHECK(SplitAndParseAsFloats(input_layer_values[n], ',',
-                                            &input.initialization_values))
+                                  &input.initialization_values))
           << "Incorrect initialization values string specified: "
           << input_layer_values[n];
     }

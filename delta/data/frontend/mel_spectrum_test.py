@@ -15,17 +15,18 @@
 # ==============================================================================
 """The model tests MelSpectrum FE."""
 
-
 from pathlib import Path
 import delta.compat as tf
 from core.ops import PACKAGE_OPS_DIR
 from delta.data.frontend.read_wav import ReadWav
 from delta.data.frontend.mel_spectrum import MelSpectrum
 
+
 class MelSpectrumTest(tf.test.TestCase):
   """
   MelSpectrum extraction test.
   """
+
   def test_mel_spectrum(self):
     # 16kHz test
     wav_path_16k = str(Path(PACKAGE_OPS_DIR).joinpath('data/sm1_cln.wav'))
@@ -35,12 +36,20 @@ class MelSpectrumTest(tf.test.TestCase):
       read_wav = ReadWav.params().instantiate()
       input_data, sample_rate = read_wav(wav_path_16k)
       print(sample_rate.eval())
-      config = {'type': 'MelSpectrum', 'window_type': 'hann',
-                'upper_frequency_limit': 7600, 'filterbank_channel_count': 80,
-                'lower_frequency_limit': 80, 'dither': 0.0,
-                'window_length': 0.025, 'frame_length': 0.010,
-                'remove_dc_offset': False, 'preEph_coeff': 0.0,
-                'output_type': 3, 'sample_rate': 16000}
+      config = {
+          'type': 'MelSpectrum',
+          'window_type': 'hann',
+          'upper_frequency_limit': 7600,
+          'filterbank_channel_count': 80,
+          'lower_frequency_limit': 80,
+          'dither': 0.0,
+          'window_length': 0.025,
+          'frame_length': 0.010,
+          'remove_dc_offset': False,
+          'preEph_coeff': 0.0,
+          'output_type': 3,
+          'sample_rate': 16000
+      }
       mel_spectrum = MelSpectrum.params(config).instantiate()
       mel_spectrum_test = mel_spectrum(input_data, sample_rate)
       print(mel_spectrum_test.eval()[0:2, 0:10])
@@ -48,6 +57,3 @@ class MelSpectrumTest(tf.test.TestCase):
 
 if __name__ == '__main__':
   tf.test.main()
-
-
-

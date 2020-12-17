@@ -100,7 +100,6 @@ class MelSpectrum(BaseFrontend):
     hparams.add_hparam('filterbank_channel_count', filterbank_channel_count)
     hparams.add_hparam('sample_rate', sample_rate)
 
-
     return hparams
 
   def call(self, audio_data, sample_rate):
@@ -130,11 +129,11 @@ class MelSpectrum(BaseFrontend):
         sample_rate = tf.cast(sample_rate, dtype=tf.int32)
 
         mel_spectrum = py_x_ops.mel_spectrum(
-          spectrum,
-          sample_rate,
-          upper_frequency_limit=p.upper_frequency_limit,
-          lower_frequency_limit=p.lower_frequency_limit,
-          filterbank_channel_count=p.filterbank_channel_count)
+            spectrum,
+            sample_rate,
+            upper_frequency_limit=p.upper_frequency_limit,
+            lower_frequency_limit=p.lower_frequency_limit,
+            filterbank_channel_count=p.filterbank_channel_count)
 
         mel_spectrum_out = tf.squeeze(mel_spectrum, axis=0)
 
