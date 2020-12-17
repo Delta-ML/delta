@@ -273,11 +273,12 @@ void TransformerCellNLPFunctor<GPUDevice, float>::operator()(
   n = param.d_head;
   k = (param.mlen + param.sqlen);
 #if (CUDART_VERSION >= 10000)
-  cublas(GemmStridedBatchedEx(
-      param.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n, m, k, &alpha, _w_head_v,
-      _traits::ComputeType, n, n * k, _AC, _traits::ComputeType, k, m * k, &beta,
-      _attn_vec, _traits::ComputeType, n, m * n, param.batch_size * param.n_head,
-      _traits::ComputeType, CUBLAS_GEMM_DEFAULT));
+  cublas(GemmStridedBatchedEx(param.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n,
+                              m, k, &alpha, _w_head_v, _traits::ComputeType, n,
+                              n * k, _AC, _traits::ComputeType, k, m * k, &beta,
+                              _attn_vec, _traits::ComputeType, n, m * n,
+                              param.batch_size * param.n_head,
+                              _traits::ComputeType, CUBLAS_GEMM_DEFAULT));
 #else
   cublas(SgemmStridedBatched(param.cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n,
                              m, k, &alpha, _w_head_v, n, n * k, _AC, k, m * k,

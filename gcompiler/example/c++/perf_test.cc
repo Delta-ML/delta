@@ -64,7 +64,7 @@ int main(int argc, const char** argv) {
   // tensorflow::test(fd);
   std::vector<int> batchs{4, 8, 16, 32, 64, 128};
   std::vector<int> seqs{50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-  if (argc != 3){
+  if (argc != 3) {
     LOG(INFO) << "usage: bin <graph-path> <batch-size>";
     exit(1);
   }

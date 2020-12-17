@@ -10,24 +10,28 @@
 
 #include "example/c++/basic/perf.h"
 
+// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/tools/benchmark/benchmark_model.cc
+
 namespace tensorflow {
 
 void perf_of_inference() {
   Perf::Config cfg;
-  //cfg.graph = "/tmp-data/test/self/delta_infer/delta_infer/example/python/result.pb";
+  // cfg.graph =
+  // "/tmp-data/test/self/delta_infer/delta_infer/example/python/result.pb";
   cfg.graph = "/tmp-data/zhanghui/delta/gcompiler/frozen_graph_30sec_e2e.pb";
 
-  //cfg.input_layer = "Placeholder:0,Placeholder_1:0";
+  // cfg.input_layer = "Placeholder:0,Placeholder_1:0";
   cfg.input_layer = "inputs:0";
 
-  //cfg.input_layer_shape = "1,100,768:1,100,100";
+  // cfg.input_layer_shape = "1,100,768:1,100,100";
   cfg.input_layer_shape = "32,3000,40,3";
-  //cfg.input_layer_type = "float,int32";
+  // cfg.input_layer_type = "float,int32";
   cfg.input_layer_type = "float";
-  //cfg.input_layer_values = "1,1";
+  // cfg.input_layer_values = "1,1";
   cfg.input_layer_values = "";
-  //cfg.output_layer = "import/e2e_model/Model_1/attn_decoder/LASDecoder/decoding_output:0";
-  cfg.output_layer =  "softmax_output:0";
+  // cfg.output_layer =
+  // "import/e2e_model/Model_1/attn_decoder/LASDecoder/decoding_output:0";
+  cfg.output_layer = "softmax_output:0";
   cfg.target_layer = "";
   cfg.num_threads = 1;
   Perf infer(&cfg);

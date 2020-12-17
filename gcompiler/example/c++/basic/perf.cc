@@ -35,12 +35,11 @@ bool SplitAndParseAsInts(StringPiece text, char delim,
 
 bool SplitAndParseAsFloats(StringPiece text, char delim,
                            std::vector<float>* result) {
-  return SplitAndParseAsInts<float>(
-      text, delim,
-      [](StringPiece str, float* value) {
-        return strings::safe_strtof(str, value);
-      },
-      result);
+  return SplitAndParseAsInts<float>(text, delim,
+                                    [](StringPiece str, float* value) {
+                                      return strings::safe_strtof(str, value);
+                                    },
+                                    result);
 }
 
 void PrintTensor(tensorflow::Tensor& output_tensor, const char* file_path) {
@@ -160,7 +159,7 @@ Status InitializeSession(int num_threads, const string& graph,
   LOG(INFO) << "Got config, " << config.device_count_size() << " devices";
   session->reset(tensorflow::NewSession(options));
   graph_def->reset(new GraphDef());
-  //tensorflow::GraphDef tensorflow_graph;
+  // tensorflow::GraphDef tensorflow_graph;
   Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
   if (!s.ok()) {
     s = ReadTextProto(Env::Default(), graph, graph_def->get());
@@ -253,7 +252,7 @@ Perf::Perf(const Config* config) : cfg(config) {
     // printf("input name %s\n", input.name.c_str());
     if (n < input_layer_values.size()) {
       CHECK(SplitAndParseAsFloats(input_layer_values[n], ',',
-                                            &input.initialization_values))
+                                  &input.initialization_values))
           << "Incorrect initialization values string specified: "
           << input_layer_values[n];
     }
