@@ -151,14 +151,15 @@ DeltaStatus Runtime::set_inputs(const std::vector<In>& ins) {
                    << in._shape;
           input.set_shape(in._shape);
         }
-	if (input.dtype() != DataType::DELTA_CHAR){
+        if (input.dtype() != DataType::DELTA_CHAR) {
           LOG_INFO << "Handle not char type input!";
           DELTA_CHECK_EQ(in._nelms, input.nelms()) << in._nelms << ":"
                                                    << input.nelms();
-	} else {
-          // If string shape is [1], the memory layout is bytes, not equal 1, so do not check
+        } else {
+          // If string shape is [1], the memory layout is bytes, not equal 1, so
+          // do not check
           LOG_INFO << "Handle char type input!";
-	}
+        }
 
         InputData input_data(input);
         input_data.copy_from(in._ptr, in._nelms);

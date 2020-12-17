@@ -24,8 +24,8 @@ limitations under the License.
 
 using namespace std;
 
-#include "api/c_api.h"
 #include <iostream>
+#include "api/c_api.h"
 
 float time_run(InferHandel inf) {
   struct timespec start, end;
@@ -36,13 +36,13 @@ float time_run(InferHandel inf) {
          (end.tv_nsec - start.tv_nsec) / 1000000000.0;
 }
 
-string write_Json(){
+string write_Json() {
   Json::Value root;
   Json::Value input_idx;
   Json::Value input_pad;
   Json::Value input_seg;
 
-  for(int i=0; i<512; i++){
+  for (int i = 0; i < 512; i++) {
     input_idx[i] = 0;
   }
   input_idx[0] = 102;
@@ -53,7 +53,7 @@ string write_Json(){
   input_idx[5] = 1963;
   input_idx[6] = 4639;
 
-  for(int i=0; i<512; i++){
+  for (int i = 0; i < 512; i++) {
     input_pad[i] = 0;
   }
   input_pad[0] = 1;
@@ -64,7 +64,7 @@ string write_Json(){
   input_pad[5] = 1;
   input_pad[6] = 1;
 
-  for(int i=0; i<512; i++){
+  for (int i = 0; i < 512; i++) {
     input_seg[i] = 0;
   }
   input_seg[0] = 0;
@@ -73,7 +73,7 @@ string write_Json(){
   input_seg[3] = 0;
   input_seg[4] = 0;
   input_seg[5] = 1;
-  input_seg[6] = 1; 
+  input_seg[6] = 1;
 
   root["input_ids"] = input_idx;
   root["input_mask"] = input_pad;
@@ -84,7 +84,6 @@ string write_Json(){
   return out;
 }
 
-
 int main(int argc, char** argv) {
   // const char* yaml_file = "model.yaml";
   const char* yaml_file = argv[1];
@@ -93,7 +92,7 @@ int main(int argc, char** argv) {
   ModelHandel model = DeltaLoadModel(yaml_file);
   InferHandel inf = DeltaCreate(model);
   DeltaSetJsonInputs(inf, input_json.c_str());
-  cout<<"finish parse"<<endl;
+  cout << "finish parse" << endl;
 
   // DeltaRun(inf);
   float dur = time_run(inf);

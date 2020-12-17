@@ -197,12 +197,12 @@ class FbankPitch(BaseFrontend):
     hparams.add_hparam('delta_pitch_scale', delta_pitch_scale)
     hparams.add_hparam('delta_pitch_noise_stddev', delta_pitch_noise_stddev)
     hparams.add_hparam('normalization_left_context', normalization_left_context)
-    hparams.add_hparam('normalization_right_context', normalization_right_context)
+    hparams.add_hparam('normalization_right_context',
+                       normalization_right_context)
     hparams.add_hparam('delta_window', delta_window)
     hparams.add_hparam('delay', delay)
     hparams.add_hparam('add_pov_feature', add_pov_feature)
-    hparams.add_hparam('add_normalized_log_pitch',
-                       add_normalized_log_pitch)
+    hparams.add_hparam('add_normalized_log_pitch', add_normalized_log_pitch)
     hparams.add_hparam('add_delta_pitch', add_delta_pitch)
     hparams.add_hparam('add_raw_log_pitch', add_raw_log_pitch)
 

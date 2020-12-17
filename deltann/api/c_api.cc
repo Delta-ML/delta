@@ -18,10 +18,10 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+#include <string.h>
 #include "api/c_api.h"
 #include "core/config.h"
 #include "core/runtime.h"
-#include <string.h>
 #include "json/json.h"
 
 #ifdef __cplusplus
@@ -29,7 +29,7 @@ extern "C" {
 #endif  // __cplusplus
 
 using delta::RuntimeConfig;
-//using delta::Config;
+// using delta::Config;
 using delta::core::In;
 using delta::core::Runtime;
 
@@ -70,42 +70,42 @@ DeltaStatus DeltaSetInputs(InferHandel inf, Input* inputs, int num) {
 DeltaStatus DeltaSetJsonInputs(InferHandel inf, const char* inputs) {
   // only support int input now
   // TODO: support int, string, float
-  //std::string yaml = yaml_file;
-  //Config* conf = new Config(yaml_file);
+  // std::string yaml = yaml_file;
+  // Config* conf = new Config(yaml_file);
   Runtime* rt = static_cast<Runtime*>(inf);
   bool bRet = false;
 
   Json::Reader reader;
   Json::Value root;
-  Json::Value::Members keys;  
+  Json::Value::Members keys;
 
   bRet = reader.parse(inputs, root);
   if (false == bRet) {
     LOG_FATAL << "error: input_json parse failed.\n";
     return DeltaStatus::kDeltaError;
   }
-  keys = root.getMemberNames(); 
+  keys = root.getMemberNames();
   int idx = 0;
   int num = keys.size();
   Input* ins = new Input[num]();
   std::vector<In> insVec;
-  for (Json::Value::Members::iterator iterKey = keys.begin(); iterKey != keys.end(); iterKey++) 
-  { 
-    std::string strKey = *iterKey;  
-    Json::Value val_array = root[*iterKey]; 
-    int iSize = val_array.size();  
+  for (Json::Value::Members::iterator iterKey = keys.begin();
+       iterKey != keys.end(); iterKey++) {
+    std::string strKey = *iterKey;
+    Json::Value val_array = root[*iterKey];
+    int iSize = val_array.size();
     int* input_val = new int[iSize]();
-    for ( int nIndex = 0;nIndex < iSize;++ nIndex ) {
+    for (int nIndex = 0; nIndex < iSize; ++nIndex) {
       input_val[nIndex] = val_array[nIndex].asInt();
     }
     ins[idx].ptr = reinterpret_cast<void*>(input_val);
     ins[idx].nelms = iSize;
-    //ins[idx].shape = (*conf).config()["model"]["graphs"][0]["inputs"][idx]["shape"].as<std::vector<int>>().data();
+    // ins[idx].shape =
+    // (*conf).config()["model"]["graphs"][0]["inputs"][idx]["shape"].as<std::vector<int>>().data();
     ins[idx].input_name = strKey.c_str();
     ins[idx].graph_name = "default";
-    insVec.push_back(In(ins[idx].graph_name, ins[idx].input_name,
-                       ins[idx].ptr,
-                      ins[idx].nelms));    
+    insVec.push_back(In(ins[idx].graph_name, ins[idx].input_name, ins[idx].ptr,
+                        ins[idx].nelms));
     idx += 1;
   }
   LOG_INFO << "ins size:" << insVec.size();
