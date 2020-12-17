@@ -6,7 +6,7 @@ FetchContent_GetProperties(pybind11)
 if(NOT pybind11_POPULATED)
   FetchContent_Declare(
     pybind11 
-    #GIT_REPOSITORY https://github.com/pybind/pybind11.git
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
     GIT_TAG        master 
     DOWNLOAD_DIR  ${PYBIND11_DIR}
     SOURCE_DIR    ${PYBIND11_DIR}

@@ -160,13 +160,11 @@ Status InitializeSession(int num_threads, const string& graph,
   LOG(INFO) << "Got config, " << config.device_count_size() << " devices";
   session->reset(tensorflow::NewSession(options));
   graph_def->reset(new GraphDef());
-  LOG(INFO) << "new session ok!";
-  // tensorflow::GraphDef tensorflow_graph;
-  //Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
-  //if (!s.ok()) {
-  //  s = ReadTextProto(Env::Default(), graph, graph_def->get());
-  //}
-  Status s = ReadTextOrBinaryProto(Env::Default(), graph, graph_def->get());
+  //tensorflow::GraphDef tensorflow_graph;
+  Status s = ReadBinaryProto(Env::Default(), graph, graph_def->get());
+  if (!s.ok()) {
+    s = ReadTextProto(Env::Default(), graph, graph_def->get());
+  }
 
   if (!s.ok()) {
     LOG(ERROR) << "Could not create TensorFlow Graph: " << s;

@@ -15,13 +15,13 @@ namespace tensorflow {
 void perf_of_inference() {
   Perf::Config cfg;
   //cfg.graph = "/tmp-data/test/self/delta_infer/delta_infer/example/python/result.pb";
-  cfg.graph = "/nfs/project/gaoyonghu/tf-inference-lib/unit_test/crash/models/frozen_graph_crash.pb";
+  cfg.graph = "/tmp-data/zhanghui/delta/gcompiler/frozen_graph_30sec_e2e.pb";
 
   //cfg.input_layer = "Placeholder:0,Placeholder_1:0";
   cfg.input_layer = "inputs:0";
 
   //cfg.input_layer_shape = "1,100,768:1,100,100";
-  cfg.input_layer_shape = "32,1000,40,1";
+  cfg.input_layer_shape = "32,3000,40,3";
   //cfg.input_layer_type = "float,int32";
   cfg.input_layer_type = "float";
   //cfg.input_layer_values = "1,1";
