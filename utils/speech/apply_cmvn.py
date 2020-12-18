@@ -23,7 +23,7 @@ from espnet.utils.cli_writers import KaldiWriter
 from espnet.utils.cli_readers import KaldiReader
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-from delta.data.frontend.cmvn import CMVN
+from transform.tf_wrapper.frontend.cmvn import CMVN
 
 
 def get_parser():
