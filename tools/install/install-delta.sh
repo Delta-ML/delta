@@ -49,7 +49,7 @@ fi
 CONDA_ENV=delta-py${PY_VER}-tf${TF_VER}
 
 conda create -n ${CONDA_ENV} python=${PY_VER}
-source activate ${CONDA_ENV}
+conda activate ${CONDA_ENV} # updated for conda versions 4.6+
 echo "Conda: ${CONDA_ENV} activated!"
 
 

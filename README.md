@@ -104,7 +104,7 @@ cd tools
 
 **Note**: Users from mainland China may need to set up conda mirror sources, see [./tools/install/install-delta.sh](tools/install/install-delta.sh) for details.
 
-If you want to use both NLP and speech packages, you can install the `full` version. The full version needs [Kaldi](https://github.com/kaldi-asr/kaldi) library, which can be pre-installed or installed using our installation script.
+If you want to use both NLP and speech packages, you can install the `full` version. The full version needs [Kaldi](https://github.com/kaldi-asr/kaldi) library, which can be pre-installed or installed using our installation script. You can also copy the kaldi root folder directly to tools/
 
 ```shell
 cd tools

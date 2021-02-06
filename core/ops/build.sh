@@ -25,8 +25,8 @@ if [ $target == 'delta' ];then
     local_ver=`gcc --version | grep ^gcc | sed 's/^.* //g'`
     tf_ver=`python -c "import tensorflow as tf; print(tf.version.COMPILER_VERSION.split()[0]);"`
     if [  ${local_ver:0:1} -ne ${tf_ver:0:1} ];then
-      echo "gcc version($local_ver) not compatiable with tf compile version($tf_ver)"
-      exit -1
+      echo "Warning: gcc version($local_ver) not recommended for tf compile version($tf_ver), please use gcc 7.3 toolchain"
+      #exit -1; commenting out, since the library will build with gcc 7.5 and others, allow users to try.
     fi
 fi
 
