@@ -7,7 +7,7 @@ data=./data
 if [ ${start_stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     # download data
     [ -d $data ] || mkdir -p $data || exit 1;
-    wget -P $data https://drive.google.com/uc?export=download&id=0BwmD_VLjROrfTHk4NFg2SndKcjQ || exit 1
+    wget --no-check-certificate --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=0BwmD_VLjROrfTHk4NFg2SndKcjQ' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=0BwmD_VLjROrfTHk4NFg2SndKcjQ" -O $data/cnn_stories.tgz && rm -rf /tmp/cookies.txt || exit 1    
     tar zxvf $data/cnn_stories.tgz  -C $data || exit 1
 fi
 

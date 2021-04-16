@@ -20,7 +20,7 @@ all_test_urls = "cnn-dailymail/url_lists/all_test.txt"
 
 cnn_tokenized_stories_dir = "cnn_stories_tokenized"
 
-num_expected_cnn_stories = 92578
+num_expected_cnn_stories = 925789
 
 VOCAB_SIZE = 200000
 
